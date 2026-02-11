@@ -1,159 +1,218 @@
 @page "/business-information"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+<PageTitle>Business Information</PageTitle>
 
-<div class="bi-page">
+<div class="page_wrapper">
+    <div class="bi-page-content">
 
-    <h1 class="bi-page__title">Business Information</h1>
-    <p class="bi-page__subtitle">All fields are required unless noted</p>
+        <h1 class="page-title">Business Information</h1>
+        <p class="page-subtitle">All fields are required unless noted</p>
 
-    <form class="bi-form">
+        <EditForm EditContext="@editContext" OnValidSubmit="GoNext" OnInvalidSubmit="OnInvalid" FormName="BusinessInformation">
+            <DataAnnotationsValidator />
 
-        @* Section 1: Business Information *@
-        <div class="bi-form__fields-grid">
-            <TextField Label="FEIN"
-                       @bind-Value="Model.FEIN"
-                       HasError="@HasFieldError(nameof(Model.FEIN))"
-                       ErrorMessage="FEIN is required." />
+            @* Section 1: Business Details *@
+            <div class="bi-fields-grid">
+                <div class="bi-field">
+                    <OutlinedTextField Label="FEIN"
+                                       @bind-Value="Model.FEIN"
+                                       For="() => Model.FEIN"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.FEIN)" Visible="formSubmitted" />
+                </div>
 
-            <TextField Label="Legal Name"
-                       @bind-Value="Model.LegalName"
-                       HasError="@HasFieldError(nameof(Model.LegalName))"
-                       ErrorMessage="Legal Name is required." />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Legal Name"
+                                       @bind-Value="Model.LegalName"
+                                       For="() => Model.LegalName"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.LegalName)" Visible="formSubmitted" />
+                </div>
 
-            <TextField Label="Trade Name (Optional)"
-                       @bind-Value="Model.TradeName" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Trade Name (Optional)"
+                                       @bind-Value="Model.TradeName" />
+                </div>
 
-            <TextField Label="Phone Number"
-                       @bind-Value="Model.PhoneNumber"
-                       Type="tel"
-                       HasError="@HasFieldError(nameof(Model.PhoneNumber))"
-                       ErrorMessage="Phone Number is required." />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Phone Number"
+                                       Type="tel"
+                                       @bind-Value="Model.PhoneNumber"
+                                       For="() => Model.PhoneNumber"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhoneNumber)" Visible="formSubmitted" />
+                </div>
 
-            <TextField Label="Email Address"
-                       @bind-Value="Model.Email"
-                       Type="email"
-                       HasError="@HasFieldError(nameof(Model.Email))"
-                       ErrorMessage="Email Address is required." />
-        </div>
-
-        @* Section 2: Business Mailing Address *@
-        <div class="bi-section-header">
-            <span>Business Mailing Address</span>
-        </div>
-
-        <div class="bi-form__fields-grid">
-            <SelectField Label="Country"
-                         @bind-Value="Model.MailingCountry"
-                         Options="Countries"
-                         HasError="@HasFieldError(nameof(Model.MailingCountry))"
-                         ErrorMessage="Country is required." />
-
-            <div></div>
-
-            <TextField Label="Address Line 1"
-                       @bind-Value="Model.MailingAddressLine1"
-                       HasError="@HasFieldError(nameof(Model.MailingAddressLine1))"
-                       ErrorMessage="Address Line 1 is required." />
-
-            <TextField Label="Address Line 2 (Optional)"
-                       @bind-Value="Model.MailingAddressLine2" />
-
-            <TextField Label="City"
-                       @bind-Value="Model.MailingCity"
-                       HasError="@HasFieldError(nameof(Model.MailingCity))"
-                       ErrorMessage="City is required." />
-
-            <SelectField Label="State"
-                         @bind-Value="Model.MailingState"
-                         Options="States"
-                         HasError="@HasFieldError(nameof(Model.MailingState))"
-                         ErrorMessage="State is required." />
-
-            <div class="bi-form__zip-row">
-                <TextField Label="Zip Code"
-                           @bind-Value="Model.MailingZip"
-                           HasError="@HasFieldError(nameof(Model.MailingZip))"
-                           ErrorMessage="Zip Code is required." />
-                <span class="bi-form__zip-dash">—</span>
-                <TextField Label="Ext. (Optional)"
-                           @bind-Value="Model.MailingExtension" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.Email"
+                                       For="() => Model.Email"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.Email)" Visible="formSubmitted" />
+                </div>
             </div>
-        </div>
 
-        @* Section 3: Physical Location 1 *@
-        <div class="bi-section-header">
-            <span>Physical Location 1</span>
-        </div>
-
-        <div class="bi-form__fields-grid">
-            <SelectField Label="Country"
-                         @bind-Value="Model.PhysicalCountry"
-                         Options="Countries"
-                         HasError="@HasFieldError(nameof(Model.PhysicalCountry))"
-                         ErrorMessage="Country is required." />
-
-            <div></div>
-
-            <TextField Label="Address Line 1"
-                       @bind-Value="Model.PhysicalAddressLine1"
-                       HasError="@HasFieldError(nameof(Model.PhysicalAddressLine1))"
-                       ErrorMessage="Address Line 1 is required." />
-
-            <TextField Label="Address Line 2 (Optional)"
-                       @bind-Value="Model.PhysicalAddressLine2" />
-
-            <TextField Label="City"
-                       @bind-Value="Model.PhysicalCity"
-                       HasError="@HasFieldError(nameof(Model.PhysicalCity))"
-                       ErrorMessage="City is required." />
-
-            <SelectField Label="State"
-                         @bind-Value="Model.PhysicalState"
-                         Options="States"
-                         HasError="@HasFieldError(nameof(Model.PhysicalState))"
-                         ErrorMessage="State is required." />
-
-            <div class="bi-form__zip-row">
-                <TextField Label="Zip Code"
-                           @bind-Value="Model.PhysicalZip"
-                           HasError="@HasFieldError(nameof(Model.PhysicalZip))"
-                           ErrorMessage="Zip Code is required." />
-                <span class="bi-form__zip-dash">—</span>
-                <TextField Label="Ext. (Optional)"
-                           @bind-Value="Model.PhysicalExtension" />
+            @* Section 2: Business Mailing Address *@
+            <div class="bi-section-header">
+                <span>Business Mailing Address</span>
             </div>
-        </div>
 
-        @* Add Another Physical Location *@
-        <button type="button" class="btn-link" @onclick="AddPhysicalLocation">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3V13M3 8H13" stroke="#0D6EFD" stroke-width="2" stroke-linecap="round" />
-            </svg>
-            Add Another Physical Location
-        </button>
+            <div class="bi-fields-grid">
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Country"
+                                         @bind-Value="Model.MailingCountry"
+                                         Options="Countries"
+                                         For="() => Model.MailingCountry"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingCountry)" Visible="formSubmitted" />
+                </div>
 
-        @* Action Buttons *@
-        <div class="bi-form__button-row">
-            <div class="bi-form__button-row-left">
-                <button type="button" class="btn btn--secondary" @onclick="HandleBack">
-                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                        <path d="M7 1L1 6.5L7 12" stroke="#003663" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    BACK
-                </button>
+                <div class="bi-field"></div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 1"
+                                       @bind-Value="Model.MailingAddressLine1"
+                                       For="() => Model.MailingAddressLine1"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingAddressLine1)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 2 (Optional)"
+                                       @bind-Value="Model.MailingAddressLine2" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="City"
+                                       @bind-Value="Model.MailingCity"
+                                       For="() => Model.MailingCity"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingCity)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedSelectField Label="State"
+                                         @bind-Value="Model.MailingState"
+                                         Options="States"
+                                         For="() => Model.MailingState"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingState)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <OutlinedTextField Label="Zip Code"
+                                           @bind-Value="Model.MailingZip"
+                                           For="() => Model.MailingZip"
+                                           Visible="formSubmitted" />
+                        <FieldError For="@(() => Model.MailingZip)" Visible="formSubmitted" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (Optional)"
+                                           @bind-Value="Model.MailingExtension" />
+                    </div>
+                </div>
             </div>
-            <div class="bi-form__button-row-right">
-                <button type="button" class="btn btn--tertiary" @onclick="HandleSaveQuit">
-                    SAVE &amp; QUIT
-                </button>
-                <button type="button" class="btn btn--primary" @onclick="HandleContinue">
-                    CONTINUE
-                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                        <path d="M1 1L7 6.5L1 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-            </div>
-        </div>
 
-    </form>
+            @* Section 3: Physical Location 1 *@
+            <div class="bi-section-header">
+                <span>Physical Location 1</span>
+            </div>
+
+            <div class="bi-fields-grid">
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Country"
+                                         @bind-Value="Model.PhysicalCountry"
+                                         Options="Countries"
+                                         For="() => Model.PhysicalCountry"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalCountry)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field"></div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 1"
+                                       @bind-Value="Model.PhysicalAddressLine1"
+                                       For="() => Model.PhysicalAddressLine1"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalAddressLine1)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 2 (Optional)"
+                                       @bind-Value="Model.PhysicalAddressLine2" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="City"
+                                       @bind-Value="Model.PhysicalCity"
+                                       For="() => Model.PhysicalCity"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalCity)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedSelectField Label="State"
+                                         @bind-Value="Model.PhysicalState"
+                                         Options="States"
+                                         For="() => Model.PhysicalState"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalState)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <OutlinedTextField Label="Zip Code"
+                                           @bind-Value="Model.PhysicalZip"
+                                           For="() => Model.PhysicalZip"
+                                           Visible="formSubmitted" />
+                        <FieldError For="@(() => Model.PhysicalZip)" Visible="formSubmitted" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (Optional)"
+                                           @bind-Value="Model.PhysicalExtension" />
+                    </div>
+                </div>
+            </div>
+
+            @* Add Another Physical Location *@
+            <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3V13M3 8H13" stroke="#0D6EFD" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                Add Another Physical Location
+            </button>
+
+            @* Action Buttons *@
+            <div class="bi-button-row">
+                <div class="bi-button-row-left">
+                    <button type="button" class="btn btn--secondary" @onclick="GoBack">
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M7 1L1 6.5L7 12" stroke="#003663" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        BACK
+                    </button>
+                </div>
+                <div class="bi-button-row-right">
+                    <button type="button" class="btn btn--tertiary" @onclick="HandleSaveQuit">
+                        SAVE &amp; QUIT
+                    </button>
+                    <button type="submit" class="btn btn--primary">
+                        CONTINUE
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M1 1L7 6.5L1 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
 </div>

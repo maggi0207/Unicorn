@@ -1,4 +1,4 @@
-namespace UI.EmployerPortal.Web.Components.Shared;
+namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 
 public class SelectOption
 {

@@ -1,15 +1,25 @@
 using Microsoft.AspNetCore.Components;
-using UI.EmployerPortal.Web.Components.Shared;
+using Microsoft.AspNetCore.Components.Forms;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration;
 
+/// <summary>
+/// Code-behind for the Business Information page (Step 3).
+/// Uses EditForm + DataAnnotationsValidator for validation.
+/// </summary>
 public partial class BusinessInformation
 {
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    protected BusinessInformationModel Model { get; set; } = new();
-    protected HashSet<string> ErrorFields { get; set; } = new();
+    private BusinessInformationModel Model = new();
+    private EditContext editContext = default!;
+
+    /// <summary>
+    /// Track whether the form has been submitted
+    /// </summary>
+    private bool formSubmitted = false;
 
     protected List<SelectOption> Countries { get; set; } = new()
     {
@@ -72,71 +82,42 @@ public partial class BusinessInformation
         new SelectOption { Value = "WY", Text = "Wyoming" }
     };
 
-    protected bool HasFieldError(string fieldName) => ErrorFields.Contains(fieldName);
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
 
-    protected void HandleBack()
+        // Track validation state as user interacts
+        editContext.OnFieldChanged += (_, __) =>
+        {
+            StateHasChanged();
+        };
+    }
+
+    private void GoBack()
     {
         Nav.NavigateTo("/ownership");
     }
 
-    protected void HandleSaveQuit()
+    private void HandleSaveQuit()
     {
         Nav.NavigateTo("/dashboard");
     }
 
-    protected void HandleContinue()
+    private void GoNext()
     {
-        Validate();
-
-        if (!ErrorFields.Any())
-        {
-            Nav.NavigateTo("/address-correction");
-        }
+        Nav.NavigateTo("/address-correction");
     }
 
-    protected void AddPhysicalLocation()
+    private void OnInvalid()
+    {
+        // Set flag to show errors only after submission attempt
+        formSubmitted = true;
+        // Forces UI to refresh and show validation messages
+        StateHasChanged();
+    }
+
+    private void AddPhysicalLocation()
     {
         // TODO: Add additional physical location support
-    }
-
-    private void Validate()
-    {
-        ErrorFields.Clear();
-
-        if (string.IsNullOrWhiteSpace(Model.FEIN))
-            ErrorFields.Add(nameof(Model.FEIN));
-
-        if (string.IsNullOrWhiteSpace(Model.LegalName))
-            ErrorFields.Add(nameof(Model.LegalName));
-
-        if (string.IsNullOrWhiteSpace(Model.PhoneNumber))
-            ErrorFields.Add(nameof(Model.PhoneNumber));
-
-        if (string.IsNullOrWhiteSpace(Model.Email))
-            ErrorFields.Add(nameof(Model.Email));
-
-        if (string.IsNullOrWhiteSpace(Model.MailingAddressLine1))
-            ErrorFields.Add(nameof(Model.MailingAddressLine1));
-
-        if (string.IsNullOrWhiteSpace(Model.MailingCity))
-            ErrorFields.Add(nameof(Model.MailingCity));
-
-        if (string.IsNullOrWhiteSpace(Model.MailingState))
-            ErrorFields.Add(nameof(Model.MailingState));
-
-        if (string.IsNullOrWhiteSpace(Model.MailingZip))
-            ErrorFields.Add(nameof(Model.MailingZip));
-
-        if (string.IsNullOrWhiteSpace(Model.PhysicalAddressLine1))
-            ErrorFields.Add(nameof(Model.PhysicalAddressLine1));
-
-        if (string.IsNullOrWhiteSpace(Model.PhysicalCity))
-            ErrorFields.Add(nameof(Model.PhysicalCity));
-
-        if (string.IsNullOrWhiteSpace(Model.PhysicalState))
-            ErrorFields.Add(nameof(Model.PhysicalState));
-
-        if (string.IsNullOrWhiteSpace(Model.PhysicalZip))
-            ErrorFields.Add(nameof(Model.PhysicalZip));
     }
 }

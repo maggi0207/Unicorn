@@ -1,0 +1,69 @@
+.master-text-field {
+    position: relative;
+    width: 100%;
+    max-width: 330px;
+}
+/* Input */
+.master-input {
+    width: 100%;
+    height: 56px;
+    padding-left: 16px;
+    padding-right: 14px;
+    font-size: 16px;
+    font-family: inherit;
+    background-color: #ffffff;
+    border: 1px solid #adadad;
+    border-radius: 4px;
+    outline: none;
+    box-sizing: border-box;
+}
+    /* Focus state */
+    .master-input:focus {
+        border-color: #003663;
+    }
+/* Label on border */
+.master-text-field label {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    padding: 0 6px;
+    background: #ffffff;
+    font-size: 12px;
+    color: #333;
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 150%;
+    letter-spacing: 0%;
+}
+/* Disabled */
+.master-input:disabled {
+    background-color: #f5f5f5;
+    color: #777;
+}
+
+/* Format/ Hint Text*/
+.master-hint {
+    margin: 6px;
+    font-size: 12px;
+    color: #333;
+}
+
+/* ─────────────────────────────────────────────
+  Error state styles for OutlinedTextField
+  ───────────────────────────────────────────── */
+/* Red border on input when validation fails */
+.master-input--error {
+    border-color: #C62828 !important;
+}
+/* Red label text when validation fails */
+.master-label--error {
+    color: #C62828 !important;
+}
+/* Red border on the container when validation fails */
+.master-text-field--error {
+    border-color: #C62828 !important;
+}
+    .master-text-field--error label {
+        color: #C62828;
+    }

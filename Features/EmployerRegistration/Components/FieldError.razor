@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
+<!-- Inline field error message -->
+@if (Visible && EditContext is not null && For is not null)
+{
+    @foreach (var message in EditContext.GetValidationMessages(FieldIdentifier.Create(For)))
+    {
+        <div class="field-error">@message</div>
+    }
+}
+@code {
+    /// <summary>
+    /// Expression to identify the bound field for validation
+    /// </summary>
+    [Parameter] public Expression<Func<string>>? For { get; set; }
+    /// <summary>
+    /// Controls whether errors are shown (typically set after form submission)
+    /// </summary>
+    [Parameter] public bool Visible { get; set; }
+    /// <summary>
+    /// Cascaded EditContext from parent EditForm
+    /// </summary>
+    [CascadingParameter] private EditContext? EditContext { get; set; }
+}

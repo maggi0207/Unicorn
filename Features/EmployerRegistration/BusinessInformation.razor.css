@@ -1,24 +1,31 @@
-.bi-page {
-    padding: 32px;
+.page_wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
-    font-family: Verdana, sans-serif;
-    width: 748px; /* 684px form + 32px padding each side */
-    margin: 0 auto;
-    box-sizing: border-box;
+    justify-content: center;
 }
 
-.bi-page__title {
+.bi-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.page-title {
     font-family: Verdana, sans-serif;
     font-size: 32px;
     font-weight: 700;
-    line-height: 37.12px;
+    line-height: 116%;
     color: #000000;
     margin: 0;
 }
 
-.bi-page__subtitle {
+.page-subtitle {
     font-family: Verdana, sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -29,9 +36,10 @@
 
 /* Section header */
 .bi-section-header {
-    width: 684px;
+    width: 100%;
     border-bottom: 1px solid #003663;
     padding-bottom: 6px;
+    margin-top: 8px;
 }
 
 .bi-section-header span {
@@ -42,48 +50,53 @@
     color: #003663;
 }
 
-/* Form */
-.bi-form {
+/* Form - EditForm renders as <form> */
+::deep form {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-/* 2-column grid — exactly 330px per column, 24px gap = 684px */
-.bi-form__fields-grid {
+/* 2-column grid — 330px per column, 24px gap = 684px */
+.bi-fields-grid {
     display: grid;
     grid-template-columns: 330px 330px;
     gap: 24px;
     width: 684px;
 }
 
+.bi-field {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Zip + Extension row */
-.bi-form__zip-row {
+.bi-zip-row {
     display: flex;
     align-items: flex-start;
     gap: 8px;
     grid-column: span 1;
 }
 
-.bi-form__zip-row .text-field-wrapper:first-child {
+.bi-zip-field {
     flex: 0 0 140px;
 }
 
-.bi-form__zip-row .text-field-wrapper:last-child {
+.bi-ext-field {
     flex: 1;
 }
 
-.bi-form__zip-dash {
+.bi-zip-dash {
     font-family: Verdana, sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: #424242;
     flex-shrink: 0;
-    padding-top: 16px; /* vertically center with input */
+    padding-top: 16px;
 }
 
 /* Add another location link */
-.btn-link {
+.bi-add-location {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -98,12 +111,12 @@
     border-radius: 6px;
 }
 
-.btn-link:hover {
+.bi-add-location:hover {
     text-decoration: underline;
 }
 
 /* Button row */
-.bi-form__button-row {
+.bi-button-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -112,12 +125,12 @@
     width: 684px;
 }
 
-.bi-form__button-row-left {
+.bi-button-row-left {
     display: flex;
     align-items: center;
 }
 
-.bi-form__button-row-right {
+.bi-button-row-right {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -168,4 +181,20 @@
 
 .btn--tertiary:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 575px) {
+    .bi-page-content {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .bi-fields-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .bi-button-row {
+        width: 100%;
+    }
 }
