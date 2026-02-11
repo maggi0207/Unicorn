@@ -150,12 +150,56 @@
 
             </div>
 
-            <!-- ================= BUTTON BAR ================= -->
-            <ButtonBar ShowBack="true"
-                       ShowContinue="true"
-                       OnBack="GoBack"
-                       ContinueEnabled="true"
-                       Buttonwidth="112px" />
+            <!-- ================= ADD LOCATION BUTTON ================= -->
+            <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3V13M3 8H13"
+                          stroke="#0D6EFD"
+                          stroke-width="2"
+                          stroke-linecap="round" />
+                </svg>
+                Add Another Physical Location
+            </button>
+
+            <!-- ================= ACTION BUTTONS ================= -->
+            <div class="bi-button-row">
+
+                <div class="bi-button-row-left">
+                    <button type="button"
+                            class="btn btn--secondary"
+                            @onclick="GoBack">
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M7 1L1 6.5L7 12"
+                                  stroke="#003663"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                        </svg>
+                        BACK
+                    </button>
+                </div>
+
+                <div class="bi-button-row-right">
+                    <button type="button"
+                            class="btn btn--tertiary"
+                            @onclick="HandleSaveQuit">
+                        SAVE &amp; QUIT
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn--primary">
+                        CONTINUE
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M1 1L7 6.5L1 12"
+                                  stroke="white"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
 
         </EditForm>
     </div>
@@ -202,9 +246,19 @@
         Nav.NavigateTo("/address-correction");
     }
 
+    private void HandleSaveQuit()
+    {
+        Nav.NavigateTo("/dashboard");
+    }
+
     private void OnInvalid()
     {
         formSubmitted = true;
         StateHasChanged();
+    }
+
+    private void AddPhysicalLocation()
+    {
+        // TODO: Implement dynamic physical location support
     }
 }
