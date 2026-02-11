@@ -50,6 +50,27 @@
     color: #003663;
 }
 
+/* Error banner */
+.bi-error-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid #C62828;
+    border-radius: 4px;
+    background-color: #FFF5F5;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    color: #C62828;
+}
+
+.bi-error-icon {
+    font-size: 18px;
+    font-weight: 700;
+    color: #C62828;
+    flex-shrink: 0;
+}
+
 /* Form - EditForm renders as <form> */
 ::deep form {
     display: flex;

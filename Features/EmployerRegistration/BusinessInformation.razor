@@ -20,137 +20,192 @@
 
             <DataAnnotationsValidator />
 
-            <!-- Top Error Banner -->
+            @* Top Error Banner *@
             @if (formSubmitted && editContext?.GetValidationMessages().Any() == true)
             {
-                <MasterAlert State="error"
-                             Title="Missing information"
-                             Body="Please correct the errors below" />
+                <div class="bi-error-banner">
+                    <span class="bi-error-icon">&#9432;</span>
+                    <span><strong>Missing information:</strong> Please correct the errors below</span>
+                </div>
             }
 
-            <!-- ================= BUSINESS DETAILS ================= -->
+            @* ================= BUSINESS DETAILS ================= *@
             <div class="bi-fields-grid">
 
-                <OutlinedTextField Label="FEIN"
-                                   @bind-Value="Model.FEIN"
-                                   For="() => Model.FEIN"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.FEIN)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="FEIN"
+                                       @bind-Value="Model.FEIN"
+                                       For="() => Model.FEIN"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.FEIN)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Legal Name"
-                                   @bind-Value="Model.LegalName"
-                                   For="() => Model.LegalName"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.LegalName)" Visible="formSubmitted" />
+                <div class="bi-field"></div>
 
-                <OutlinedTextField Label="Trade Name (Optional)"
-                                   @bind-Value="Model.TradeName" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Legal Name"
+                                       @bind-Value="Model.LegalName"
+                                       For="() => Model.LegalName"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.LegalName)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Phone Number"
-                                   Type="tel"
-                                   @bind-Value="Model.PhoneNumber"
-                                   For="() => Model.PhoneNumber"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhoneNumber)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Trade Name (Optional)"
+                                       @bind-Value="Model.TradeName" />
+                </div>
 
-                <OutlinedTextField Label="Email Address"
-                                   Type="email"
-                                   @bind-Value="Model.Email"
-                                   For="() => Model.Email"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.Email)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Phone Number"
+                                       Type="tel"
+                                       @bind-Value="Model.PhoneNumber"
+                                       For="() => Model.PhoneNumber"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhoneNumber)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.Email"
+                                       For="() => Model.Email"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.Email)" Visible="formSubmitted" />
+                </div>
 
             </div>
 
-            <!-- ================= MAILING ADDRESS ================= -->
+            @* ================= MAILING ADDRESS ================= *@
             <div class="bi-section-header">
                 <span>Business Mailing Address</span>
             </div>
 
             <div class="bi-fields-grid">
 
-                <OutlinedSelectField Label="Country"
-                                     @bind-Value="Model.MailingCountry"
-                                     Options="Countries"
-                                     For="() => Model.MailingCountry"
-                                     Visible="formSubmitted" />
-                <FieldError For="@(() => Model.MailingCountry)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Country"
+                                         @bind-Value="Model.MailingCountry"
+                                         Options="Countries"
+                                         For="() => Model.MailingCountry"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingCountry)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Address Line 1"
-                                   @bind-Value="Model.MailingAddressLine1"
-                                   For="() => Model.MailingAddressLine1"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.MailingAddressLine1)" Visible="formSubmitted" />
+                <div class="bi-field"></div>
 
-                <OutlinedTextField Label="Address Line 2 (Optional)"
-                                   @bind-Value="Model.MailingAddressLine2" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 1"
+                                       @bind-Value="Model.MailingAddressLine1"
+                                       For="() => Model.MailingAddressLine1"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingAddressLine1)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="City"
-                                   @bind-Value="Model.MailingCity"
-                                   For="() => Model.MailingCity"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.MailingCity)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 2 (Optional)"
+                                       @bind-Value="Model.MailingAddressLine2" />
+                </div>
 
-                <OutlinedSelectField Label="State"
-                                     @bind-Value="Model.MailingState"
-                                     Options="States"
-                                     For="() => Model.MailingState"
-                                     Visible="formSubmitted" />
-                <FieldError For="@(() => Model.MailingState)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="City"
+                                       @bind-Value="Model.MailingCity"
+                                       For="() => Model.MailingCity"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingCity)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Zip Code"
-                                   @bind-Value="Model.MailingZip"
-                                   For="() => Model.MailingZip"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.MailingZip)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedSelectField Label="State"
+                                         @bind-Value="Model.MailingState"
+                                         Options="States"
+                                         For="() => Model.MailingState"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.MailingState)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <OutlinedTextField Label="Zip Code"
+                                           @bind-Value="Model.MailingZip"
+                                           For="() => Model.MailingZip"
+                                           Visible="formSubmitted" />
+                        <FieldError For="@(() => Model.MailingZip)" Visible="formSubmitted" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (Optional)"
+                                           @bind-Value="Model.MailingExtension" />
+                    </div>
+                </div>
 
             </div>
 
-            <!-- ================= PHYSICAL LOCATION ================= -->
+            @* ================= PHYSICAL LOCATION ================= *@
             <div class="bi-section-header">
                 <span>Physical Location 1</span>
             </div>
 
             <div class="bi-fields-grid">
 
-                <OutlinedSelectField Label="Country"
-                                     @bind-Value="Model.PhysicalCountry"
-                                     Options="Countries"
-                                     For="() => Model.PhysicalCountry"
-                                     Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhysicalCountry)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Country"
+                                         @bind-Value="Model.PhysicalCountry"
+                                         Options="Countries"
+                                         For="() => Model.PhysicalCountry"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalCountry)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Address Line 1"
-                                   @bind-Value="Model.PhysicalAddressLine1"
-                                   For="() => Model.PhysicalAddressLine1"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhysicalAddressLine1)" Visible="formSubmitted" />
+                <div class="bi-field"></div>
 
-                <OutlinedTextField Label="Address Line 2 (Optional)"
-                                   @bind-Value="Model.PhysicalAddressLine2" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 1"
+                                       @bind-Value="Model.PhysicalAddressLine1"
+                                       For="() => Model.PhysicalAddressLine1"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalAddressLine1)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="City"
-                                   @bind-Value="Model.PhysicalCity"
-                                   For="() => Model.PhysicalCity"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhysicalCity)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="Address Line 2 (Optional)"
+                                       @bind-Value="Model.PhysicalAddressLine2" />
+                </div>
 
-                <OutlinedSelectField Label="State"
-                                     @bind-Value="Model.PhysicalState"
-                                     Options="States"
-                                     For="() => Model.PhysicalState"
-                                     Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhysicalState)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedTextField Label="City"
+                                       @bind-Value="Model.PhysicalCity"
+                                       For="() => Model.PhysicalCity"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalCity)" Visible="formSubmitted" />
+                </div>
 
-                <OutlinedTextField Label="Zip Code"
-                                   @bind-Value="Model.PhysicalZip"
-                                   For="() => Model.PhysicalZip"
-                                   Visible="formSubmitted" />
-                <FieldError For="@(() => Model.PhysicalZip)" Visible="formSubmitted" />
+                <div class="bi-field">
+                    <OutlinedSelectField Label="State"
+                                         @bind-Value="Model.PhysicalState"
+                                         Options="States"
+                                         For="() => Model.PhysicalState"
+                                         Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.PhysicalState)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <OutlinedTextField Label="Zip Code"
+                                           @bind-Value="Model.PhysicalZip"
+                                           For="() => Model.PhysicalZip"
+                                           Visible="formSubmitted" />
+                        <FieldError For="@(() => Model.PhysicalZip)" Visible="formSubmitted" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (Optional)"
+                                           @bind-Value="Model.PhysicalExtension" />
+                    </div>
+                </div>
 
             </div>
 
-            <!-- ================= ADD LOCATION BUTTON ================= -->
+            @* ================= ADD LOCATION BUTTON ================= *@
             <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M8 3V13M3 8H13"
@@ -161,7 +216,7 @@
                 Add Another Physical Location
             </button>
 
-            <!-- ================= ACTION BUTTONS ================= -->
+            @* ================= ACTION BUTTONS ================= *@
             <div class="bi-button-row">
 
                 <div class="bi-button-row-left">
@@ -206,7 +261,6 @@
 </div>
 
 @code {
-
     private BusinessInformationModel Model = new();
     private EditContext editContext = default!;
     private bool formSubmitted = false;
@@ -221,15 +275,60 @@
     protected List<SelectOption> States { get; set; } = new()
     {
         new() { Value = "AL", Text = "Alabama" },
+        new() { Value = "AK", Text = "Alaska" },
+        new() { Value = "AZ", Text = "Arizona" },
+        new() { Value = "AR", Text = "Arkansas" },
         new() { Value = "CA", Text = "California" },
+        new() { Value = "CO", Text = "Colorado" },
+        new() { Value = "CT", Text = "Connecticut" },
+        new() { Value = "DE", Text = "Delaware" },
+        new() { Value = "FL", Text = "Florida" },
+        new() { Value = "GA", Text = "Georgia" },
+        new() { Value = "HI", Text = "Hawaii" },
+        new() { Value = "ID", Text = "Idaho" },
+        new() { Value = "IL", Text = "Illinois" },
+        new() { Value = "IN", Text = "Indiana" },
+        new() { Value = "IA", Text = "Iowa" },
+        new() { Value = "KS", Text = "Kansas" },
+        new() { Value = "KY", Text = "Kentucky" },
+        new() { Value = "LA", Text = "Louisiana" },
+        new() { Value = "ME", Text = "Maine" },
+        new() { Value = "MD", Text = "Maryland" },
+        new() { Value = "MA", Text = "Massachusetts" },
+        new() { Value = "MI", Text = "Michigan" },
+        new() { Value = "MN", Text = "Minnesota" },
+        new() { Value = "MS", Text = "Mississippi" },
+        new() { Value = "MO", Text = "Missouri" },
+        new() { Value = "MT", Text = "Montana" },
+        new() { Value = "NE", Text = "Nebraska" },
+        new() { Value = "NV", Text = "Nevada" },
+        new() { Value = "NH", Text = "New Hampshire" },
+        new() { Value = "NJ", Text = "New Jersey" },
+        new() { Value = "NM", Text = "New Mexico" },
         new() { Value = "NY", Text = "New York" },
-        new() { Value = "TX", Text = "Texas" }
+        new() { Value = "NC", Text = "North Carolina" },
+        new() { Value = "ND", Text = "North Dakota" },
+        new() { Value = "OH", Text = "Ohio" },
+        new() { Value = "OK", Text = "Oklahoma" },
+        new() { Value = "OR", Text = "Oregon" },
+        new() { Value = "PA", Text = "Pennsylvania" },
+        new() { Value = "RI", Text = "Rhode Island" },
+        new() { Value = "SC", Text = "South Carolina" },
+        new() { Value = "SD", Text = "South Dakota" },
+        new() { Value = "TN", Text = "Tennessee" },
+        new() { Value = "TX", Text = "Texas" },
+        new() { Value = "UT", Text = "Utah" },
+        new() { Value = "VT", Text = "Vermont" },
+        new() { Value = "VA", Text = "Virginia" },
+        new() { Value = "WA", Text = "Washington" },
+        new() { Value = "WV", Text = "West Virginia" },
+        new() { Value = "WI", Text = "Wisconsin" },
+        new() { Value = "WY", Text = "Wyoming" }
     };
 
     protected override void OnInitialized()
     {
         editContext = new EditContext(Model);
-
         editContext.OnFieldChanged += (_, __) =>
         {
             StateHasChanged();
@@ -262,3 +361,4 @@
         // TODO: Implement dynamic physical location support
     }
 }
+
