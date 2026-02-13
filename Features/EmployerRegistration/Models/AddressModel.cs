@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
+namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 /// <summary>
 /// Represents a reusable address model used for mailing address and physical locations

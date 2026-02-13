@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
+namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 /// <summary>
 /// Model for Step 3 (Business Information) of the employer registration wizard.
