@@ -16,6 +16,7 @@
            type="@Type"
            value="@Value"
            @oninput="OnInput"
+           maxlength="@MaxLength"
            disabled="@Disabled"
            aria-label="@Label"
            aria-invalid="@HasError" />
@@ -37,6 +38,7 @@
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool Visible { get; set; }
     [Parameter] public string? FormatText { get; set; }
+    [Parameter] public int? MaxLength { get; set; }
     /// <summary>
     /// Expression to identify the bound field for validation
     /// </summary>
@@ -60,5 +62,10 @@
     {
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
+
+        if (EditContext is not null && For is not null)
+        {
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));
+        }
     }
 }

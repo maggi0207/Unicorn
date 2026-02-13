@@ -1,6 +1,7 @@
-@page "/business-information"
+@page "/employer-registration/business-information"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @inject NavigationManager Nav
@@ -14,14 +15,13 @@
         <p class="page-subtitle">All fields are required unless noted</p>
 
         <EditForm EditContext="@editContext"
-                  OnValidSubmit="GoNext"
-                  OnInvalidSubmit="OnInvalid"
                   FormName="BusinessInformation">
 
             <DataAnnotationsValidator />
+            <CustomValidator @ref="customValidator" />
 
             @* Top Error Banner *@
-            @if (formSubmitted && editContext?.GetValidationMessages().Any() == true)
+            @if (formSubmitted && hasValidationErrors)
             {
                 <div class="bi-error-banner">
                     <span class="bi-error-icon">&#9432;</span>
@@ -33,10 +33,9 @@
             <div class="bi-fields-grid">
 
                 <div class="bi-field">
-                    <OutlinedTextField Label="FEIN"
-                                       @bind-Value="Model.FEIN"
-                                       For="() => Model.FEIN"
-                                       Visible="formSubmitted" />
+                    <FEINField @bind-Value="Model.FEIN"
+                               For="() => Model.FEIN"
+                               Visible="formSubmitted" />
                     <FieldError For="@(() => Model.FEIN)" Visible="formSubmitted" />
                 </div>
 
@@ -56,11 +55,9 @@
                 </div>
 
                 <div class="bi-field">
-                    <OutlinedTextField Label="Phone Number"
-                                       Type="tel"
-                                       @bind-Value="Model.PhoneNumber"
-                                       For="() => Model.PhoneNumber"
-                                       Visible="formSubmitted" />
+                    <PhoneNumberField @bind-Value="Model.PhoneNumber"
+                                      For="() => Model.PhoneNumber"
+                                      Visible="formSubmitted" />
                     <FieldError For="@(() => Model.PhoneNumber)" Visible="formSubmitted" />
                 </div>
 
@@ -69,6 +66,7 @@
                                        Type="email"
                                        @bind-Value="Model.Email"
                                        For="() => Model.Email"
+                                       FormatText="Format: name@example.com"
                                        Visible="formSubmitted" />
                     <FieldError For="@(() => Model.Email)" Visible="formSubmitted" />
                 </div>
@@ -80,141 +78,44 @@
                 <span>Business Mailing Address</span>
             </div>
 
-            <div class="bi-fields-grid">
+            <AddressField Address="Model.MailingAddress"
+                          Countries="Countries"
+                          States="States"
+                          Visible="formSubmitted" />
 
-                <div class="bi-field">
-                    <OutlinedSelectField Label="Country"
-                                         @bind-Value="Model.MailingCountry"
-                                         Options="Countries"
-                                         For="() => Model.MailingCountry"
-                                         Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.MailingCountry)" Visible="formSubmitted" />
+            @* ================= PHYSICAL LOCATIONS ================= *@
+            @for (int i = 0; i < Model.PhysicalLocations.Count; i++)
+            {
+                var index = i;
+                <div class="bi-section-header">
+                    <span>Physical Location @(index + 1)</span>
+                    @if (index > 0)
+                    {
+                        <button type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)">
+                            Remove
+                        </button>
+                    }
                 </div>
 
-                <div class="bi-field"></div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="Address Line 1"
-                                       @bind-Value="Model.MailingAddressLine1"
-                                       For="() => Model.MailingAddressLine1"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.MailingAddressLine1)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="Address Line 2 (Optional)"
-                                       @bind-Value="Model.MailingAddressLine2" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="City"
-                                       @bind-Value="Model.MailingCity"
-                                       For="() => Model.MailingCity"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.MailingCity)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedSelectField Label="State"
-                                         @bind-Value="Model.MailingState"
-                                         Options="States"
-                                         For="() => Model.MailingState"
-                                         Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.MailingState)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-zip-row">
-                    <div class="bi-zip-field">
-                        <OutlinedTextField Label="Zip Code"
-                                           @bind-Value="Model.MailingZip"
-                                           For="() => Model.MailingZip"
-                                           Visible="formSubmitted" />
-                        <FieldError For="@(() => Model.MailingZip)" Visible="formSubmitted" />
-                    </div>
-                    <span class="bi-zip-dash">—</span>
-                    <div class="bi-ext-field">
-                        <OutlinedTextField Label="Ext. (Optional)"
-                                           @bind-Value="Model.MailingExtension" />
-                    </div>
-                </div>
-
-            </div>
-
-            @* ================= PHYSICAL LOCATION ================= *@
-            <div class="bi-section-header">
-                <span>Physical Location 1</span>
-            </div>
-
-            <div class="bi-fields-grid">
-
-                <div class="bi-field">
-                    <OutlinedSelectField Label="Country"
-                                         @bind-Value="Model.PhysicalCountry"
-                                         Options="Countries"
-                                         For="() => Model.PhysicalCountry"
-                                         Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.PhysicalCountry)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-field"></div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="Address Line 1"
-                                       @bind-Value="Model.PhysicalAddressLine1"
-                                       For="() => Model.PhysicalAddressLine1"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.PhysicalAddressLine1)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="Address Line 2 (Optional)"
-                                       @bind-Value="Model.PhysicalAddressLine2" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedTextField Label="City"
-                                       @bind-Value="Model.PhysicalCity"
-                                       For="() => Model.PhysicalCity"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.PhysicalCity)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-field">
-                    <OutlinedSelectField Label="State"
-                                         @bind-Value="Model.PhysicalState"
-                                         Options="States"
-                                         For="() => Model.PhysicalState"
-                                         Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.PhysicalState)" Visible="formSubmitted" />
-                </div>
-
-                <div class="bi-zip-row">
-                    <div class="bi-zip-field">
-                        <OutlinedTextField Label="Zip Code"
-                                           @bind-Value="Model.PhysicalZip"
-                                           For="() => Model.PhysicalZip"
-                                           Visible="formSubmitted" />
-                        <FieldError For="@(() => Model.PhysicalZip)" Visible="formSubmitted" />
-                    </div>
-                    <span class="bi-zip-dash">—</span>
-                    <div class="bi-ext-field">
-                        <OutlinedTextField Label="Ext. (Optional)"
-                                           @bind-Value="Model.PhysicalExtension" />
-                    </div>
-                </div>
-
-            </div>
+                <AddressField Address="Model.PhysicalLocations[index]"
+                              Countries="Countries"
+                              States="States"
+                              Visible="formSubmitted" />
+            }
 
             @* ================= ADD LOCATION BUTTON ================= *@
-            <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 3V13M3 8H13"
-                          stroke="#0D6EFD"
-                          stroke-width="2"
-                          stroke-linecap="round" />
-                </svg>
-                Add Another Physical Location
-            </button>
+            @if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
+            {
+                <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 3V13M3 8H13"
+                              stroke="#0D6EFD"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+                    </svg>
+                    Add Another Physical Location
+                </button>
+            }
 
             @* ================= ACTION BUTTONS ================= *@
             <div class="bi-button-row">
@@ -241,8 +142,9 @@
                         SAVE &amp; QUIT
                     </button>
 
-                    <button type="submit"
-                            class="btn btn--primary">
+                    <button type="button"
+                            class="btn btn--primary"
+                            @onclick="HandleContinue">
                         CONTINUE
                         <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
                             <path d="M1 1L7 6.5L1 12"
@@ -263,7 +165,10 @@
 @code {
     private BusinessInformationModel Model = new();
     private EditContext editContext = default!;
+    private CustomValidator? customValidator;
     private bool formSubmitted = false;
+    private bool hasValidationErrors = false;
+    private const int MaxPhysicalLocations = 3;
 
     protected List<SelectOption> Countries { get; set; } = new()
     {
@@ -331,34 +236,92 @@
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += (_, __) =>
         {
+            hasValidationErrors = editContext.GetValidationMessages().Any();
             StateHasChanged();
         };
     }
 
-    private void GoBack()
+    private void HandleContinue()
     {
-        Nav.NavigateTo("/ownership");
+        formSubmitted = true;
+        customValidator?.ClearErrors();
+
+        // Validate top-level model fields (Business Details)
+        var isTopLevelValid = editContext.Validate();
+
+        // Validate nested address models (Mailing + Physical Locations)
+        var addressErrors = ValidateAddressModels();
+        if (addressErrors.Any())
+        {
+            customValidator?.DisplayErrors(addressErrors);
+            isTopLevelValid = false;
+        }
+
+        hasValidationErrors = !isTopLevelValid;
+
+        if (isTopLevelValid)
+        {
+            Nav.NavigateTo("/address-correction");
+        }
+
+        StateHasChanged();
     }
 
-    private void GoNext()
+    private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()
     {
-        Nav.NavigateTo("/address-correction");
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+
+        // Validate mailing address + all physical locations
+        var allAddresses = new List<AddressModel> { Model.MailingAddress };
+        allAddresses.AddRange(Model.PhysicalLocations);
+
+        foreach (var address in allAddresses)
+        {
+            var ctx = new ValidationContext(address);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(address, ctx, results, true);
+
+            foreach (var result in results)
+            {
+                foreach (var memberName in result.MemberNames)
+                {
+                    var fi = new FieldIdentifier(address, memberName);
+                    if (!errors.ContainsKey(fi))
+                        errors[fi] = new List<string>();
+                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+                }
+            }
+        }
+
+        return errors;
+    }
+
+    private void AddPhysicalLocation()
+    {
+        if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
+        {
+            Model.PhysicalLocations.Add(new AddressModel());
+            StateHasChanged();
+        }
+    }
+
+    private void RemovePhysicalLocation(int index)
+    {
+        if (Model.PhysicalLocations.Count > 1 && index >= 0 && index < Model.PhysicalLocations.Count)
+        {
+            Model.PhysicalLocations.RemoveAt(index);
+            customValidator?.ClearErrors();
+            StateHasChanged();
+        }
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("employer-registration/ownership");
     }
 
     private void HandleSaveQuit()
     {
         Nav.NavigateTo("/dashboard");
     }
-
-    private void OnInvalid()
-    {
-        formSubmitted = true;
-        StateHasChanged();
-    }
-
-    private void AddPhysicalLocation()
-    {
-        // TODO: Implement dynamic physical location support
-    }
 }
-

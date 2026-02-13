@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"D:\\\\Mahi Source\\\\UI.EmployerPortal.Web\\\\Features\\\\EmployerRegistration\\\\BusinessInformation.razor.cs\")",
+      "Bash(findstr:*)",
+      "Bash(del \"D:\\\\Mahi Source\\\\UI.EmployerPortal.Web\\\\Features\\\\EmployerRegistration\\\\Models\\\\PhysicalLocationModel.cs\")"
+    ]
+  }
+}

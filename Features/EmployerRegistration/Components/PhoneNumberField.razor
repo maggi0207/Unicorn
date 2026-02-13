@@ -1,0 +1,35 @@
+@using System.Linq.Expressions
+
+<OutlinedTextField Label="@Label"
+                   Value="@Value"
+                   ValueChanged="OnInput"
+                   For="@For"
+                   Type="tel"
+                   FormatText="(999-999-9999)"
+                   MaxLength="12"
+                   Visible="@Visible"
+                   Disabled="@Disabled" />
+
+@code {
+    [Parameter] public string Label { get; set; } = "Phone Number";
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public Expression<Func<string>>? For { get; set; }
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private async Task OnInput(string? value)
+    {
+        var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 10) digits = digits[..10];
+
+        Value = digits.Length switch
+        {
+            > 6 => $"{digits[..3]}-{digits[3..6]}-{digits[6..]}",
+            > 3 => $"{digits[..3]}-{digits[3..]}",
+            _ => digits
+        };
+
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

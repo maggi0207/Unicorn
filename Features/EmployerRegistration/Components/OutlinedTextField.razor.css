@@ -49,9 +49,6 @@
     color: #333;
 }
 
-/* ─────────────────────────────────────────────
-  Error state styles for OutlinedTextField
-  ───────────────────────────────────────────── */
 /* Red border on input when validation fails */
 .master-input--error {
     border-color: #C62828 !important;

@@ -20,11 +20,11 @@
             aria-invalid="@HasError">
         @if (!string.IsNullOrEmpty(Placeholder))
         {
-            <option value="" disabled>@Placeholder</option>
+            <option value="" disabled selected="@(string.IsNullOrEmpty(Value))">@Placeholder</option>
         }
         @foreach (var option in Options)
         {
-            <option value="@option.Value">@option.Text</option>
+            <option value="@option.Value" selected="@(Value == option.Value)">@option.Text</option>
         }
     </select>
 
@@ -55,6 +55,18 @@
     /// <summary>
     /// Checks if the field has validation errors
     /// </summary>
+    private bool _initialNotified;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && !_initialNotified && EditContext is not null
+            && For is not null && !string.IsNullOrEmpty(Value))
+        {
+            _initialNotified = true;
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));
+        }
+    }
+
     private bool HasError =>
         Visible &&
         EditContext is not null &&
@@ -67,5 +79,10 @@
     {
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
+
+        if (EditContext is not null && For is not null)
+        {
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));
+        }
     }
 }

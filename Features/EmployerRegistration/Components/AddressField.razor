@@ -1,0 +1,70 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+
+<div class="bi-fields-grid">
+
+    <div class="bi-field">
+        <OutlinedSelectField Label="Country"
+                             @bind-Value="Address.Country"
+                             Options="Countries"
+                             For="() => Address.Country"
+                             Visible="Visible" />
+        <FieldError For="@(() => Address.Country)" Visible="Visible" />
+    </div>
+
+    <div class="bi-field"></div>
+
+    <div class="bi-field">
+        <OutlinedTextField Label="Address Line 1"
+                           @bind-Value="Address.AddressLine1"
+                           For="() => Address.AddressLine1"
+                           Visible="Visible" />
+        <FieldError For="@(() => Address.AddressLine1)" Visible="Visible" />
+    </div>
+
+    <div class="bi-field">
+        <OutlinedTextField Label="Address Line 2 (Optional)"
+                           @bind-Value="Address.AddressLine2" />
+    </div>
+
+    <div class="bi-field">
+        <OutlinedTextField Label="City"
+                           @bind-Value="Address.City"
+                           For="() => Address.City"
+                           Visible="Visible" />
+        <FieldError For="@(() => Address.City)" Visible="Visible" />
+    </div>
+
+    <div class="bi-field">
+        <OutlinedSelectField Label="State"
+                             @bind-Value="Address.State"
+                             Options="States"
+                             Placeholder="-- Select --"
+                             For="() => Address.State"
+                             Visible="Visible" />
+        <FieldError For="@(() => Address.State)" Visible="Visible" />
+    </div>
+
+    <div class="bi-zip-row">
+        <div class="bi-zip-field">
+            <OutlinedTextField Label="Zip Code"
+                               @bind-Value="Address.Zip"
+                               For="() => Address.Zip"
+                               Visible="Visible" />
+            <FieldError For="@(() => Address.Zip)" Visible="Visible" />
+        </div>
+        <span class="bi-zip-dash">—</span>
+        <div class="bi-ext-field">
+            <OutlinedTextField Label="+4 (Optional)"
+                               @bind-Value="Address.Extension" />
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired] public AddressModel Address { get; set; } = default!;
+    [Parameter] public List<SelectOption> Countries { get; set; } = new();
+    [Parameter] public List<SelectOption> States { get; set; } = new();
+    [Parameter] public bool Visible { get; set; }
+}
