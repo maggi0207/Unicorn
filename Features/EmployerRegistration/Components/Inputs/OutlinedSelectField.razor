@@ -13,7 +13,7 @@
     <!-- Select dropdown with error styling -->
     <select id="@Id"
             class="master-select @(HasError ? "master-select--error" : "")"
-            value="@Value"
+            value="@(Value ?? "")"
             @onchange="OnChange"
             disabled="@Disabled"
             aria-label="@Label"
