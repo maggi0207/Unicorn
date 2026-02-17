@@ -1,0 +1,130 @@
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.welcome-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.welcome-title {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+    text-align: center;
+}
+
+.welcome-note {
+    font-family: Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+    margin: 0;
+}
+
+::deep .welcome-list {
+    margin: 0;
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+::deep .welcome-list li {
+    font-family: Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+}
+
+::deep .welcome-list a {
+    color: #006bb7;
+    text-decoration: underline;
+}
+
+::deep .welcome-list a:hover {
+    color: #003663;
+}
+
+/* Button row */
+.welcome-button-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+    width: 100%;
+}
+
+.welcome-button-row-left {
+    display: flex;
+    align-items: center;
+}
+
+.welcome-button-row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 25.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+}
+
+.btn--primary {
+    background: #003663;
+    color: #ffffff;
+    outline: 2px solid #003663;
+}
+
+.btn--primary:hover {
+    background: #002a4d;
+}
+
+.btn--secondary {
+    background: #ffffff;
+    color: #003663;
+    outline: 2px solid #003663;
+    outline-offset: -2px;
+}
+
+.btn--secondary:hover {
+    background: #f0f4f8;
+}
+
+@media (max-width: 575px) {
+    .welcome-page-content {
+        padding: 16px;
+    }
+
+    .welcome-button-row {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+}

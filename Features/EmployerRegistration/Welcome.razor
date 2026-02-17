@@ -1,0 +1,120 @@
+@page "/employer-registration/welcome"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+
+<PageTitle>Welcome - Employer Registration</PageTitle>
+
+<div class="page_wrapper">
+    <div class="welcome-page-content">
+
+        <h1 class="welcome-title">Let's get started</h1>
+
+        <p class="welcome-note">
+            <strong>Note:</strong> Personal information you provide may be used for secondary purposes
+            [Privacy Law, s. 5.04(1)(m), Wisconsin Statutes]
+        </p>
+
+        <Accordion Title="What you need to complete the application" InitiallyExpanded="true">
+            <ol class="welcome-list">
+                <li>
+                    Before you file, you will need a Federal Employer Identification Number
+                    (FEIN). If you are not required to have one, you will need a Taxpayer
+                    Identification Number. If you do not have a federal identification
+                    number, contact the IRS to obtain one at
+                    <a href="https://www.irs.gov" target="_blank" rel="noopener noreferrer">https://www.irs.gov</a>
+                </li>
+                <li>
+                    Name and phone number of a contact person, the correct complete
+                    legal name of the business, owner's names and social security
+                    numbers, and basic information about payroll and business functions.
+                </li>
+                <li>
+                    Applicable documentation (examples are a federal 501(c)(3) ruling, or
+                    a federal notice of acceptance of an LLC electing to be taxed as a
+                    corporation)
+                </li>
+                <li>
+                    Some items will instruct you to mail additional documentation to our
+                    department (examples are the federal 501(c)(3) ruling, or the federal
+                    notice of acceptance of an LLC electing to be taxed as a corporation).
+                </li>
+            </ol>
+        </Accordion>
+
+        <Accordion Title="Helpful information" InitiallyExpanded="true">
+            <ul class="welcome-list">
+                <li>
+                    Please note to find answers to more questions, go to our home
+                    page <a href="https://dwd.wisconsin.gov/uitax" target="_blank" rel="noopener noreferrer">https://dwd.wisconsin.gov/uitax</a>.
+                </li>
+                <li>
+                    Only employers who actually have employees working in the state of
+                    Wisconsin are required to pay UI taxes to this state. If you only have
+                    Wisconsin residents working in a state other than Wisconsin, you
+                    are not required to pay UI taxes or file Quarterly reports here
+                </li>
+                <li>
+                    You can check on our home page for more information on what types of
+                    employment are excluded for unemployment tax purposes.
+                </li>
+                <li>
+                    If you do not have or plan to have any covered employees working in
+                    Wisconsin, nothing is required of you. Please note that Corporate Officers
+                    are covered employees.
+                </li>
+                <li>
+                    To determine if your worker is an Employee or an Independent Contractor,
+                    use the <a href="https://dwd.wisconsin.gov/worker-classification" target="_blank" rel="noopener noreferrer">Department of Workforce Development's Employee Classification</a>
+                    page to review steps to classify a worker. Failure to properly classify
+                    workers as employees will result in the assessment of back taxes, interest,
+                    and civil penalties and may result in criminal penalties.
+                </li>
+            </ul>
+        </Accordion>
+
+        <div class="welcome-button-row">
+            <div class="welcome-button-row-left">
+                <button type="button"
+                        class="btn btn--secondary"
+                        @onclick="GoBack">
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                        <path d="M7 1L1 6.5L7 12"
+                              stroke="#003663"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                    BACK
+                </button>
+            </div>
+
+            <div class="welcome-button-row-right">
+                <button type="button"
+                        class="btn btn--primary"
+                        @onclick="ProceedToRegistration">
+                    PROCEED TO REGISTRATION
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                        <path d="M1 1L7 6.5L1 12"
+                              stroke="white"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private void GoBack()
+    {
+        Nav.NavigateTo("/");
+    }
+
+    private void ProceedToRegistration()
+    {
+        Nav.NavigateTo("/employer-registration/account-type");
+    }
+}
