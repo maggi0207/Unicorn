@@ -1,0 +1,291 @@
+@page "/employer-registration/business-contact"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@inject NavigationManager Nav
+
+<PageTitle>Business Contact</PageTitle>
+
+<div class="page_wrapper">
+    <div class="bi-page-content">
+
+        <h1 class="page-title">Business Contact</h1>
+        <p class="page-subtitle">All fields are required unless noted</p>
+
+        <EditForm EditContext="@editContext" FormName="BusinessContact">
+
+            <DataAnnotationsValidator />
+            <CustomValidator @ref="customValidator" />
+
+            @* Top Error Banner *@
+            @if (formSubmitted && hasValidationErrors)
+            {
+                <div class="bi-error-banner">
+                    <span class="bi-error-icon">&#9432;</span>
+                    <span><strong>Missing information:</strong> Please correct the errors below</span>
+                </div>
+            }
+
+            @* ================= CONTACT NAME ================= *@
+            <div class="bi-fields-grid">
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="First Name"
+                                       @bind-Value="Model.FirstName"
+                                       For="() => Model.FirstName"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.FirstName)" Visible="formSubmitted" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Last Name"
+                                       @bind-Value="Model.LastName"
+                                       For="() => Model.LastName"
+                                       Visible="formSubmitted" />
+                    <FieldError For="@(() => Model.LastName)" Visible="formSubmitted" />
+                </div>
+
+            </div>
+
+            @* ================= TITLE ================= *@
+            <div class="bc-title-field">
+                <OutlinedTextField Label="Title (Optional)"
+                                   @bind-Value="Model.Title" />
+            </div>
+
+            @* ================= ADDRESS QUESTION ================= *@
+            <div class="bc-question">
+                <p class="bc-question-text">Is the Business Contact Address different from the Business Mailing Address?</p>
+
+                <div class="bc-radio-group">
+                    <label class="bc-radio-label">
+                        <input type="radio"
+                               name="isDifferentAddress"
+                               checked="@(Model.IsDifferentAddress == true)"
+                               @onchange="() => OnAddressChoiceChanged(true)" />
+                        Yes
+                    </label>
+                    <label class="bc-radio-label">
+                        <input type="radio"
+                               name="isDifferentAddress"
+                               checked="@(Model.IsDifferentAddress == false)"
+                               @onchange="() => OnAddressChoiceChanged(false)" />
+                        No
+                    </label>
+                </div>
+
+                @if (formSubmitted && Model.IsDifferentAddress == null)
+                {
+                    <div class="bc-radio-error">Please select an option.</div>
+                }
+            </div>
+
+            @* ================= CONTACT ADDRESS (shown when Yes) ================= *@
+            @if (Model.IsDifferentAddress == true)
+            {
+                <div class="bi-section-header">
+                    <span>Business Contact Address</span>
+                </div>
+
+                <AddressField Address="Model.ContactAddress"
+                              Countries="Countries"
+                              States="States"
+                              Visible="formSubmitted" />
+            }
+
+            @* ================= ACTION BUTTONS ================= *@
+            <div class="bi-button-row">
+
+                <div class="bi-button-row-left">
+                    <button type="button"
+                            class="btn btn--secondary"
+                            @onclick="GoBack">
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M7 1L1 6.5L7 12"
+                                  stroke="#003663"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                        </svg>
+                        BACK
+                    </button>
+                </div>
+
+                <div class="bi-button-row-right">
+                    <button type="button"
+                            class="btn btn--tertiary"
+                            @onclick="HandleSaveQuit">
+                        SAVE &amp; QUIT
+                    </button>
+
+                    <button type="button"
+                            class="btn btn--primary"
+                            @onclick="HandleContinue">
+                        CONTINUE
+                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                            <path d="M1 1L7 6.5L1 12"
+                                  stroke="white"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private BusinessContactModel Model = new();
+    private EditContext editContext = default!;
+    private CustomValidator? customValidator;
+    private bool formSubmitted = false;
+    private bool hasValidationErrors = false;
+
+    protected List<SelectOption> Countries { get; set; } = new()
+    {
+        new() { Value = "United States", Text = "United States" },
+        new() { Value = "Canada", Text = "Canada" },
+        new() { Value = "Mexico", Text = "Mexico" }
+    };
+
+    protected List<SelectOption> States { get; set; } = new()
+    {
+        new() { Value = "AL", Text = "Alabama" },
+        new() { Value = "AK", Text = "Alaska" },
+        new() { Value = "AZ", Text = "Arizona" },
+        new() { Value = "AR", Text = "Arkansas" },
+        new() { Value = "CA", Text = "California" },
+        new() { Value = "CO", Text = "Colorado" },
+        new() { Value = "CT", Text = "Connecticut" },
+        new() { Value = "DE", Text = "Delaware" },
+        new() { Value = "FL", Text = "Florida" },
+        new() { Value = "GA", Text = "Georgia" },
+        new() { Value = "HI", Text = "Hawaii" },
+        new() { Value = "ID", Text = "Idaho" },
+        new() { Value = "IL", Text = "Illinois" },
+        new() { Value = "IN", Text = "Indiana" },
+        new() { Value = "IA", Text = "Iowa" },
+        new() { Value = "KS", Text = "Kansas" },
+        new() { Value = "KY", Text = "Kentucky" },
+        new() { Value = "LA", Text = "Louisiana" },
+        new() { Value = "ME", Text = "Maine" },
+        new() { Value = "MD", Text = "Maryland" },
+        new() { Value = "MA", Text = "Massachusetts" },
+        new() { Value = "MI", Text = "Michigan" },
+        new() { Value = "MN", Text = "Minnesota" },
+        new() { Value = "MS", Text = "Mississippi" },
+        new() { Value = "MO", Text = "Missouri" },
+        new() { Value = "MT", Text = "Montana" },
+        new() { Value = "NE", Text = "Nebraska" },
+        new() { Value = "NV", Text = "Nevada" },
+        new() { Value = "NH", Text = "New Hampshire" },
+        new() { Value = "NJ", Text = "New Jersey" },
+        new() { Value = "NM", Text = "New Mexico" },
+        new() { Value = "NY", Text = "New York" },
+        new() { Value = "NC", Text = "North Carolina" },
+        new() { Value = "ND", Text = "North Dakota" },
+        new() { Value = "OH", Text = "Ohio" },
+        new() { Value = "OK", Text = "Oklahoma" },
+        new() { Value = "OR", Text = "Oregon" },
+        new() { Value = "PA", Text = "Pennsylvania" },
+        new() { Value = "RI", Text = "Rhode Island" },
+        new() { Value = "SC", Text = "South Carolina" },
+        new() { Value = "SD", Text = "South Dakota" },
+        new() { Value = "TN", Text = "Tennessee" },
+        new() { Value = "TX", Text = "Texas" },
+        new() { Value = "UT", Text = "Utah" },
+        new() { Value = "VT", Text = "Vermont" },
+        new() { Value = "VA", Text = "Virginia" },
+        new() { Value = "WA", Text = "Washington" },
+        new() { Value = "WV", Text = "West Virginia" },
+        new() { Value = "WI", Text = "Wisconsin" },
+        new() { Value = "WY", Text = "Wyoming" }
+    };
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
+        editContext.OnFieldChanged += (_, __) =>
+        {
+            hasValidationErrors = editContext.GetValidationMessages().Any();
+            StateHasChanged();
+        };
+    }
+
+    private void OnAddressChoiceChanged(bool value)
+    {
+        Model.IsDifferentAddress = value;
+        StateHasChanged();
+    }
+
+    private void HandleContinue()
+    {
+        formSubmitted = true;
+        customValidator?.ClearErrors();
+
+        var isValid = editContext.Validate();
+
+        if (Model.IsDifferentAddress == null)
+        {
+            isValid = false;
+        }
+
+        if (Model.IsDifferentAddress == true)
+        {
+            var addressErrors = ValidateContactAddress();
+            if (addressErrors.Any())
+            {
+                customValidator?.DisplayErrors(addressErrors);
+                isValid = false;
+            }
+        }
+
+        hasValidationErrors = !isValid;
+
+        if (isValid)
+        {
+            Nav.NavigateTo("/employer-registration/next-step"); // Update route for next step
+        }
+
+        StateHasChanged();
+    }
+
+    private Dictionary<FieldIdentifier, List<string>> ValidateContactAddress()
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+        var ctx = new ValidationContext(Model.ContactAddress);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(Model.ContactAddress, ctx, results, true);
+
+        foreach (var result in results)
+        {
+            foreach (var memberName in result.MemberNames)
+            {
+                var fi = new FieldIdentifier(Model.ContactAddress, memberName);
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+            }
+        }
+
+        return errors;
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/employer-registration/business-information");
+    }
+
+    private void HandleSaveQuit()
+    {
+        Nav.NavigateTo("/dashboard");
+    }
+}
