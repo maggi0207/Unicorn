@@ -2,6 +2,39 @@
 
 ---
 
+## Namespaces & Setup
+
+**Required @using statements in your .razor file or _Imports.razor:**
+
+```razor
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+```
+
+**What each namespace provides:**
+| Namespace | Purpose |
+|-----------|---------|
+| `System.ComponentModel.DataAnnotations` | Provides `[Required]`, `[RegularExpression]`, `[EmailAddress]` attributes |
+| `Microsoft.AspNetCore.Components.Forms` | Provides `<EditForm>`, validation context |
+| `UI.EmployerPortal.Web.Features.Shared.Registrations.Models` | **BusinessInformationModel**, **BusinessContactModel** |
+| `UI.EmployerPortal.Razor.SharedComponents.Model` | **AddressModel** |
+| `UI.EmployerPortal.Razor.SharedComponents.Address` | **AddressField** component |
+| `UI.EmployerPortal.Razor.SharedComponents.Validation` | **FieldError** component |
+| `UI.EmployerPortal.Razor.SharedComponents.Inputs` | **OutlinedTextField**, **OutlinedSelectField** components |
+
+These are already imported in:
+- `Features/_Imports.razor` (for all pages under Features)
+- `Components/_Imports.razor` (for all components)
+
+So you only need to add them if you're creating a page/component outside these locations.
+
+---
+
 ## What are these components?
 
 These are reusable input fields used across the Employer Registration form.
