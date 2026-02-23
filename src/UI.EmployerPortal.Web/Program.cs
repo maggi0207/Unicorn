@@ -1,5 +1,6 @@
 using UI.EmployerPortal.Web.Components;
 using UI.EmployerPortal.Web.Services;
+using UI.EmployerPortal.Web.Startup.WcfServiceClients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<IAddressValidationService, AddressValidationService>();
+builder.Services.AddWcfServiceClients(builder.Configuration);
 builder.Services.AddScoped<RegistrationStateService>();
 
 var app = builder.Build();
