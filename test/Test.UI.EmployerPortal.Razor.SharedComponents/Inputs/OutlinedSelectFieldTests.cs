@@ -14,8 +14,6 @@ public class OutlinedSelectFieldTests : BunitContext
         new() { Value = "MX", Text = "Mexico" },
     ];
 
-    // ── Rendering ────────────────────────────────────────────────────────────
-
     [Fact]
     public void Renders_Label()
     {
@@ -49,7 +47,7 @@ public class OutlinedSelectFieldTests : BunitContext
         });
 
         var options = cut.FindAll("option");
-        Assert.Equal(4, options.Count);                         // placeholder + 3
+        Assert.Equal(4, options.Count);
         Assert.Equal("-- Select --", options[0].TextContent.Trim());
     }
 
@@ -110,8 +108,6 @@ public class OutlinedSelectFieldTests : BunitContext
         Assert.Null(cut.Find("select").GetAttribute("disabled"));
     }
 
-    // ── Error styling ─────────────────────────────────────────────────────────
-
     [Fact]
     public void No_Error_Class_When_Visible_False()
     {
@@ -128,7 +124,6 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void No_Error_Class_Without_EditContext()
     {
-        // No cascaded EditContext — HasError must be false even with Visible=true
         var cut = Render<OutlinedSelectField>(p =>
         {
             p.Add(x => x.Options, ThreeOptions);
@@ -159,8 +154,6 @@ public class OutlinedSelectFieldTests : BunitContext
         Assert.Contains("master-select-field--error", cut.Markup);
     }
 
-    // ── Events ────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Invokes_ValueChanged_On_Selection()
     {
@@ -168,7 +161,7 @@ public class OutlinedSelectFieldTests : BunitContext
         var cut = Render<OutlinedSelectField>(p =>
         {
             p.Add(x => x.Options, ThreeOptions);
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("select").ChangeAsync(new ChangeEventArgs { Value = "CA" });
@@ -183,7 +176,7 @@ public class OutlinedSelectFieldTests : BunitContext
         var cut = Render<OutlinedSelectField>(p =>
         {
             p.Add(x => x.Options, ThreeOptions);
-            p.Add(x => x.ValueChanged, _ => callCount++);
+            p.Add(x => x.ValueChanged, _ => { callCount++; });
         });
 
         await cut.Find("select").ChangeAsync(new ChangeEventArgs { Value = "US" });
@@ -191,8 +184,6 @@ public class OutlinedSelectFieldTests : BunitContext
 
         Assert.Equal(2, callCount);
     }
-
-    // ── Helper ────────────────────────────────────────────────────────────────
 
     private class TestModel
     {

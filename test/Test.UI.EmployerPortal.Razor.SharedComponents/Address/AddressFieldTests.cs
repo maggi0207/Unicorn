@@ -15,8 +15,6 @@ public class AddressFieldTests : BunitContext
         Zip          = "53703"
     };
 
-    // ── Rendering ─────────────────────────────────────────────────────────────
-
     [Fact]
     public void Renders_Country_Dropdown_Label()
     {
@@ -105,8 +103,6 @@ public class AddressFieldTests : BunitContext
         Assert.Equal(2, cut.FindAll("select").Count);
     }
 
-    // ── AddressModel static data ──────────────────────────────────────────────
-
     [Fact]
     public void Countries_List_Has_Three_Options()
     {
@@ -168,8 +164,6 @@ public class AddressFieldTests : BunitContext
         Assert.Contains(AddressModel.States, s => s.Value == "AE");
         Assert.Contains(AddressModel.States, s => s.Value == "AP");
     }
-
-    // ── Default values ────────────────────────────────────────────────────────
 
     [Fact]
     public void New_AddressModel_Defaults_Country_To_UnitedStates()

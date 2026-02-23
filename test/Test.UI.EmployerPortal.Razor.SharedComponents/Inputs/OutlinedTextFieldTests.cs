@@ -7,8 +7,6 @@ namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
 public class OutlinedTextFieldTests : BunitContext
 {
-    // ── Rendering ────────────────────────────────────────────────────────────
-
     [Fact]
     public void Renders_Label()
     {
@@ -103,8 +101,6 @@ public class OutlinedTextFieldTests : BunitContext
         Assert.Null(cut.Find("input").GetAttribute("disabled"));
     }
 
-    // ── Error styling ─────────────────────────────────────────────────────────
-
     [Fact]
     public void No_Error_Class_When_Visible_False()
     {
@@ -120,7 +116,6 @@ public class OutlinedTextFieldTests : BunitContext
     [Fact]
     public void No_Error_Class_Without_EditContext()
     {
-        // No cascaded EditContext — HasError must be false even with Visible=true
         var cut = Render<OutlinedTextField>(p =>
         {
             p.Add(x => x.Visible, true);
@@ -170,15 +165,13 @@ public class OutlinedTextFieldTests : BunitContext
         Assert.Contains("master-label--error", cut.Markup);
     }
 
-    // ── Events ────────────────────────────────────────────────────────────────
-
     [Fact]
     public async Task Invokes_ValueChanged_On_Input()
     {
         string? captured = null;
         var cut = Render<OutlinedTextField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "Hello" });
@@ -192,7 +185,7 @@ public class OutlinedTextFieldTests : BunitContext
         string? captured = null;
         var cut = Render<OutlinedTextField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "Wisconsin DWD" });
@@ -206,15 +199,13 @@ public class OutlinedTextFieldTests : BunitContext
         string? captured = "previous";
         var cut = Render<OutlinedTextField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "" });
 
         Assert.Equal("", captured);
     }
-
-    // ── Aria attributes ───────────────────────────────────────────────────────
 
     [Fact]
     public void Input_Has_AriaLabel_Matching_Label()
@@ -230,7 +221,6 @@ public class OutlinedTextFieldTests : BunitContext
     [Fact]
     public void Input_AriaInvalid_Not_Present_When_No_Error()
     {
-        // Blazor omits bool attributes when false — aria-invalid is absent, not "false"
         var cut = Render<OutlinedTextField>(p =>
         {
             p.Add(x => x.Visible, false);
@@ -238,8 +228,6 @@ public class OutlinedTextFieldTests : BunitContext
 
         Assert.Null(cut.Find("input").GetAttribute("aria-invalid"));
     }
-
-    // ── Helper ────────────────────────────────────────────────────────────────
 
     private class TestModel
     {

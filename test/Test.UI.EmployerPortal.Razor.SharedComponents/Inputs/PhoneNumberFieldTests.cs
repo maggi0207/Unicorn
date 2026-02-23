@@ -6,8 +6,6 @@ namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
 public class PhoneNumberFieldTests : BunitContext
 {
-    // ── Rendering ────────────────────────────────────────────────────────────
-
     [Fact]
     public void Renders_Default_Label_PhoneNumber()
     {
@@ -63,21 +61,19 @@ public class PhoneNumberFieldTests : BunitContext
         Assert.Null(cut.Find("input").GetAttribute("disabled"));
     }
 
-    // ── Formatting logic ─────────────────────────────────────────────────────
-
     [Theory]
-    [InlineData("1234567890", "123-456-7890")]   // 10 digits → full format
-    [InlineData("1234567",    "123-456-7")]       // 7 digits  → 3-3-N (> 6 uses full split)
-    [InlineData("1234",       "123-4")]           // 4 digits  → prefix + partial (> 3)
-    [InlineData("123",        "123")]             // 3 digits  → no dash
-    [InlineData("12",         "12")]              // 2 digits  → no dash
-    [InlineData("",           "")]               // empty     → empty
+    [InlineData("1234567890", "123-456-7890")]
+    [InlineData("1234567",    "123-456-7")]
+    [InlineData("1234",       "123-4")]
+    [InlineData("123",        "123")]
+    [InlineData("12",         "12")]
+    [InlineData("",           "")]
     public async Task Formats_Digits_Correctly(string rawInput, string expected)
     {
         string? captured = null;
         var cut = Render<PhoneNumberField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = rawInput });
@@ -91,7 +87,7 @@ public class PhoneNumberFieldTests : BunitContext
         string? captured = null;
         var cut = Render<PhoneNumberField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "(123) 456-7890" });
@@ -105,7 +101,7 @@ public class PhoneNumberFieldTests : BunitContext
         string? captured = null;
         var cut = Render<PhoneNumberField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "abc1d2e3f4g5h6i7j8k9l0" });
@@ -119,10 +115,9 @@ public class PhoneNumberFieldTests : BunitContext
         string? captured = null;
         var cut = Render<PhoneNumberField>(p =>
         {
-            p.Add(x => x.ValueChanged, v => captured = v);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
         });
 
-        // 14 digits — only first 10 should be used
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "12345678901234" });
 
         Assert.Equal("123-456-7890", captured);
@@ -134,7 +129,7 @@ public class PhoneNumberFieldTests : BunitContext
         var callCount = 0;
         var cut = Render<PhoneNumberField>(p =>
         {
-            p.Add(x => x.ValueChanged, _ => callCount++);
+            p.Add(x => x.ValueChanged, _ => { callCount++; });
         });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "5556667777" });
