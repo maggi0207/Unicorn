@@ -18,7 +18,10 @@
       "Bash(git push:*)",
       "Read(//d/mahendra/Local/service project/**)",
       "Bash(git restore:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dotnet --version:*)",
+      "Bash(dotnet sdk:*)",
+      "Bash(dotnet test:*)"
     ],
     "additionalDirectories": [
       "d:\\Unicorn-repo"

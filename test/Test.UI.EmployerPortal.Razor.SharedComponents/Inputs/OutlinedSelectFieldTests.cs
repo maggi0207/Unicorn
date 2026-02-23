@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
-public class OutlinedSelectFieldTests : TestContext
+public class OutlinedSelectFieldTests : BunitContext
 {
     private static List<SelectOption> ThreeOptions =>
     [
@@ -20,7 +20,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Renders_Label()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Label, "Country")
             .Add(x => x.Options, ThreeOptions));
 
@@ -30,7 +30,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Renders_All_Options()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions));
 
         Assert.Equal(3, cut.FindAll("option").Count);
@@ -39,7 +39,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Renders_Placeholder_As_First_Option()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Placeholder, "-- Select --"));
 
@@ -51,7 +51,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void No_Placeholder_When_Not_Set()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions));
 
         Assert.Equal(3, cut.FindAll("option").Count);
@@ -60,7 +60,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Reflects_Provided_Value_On_Select_Element()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Value, "CA"));
 
@@ -70,7 +70,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Empty_Value_When_No_Value_Provided()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions));
 
         Assert.Equal("", cut.Find("select").GetAttribute("value"));
@@ -79,7 +79,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Is_Disabled_When_Disabled_True()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Disabled, true));
 
@@ -89,7 +89,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void Not_Disabled_By_Default()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions));
 
         Assert.Null(cut.Find("select").GetAttribute("disabled"));
@@ -100,7 +100,7 @@ public class OutlinedSelectFieldTests : TestContext
     [Fact]
     public void No_Error_Class_When_Visible_False()
     {
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Visible, false));
 
@@ -112,7 +112,7 @@ public class OutlinedSelectFieldTests : TestContext
     public void No_Error_Class_Without_EditContext()
     {
         // No cascaded EditContext — HasError must be false even with Visible=true
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Visible, true));
 
@@ -130,7 +130,7 @@ public class OutlinedSelectFieldTests : TestContext
         store.Add(FieldIdentifier.Create(() => model.RequiredField!), "Value is required.");
         editCtx.NotifyValidationStateChanged();
 
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.Visible, true)
             .Add(x => x.For, () => model.RequiredField!)
@@ -145,7 +145,7 @@ public class OutlinedSelectFieldTests : TestContext
     public async Task Invokes_ValueChanged_On_Selection()
     {
         string? captured = null;
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.ValueChanged, v => captured = v));
 
@@ -158,7 +158,7 @@ public class OutlinedSelectFieldTests : TestContext
     public async Task ValueChanged_Invoked_Once_Per_Change()
     {
         var callCount = 0;
-        var cut = RenderComponent<OutlinedSelectField>(p => p
+        var cut = Render<OutlinedSelectField>(p => p
             .Add(x => x.Options, ThreeOptions)
             .Add(x => x.ValueChanged, _ => callCount++));
 
