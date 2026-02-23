@@ -7,7 +7,10 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Services
 @inject NavigationManager Nav
+@inject IAddressValidationService AddressValidator
+@inject RegistrationStateService RegistrationState
 
 <PageTitle>Business Information</PageTitle>
 
@@ -179,16 +182,15 @@
         };
     }
 
-    private void HandleContinue()
+    private async Task HandleContinue()
     {
         formSubmitted = true;
         customValidator?.ClearErrors();
 
-        // Validate top-level model fields (Business Details)
+        // Step 1: Local validation — required fields + format
         var isTopLevelValid = editContext.Validate();
-
-        // Validate nested address models (Mailing + Physical Locations)
         var addressErrors = ValidateAddressModels();
+
         if (addressErrors.Any())
         {
             customValidator?.DisplayErrors(addressErrors);
@@ -197,12 +199,37 @@
 
         hasValidationErrors = !isTopLevelValid;
 
-        if (isTopLevelValid)
+        if (!isTopLevelValid)
         {
-            Nav.NavigateTo("/address-correction");
+            StateHasChanged();
+            return;
         }
 
-        StateHasChanged();
+        // Step 2: Service validation — only runs when local validation passed
+        var corrections = new List<AddressCorrectionItem>();
+
+        var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
+        if (!mailingResult.IsValid)
+            corrections.Add(new AddressCorrectionItem("Business Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress));
+
+        for (var i = 0; i < Model.PhysicalLocations.Count; i++)
+        {
+            var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
+            if (!result.IsValid)
+                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1}", Model.PhysicalLocations[i], result.CorrectedAddress));
+        }
+
+        if (corrections.Any())
+        {
+            // Validation failed — store corrections and go to Address Correction page
+            RegistrationState.AddressCorrections = corrections;
+            Nav.NavigateTo("/employer-registration/address-correction");
+        }
+        else
+        {
+            // All addresses valid — proceed to Business Contact
+            Nav.NavigateTo("/employer-registration/business-contact");
+        }
     }
 
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()

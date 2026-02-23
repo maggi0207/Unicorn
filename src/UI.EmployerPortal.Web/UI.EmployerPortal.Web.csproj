@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UI.EmployerPortal.Razor.SharedComponents\UI.EmployerPortal.Razor.SharedComponents.csproj" />
+    <ProjectReference Include="..\..\generated\UI.EmployerPortal.Generated.ServiceClients\UI.EmployerPortal.Generated.ServiceClients.csproj" />
   </ItemGroup>
 
 </Project>

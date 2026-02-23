@@ -1,0 +1,1 @@
+dotnet svcutil --update AddressValidationService

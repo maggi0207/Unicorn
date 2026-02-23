@@ -7,7 +7,9 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Services
 @inject NavigationManager Nav
+@inject IAddressValidationService AddressValidator
 
 <PageTitle>Business Contact</PageTitle>
 
@@ -164,7 +166,7 @@
         StateHasChanged();
     }
 
-    private void HandleContinue()
+    private async Task HandleContinue()
     {
         formSubmitted = true;
         customValidator?.ClearErrors();
@@ -178,7 +180,23 @@
 
         if (Model.IsDifferentAddress == true)
         {
+            // Step 1: Local DataAnnotations validation
             var addressErrors = ValidateContactAddress();
+
+            // Step 2: Call AddressValidationService only when local validation passed
+            if (!addressErrors.Any())
+            {
+                var result = await AddressValidator.ValidateAsync(Model.ContactAddress);
+                if (!result.IsValid)
+                {
+                    var fi = new FieldIdentifier(Model.ContactAddress, nameof(Model.ContactAddress.State));
+                    addressErrors[fi] = new List<string>
+                    {
+                        result.ErrorMessage ?? "Address could not be validated. Please check the state and country."
+                    };
+                }
+            }
+
             if (addressErrors.Any())
             {
                 customValidator?.DisplayErrors(addressErrors);
@@ -190,7 +208,7 @@
 
         if (isValid)
         {
-            Nav.NavigateTo("/employer-registration/next-step"); // Update route for next step
+            Nav.NavigateTo("/employer-registration/next-step");
         }
 
         StateHasChanged();
