@@ -1,0 +1,220 @@
+using Bunit;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using UI.EmployerPortal.Razor.SharedComponents.Inputs;
+using Xunit;
+
+namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
+
+public class OutlinedTextFieldTests : TestContext
+{
+    // ── Rendering ────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Renders_Label()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Label, "Legal Name"));
+
+        Assert.Equal("Legal Name", cut.Find("label").TextContent.Trim());
+    }
+
+    [Fact]
+    public void Default_Input_Type_Is_Text()
+    {
+        var cut = RenderComponent<OutlinedTextField>();
+        Assert.Equal("text", cut.Find("input").GetAttribute("type"));
+    }
+
+    [Fact]
+    public void Renders_Custom_Input_Type()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Type, "email"));
+
+        Assert.Equal("email", cut.Find("input").GetAttribute("type"));
+    }
+
+    [Fact]
+    public void Reflects_Provided_Value()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Value, "Test Corp"));
+
+        Assert.Equal("Test Corp", cut.Find("input").GetAttribute("value"));
+    }
+
+    [Fact]
+    public void Shows_Format_Hint_When_FormatText_Set()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.FormatText, "Format: name@example.com"));
+
+        Assert.Contains("Format: name@example.com", cut.Markup);
+    }
+
+    [Fact]
+    public void No_Format_Hint_When_FormatText_Not_Set()
+    {
+        var cut = RenderComponent<OutlinedTextField>();
+        Assert.DoesNotContain("master-hint", cut.Markup);
+    }
+
+    [Fact]
+    public void MaxLength_Attribute_Set_When_Provided()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.MaxLength, 50));
+
+        Assert.Equal("50", cut.Find("input").GetAttribute("maxlength"));
+    }
+
+    [Fact]
+    public void No_MaxLength_Attribute_When_Not_Set()
+    {
+        var cut = RenderComponent<OutlinedTextField>();
+        Assert.Null(cut.Find("input").GetAttribute("maxlength"));
+    }
+
+    [Fact]
+    public void Is_Disabled_When_Disabled_True()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Disabled, true));
+
+        Assert.NotNull(cut.Find("input[disabled]"));
+    }
+
+    [Fact]
+    public void Not_Disabled_By_Default()
+    {
+        var cut = RenderComponent<OutlinedTextField>();
+        Assert.Null(cut.Find("input").GetAttribute("disabled"));
+    }
+
+    // ── Error styling ─────────────────────────────────────────────────────────
+
+    [Fact]
+    public void No_Error_Class_When_Visible_False()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Visible, false));
+
+        Assert.DoesNotContain("master-text-field--error", cut.Markup);
+        Assert.DoesNotContain("master-input--error", cut.Markup);
+    }
+
+    [Fact]
+    public void No_Error_Class_Without_EditContext()
+    {
+        // No cascaded EditContext — HasError must be false even with Visible=true
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Visible, true));
+
+        Assert.DoesNotContain("master-text-field--error", cut.Markup);
+    }
+
+    [Fact]
+    public void Shows_Error_Class_When_Field_Has_Validation_Error()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField!), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Visible, true)
+            .Add(x => x.For, () => model.RequiredField!)
+            .AddCascadingValue(editCtx));
+
+        Assert.Contains("master-text-field--error", cut.Markup);
+        Assert.Contains("master-input--error", cut.Markup);
+    }
+
+    [Fact]
+    public void Error_Label_Class_Applied_When_HasError()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField!), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Visible, true)
+            .Add(x => x.For, () => model.RequiredField!)
+            .AddCascadingValue(editCtx));
+
+        Assert.Contains("master-label--error", cut.Markup);
+    }
+
+    // ── Events ────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task Invokes_ValueChanged_On_Input()
+    {
+        string? captured = null;
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.ValueChanged, v => captured = v));
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "Hello" });
+
+        Assert.Equal("Hello", captured);
+    }
+
+    [Fact]
+    public async Task ValueChanged_Passes_Current_Input_Value()
+    {
+        string? captured = null;
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.ValueChanged, v => captured = v));
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "Wisconsin DWD" });
+
+        Assert.Equal("Wisconsin DWD", captured);
+    }
+
+    [Fact]
+    public async Task Empty_Input_Passes_Empty_String()
+    {
+        string? captured = "previous";
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.ValueChanged, v => captured = v));
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "" });
+
+        Assert.Equal("", captured);
+    }
+
+    // ── Aria attributes ───────────────────────────────────────────────────────
+
+    [Fact]
+    public void Input_Has_AriaLabel_Matching_Label()
+    {
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Label, "Email Address"));
+
+        Assert.Equal("Email Address", cut.Find("input").GetAttribute("aria-label"));
+    }
+
+    [Fact]
+    public void Input_AriaInvalid_Not_Present_When_No_Error()
+    {
+        // Blazor omits bool attributes when false — aria-invalid is absent, not "false"
+        var cut = RenderComponent<OutlinedTextField>(p => p
+            .Add(x => x.Visible, false));
+
+        Assert.Null(cut.Find("input").GetAttribute("aria-invalid"));
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+
+    private class TestModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string? RequiredField { get; set; }
+    }
+}
