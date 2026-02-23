@@ -13,7 +13,12 @@
       "Bash(powershell -NoProfile -Command:*)",
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"d:\\\\Unicorn-repo\\\\copy_files.ps1\")",
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"d:\\\\Unicorn-repo\\\\list_structure.ps1\")",
-      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"d:\\\\Unicorn-repo\\\\sync_source.ps1\")"
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \"d:\\\\Unicorn-repo\\\\sync_source.ps1\")",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Read(//d/mahendra/Local/service project/**)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)"
     ],
     "additionalDirectories": [
       "d:\\Unicorn-repo"
