@@ -1,7 +1,6 @@
 using Bunit;
 using UI.EmployerPortal.Razor.SharedComponents.Address;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
-using Xunit;
 
 namespace Test.UI.EmployerPortal.Razor.SharedComponents.Address;
 
@@ -21,8 +20,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_Country_Dropdown_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("Country", cut.Markup);
     }
@@ -30,8 +31,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_AddressLine1_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("Address Line 1", cut.Markup);
     }
@@ -39,8 +42,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_AddressLine2_Optional_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("Address Line 2 (Optional)", cut.Markup);
     }
@@ -48,8 +53,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_City_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("City", cut.Markup);
     }
@@ -57,8 +64,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_State_Dropdown_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("State", cut.Markup);
     }
@@ -66,8 +75,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_ZipCode_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("Zip Code", cut.Markup);
     }
@@ -75,8 +86,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_Extension_Optional_Label()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Contains("+4 (Optional)", cut.Markup);
     }
@@ -84,8 +97,10 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Renders_Two_Select_Dropdowns_Country_And_State()
     {
-        var cut = Render<AddressField>(p => p
-            .Add(x => x.Address, ValidAddress()));
+        var cut = Render<AddressField>(p =>
+        {
+            p.Add(x => x.Address, ValidAddress());
+        });
 
         Assert.Equal(2, cut.FindAll("select").Count);
     }

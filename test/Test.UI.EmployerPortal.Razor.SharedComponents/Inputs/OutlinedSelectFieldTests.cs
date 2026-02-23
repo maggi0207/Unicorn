@@ -2,7 +2,6 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
-using Xunit;
 
 namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
@@ -20,9 +19,11 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Renders_Label()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Label, "Country")
-            .Add(x => x.Options, ThreeOptions));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Label, "Country");
+            p.Add(x => x.Options, ThreeOptions);
+        });
 
         Assert.Equal("Country", cut.Find("label").TextContent.Trim());
     }
@@ -30,8 +31,10 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Renders_All_Options()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+        });
 
         Assert.Equal(3, cut.FindAll("option").Count);
     }
@@ -39,9 +42,11 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Renders_Placeholder_As_First_Option()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Placeholder, "-- Select --"));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Placeholder, "-- Select --");
+        });
 
         var options = cut.FindAll("option");
         Assert.Equal(4, options.Count);                         // placeholder + 3
@@ -51,8 +56,10 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void No_Placeholder_When_Not_Set()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+        });
 
         Assert.Equal(3, cut.FindAll("option").Count);
     }
@@ -60,9 +67,11 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Reflects_Provided_Value_On_Select_Element()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Value, "CA"));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Value, "CA");
+        });
 
         Assert.Equal("CA", cut.Find("select").GetAttribute("value"));
     }
@@ -70,8 +79,10 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Empty_Value_When_No_Value_Provided()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+        });
 
         Assert.Equal("", cut.Find("select").GetAttribute("value"));
     }
@@ -79,9 +90,11 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Is_Disabled_When_Disabled_True()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Disabled, true));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Disabled, true);
+        });
 
         Assert.NotNull(cut.Find("select[disabled]"));
     }
@@ -89,8 +102,10 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Not_Disabled_By_Default()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+        });
 
         Assert.Null(cut.Find("select").GetAttribute("disabled"));
     }
@@ -100,9 +115,11 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void No_Error_Class_When_Visible_False()
     {
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Visible, false));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, false);
+        });
 
         Assert.DoesNotContain("master-select-field--error", cut.Markup);
         Assert.DoesNotContain("master-select--error", cut.Markup);
@@ -112,9 +129,11 @@ public class OutlinedSelectFieldTests : BunitContext
     public void No_Error_Class_Without_EditContext()
     {
         // No cascaded EditContext — HasError must be false even with Visible=true
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Visible, true));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, true);
+        });
 
         Assert.DoesNotContain("master-select-field--error", cut.Markup);
     }
@@ -122,19 +141,20 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Shows_Error_Class_When_Field_Has_Validation_Error()
     {
-        var model    = new TestModel();
-        var editCtx  = new EditContext(model);
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
 
-        // Manually inject a validation message into the EditContext
         var store = new ValidationMessageStore(editCtx);
         store.Add(FieldIdentifier.Create(() => model.RequiredField!), "Value is required.");
         editCtx.NotifyValidationStateChanged();
 
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.Visible, true)
-            .Add(x => x.For, () => model.RequiredField!)
-            .AddCascadingValue(editCtx));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, true);
+            p.Add(x => x.For, () => model.RequiredField!);
+            p.AddCascadingValue(editCtx);
+        });
 
         Assert.Contains("master-select-field--error", cut.Markup);
     }
@@ -145,9 +165,11 @@ public class OutlinedSelectFieldTests : BunitContext
     public async Task Invokes_ValueChanged_On_Selection()
     {
         string? captured = null;
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.ValueChanged, v => captured = v));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.ValueChanged, v => captured = v);
+        });
 
         await cut.Find("select").ChangeAsync(new ChangeEventArgs { Value = "CA" });
 
@@ -158,9 +180,11 @@ public class OutlinedSelectFieldTests : BunitContext
     public async Task ValueChanged_Invoked_Once_Per_Change()
     {
         var callCount = 0;
-        var cut = Render<OutlinedSelectField>(p => p
-            .Add(x => x.Options, ThreeOptions)
-            .Add(x => x.ValueChanged, _ => callCount++));
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.ValueChanged, _ => callCount++);
+        });
 
         await cut.Find("select").ChangeAsync(new ChangeEventArgs { Value = "US" });
         await cut.Find("select").ChangeAsync(new ChangeEventArgs { Value = "CA" });

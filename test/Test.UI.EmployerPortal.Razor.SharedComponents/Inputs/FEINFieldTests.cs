@@ -1,7 +1,6 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
-using Xunit;
 
 namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
@@ -19,8 +18,10 @@ public class FEINFieldTests : BunitContext
     [Fact]
     public void Renders_Custom_Label()
     {
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.Label, "Federal EIN"));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.Label, "Federal EIN");
+        });
         Assert.Equal("Federal EIN", cut.Find("label").TextContent.Trim());
     }
 
@@ -48,16 +49,20 @@ public class FEINFieldTests : BunitContext
     [Fact]
     public void Reflects_Provided_Value()
     {
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.Value, "12-3456789"));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.Value, "12-3456789");
+        });
         Assert.Equal("12-3456789", cut.Find("input").GetAttribute("value"));
     }
 
     [Fact]
     public void Is_Disabled_When_Disabled_True()
     {
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.Disabled, true));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.Disabled, true);
+        });
         Assert.NotNull(cut.Find("input[disabled]"));
     }
 
@@ -79,8 +84,10 @@ public class FEINFieldTests : BunitContext
     public async Task Formats_Digits_Correctly(string rawInput, string expected)
     {
         string? captured = null;
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.ValueChanged, v => captured = v));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.ValueChanged, v => captured = v);
+        });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = rawInput });
 
@@ -91,8 +98,10 @@ public class FEINFieldTests : BunitContext
     public async Task Strips_Non_Digit_Characters()
     {
         string? captured = null;
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.ValueChanged, v => captured = v));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.ValueChanged, v => captured = v);
+        });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "12-3456789" });
 
@@ -103,8 +112,10 @@ public class FEINFieldTests : BunitContext
     public async Task Strips_Letters_And_Symbols()
     {
         string? captured = null;
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.ValueChanged, v => captured = v));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.ValueChanged, v => captured = v);
+        });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "ab1c2de3f4g5h6i7j8k9" });
 
@@ -115,8 +126,10 @@ public class FEINFieldTests : BunitContext
     public async Task Truncates_At_9_Digits()
     {
         string? captured = null;
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.ValueChanged, v => captured = v));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.ValueChanged, v => captured = v);
+        });
 
         // 12 digits — only first 9 should be used
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "123456789012" });
@@ -128,8 +141,10 @@ public class FEINFieldTests : BunitContext
     public async Task ValueChanged_Callback_Is_Invoked_Once()
     {
         var callCount = 0;
-        var cut = Render<FEINField>(p => p
-            .Add(x => x.ValueChanged, _ => callCount++));
+        var cut = Render<FEINField>(p =>
+        {
+            p.Add(x => x.ValueChanged, _ => callCount++);
+        });
 
         await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "123456789" });
 
