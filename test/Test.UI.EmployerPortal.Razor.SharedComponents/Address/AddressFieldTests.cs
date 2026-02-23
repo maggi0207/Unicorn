@@ -6,14 +6,17 @@ namespace Test.UI.EmployerPortal.Razor.SharedComponents.Address;
 
 public class AddressFieldTests : BunitContext
 {
-    private static AddressModel ValidAddress() => new()
+    private static AddressModel ValidAddress()
     {
-        Country      = "United States",
-        AddressLine1 = "123 Main St",
-        City         = "Madison",
-        State        = "WI",
-        Zip          = "53703"
-    };
+        return new()
+        {
+            Country      = "United States",
+            AddressLine1 = "123 Main St",
+            City         = "Madison",
+            State        = "WI",
+            Zip          = "53703"
+        };
+    }
 
     [Fact]
     public void Renders_Country_Dropdown_Label()
@@ -112,19 +115,19 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void Countries_List_Contains_United_States()
     {
-        Assert.Contains(AddressModel.Countries, c => c.Value == "United States");
+        Assert.Contains(AddressModel.Countries, c => { return c.Value == "United States"; });
     }
 
     [Fact]
     public void Countries_List_Contains_Canada()
     {
-        Assert.Contains(AddressModel.Countries, c => c.Value == "Canada");
+        Assert.Contains(AddressModel.Countries, c => { return c.Value == "Canada"; });
     }
 
     [Fact]
     public void Countries_List_Contains_Mexico()
     {
-        Assert.Contains(AddressModel.Countries, c => c.Value == "Mexico");
+        Assert.Contains(AddressModel.Countries, c => { return c.Value == "Mexico"; });
     }
 
     [Fact]
@@ -136,7 +139,7 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void States_List_Contains_Wisconsin()
     {
-        var wi = AddressModel.States.FirstOrDefault(s => s.Value == "WI");
+        var wi = AddressModel.States.FirstOrDefault(s => { return s.Value == "WI"; });
         Assert.NotNull(wi);
         Assert.Equal("Wisconsin", wi!.Text);
     }
@@ -144,25 +147,25 @@ public class AddressFieldTests : BunitContext
     [Fact]
     public void States_List_Contains_US_States()
     {
-        Assert.Contains(AddressModel.States, s => s.Value == "CA");
-        Assert.Contains(AddressModel.States, s => s.Value == "NY");
-        Assert.Contains(AddressModel.States, s => s.Value == "TX");
+        Assert.Contains(AddressModel.States, s => { return s.Value == "CA"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "NY"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "TX"; });
     }
 
     [Fact]
     public void States_List_Contains_Canadian_Provinces()
     {
-        Assert.Contains(AddressModel.States, s => s.Value == "ON");
-        Assert.Contains(AddressModel.States, s => s.Value == "BC");
-        Assert.Contains(AddressModel.States, s => s.Value == "QC");
+        Assert.Contains(AddressModel.States, s => { return s.Value == "ON"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "BC"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "QC"; });
     }
 
     [Fact]
     public void States_List_Contains_APO_FPO_Codes()
     {
-        Assert.Contains(AddressModel.States, s => s.Value == "AA");
-        Assert.Contains(AddressModel.States, s => s.Value == "AE");
-        Assert.Contains(AddressModel.States, s => s.Value == "AP");
+        Assert.Contains(AddressModel.States, s => { return s.Value == "AA"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "AE"; });
+        Assert.Contains(AddressModel.States, s => { return s.Value == "AP"; });
     }
 
     [Fact]
