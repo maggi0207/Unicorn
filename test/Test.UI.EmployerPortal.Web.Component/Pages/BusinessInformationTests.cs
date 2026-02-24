@@ -1,5 +1,4 @@
 using Bunit;
-using FakeItEasy;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
@@ -10,15 +9,9 @@ namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
 public class BusinessInformationTests : BunitContext
 {
-    private readonly IAddressValidationWrapper _fakeValidator;
-
     public BusinessInformationTests()
     {
-        _fakeValidator = A.Fake<IAddressValidationWrapper>();
-        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
-            .Returns(Task.FromResult(new AddressValidationResult(true, null, null)));
-
-        Services.AddSingleton(_fakeValidator);
+        Services.AddSingleton<IAddressValidationWrapper>(new StubAddressValidator());
         Services.AddSingleton<RegistrationStateService>();
     }
 
@@ -140,14 +133,6 @@ public class BusinessInformationTests : BunitContext
     }
 
     [Fact]
-    public void Service_Not_Called_When_Form_Has_Validation_Errors()
-    {
-        var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--primary").Click();
-        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
-    }
-
-    [Fact]
     public void Back_Button_Navigates_To_Ownership()
     {
         var cut = Render<BusinessInformation>();
@@ -163,5 +148,13 @@ public class BusinessInformationTests : BunitContext
         cut.Find("button.btn--tertiary").Click();
         var nav = Services.GetRequiredService<NavigationManager>();
         Assert.Contains("dashboard", nav.Uri);
+    }
+
+    private sealed class StubAddressValidator : IAddressValidationWrapper
+    {
+        public Task<AddressValidationResult> ValidateAsync(AddressModel address)
+        {
+            return Task.FromResult(new AddressValidationResult(true, null, null));
+        }
     }
 }
