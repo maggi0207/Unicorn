@@ -15,6 +15,7 @@
             class="master-select @(HasError ? "master-select--error" : "")"
             value="@(Value ?? "")"
             @onchange="OnChange"
+            @onfocusout="OnFocusOut"
             disabled="@Disabled"
             aria-label="@Label"
             aria-invalid="@HasError">
@@ -80,6 +81,14 @@
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
 
+        if (EditContext is not null && For is not null)
+        {
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));
+        }
+    }
+
+    private void OnFocusOut()
+    {
         if (EditContext is not null && For is not null)
         {
             EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));

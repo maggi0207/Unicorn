@@ -16,6 +16,7 @@
            type="@Type"
            value="@Value"
            @oninput="OnInput"
+           @onfocusout="OnFocusOut"
            maxlength="@MaxLength"
            disabled="@Disabled"
            aria-label="@Label"
@@ -63,6 +64,14 @@
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
 
+        if (EditContext is not null && For is not null)
+        {
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));
+        }
+    }
+
+    private void OnFocusOut()
+    {
         if (EditContext is not null && For is not null)
         {
             EditContext.NotifyFieldChanged(FieldIdentifier.Create(For));

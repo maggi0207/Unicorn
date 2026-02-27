@@ -116,8 +116,24 @@
         editContext.OnFieldChanged += (_, e) =>
         {
             _touchedFields.Add(e.FieldIdentifier);
-            hasValidationErrors = editContext.GetValidationMessages().Any();
-            StateHasChanged();
+
+            if (formSubmitted && Model.IsDifferentAddress == true && ReferenceEquals(e.FieldIdentifier.Model, Model.ContactAddress))
+            {
+                // After submit: defer address re-validation so it runs after CustomValidator's per-field clear
+                InvokeAsync(() =>
+                {
+                    customValidator?.ClearErrors();
+                    var errors = ValidateContactAddress();
+                    if (errors.Any()) customValidator?.DisplayErrors(errors);
+                    hasValidationErrors = editContext.GetValidationMessages().Any();
+                    StateHasChanged();
+                });
+            }
+            else
+            {
+                hasValidationErrors = editContext.GetValidationMessages().Any();
+                StateHasChanged();
+            }
         };
     }
 
@@ -174,6 +190,12 @@
     private void OnInvalid()
     {
         formSubmitted = true;
+        if (Model.IsDifferentAddress == true)
+        {
+            customValidator?.ClearErrors();
+            var errors = ValidateContactAddress();
+            if (errors.Any()) customValidator?.DisplayErrors(errors);
+        }
         hasValidationErrors = true;
         StateHasChanged();
     }

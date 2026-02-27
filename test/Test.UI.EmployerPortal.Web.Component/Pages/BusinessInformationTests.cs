@@ -1,5 +1,6 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using UI.EmployerPortal.Web.Features.EmployerRegistration;
 
@@ -178,5 +179,29 @@ public class BusinessInformationTests : BunitContext
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
         Assert.DoesNotContain("FEIN is required", cut.Markup);
+    }
+
+    [Fact]
+    public void Continue_With_Empty_Form_Shows_Address_Field_Errors()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find("button[type='submit']").Click();
+        Assert.NotEmpty(cut.FindAll(".field-error"));
+    }
+
+    [Fact]
+    public void Blur_On_Empty_Required_Field_Shows_Field_Error()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onfocusout", new FocusEventArgs());
+        Assert.NotEmpty(cut.FindAll(".field-error"));
+    }
+
+    [Fact]
+    public void Blur_Does_Not_Show_Global_Error_Banner()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onfocusout", new FocusEventArgs());
+        Assert.Empty(cut.FindAll(".notification-banner--error"));
     }
 }
