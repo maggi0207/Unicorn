@@ -69,27 +69,6 @@
     text-decoration: underline;
 }
 
-/* Error banner */
-.bi-error-banner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border: 1px solid #C62828;
-    border-radius: 4px;
-    background-color: #FFF5F5;
-    font-family: Verdana, sans-serif;
-    font-size: 14px;
-    color: #C62828;
-}
-
-.bi-error-icon {
-    font-size: 18px;
-    font-weight: 700;
-    color: #C62828;
-    flex-shrink: 0;
-}
-
 /* Form - EditForm renders as <form> */
 ::deep form {
     display: flex;
@@ -155,74 +134,6 @@
     text-decoration: underline;
 }
 
-/* Button row */
-.bi-button-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding-top: 8px;
-    width: 684px;
-}
-
-.bi-button-row-left {
-    display: flex;
-    align-items: center;
-}
-
-.bi-button-row-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-family: Verdana, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 25.6px;
-    text-transform: uppercase;
-    cursor: pointer;
-    border: none;
-}
-
-.btn--primary {
-    background: #003663;
-    color: #ffffff;
-    outline: 2px solid #003663;
-}
-
-.btn--primary:hover {
-    background: #002a4d;
-}
-
-.btn--secondary {
-    background: #ffffff;
-    color: #003663;
-    outline: 2px solid #003663;
-    outline-offset: -2px;
-}
-
-.btn--secondary:hover {
-    background: #f0f4f8;
-}
-
-.btn--tertiary {
-    background: transparent;
-    color: #003663;
-    outline: none;
-}
-
-.btn--tertiary:hover {
-    text-decoration: underline;
-}
-
 @media (max-width: 575px) {
     .bi-page-content {
         padding: 16px;
@@ -231,10 +142,6 @@
 
     .bi-fields-grid {
         grid-template-columns: 1fr;
-        width: 100%;
-    }
-
-    .bi-button-row {
         width: 100%;
     }
 }

@@ -1,0 +1,137 @@
+<nav class="button-bar"
+     role="navigation"
+     aria-label="Form navigation actions">
+
+    <div class="button-bar__left"
+         role="group"
+         aria-label="Secondary actions">
+
+        @if (ShowBack)
+        {
+            <button type="button"
+                    class="btn btn--secondary"
+                    disabled="@BackDisabled"
+                    aria-label="@($"Go back: {BackText}")"
+                    aria-disabled="@BackDisabled.ToString().ToLower()"
+                    @onclick="() => OnBack.InvokeAsync()">
+                <svg width="8" height="13" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                    <path d="M7 1L1 6.5L7 12"
+                          stroke="#003663"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+                @BackText
+            </button>
+        }
+
+        @if (ShowCancel)
+        {
+            <button type="button"
+                    class="btn btn--cancel"
+                    disabled="@CancelDisabled"
+                    aria-label="@($"Cancel registration: {CancelText}")"
+                    aria-disabled="@CancelDisabled.ToString().ToLower()"
+                    @onclick="() => OnCancel.InvokeAsync()">
+                @CancelText
+            </button>
+        }
+
+    </div>
+
+    <div class="button-bar__spacer" aria-hidden="true"></div>
+
+    <div class="button-bar__right"
+         role="group"
+         aria-label="Primary actions">
+
+        @if (ShowSaveAndQuit)
+        {
+            <button type="button"
+                    class="btn btn--tertiary"
+                    disabled="@SaveAndQuitDisabled"
+                    aria-label="@($"Save progress and exit: {SaveAndQuitText}")"
+                    aria-disabled="@SaveAndQuitDisabled.ToString().ToLower()"
+                    @onclick="() => OnSaveAndQuit.InvokeAsync()">
+                @SaveAndQuitText
+            </button>
+        }
+
+        @if (ShowContinue)
+        {
+            <button type="submit"
+                    class="btn btn--primary"
+                    disabled="@(!ContinueEnabled)"
+                    style="@GetButtonStyle()"
+                    aria-label="@($"Proceed to next step: {ContinueText}")"
+                    aria-disabled="@((!ContinueEnabled).ToString().ToLower())">
+                @ContinueText
+                <svg width="8" height="13" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                    <path d="M1 1L7 6.5L1 12"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+            </button>
+        }
+
+    </div>
+
+</nav>
+
+@code {
+    /// <summary>Controls visibility of the Back button.</summary>
+    [Parameter] public bool ShowBack { get; set; } = true;
+
+    /// <summary>Controls visibility of the Continue (submit) button.</summary>
+    [Parameter] public bool ShowContinue { get; set; } = true;
+
+    /// <summary>Controls visibility of the Cancel button.</summary>
+    [Parameter] public bool ShowCancel { get; set; } = false;
+
+    /// <summary>Controls visibility of the Save &amp; Quit button.</summary>
+    [Parameter] public bool ShowSaveAndQuit { get; set; } = false;
+
+    /// <summary>Enables or disables the Continue button.</summary>
+    [Parameter] public bool ContinueEnabled { get; set; } = true;
+
+    /// <summary>Enables or disables the Back button.</summary>
+    [Parameter] public bool BackDisabled { get; set; } = false;
+
+    /// <summary>Enables or disables the Cancel button.</summary>
+    [Parameter] public bool CancelDisabled { get; set; } = false;
+
+    /// <summary>Enables or disables the Save &amp; Quit button.</summary>
+    [Parameter] public bool SaveAndQuitDisabled { get; set; } = false;
+
+    /// <summary>Display text for the Back button.</summary>
+    [Parameter] public string BackText { get; set; } = "BACK";
+
+    /// <summary>Display text for the Continue button.</summary>
+    [Parameter] public string ContinueText { get; set; } = "CONTINUE";
+
+    /// <summary>Display text for the Cancel button.</summary>
+    [Parameter] public string CancelText { get; set; } = "CANCEL";
+
+    /// <summary>Display text for the Save &amp; Quit button.</summary>
+    [Parameter] public string SaveAndQuitText { get; set; } = "SAVE & QUIT";
+
+    /// <summary>Callback invoked when Back is clicked. Navigation handled by the parent.</summary>
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    /// <summary>Callback invoked when Cancel is clicked.</summary>
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    /// <summary>Callback invoked when Save &amp; Quit is clicked.</summary>
+    [Parameter] public EventCallback OnSaveAndQuit { get; set; }
+
+    /// <summary>
+    /// Optional fixed width for the Continue button (e.g. "112px").
+    /// Set to null or empty for auto width — useful for longer labels.
+    /// </summary>
+    [Parameter] public string? ButtonWidth { get; set; } = "112px";
+
+    private string GetButtonStyle()
+        => string.IsNullOrWhiteSpace(ButtonWidth) ? string.Empty : $"width: {ButtonWidth};";
+}

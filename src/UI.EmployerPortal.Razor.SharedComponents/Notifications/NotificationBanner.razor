@@ -1,0 +1,40 @@
+@if (Visible)
+{
+    <div class="notification-banner notification-banner--@Type.ToString().ToLower()"
+         role="alert"
+         aria-live="polite">
+        <span class="notification-banner__icon" aria-hidden="true">@GetIcon()</span>
+        <span>
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <strong>@Title:</strong>@(" ")
+            }
+            @Message
+        </span>
+    </div>
+}
+
+@code {
+    public enum BannerType { Error, Warning, Info, Success }
+
+    /// <summary>Whether the banner is visible.</summary>
+    [Parameter] public bool Visible { get; set; }
+
+    /// <summary>Visual style of the banner. Defaults to Error.</summary>
+    [Parameter] public BannerType Type { get; set; } = BannerType.Error;
+
+    /// <summary>Bold title prefix (e.g. "Missing information").</summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>Body text of the notification.</summary>
+    [Parameter] public string? Message { get; set; }
+
+    private string GetIcon() => Type switch
+    {
+        BannerType.Error   => "\u2139",   // ℹ
+        BannerType.Warning => "\u26A0",   // ⚠
+        BannerType.Info    => "\u2139",   // ℹ
+        BannerType.Success => "\u2713",   // ✓
+        _                  => "\u2139"
+    };
+}

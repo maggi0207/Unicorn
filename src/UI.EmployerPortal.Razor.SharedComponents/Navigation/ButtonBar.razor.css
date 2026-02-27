@@ -1,0 +1,100 @@
+.button-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+    width: 100%;
+}
+
+.button-bar__left {
+    display: flex;
+    align-items: center;
+}
+
+.button-bar__spacer {
+    flex-grow: 1;
+}
+
+.button-bar__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---- Shared button base ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 25.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+}
+
+/* ---- Primary (Continue / Submit) ---- */
+.btn--primary {
+    background: #003663;
+    color: #ffffff;
+    outline: 2px solid #003663;
+}
+
+.btn--primary:hover:not(:disabled) {
+    background: #002a4d;
+}
+
+.btn--primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ---- Secondary (Back) ---- */
+.btn--secondary {
+    background: #ffffff;
+    color: #003663;
+    outline: 2px solid #003663;
+    outline-offset: -2px;
+}
+
+.btn--secondary:hover:not(:disabled) {
+    background: #f0f4f8;
+}
+
+/* ---- Tertiary (Save & Quit) ---- */
+.btn--tertiary {
+    background: transparent;
+    color: #003663;
+    outline: none;
+}
+
+.btn--tertiary:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+/* ---- Mobile: stack buttons vertically, primary action first ---- */
+@media (max-width: 575px) {
+    .button-bar {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .button-bar__left,
+    .button-bar__right {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .button-bar__spacer {
+        display: none;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

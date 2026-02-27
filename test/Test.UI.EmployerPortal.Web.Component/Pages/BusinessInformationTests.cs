@@ -1,19 +1,13 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
-using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration;
-using UI.EmployerPortal.Web.Services;
 
 namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
 public class BusinessInformationTests : BunitContext
 {
-    public BusinessInformationTests()
-    {
-        Services.AddSingleton<IAddressValidationWrapper>(new StubAddressValidator());
-        Services.AddSingleton<RegistrationStateService>();
-    }
+    // ─── Page Structure ──────────────────────────────────────────────────────
 
     [Fact]
     public void Renders_Page_Title()
@@ -43,27 +37,49 @@ public class BusinessInformationTests : BunitContext
         Assert.Contains("Physical Location 1", cut.Markup);
     }
 
+    // ─── ButtonBar ────────────────────────────────────────────────────────────
+
     [Fact]
     public void Renders_Back_Save_Quit_And_Continue_Buttons()
     {
         var cut = Render<BusinessInformation>();
         Assert.NotNull(cut.Find("button.btn--secondary"));
         Assert.NotNull(cut.Find("button.btn--tertiary"));
-        Assert.NotNull(cut.Find("button.btn--primary"));
+        Assert.NotNull(cut.Find("button[type='submit'].btn--primary"));
     }
+
+    [Fact]
+    public void Continue_Button_Is_Submit_Type()
+    {
+        var cut = Render<BusinessInformation>();
+        Assert.NotNull(cut.Find("button[type='submit']"));
+    }
+
+    [Fact]
+    public void Back_Button_Navigates_To_Ownership()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find("button.btn--secondary").Click();
+        var nav = Services.GetRequiredService<NavigationManager>();
+        Assert.Contains("employer-registration/ownership", nav.Uri);
+    }
+
+    [Fact]
+    public void Save_And_Quit_Navigates_To_Dashboard()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find("button.btn--tertiary").Click();
+        var nav = Services.GetRequiredService<NavigationManager>();
+        Assert.Contains("dashboard", nav.Uri);
+    }
+
+    // ─── Physical Location Management ────────────────────────────────────────
 
     [Fact]
     public void Add_Another_Physical_Location_Button_Visible_Initially()
     {
         var cut = Render<BusinessInformation>();
         Assert.NotEmpty(cut.FindAll(".bi-add-location"));
-    }
-
-    [Fact]
-    public void No_Error_Banner_Before_Submit()
-    {
-        var cut = Render<BusinessInformation>();
-        Assert.Empty(cut.FindAll(".bi-error-banner"));
     }
 
     [Fact]
@@ -116,45 +132,64 @@ public class BusinessInformationTests : BunitContext
         Assert.DoesNotContain("Physical Location 2", cut.Markup);
     }
 
+    // ─── NotificationBanner (error banner) ───────────────────────────────────
+
+    [Fact]
+    public void No_Error_Banner_Before_Submit()
+    {
+        var cut = Render<BusinessInformation>();
+        Assert.Empty(cut.FindAll(".notification-banner--error"));
+    }
+
     [Fact]
     public void Continue_With_Empty_Form_Shows_Error_Banner()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--primary").Click();
-        Assert.NotEmpty(cut.FindAll(".bi-error-banner"));
+        cut.Find("button[type='submit']").Click();
+        Assert.NotEmpty(cut.FindAll(".notification-banner--error"));
     }
 
     [Fact]
     public void Error_Banner_Contains_Missing_Information_Text()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--primary").Click();
-        Assert.Contains("Missing information", cut.Find(".bi-error-banner").TextContent);
+        cut.Find("button[type='submit']").Click();
+        Assert.Contains("Missing information", cut.Find(".notification-banner--error").TextContent);
+    }
+
+    // ─── Tab Focus Error Handling ─────────────────────────────────────────────
+
+    [Fact]
+    public void No_Field_Errors_Before_Any_Interaction()
+    {
+        var cut = Render<BusinessInformation>();
+        Assert.Empty(cut.FindAll(".field-error"));
     }
 
     [Fact]
-    public void Back_Button_Navigates_To_Ownership()
+    public void Field_Error_Shown_For_Touched_Required_Field_Without_Submit()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--secondary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("employer-registration/ownership", nav.Uri);
+        // Simulate user typing into Legal Name then clearing it (tab-away scenario)
+        cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
+        Assert.NotEmpty(cut.FindAll(".field-error"));
     }
 
     [Fact]
-    public void Save_And_Quit_Navigates_To_Dashboard()
+    public void No_Global_Error_Banner_When_Only_Field_Touched_Without_Submit()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--tertiary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("dashboard", nav.Uri);
+        cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
+        // Field error shows but global banner must not appear until submit is clicked
+        Assert.Empty(cut.FindAll(".notification-banner--error"));
     }
 
-    private sealed class StubAddressValidator : IAddressValidationWrapper
+    [Fact]
+    public void Untouched_Fields_Have_No_Error_When_Another_Field_Is_Touched()
     {
-        public Task<AddressValidationResult> ValidateAsync(AddressModel address)
-        {
-            return Task.FromResult(new AddressValidationResult(true, null, null));
-        }
+        var cut = Render<BusinessInformation>();
+        cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
+        // FEIN was never touched — its error should not be visible
+        Assert.DoesNotContain("FEIN is required", cut.Markup);
     }
 }
