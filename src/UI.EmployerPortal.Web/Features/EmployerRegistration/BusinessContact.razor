@@ -1,15 +1,7 @@
 @page "/employer-registration/business-contact"
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
-@using UI.EmployerPortal.Razor.SharedComponents.Address
-@using UI.EmployerPortal.Razor.SharedComponents.Model
-@using UI.EmployerPortal.Razor.SharedComponents.Validation
-@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
-@using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Web.Services
 @inject NavigationManager Nav
-@inject IAddressValidationWrapper AddressValidator
 
 <PageTitle>Business Contact</PageTitle>
 
@@ -19,19 +11,18 @@
         <h1 class="page-title">Business Contact</h1>
         <p class="page-subtitle">All fields are required unless noted</p>
 
-        <EditForm EditContext="@editContext" FormName="BusinessContact">
+        <EditForm EditContext="@editContext"
+                  OnValidSubmit="HandleContinue"
+                  OnInvalidSubmit="OnInvalid"
+                  FormName="BusinessContact">
 
             <DataAnnotationsValidator />
             <CustomValidator @ref="customValidator" />
 
-            @* Top Error Banner *@
-            @if (formSubmitted && hasValidationErrors)
-            {
-                <div class="bi-error-banner">
-                    <span class="bi-error-icon">&#9432;</span>
-                    <span><strong>Missing information:</strong> Please correct the errors below</span>
-                </div>
-            }
+            @* ================= ERROR BANNER ================= *@
+            <NotificationBanner Visible="@(formSubmitted && hasValidationErrors)"
+                                Title="Missing information"
+                                Message="Please correct the errors below" />
 
             @* ================= CONTACT NAME ================= *@
             <div class="bi-fields-grid">
@@ -40,16 +31,16 @@
                     <OutlinedTextField Label="First Name"
                                        @bind-Value="Model.FirstName"
                                        For="() => Model.FirstName"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.FirstName)" Visible="formSubmitted" />
+                                       Visible="@IsVisible(() => Model.FirstName)" />
+                    <FieldError For="@(() => Model.FirstName)" Visible="@IsVisible(() => Model.FirstName)" />
                 </div>
 
                 <div class="bi-field">
                     <OutlinedTextField Label="Last Name"
                                        @bind-Value="Model.LastName"
                                        For="() => Model.LastName"
-                                       Visible="formSubmitted" />
-                    <FieldError For="@(() => Model.LastName)" Visible="formSubmitted" />
+                                       Visible="@IsVisible(() => Model.LastName)" />
+                    <FieldError For="@(() => Model.LastName)" Visible="@IsVisible(() => Model.LastName)" />
                 </div>
 
             </div>
@@ -95,49 +86,15 @@
                 </div>
 
                 <AddressField Address="Model.ContactAddress"
-                              Visible="formSubmitted" />
+                              Visible="@IsAddressVisible(Model.ContactAddress)" />
             }
 
-            @* ================= ACTION BUTTONS ================= *@
-            <div class="bi-button-row">
-
-                <div class="bi-button-row-left">
-                    <button type="button"
-                            class="btn btn--secondary"
-                            @onclick="GoBack">
-                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                            <path d="M7 1L1 6.5L7 12"
-                                  stroke="#003663"
-                                  stroke-width="2"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round" />
-                        </svg>
-                        BACK
-                    </button>
-                </div>
-
-                <div class="bi-button-row-right">
-                    <button type="button"
-                            class="btn btn--tertiary"
-                            @onclick="HandleSaveQuit">
-                        SAVE &amp; QUIT
-                    </button>
-
-                    <button type="button"
-                            class="btn btn--primary"
-                            @onclick="HandleContinue">
-                        CONTINUE
-                        <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                            <path d="M1 1L7 6.5L1 12"
-                                  stroke="white"
-                                  stroke-width="2"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </div>
-
-            </div>
+            @* ================= BUTTON BAR ================= *@
+            <ButtonBar ShowBack="true"
+                       ShowContinue="true"
+                       ShowSaveAndQuit="true"
+                       OnBack="GoBack"
+                       OnSaveAndQuit="HandleSaveQuit" />
 
         </EditForm>
     </div>
@@ -150,15 +107,33 @@
     private bool formSubmitted = false;
     private bool hasValidationErrors = false;
 
+    // Tracks which fields the user has interacted with so errors show on field change
+    private HashSet<FieldIdentifier> _touchedFields = new();
+
     protected override void OnInitialized()
     {
         editContext = new EditContext(Model);
-        editContext.OnFieldChanged += (_, __) =>
+        editContext.OnFieldChanged += (_, e) =>
         {
+            _touchedFields.Add(e.FieldIdentifier);
             hasValidationErrors = editContext.GetValidationMessages().Any();
             StateHasChanged();
         };
     }
+
+    /// <summary>
+    /// Returns true when a top-level field's errors should be visible —
+    /// either after submission or after the user has interacted with that field.
+    /// </summary>
+    private bool IsVisible(Expression<Func<string?>> For)
+        => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+
+    /// <summary>
+    /// Returns true when an address section's errors should be visible —
+    /// either after submission or after the user has changed any field in that address.
+    /// </summary>
+    private bool IsAddressVisible(AddressModel address)
+        => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
 
     private void OnAddressChoiceChanged(bool value)
     {
@@ -166,51 +141,40 @@
         StateHasChanged();
     }
 
-    private async Task HandleContinue()
+    /// <summary>Called by EditForm when top-level validation passes.</summary>
+    private void HandleContinue()
     {
         formSubmitted = true;
         customValidator?.ClearErrors();
 
-        var isValid = editContext.Validate();
-
         if (Model.IsDifferentAddress == null)
         {
-            isValid = false;
+            hasValidationErrors = true;
+            StateHasChanged();
+            return;
         }
 
         if (Model.IsDifferentAddress == true)
         {
-            // Step 1: Local DataAnnotations validation
             var addressErrors = ValidateContactAddress();
-
-            // Step 2: Call AddressValidationService only when local validation passed
-            if (!addressErrors.Any())
-            {
-                var result = await AddressValidator.ValidateAsync(Model.ContactAddress);
-                if (!result.IsValid)
-                {
-                    var fi = new FieldIdentifier(Model.ContactAddress, nameof(Model.ContactAddress.State));
-                    addressErrors[fi] = new List<string>
-                    {
-                        result.ErrorMessage ?? "Address could not be validated. Please check the state and country."
-                    };
-                }
-            }
-
             if (addressErrors.Any())
             {
                 customValidator?.DisplayErrors(addressErrors);
-                isValid = false;
+                hasValidationErrors = true;
+                StateHasChanged();
+                return;
             }
         }
 
-        hasValidationErrors = !isValid;
+        hasValidationErrors = false;
+        Nav.NavigateTo("/employer-registration/next-step");
+    }
 
-        if (isValid)
-        {
-            Nav.NavigateTo("/employer-registration/next-step");
-        }
-
+    /// <summary>Called by EditForm when top-level validation fails.</summary>
+    private void OnInvalid()
+    {
+        formSubmitted = true;
+        hasValidationErrors = true;
         StateHasChanged();
     }
 

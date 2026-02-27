@@ -7,8 +7,6 @@ namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
 public class BusinessInformationTests : BunitContext
 {
-    // ─── Page Structure ──────────────────────────────────────────────────────
-
     [Fact]
     public void Renders_Page_Title()
     {
@@ -36,8 +34,6 @@ public class BusinessInformationTests : BunitContext
         var cut = Render<BusinessInformation>();
         Assert.Contains("Physical Location 1", cut.Markup);
     }
-
-    // ─── ButtonBar ────────────────────────────────────────────────────────────
 
     [Fact]
     public void Renders_Back_Save_Quit_And_Continue_Buttons()
@@ -72,8 +68,6 @@ public class BusinessInformationTests : BunitContext
         var nav = Services.GetRequiredService<NavigationManager>();
         Assert.Contains("dashboard", nav.Uri);
     }
-
-    // ─── Physical Location Management ────────────────────────────────────────
 
     [Fact]
     public void Add_Another_Physical_Location_Button_Visible_Initially()
@@ -132,8 +126,6 @@ public class BusinessInformationTests : BunitContext
         Assert.DoesNotContain("Physical Location 2", cut.Markup);
     }
 
-    // ─── NotificationBanner (error banner) ───────────────────────────────────
-
     [Fact]
     public void No_Error_Banner_Before_Submit()
     {
@@ -157,8 +149,6 @@ public class BusinessInformationTests : BunitContext
         Assert.Contains("Missing information", cut.Find(".notification-banner--error").TextContent);
     }
 
-    // ─── Tab Focus Error Handling ─────────────────────────────────────────────
-
     [Fact]
     public void No_Field_Errors_Before_Any_Interaction()
     {
@@ -170,7 +160,6 @@ public class BusinessInformationTests : BunitContext
     public void Field_Error_Shown_For_Touched_Required_Field_Without_Submit()
     {
         var cut = Render<BusinessInformation>();
-        // Simulate user typing into Legal Name then clearing it (tab-away scenario)
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
         Assert.NotEmpty(cut.FindAll(".field-error"));
     }
@@ -180,7 +169,6 @@ public class BusinessInformationTests : BunitContext
     {
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
-        // Field error shows but global banner must not appear until submit is clicked
         Assert.Empty(cut.FindAll(".notification-banner--error"));
     }
 
@@ -189,7 +177,6 @@ public class BusinessInformationTests : BunitContext
     {
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
-        // FEIN was never touched — its error should not be visible
         Assert.DoesNotContain("FEIN is required", cut.Markup);
     }
 }
