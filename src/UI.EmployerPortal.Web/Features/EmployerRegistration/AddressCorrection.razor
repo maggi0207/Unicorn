@@ -6,6 +6,13 @@
 <div class="page_wrapper">
     <div class="ac-page-content">
 
+        @if (_showUndeliverableWarning)
+        {
+            <p class="ac-undeliverable-warning">
+                Warning! Mail sent to this address may be returned by the post office as undeliverable.
+            </p>
+        }
+
         <h1 class="page-title">Address Correction</h1>
 
         @if (_item is not null)
@@ -49,9 +56,6 @@
 
             @if (_showUndeliverableWarning)
             {
-                <p class="ac-undeliverable-warning">
-                    Warning! Mail sent to this address may be returned by the post office as undeliverable.
-                </p>
                 <div class="ac-actions-suggested">
                     <button type="button" class="btn btn--primary" @onclick="Advance">
                         CONTINUE
