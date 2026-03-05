@@ -2,9 +2,9 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
-using UI.EmployerPortal.Web.Features.EmployerRegistration;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Pages;
 
-namespace Test.UI.EmployerPortal.Web.Component.Pages;
+namespace Test.UI.EmployerPortal.Web.Component.Features.EmployerRegistration;
 
 public class BusinessInformationTests : BunitContext
 {
