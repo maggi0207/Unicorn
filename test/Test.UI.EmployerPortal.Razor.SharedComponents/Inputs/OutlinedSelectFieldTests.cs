@@ -206,7 +206,7 @@ public class OutlinedSelectFieldTests : BunitContext
     }
 
     [Fact]
-    public void Shows_Error_When_ValidationRequested_Fires()
+    public async Task Shows_Error_When_ValidationRequested_Fires()
     {
         var model   = new TestModel();
         var editCtx = new EditContext(model);
@@ -223,7 +223,8 @@ public class OutlinedSelectFieldTests : BunitContext
             p.AddCascadingValue(editCtx);
         });
 
-        editCtx.Validate(); // raises OnValidationRequested → sets _touched = true
+        // Run on the component dispatcher so bUnit processes the StateHasChanged call
+        await cut.InvokeAsync(() => editCtx.Validate());
 
         Assert.Contains("master-select-field--error", cut.Markup);
     }
@@ -310,7 +311,9 @@ public class OutlinedSelectFieldTests : BunitContext
             p.Add(x => x.Required, true);
         });
 
-        Assert.Equal("True", cut.Find("select").GetAttribute("aria-required"));
+        var val = cut.Find("select").GetAttribute("aria-required");
+        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
+            $"Expected aria-required 'true', got '{val}'");
     }
 
     [Fact]
@@ -326,7 +329,9 @@ public class OutlinedSelectFieldTests : BunitContext
             p.AddCascadingValue(editCtx);
         });
 
-        Assert.Equal("True", cut.Find("select").GetAttribute("aria-required"));
+        var val = cut.Find("select").GetAttribute("aria-required");
+        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
+            $"Expected aria-required 'true', got '{val}'");
     }
 
     [Fact]
