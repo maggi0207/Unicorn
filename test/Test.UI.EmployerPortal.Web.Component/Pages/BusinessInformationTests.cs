@@ -154,7 +154,7 @@ public class BusinessInformationTests : BunitContext
     public void No_Field_Errors_Before_Any_Interaction()
     {
         var cut = Render<BusinessInformation>();
-        Assert.Empty(cut.FindAll(".field-error"));
+        Assert.Empty(cut.FindAll(".master-error"));
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class BusinessInformationTests : BunitContext
     {
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
-        Assert.NotEmpty(cut.FindAll(".field-error"));
+        Assert.NotEmpty(cut.FindAll(".master-error"));
     }
 
     [Fact]
@@ -186,22 +186,22 @@ public class BusinessInformationTests : BunitContext
     {
         var cut = Render<BusinessInformation>();
         cut.Find("button[type='submit']").Click();
-        Assert.NotEmpty(cut.FindAll(".field-error"));
+        Assert.NotEmpty(cut.FindAll(".master-error"));
     }
 
     [Fact]
     public void Blur_On_Empty_Required_Field_Shows_Field_Error()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onfocusout", new FocusEventArgs());
-        Assert.NotEmpty(cut.FindAll(".field-error"));
+        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onblur", new FocusEventArgs());
+        Assert.NotEmpty(cut.FindAll(".master-error"));
     }
 
     [Fact]
     public void Blur_Does_Not_Show_Global_Error_Banner()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onfocusout", new FocusEventArgs());
+        cut.Find("input[aria-label='Legal Name']").TriggerEvent("onblur", new FocusEventArgs());
         Assert.Empty(cut.FindAll(".notification-banner--error"));
     }
 }

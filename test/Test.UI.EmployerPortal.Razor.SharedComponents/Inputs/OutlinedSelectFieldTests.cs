@@ -1,6 +1,7 @@
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 
 namespace Test.UI.EmployerPortal.Razor.SharedComponents.Inputs;
@@ -13,6 +14,8 @@ public class OutlinedSelectFieldTests : BunitContext
         new() { Value = "CA", Text = "Canada" },
         new() { Value = "MX", Text = "Mexico" },
     ];
+
+    // ── Rendering ──────────────────────────────────────────────────────────
 
     [Fact]
     public void Renders_Label()
@@ -108,8 +111,10 @@ public class OutlinedSelectFieldTests : BunitContext
         Assert.Null(cut.Find("select").GetAttribute("disabled"));
     }
 
+    // ── Error visibility ───────────────────────────────────────────────────
+
     [Fact]
-    public void No_Error_Class_When_Visible_False()
+    public void No_Error_Class_When_Not_Visible_And_Not_Touched()
     {
         var cut = Render<OutlinedSelectField>(p =>
         {
@@ -134,25 +139,220 @@ public class OutlinedSelectFieldTests : BunitContext
     }
 
     [Fact]
-    public void Shows_Error_Class_When_Field_Has_Validation_Error()
+    public void Shows_Error_Class_When_Visible_And_Field_Has_Error()
     {
         var model   = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
-        store.Add(FieldIdentifier.Create(() => model.RequiredField!), "Value is required.");
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
         editCtx.NotifyValidationStateChanged();
 
         var cut = Render<OutlinedSelectField>(p =>
         {
             p.Add(x => x.Options, ThreeOptions);
             p.Add(x => x.Visible, true);
-            p.Add(x => x.For, () => model.RequiredField!);
+            p.Add(x => x.For, () => model.RequiredField);
             p.AddCascadingValue(editCtx);
         });
 
         Assert.Contains("master-select-field--error", cut.Markup);
     }
+
+    // ── Touch / blur behaviour ─────────────────────────────────────────────
+
+    [Fact]
+    public void No_Error_Before_Blur_When_Visible_False()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, false);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        Assert.DoesNotContain("master-select-field--error", cut.Markup);
+    }
+
+    [Fact]
+    public void Shows_Error_After_Blur_Without_Visible()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, false);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        cut.Find("select").TriggerEvent("onblur", new FocusEventArgs());
+
+        Assert.Contains("master-select-field--error", cut.Markup);
+    }
+
+    [Fact]
+    public void Shows_Error_When_ValidationRequested_Fires()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, false);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        editCtx.Validate(); // raises OnValidationRequested → sets _touched = true
+
+        Assert.Contains("master-select-field--error", cut.Markup);
+    }
+
+    [Fact]
+    public void OnBlur_Callback_Invoked_On_Blur()
+    {
+        var called = false;
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.OnBlur, () => { called = true; });
+        });
+
+        cut.Find("select").TriggerEvent("onblur", new FocusEventArgs());
+
+        Assert.True(called);
+    }
+
+    // ── Error icon and message ─────────────────────────────────────────────
+
+    [Fact]
+    public void Shows_SVG_Error_Icon_When_HasError()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, true);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        Assert.NotNull(cut.Find(".master-error svg"));
+    }
+
+    [Fact]
+    public void Shows_Error_Message_Text_When_HasError()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, true);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        Assert.Contains("Value is required.", cut.Find(".master-error").TextContent);
+    }
+
+    [Fact]
+    public void No_Error_Div_When_No_Error()
+    {
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, false);
+        });
+
+        Assert.Empty(cut.FindAll(".master-error"));
+    }
+
+    // ── ARIA attributes ────────────────────────────────────────────────────
+
+    [Fact]
+    public void AriaRequired_True_When_Required_Parameter_Set()
+    {
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Required, true);
+        });
+
+        Assert.Equal("True", cut.Find("select").GetAttribute("aria-required"));
+    }
+
+    [Fact]
+    public void AriaRequired_True_When_Field_Has_Required_Attribute()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        Assert.Equal("True", cut.Find("select").GetAttribute("aria-required"));
+    }
+
+    [Fact]
+    public void AriaDescribedBy_Includes_ErrorId_When_HasError()
+    {
+        var model   = new TestModel();
+        var editCtx = new EditContext(model);
+
+        var store = new ValidationMessageStore(editCtx);
+        store.Add(FieldIdentifier.Create(() => model.RequiredField), "Value is required.");
+        editCtx.NotifyValidationStateChanged();
+
+        var cut = Render<OutlinedSelectField>(p =>
+        {
+            p.Add(x => x.Id, "test-field");
+            p.Add(x => x.Options, ThreeOptions);
+            p.Add(x => x.Visible, true);
+            p.Add(x => x.For, () => model.RequiredField);
+            p.AddCascadingValue(editCtx);
+        });
+
+        var describedBy = cut.Find("select").GetAttribute("aria-describedby");
+        Assert.Contains("test-field-error", describedBy);
+    }
+
+    // ── ValueChanged callbacks ─────────────────────────────────────────────
 
     [Fact]
     public async Task Invokes_ValueChanged_On_Selection()
