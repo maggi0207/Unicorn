@@ -1,7 +1,7 @@
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
-namespace UI.EmployerPortal.Web.Services;
+namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 public class RegistrationStateService
 {

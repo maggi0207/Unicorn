@@ -1,5 +1,5 @@
 using UI.EmployerPortal.Web.Components;
-using UI.EmployerPortal.Web.Services;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 using UI.EmployerPortal.Web.Startup.WcfServiceClients;
 
 var builder = WebApplication.CreateBuilder(args);
