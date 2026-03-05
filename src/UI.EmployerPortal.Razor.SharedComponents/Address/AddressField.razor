@@ -46,12 +46,16 @@
             <OutlinedTextField Label="Zip Code"
                                @bind-Value="Address.Zip"
                                For="() => Address.Zip"
-                               Visible="Visible" />
+                               Visible="Visible"
+                               InputMode="numeric"
+                               MaxLength="5" />
         </div>
         <span class="bi-zip-dash">—</span>
         <div class="bi-ext-field">
             <OutlinedTextField Label="+4 (Optional)"
-                               @bind-Value="Address.Extension" />
+                               @bind-Value="Address.Extension"
+                               InputMode="numeric"
+                               MaxLength="4" />
         </div>
     </div>
 

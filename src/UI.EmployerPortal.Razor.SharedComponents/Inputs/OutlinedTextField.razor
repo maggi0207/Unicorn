@@ -197,9 +197,13 @@
     {
         var raw = e.Value?.ToString() ?? "";
 
-        // If numeric type and MaxLength set, truncate
-        if (InputMode == "numeric" && MaxLength.HasValue && raw.Length > MaxLength.Value)
-            raw = raw[..MaxLength.Value];
+        // Strip non-digits and enforce max length for numeric fields
+        if (InputMode == "numeric")
+        {
+            raw = new string(raw.Where(char.IsDigit).ToArray());
+            if (MaxLength.HasValue && raw.Length > MaxLength.Value)
+                raw = raw[..MaxLength.Value];
+        }
 
         Value = raw;
 

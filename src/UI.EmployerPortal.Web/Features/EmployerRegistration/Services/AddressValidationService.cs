@@ -1,3 +1,4 @@
+using System.ServiceModel;
 using GeneratedClient = UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 
@@ -32,7 +33,22 @@ public class AddressValidationService : IAddressValidationWrapper
             CountryCode        = ToCountryCode(address.Country)
         };
 
-        var response = await _client.ValidateAddressAsync(request);
+        GeneratedClient.ValidateAddressResponse response;
+        try
+        {
+            response = await _client.ValidateAddressAsync(request);
+        }
+        catch (CommunicationException)
+        {
+            // WCF communication failure (network error, SOAP fault, serialization failure).
+            // Treat as unverifiable — let the user proceed without a suggestion.
+            return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
+        }
+        catch (Exception)
+        {
+            // Unexpected failure — fail safe so the page does not crash.
+            return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
+        }
 
         // ErrorMessageOne is populated when the address could not be validated;
         // ReturnCode is not reliable (observed as null for both valid and invalid responses).
