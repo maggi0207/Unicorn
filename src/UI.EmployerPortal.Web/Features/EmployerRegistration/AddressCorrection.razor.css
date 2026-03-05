@@ -13,7 +13,7 @@
     box-sizing: border-box;
     font-family: Verdana, sans-serif;
     font-size: 16px;
-    gap: 16px;
+    gap: 24px;
 }
 
 .page-title {
@@ -22,7 +22,7 @@
     font-weight: 700;
     line-height: 116%;
     color: #000000;
-    margin: 0;
+    margin: 0 0 8px 0;
 }
 
 /* Address section header (e.g. "Business Mailing Address") */
@@ -71,9 +71,9 @@
 
 /* Section labels */
 .ac-section-label {
-    margin: 4px 0 4px 0;
-    font-size: 14px;
-    color: #444;
+    margin: 0;
+    font-size: 16px;
+    color: #000000;
 }
 
 /* Address display box */
@@ -89,7 +89,7 @@
 .ac-address-box p {
     margin: 0;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 16px;
     color: #1a1a1a;
 }
 
@@ -107,7 +107,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
 }
 
 .ac-actions-suggested {
@@ -133,7 +132,7 @@
     color: #002a4d;
 }
 
-/* Buttons */
+/* Buttons — mirror ButtonBar shared component */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -141,8 +140,9 @@
     padding: 10px 16px;
     border-radius: 6px;
     font-family: Verdana, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
+    line-height: 25.6px;
     text-transform: uppercase;
     cursor: pointer;
     border: none;
@@ -154,7 +154,7 @@
     outline: 2px solid #003663;
 }
 
-.btn--primary:hover {
+.btn--primary:hover:not(:disabled) {
     background: #002a4d;
 }
 
@@ -165,7 +165,7 @@
     outline-offset: -2px;
 }
 
-.btn--secondary:hover {
+.btn--secondary:hover:not(:disabled) {
     background: #f0f4f8;
 }
 

@@ -10,10 +10,6 @@
 
         @if (_item is not null)
         {
-            <div class="ac-section-header">
-                <span>@_item.Label</span>
-            </div>
-
             <div class="ac-warning">
                 <p class="ac-warning-title">
                     <strong>Verify your address:</strong>
@@ -29,6 +25,10 @@
                     To proceed, please choose one of the options below. If you use the address as entered,
                     mail may be undeliverable.
                 </p>
+            </div>
+
+            <div class="ac-section-header">
+                <span>@_item.Label</span>
             </div>
 
             <p class="ac-section-label">You entered:</p>
