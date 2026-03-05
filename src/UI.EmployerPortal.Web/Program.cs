@@ -9,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddWcfServiceClients(builder.Configuration);
+builder.Services.AddScoped<IAddressValidationWrapper, AddressValidationService>();
 builder.Services.AddScoped<RegistrationStateService>();
 
 var app = builder.Build();

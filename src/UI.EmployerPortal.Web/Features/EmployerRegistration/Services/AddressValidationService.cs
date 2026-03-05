@@ -28,7 +28,8 @@ public class AddressValidationService : IAddressValidationWrapper
             StateCode          = address.State,
             ZipCode            = address.Zip,
             ZipCodeExtension   = address.Extension,
-            CountryCode        = address.Country
+            // Service requires ISO country code ("US"), not the display name ("United States")
+            CountryCode        = ToCountryCode(address.Country)
         };
 
         var response = await _client.ValidateAddressAsync(request);
@@ -66,5 +67,20 @@ public class AddressValidationService : IAddressValidationWrapper
         }
 
         return new AddressValidationResult(isValid, errorMessage, correctedAddress);
+    }
+
+    /// <summary>
+    /// Maps the AddressModel country display name to the ISO code expected by the WCF service.
+    /// Defaults to "US" when the value is null or unrecognised.
+    /// </summary>
+    private static string ToCountryCode(string? country)
+    {
+        switch (country)
+        {
+            case "United States": return "US";
+            case "Canada":        return "CA";
+            case "Mexico":        return "MX";
+            default:              return "US";
+        }
     }
 }
