@@ -18,7 +18,7 @@ public class AddressModel
     /// <summary>
     /// Primary address line. Maps to "Address Line 2" in SUITES backend.
     /// </summary>
-    [Required(ErrorMessage = "Address Line 1 is required.")]
+    [Required(ErrorMessage = "Street Address is required.")]
     public string? AddressLine1 { get; set; }
 
     /// <summary>

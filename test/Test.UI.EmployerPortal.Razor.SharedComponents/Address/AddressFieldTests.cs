@@ -37,7 +37,7 @@ public class AddressFieldTests : BunitContext
             p.Add(x => x.Address, ValidAddress());
         });
 
-        Assert.Contains("Address Line 1", cut.Markup);
+        Assert.Contains("Street Address", cut.Markup);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class AddressFieldTests : BunitContext
             p.Add(x => x.Address, ValidAddress());
         });
 
-        Assert.Contains("Address Line 2 (Optional)", cut.Markup);
+        Assert.Contains("Suite,Apt.,Attn.,etc (Optional)", cut.Markup);
     }
 
     [Fact]
