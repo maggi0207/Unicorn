@@ -1,6 +1,6 @@
 using System.ServiceModel;
 using UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
-using UI.EmployerPortal.Web.Services;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace UI.EmployerPortal.Web.Startup.WcfServiceClients;
 

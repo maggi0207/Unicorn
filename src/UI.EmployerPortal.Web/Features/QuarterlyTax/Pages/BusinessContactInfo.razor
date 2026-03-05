@@ -1,0 +1,344 @@
+@page "/business-contact"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Razor.SharedComponents.Notifications
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@inject NavigationManager Navigation
+
+<PageTitle>Contact Information</PageTitle>
+
+<div class="page_wrapper">
+    <div class="bi-page-content">
+
+        <h1 class="page-title">Contact Information</h1>
+        <p class="page-subtitle">
+            Required, including an email address and phone number, in order to upload wage report files.
+        </p>
+
+        <div class="ci-meta-row">
+            <span><strong>Reporting Quarter:</strong> Q1 2022</span>
+            <span><strong>Due Date:</strong> 8/1/2022</span>
+        </div>
+
+        <EditForm EditContext="@_editContext"
+                  OnValidSubmit="HandleContinue"
+                  OnInvalidSubmit="OnInvalid"
+                  FormName="ContactInformation">
+
+            <DataAnnotationsValidator />
+            <CustomValidator @ref="_customValidator" />
+
+            @* ================= ERROR BANNER ================= *@
+            <NotificationBanner Visible="@(_formSubmitted && _hasValidationErrors)"
+                                Title="Missing information"
+                                Message="Please correct the errors below" />
+
+            @* ================= SECTION 1: BUSINESS UPLOADING THE FILE ================= *@
+            <div class="bi-section-header">
+                <span>Business Uploading the File</span>
+            </div>
+
+            <div class="bi-fields-grid">
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Business Name"
+                                       @bind-Value="Model.BusinessName"
+                                       For="() => Model.BusinessName"
+                                       Visible="@IsVisible(() => Model.BusinessName)" />
+                </div>
+
+                <div class="bi-field"></div>
+
+            </div>
+
+            <AddressField Address="Model.MailingAddress"
+                          Visible="@IsAddressVisible(Model.MailingAddress)" />
+
+            <div class="bi-fields-grid">
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Fax Number"
+                                       Value="@_faxValue"
+                                       ValueChanged="OnFaxInput"
+                                       FormatText="608-111-2222"
+                                       For="() => Model.FaxNumber"
+                                       Visible="@IsVisible(() => Model.FaxNumber)" />
+                </div>
+
+                <div class="bi-field"></div>
+
+            </div>
+
+            @* ================= SECTION 2: FILE UPLOAD CONTENT ================= *@
+            <div class="bi-section-header">
+                <span>File Upload Content</span>
+            </div>
+
+            <div class="bi-fields-grid">
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Contact First Name"
+                                       @bind-Value="Model.ContactFirstName"
+                                       For="() => Model.ContactFirstName"
+                                       Visible="@IsVisible(() => Model.ContactFirstName)" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Contact Last Name"
+                                       @bind-Value="Model.ContactLastName"
+                                       For="() => Model.ContactLastName"
+                                       Visible="@IsVisible(() => Model.ContactLastName)" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <PhoneNumberField @bind-Value="Model.UploadPhoneNumber"
+                                          For="() => Model.UploadPhoneNumber"
+                                          Visible="@IsVisible(() => Model.UploadPhoneNumber)" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (optional)"
+                                           @bind-Value="Model.UploadExt" />
+                    </div>
+                </div>
+
+                <div class="bi-field"></div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.UploadEmail"
+                                       For="() => Model.UploadEmail"
+                                       Visible="@IsVisible(() => Model.UploadEmail)" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Confirm Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.ConfirmUploadEmail"
+                                       For="() => Model.ConfirmUploadEmail"
+                                       Visible="@IsVisible(() => Model.ConfirmUploadEmail)" />
+                </div>
+
+            </div>
+
+            @* ================= SECTION 3: CONTACT INFORMATION FOR RECORDS ================= *@
+            <div class="bi-section-header">
+                <span>Contact Information for Records (after the file has been processed)</span>
+            </div>
+
+            <label class="ci-checkbox-label">
+                <input type="checkbox"
+                       checked="@_isSameAsUploadContact"
+                       @onchange="@(e => OnCheckboxChanged((bool)(e.Value ?? false)))" />
+                <strong>Same as File Upload Contact</strong>
+            </label>
+
+            <div class="bi-fields-grid">
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Contact First Name"
+                                       @bind-Value="Model.RecordFirstName"
+                                       For="() => Model.RecordFirstName"
+                                       Visible="@IsVisible(() => Model.RecordFirstName)"
+                                       Disabled="_isSameAsUploadContact" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Contact Last Name"
+                                       @bind-Value="Model.RecordLastName"
+                                       For="() => Model.RecordLastName"
+                                       Visible="@IsVisible(() => Model.RecordLastName)"
+                                       Disabled="_isSameAsUploadContact" />
+                </div>
+
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <PhoneNumberField @bind-Value="Model.RecordPhone"
+                                          For="() => Model.RecordPhone"
+                                          Visible="@IsVisible(() => Model.RecordPhone)"
+                                          Disabled="_isSameAsUploadContact" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (optional)"
+                                           @bind-Value="Model.RecordExt"
+                                           Disabled="_isSameAsUploadContact" />
+                    </div>
+                </div>
+
+                <div class="bi-field"></div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.RecordEmail"
+                                       For="() => Model.RecordEmail"
+                                       Visible="@IsVisible(() => Model.RecordEmail)"
+                                       Disabled="_isSameAsUploadContact" />
+                </div>
+
+                <div class="bi-field">
+                    <OutlinedTextField Label="Confirm Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.ConfirmationRecordEmail"
+                                       For="() => Model.ConfirmationRecordEmail"
+                                       Visible="@IsVisible(() => Model.ConfirmationRecordEmail)"
+                                       Disabled="_isSameAsUploadContact" />
+                </div>
+
+            </div>
+
+            @* ================= BUTTON BAR ================= *@
+            <ButtonBar ShowBack="true"
+                       ShowContinue="true"
+                       ShowSaveAndQuit="true"
+                       OnBack="GoBack"
+                       OnSaveAndQuit="HandleSaveQuit" />
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    /// <summary>Primary data model for the form.</summary>
+    private ContactModel Model = new();
+
+    /// <summary>EditContext for the form, enables field-level validation tracking.</summary>
+    private EditContext _editContext = default!;
+
+    /// <summary>Reference to CustomValidator for displaying nested object errors.</summary>
+    private CustomValidator? _customValidator;
+
+    /// <summary>Tracks whether the form has been submitted at least once.</summary>
+    private bool _formSubmitted = false;
+
+    /// <summary>Tracks whether the current form state has any validation errors.</summary>
+    private bool _hasValidationErrors = false;
+
+    /// <summary>Tracks whether "Same as File Upload Contact" checkbox is checked.</summary>
+    private bool _isSameAsUploadContact = false;
+
+    /// <summary>Displayed value for the Fax Number field, formatted as xxx-xxx-xxxx.</summary>
+    private string? _faxValue;
+
+    /// <summary>Tracks which fields have been interacted with so errors show on blur.</summary>
+    private HashSet<FieldIdentifier> _touchedFields = new();
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(Model);
+        _editContext.OnFieldChanged += (_, e) =>
+        {
+            _touchedFields.Add(e.FieldIdentifier);
+            _hasValidationErrors = _editContext.GetValidationMessages().Any();
+            StateHasChanged();
+        };
+
+        PrepopulateFromLegacy();
+    }
+
+    /// <summary>Pre-fills known values from the legacy system.</summary>
+    private void PrepopulateFromLegacy()
+    {
+        Model.BusinessName = "Goyette & Sons";
+        Model.MailingAddress.AddressLine1 = "123 Main Street";
+        Model.MailingAddress.City = "Milwaukee";
+        Model.MailingAddress.State = "WI";
+        Model.MailingAddress.Zip = "53201";
+        Model.MailingAddress.Country = "United States";
+    }
+
+    /// <summary>
+    /// Returns true when a field's errors should be visible —
+    /// after form submission or after the user has interacted with that field.
+    /// </summary>
+    private bool IsVisible(Expression<Func<string?>> For)
+        => _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+
+    /// <summary>
+    /// Returns true when an address section's errors should be visible —
+    /// after form submission or after the user has changed any field in that address.
+    /// </summary>
+    private bool IsAddressVisible(AddressModel address)
+        => _formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
+
+    /// <summary>Formats the fax number as xxx-xxx-xxxx and syncs it to the model.</summary>
+    private Task OnFaxInput(string? value)
+    {
+        var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 10)
+            digits = digits[..10];
+
+        _faxValue = digits.Length switch
+        {
+            > 6 => $"{digits[..3]}-{digits[3..6]}-{digits[6..]}",
+            > 3 => $"{digits[..3]}-{digits[3..]}",
+            _ => digits
+        };
+
+        Model.FaxNumber = _faxValue;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Handles the "Same as File Upload Contact" checkbox.
+    /// When checked, copies upload contact values into the records contact fields.
+    /// </summary>
+    private void OnCheckboxChanged(bool isChecked)
+    {
+        _isSameAsUploadContact = isChecked;
+
+        if (isChecked)
+        {
+            Model.RecordFirstName         = Model.ContactFirstName;
+            Model.RecordLastName          = Model.ContactLastName;
+            Model.RecordPhone             = Model.UploadPhoneNumber;
+            Model.RecordExt               = Model.UploadExt;
+            Model.RecordEmail             = Model.UploadEmail;
+            Model.ConfirmationRecordEmail = Model.ConfirmUploadEmail;
+        }
+        else
+        {
+            Model.RecordFirstName         = string.Empty;
+            Model.RecordLastName          = string.Empty;
+            Model.RecordPhone             = string.Empty;
+            Model.RecordExt               = string.Empty;
+            Model.RecordEmail             = string.Empty;
+            Model.ConfirmationRecordEmail = string.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>Called by EditForm when top-level validation passes.</summary>
+    private void HandleContinue()
+    {
+        _formSubmitted = true;
+        _hasValidationErrors = false;
+        StateHasChanged();
+    }
+
+    /// <summary>Called by EditForm when top-level validation fails.</summary>
+    private void OnInvalid()
+    {
+        _formSubmitted = true;
+        _hasValidationErrors = true;
+        StateHasChanged();
+    }
+
+    /// <summary>Navigates back to the previous step.</summary>
+    private void GoBack() => Navigation.NavigateTo("/previous-step");
+
+    /// <summary>Saves progress and navigates to the employer dashboard.</summary>
+    private void HandleSaveQuit() => Navigation.NavigateTo("/employer-dashboard");
+}

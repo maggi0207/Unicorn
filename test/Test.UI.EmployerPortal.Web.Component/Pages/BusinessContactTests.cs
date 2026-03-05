@@ -2,7 +2,7 @@ using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
-using UI.EmployerPortal.Web.Features.EmployerRegistration.Pages;
+using UI.EmployerPortal.Web.Features.EmployerRegistration;
 
 namespace Test.UI.EmployerPortal.Web.Component.Features.EmployerRegistration;
 
