@@ -1,0 +1,182 @@
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.ac-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 16px;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+/* Address section header (e.g. "Business Mailing Address") */
+.ac-section-header {
+    width: 100%;
+    border-bottom: 1px solid #003663;
+    padding-bottom: 6px;
+}
+
+.ac-section-header span {
+    font-size: 18px;
+    font-weight: 700;
+    color: #003663;
+}
+
+/* Warning banner */
+.ac-warning {
+    border: 1px solid #C82838;
+    background-color: #fff5f5;
+    border-radius: 4px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ac-warning-title {
+    margin: 0;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.ac-warning-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.ac-warning-icon {
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+/* Section labels */
+.ac-section-label {
+    margin: 4px 0 4px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+/* Address display box */
+.ac-address-box {
+    background-color: #efefef;
+    border-radius: 4px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ac-address-box p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a1a;
+}
+
+/* Undeliverable warning shown after "USE ADDRESS AS ENTERED" */
+.ac-undeliverable-warning {
+    color: #C82838;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Action rows */
+.ac-actions-entered {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.ac-actions-suggested {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* "EDIT ADDRESS" text link */
+.ac-edit-link {
+    background: none;
+    border: none;
+    color: #003663;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-transform: uppercase;
+}
+
+.ac-edit-link:hover {
+    color: #002a4d;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+}
+
+.btn--primary {
+    background: #003663;
+    color: #ffffff;
+    outline: 2px solid #003663;
+}
+
+.btn--primary:hover {
+    background: #002a4d;
+}
+
+.btn--secondary {
+    background: #ffffff;
+    color: #003663;
+    outline: 2px solid #003663;
+    outline-offset: -2px;
+}
+
+.btn--secondary:hover {
+    background: #f0f4f8;
+}
+
+@media (max-width: 575px) {
+    .ac-page-content {
+        padding: 16px;
+    }
+
+    .ac-actions-entered {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}

@@ -28,23 +28,35 @@ public class AddressValidationService : IAddressValidationWrapper
 
         var response = await _client.ValidateAddressAsync(request);
 
-        var isValid = string.IsNullOrEmpty(response.ReturnCode)
-                   || response.ReturnCode == "0";
+        // ErrorMessageOne is set when the address could not be validated
+        var isValid = string.IsNullOrEmpty(response.ErrorMessageOne);
 
         var errorMessage = isValid
             ? null
             : response.ErrorMessageOne ?? response.ErrorMessageTwo;
 
-        var correctedAddress = response.OutputAddress is null ? null : new AddressModel
+        AddressModel? correctedAddress = null;
+        if (response.OutputAddress is not null)
         {
-            AddressLine1 = response.OutputAddress.LineOneAddress,
-            AddressLine2 = response.OutputAddress.LineTwoAddress,
-            City         = response.OutputAddress.CityName,
-            State        = response.OutputAddress.StateCode,
-            Zip          = response.OutputAddress.ZipCode,
-            Extension    = response.OutputAddress.ZipCodeExtension,
-            Country      = response.OutputAddress.CountryCode
-        };
+            // The service sometimes returns the street in LineTwoAddress when LineOneAddress is empty
+            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
+                ? response.OutputAddress.LineTwoAddress
+                : response.OutputAddress.LineOneAddress;
+            var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
+                ? null
+                : response.OutputAddress.LineTwoAddress;
+
+            correctedAddress = new AddressModel
+            {
+                AddressLine1 = line1,
+                AddressLine2 = line2,
+                City         = response.OutputAddress.CityName,
+                State        = response.OutputAddress.StateCode,
+                Zip          = response.OutputAddress.ZipCode,
+                Extension    = response.OutputAddress.ZipCodeExtension,
+                Country      = response.OutputAddress.CountryCode ?? address.Country
+            };
+        }
 
         return new AddressValidationResult(isValid, errorMessage, correctedAddress);
     }

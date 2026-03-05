@@ -1,7 +1,17 @@
 @page "/employer-registration/business-information"
 @rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @inject NavigationManager Nav
+@inject IAddressValidationWrapper AddressValidator
+@inject RegistrationStateService RegistrationState
 
 <PageTitle>Business Information</PageTitle>
 
@@ -128,6 +138,10 @@
 
     protected override void OnInitialized()
     {
+        // Restore model if user navigated back from the address-correction page
+        if (RegistrationState.BusinessInfo is not null)
+            Model = RegistrationState.BusinessInfo;
+
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += (_, e) =>
         {
@@ -157,26 +171,26 @@
     }
 
     /// <summary>
-    /// Returns true when a top-level field's errors should be visible —
+    /// Returns true when a top-level field's errors should be visible
     /// either after submission or after the user has interacted with that field.
     /// </summary>
     private bool IsVisible(Expression<Func<string?>> For)
         => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
 
     /// <summary>
-    /// Returns true when an address section's errors should be visible —
+    /// Returns true when an address section's errors should be visible
     /// either after submission or after the user has changed any field in that address.
     /// </summary>
     private bool IsAddressVisible(AddressModel address)
         => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
 
     /// <summary>Called by EditForm when top-level validation passes.</summary>
-    private void HandleContinue()
+    private async Task HandleContinue()
     {
         formSubmitted = true;
         customValidator?.ClearErrors();
 
-        // Validate nested address models (not covered by DataAnnotationsValidator)
+        // Step 1: Local validation — required fields + format
         var addressErrors = ValidateAddressModels();
         if (addressErrors.Any())
         {
@@ -187,7 +201,32 @@
         }
 
         hasValidationErrors = false;
-        Nav.NavigateTo("/employer-registration/business-contact");
+
+        // Step 2: Service validation — only runs when local validation passed
+        RegistrationState.BusinessInfo = Model;
+        var corrections = new List<AddressCorrectionItem>();
+
+        var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
+        if (!mailingResult.IsValid)
+            corrections.Add(new AddressCorrectionItem("Business Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress));
+
+        for (var i = 0; i < Model.PhysicalLocations.Count; i++)
+        {
+            var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
+            if (!result.IsValid)
+                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1}", Model.PhysicalLocations[i], result.CorrectedAddress));
+        }
+
+        if (corrections.Any())
+        {
+            RegistrationState.AddressCorrections = corrections;
+            RegistrationState.CorrectionIndex    = 0;
+            Nav.NavigateTo("/employer-registration/address-correction");
+        }
+        else
+        {
+            Nav.NavigateTo("/employer-registration/business-contact");
+        }
     }
 
     /// <summary>Called by EditForm when top-level validation fails.</summary>
@@ -255,6 +294,6 @@
 
     private void HandleSaveQuit()
     {
-        Nav.NavigateTo("/dashboard");
+        Nav.NavigateTo("/employer-dashboard");
     }
 }

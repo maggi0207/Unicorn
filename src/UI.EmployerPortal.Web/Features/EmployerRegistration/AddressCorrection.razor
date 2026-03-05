@@ -4,8 +4,154 @@
 <PageTitle>Address Correction</PageTitle>
 
 <div class="page_wrapper">
-    <div class="bi-page-content">
+    <div class="ac-page-content">
+
         <h1 class="page-title">Address Correction</h1>
-        <p class="page-subtitle">Coming soon</p>
+
+        @if (_item is not null)
+        {
+            <div class="ac-section-header">
+                <span>@_item.Label</span>
+            </div>
+
+            <div class="ac-warning">
+                <p class="ac-warning-title">
+                    <strong>Verify your address:</strong>
+                    We think this address may be incorrect or incomplete.
+                </p>
+                <p class="ac-warning-body">
+                    <svg class="ac-warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                         aria-hidden="true">
+                        <circle cx="8" cy="8" r="8" fill="#C82838" />
+                        <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                        <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                    </svg>
+                    To proceed, please choose one of the options below. If you use the address as entered,
+                    mail may be undeliverable.
+                </p>
+            </div>
+
+            <p class="ac-section-label">You entered:</p>
+
+            <div class="ac-address-box">
+                <p>@FormatLine1(_item.Original)</p>
+                <p>@FormatLine2(_item.Original)</p>
+            </div>
+
+            <div class="ac-actions-entered">
+                <button type="button" class="ac-edit-link" @onclick="EditAddress">
+                    EDIT ADDRESS
+                </button>
+                <button type="button" class="btn btn--secondary" @onclick="UseAsEntered">
+                    USE ADDRESS AS ENTERED
+                </button>
+            </div>
+
+            @if (_showUndeliverableWarning)
+            {
+                <p class="ac-undeliverable-warning">
+                    Warning! Mail sent to this address may be returned by the post office as undeliverable.
+                </p>
+                <div class="ac-actions-suggested">
+                    <button type="button" class="btn btn--primary" @onclick="Advance">
+                        CONTINUE
+                    </button>
+                </div>
+            }
+
+            @if (!_showUndeliverableWarning && _item.Suggested is not null)
+            {
+                <p class="ac-section-label">Corrected address:</p>
+
+                <div class="ac-address-box">
+                    <p>@FormatLine1(_item.Suggested)</p>
+                    <p>@FormatLine2(_item.Suggested)</p>
+                </div>
+
+                <div class="ac-actions-suggested">
+                    <button type="button" class="btn btn--primary" @onclick="UseSuggested">
+                        USE SUGGESTED ADDRESS
+                    </button>
+                </div>
+            }
+        }
+
     </div>
 </div>
+
+@code {
+    [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private AddressCorrectionItem? _item;
+    private bool _showUndeliverableWarning;
+
+    protected override void OnInitialized()
+    {
+        LoadCurrent();
+    }
+
+    private void LoadCurrent()
+    {
+        var index = RegistrationState.CorrectionIndex;
+        _item = index < RegistrationState.AddressCorrections.Count
+            ? RegistrationState.AddressCorrections[index]
+            : null;
+        _showUndeliverableWarning = false;
+    }
+
+    private void EditAddress()
+    {
+        Nav.NavigateTo("/employer-registration/business-information");
+    }
+
+    private void UseAsEntered()
+    {
+        // Show undeliverable warning — user must click CONTINUE to actually advance
+        _showUndeliverableWarning = true;
+    }
+
+    private void UseSuggested()
+    {
+        // AddressModel is a class — copy suggested values into Original (same reference as model's address)
+        var s = _item!.Suggested!;
+        var o = _item.Original;
+        o.AddressLine1 = s.AddressLine1;
+        o.AddressLine2 = s.AddressLine2;
+        o.City         = s.City;
+        o.State        = s.State;
+        o.Zip          = s.Zip;
+        o.Extension    = s.Extension;
+        o.Country      = s.Country;
+        Advance();
+    }
+
+    private void Advance()
+    {
+        RegistrationState.CorrectionIndex++;
+
+        if (RegistrationState.CorrectionIndex < RegistrationState.AddressCorrections.Count)
+        {
+            LoadCurrent();
+        }
+        else
+        {
+            Nav.NavigateTo("/employer-registration/business-contact");
+        }
+    }
+
+    private static string FormatLine1(AddressModel a)
+    {
+        var parts = new[] { a.AddressLine1, a.AddressLine2 }
+            .Where(s => !string.IsNullOrWhiteSpace(s));
+        return string.Join(" ", parts).ToUpperInvariant();
+    }
+
+    private static string FormatLine2(AddressModel a)
+    {
+        var zip = string.IsNullOrWhiteSpace(a.Extension)
+            ? a.Zip
+            : $"{a.Zip}-{a.Extension}";
+        return $"{a.City?.ToUpperInvariant()}, {a.State} {zip}".Trim();
+    }
+}
