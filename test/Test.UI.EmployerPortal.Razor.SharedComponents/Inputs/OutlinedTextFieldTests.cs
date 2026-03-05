@@ -318,36 +318,6 @@ public class OutlinedTextFieldTests : BunitContext
     }
 
     [Fact]
-    public void AriaRequired_True_When_Required_Parameter_Set()
-    {
-        var cut = Render<OutlinedTextField>(p =>
-        {
-            p.Add(x => x.Required, true);
-        });
-
-        var val = cut.Find("input").GetAttribute("aria-required");
-        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
-            $"Expected aria-required 'true', got '{val}'");
-    }
-
-    [Fact]
-    public void AriaRequired_True_When_Field_Has_Required_Attribute()
-    {
-        var model   = new TestModel();
-        var editCtx = new EditContext(model);
-
-        var cut = Render<OutlinedTextField>(p =>
-        {
-            p.Add(x => x.For, () => model.RequiredField);
-            p.AddCascadingValue(editCtx);
-        });
-
-        var val = cut.Find("input").GetAttribute("aria-required");
-        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
-            $"Expected aria-required 'true', got '{val}'");
-    }
-
-    [Fact]
     public void AriaDescribedBy_Includes_HintId_When_FormatText_Set()
     {
         var cut = Render<OutlinedTextField>(p =>

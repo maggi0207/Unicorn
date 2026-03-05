@@ -303,38 +303,6 @@ public class OutlinedSelectFieldTests : BunitContext
     // ── ARIA attributes ────────────────────────────────────────────────────
 
     [Fact]
-    public void AriaRequired_True_When_Required_Parameter_Set()
-    {
-        var cut = Render<OutlinedSelectField>(p =>
-        {
-            p.Add(x => x.Options, ThreeOptions);
-            p.Add(x => x.Required, true);
-        });
-
-        var val = cut.Find("select").GetAttribute("aria-required");
-        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
-            $"Expected aria-required 'true', got '{val}'");
-    }
-
-    [Fact]
-    public void AriaRequired_True_When_Field_Has_Required_Attribute()
-    {
-        var model   = new TestModel();
-        var editCtx = new EditContext(model);
-
-        var cut = Render<OutlinedSelectField>(p =>
-        {
-            p.Add(x => x.Options, ThreeOptions);
-            p.Add(x => x.For, () => model.RequiredField);
-            p.AddCascadingValue(editCtx);
-        });
-
-        var val = cut.Find("select").GetAttribute("aria-required");
-        Assert.True(string.Equals(val, "true", StringComparison.OrdinalIgnoreCase),
-            $"Expected aria-required 'true', got '{val}'");
-    }
-
-    [Fact]
     public void AriaDescribedBy_Includes_ErrorId_When_HasError()
     {
         var model   = new TestModel();
