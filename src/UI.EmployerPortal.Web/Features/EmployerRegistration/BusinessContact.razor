@@ -32,7 +32,6 @@
                                        @bind-Value="Model.FirstName"
                                        For="() => Model.FirstName"
                                        Visible="@IsVisible(() => Model.FirstName)" />
-                    <FieldError For="@(() => Model.FirstName)" Visible="@IsVisible(() => Model.FirstName)" />
                 </div>
 
                 <div class="bi-field">
@@ -40,7 +39,6 @@
                                        @bind-Value="Model.LastName"
                                        For="() => Model.LastName"
                                        Visible="@IsVisible(() => Model.LastName)" />
-                    <FieldError For="@(() => Model.LastName)" Visible="@IsVisible(() => Model.LastName)" />
                 </div>
 
             </div>
