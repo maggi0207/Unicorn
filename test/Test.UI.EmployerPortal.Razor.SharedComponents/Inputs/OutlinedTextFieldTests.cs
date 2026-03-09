@@ -396,6 +396,297 @@ public class OutlinedTextFieldTests : BunitContext
         Assert.Equal("", captured);
     }
 
+    // ── Mask — maxlength ───────────────────────────────────────────────────
+
+    [Fact]
+    public void Mask_Sets_MaxLength_To_Full_Mask_Length()
+    {
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-000-00");
+        });
+
+        Assert.Equal("11", cut.Find("input").GetAttribute("maxlength"));
+    }
+
+    [Fact]
+    public void Mask_Overrides_Explicit_MaxLength()
+    {
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "00/00/0000");
+            p.Add(x => x.MaxLength, 5);
+        });
+
+        // Mask "00/00/0000" has length 10 — should win over MaxLength=5
+        Assert.Equal("10", cut.Find("input").GetAttribute("maxlength"));
+    }
+
+    [Fact]
+    public void No_Mask_Still_Uses_MaxLength()
+    {
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.MaxLength, 12);
+        });
+
+        Assert.Equal("12", cut.Find("input").GetAttribute("maxlength"));
+    }
+
+    // ── Mask — digit placeholder (0) ───────────────────────────────────────
+
+    [Fact]
+    public async Task Mask_Digit_Formats_With_Separator()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-000-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "123456789" });
+
+        Assert.Equal("1234-567-89", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Digit_Partial_Input_No_Trailing_Separator()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-000-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "1234" });
+
+        Assert.Equal("1234", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Digit_Partial_Crosses_First_Separator()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-000-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "12345" });
+
+        Assert.Equal("1234-5", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Digit_Rejects_Letters()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "1a2b" });
+
+        // Letters skipped — only digits kept
+        Assert.Equal("12", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Digit_User_Typed_Literal_Consumed()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "00-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        // User typed the dash themselves — should not be doubled
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "12-34" });
+
+        Assert.Equal("12-34", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Digit_Empty_Input_Returns_Empty()
+    {
+        string? captured = "previous";
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-000-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "" });
+
+        Assert.Equal("", captured);
+    }
+
+    // ── Mask — letter placeholder (A) ──────────────────────────────────────
+
+    [Fact]
+    public async Task Mask_Letter_Accepts_Letters()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "AA-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "AB12" });
+
+        Assert.Equal("AB-12", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Letter_Rejects_Digits()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "AA");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "1A2B" });
+
+        // Digits skipped — only letters kept
+        Assert.Equal("AB", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Letter_Preserves_Case()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "AAAA");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "aBcD" });
+
+        Assert.Equal("aBcD", captured);
+    }
+
+    // ── Mask — alphanumeric placeholder (*) ────────────────────────────────
+
+    [Fact]
+    public async Task Mask_Alphanumeric_Accepts_Letters_And_Digits()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "**-**");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "A1B2" });
+
+        Assert.Equal("A1-B2", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Alphanumeric_Rejects_Special_Characters()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "****");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "A!1@" });
+
+        // Special chars skipped — only alphanumeric kept
+        Assert.Equal("A1", captured);
+    }
+
+    // ── Mask — date formats ────────────────────────────────────────────────
+
+    [Fact]
+    public async Task Mask_Date_MmSlashDdSlashYyyy()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "00/00/0000");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "03092026" });
+
+        Assert.Equal("03/09/2026", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Date_YyyyDashMmDashDd()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "0000-00-00");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "20260309" });
+
+        Assert.Equal("2026-03-09", captured);
+    }
+
+    [Fact]
+    public async Task Mask_Date_Partial_No_Trailing_Slash()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.Mask, "00/00/0000");
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "03" });
+
+        Assert.Equal("03", captured);
+    }
+
+    // ── Mask — no regression on non-masked fields ──────────────────────────
+
+    [Fact]
+    public async Task No_Mask_InputMode_Numeric_Still_Strips_Non_Digits()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.InputMode, "numeric");
+            p.Add(x => x.MaxLength, 5);
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "ab12cd3" });
+
+        Assert.Equal("123", captured);
+    }
+
+    [Fact]
+    public async Task No_Mask_Plain_Text_Passes_Through_Unchanged()
+    {
+        string? captured = null;
+        var cut = Render<OutlinedTextField>(p =>
+        {
+            p.Add(x => x.ValueChanged, v => { captured = v; });
+        });
+
+        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "Hello World!" });
+
+        Assert.Equal("Hello World!", captured);
+    }
+
     private class TestModel
     {
         [System.ComponentModel.DataAnnotations.Required]

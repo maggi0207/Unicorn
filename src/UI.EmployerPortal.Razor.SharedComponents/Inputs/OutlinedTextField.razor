@@ -17,7 +17,7 @@
            value="@Value"
            @oninput="OnInput"
            @onblur="HandleBlur"
-           maxlength="@MaxLength"
+           maxlength="@EffectiveMaxLength"
            disabled="@Disabled"
            aria-label="@Label"
            aria-invalid="@HasError"
@@ -65,6 +65,26 @@
     [Parameter] public string? InputMode { get; set; }
 
     /// <summary>
+    /// Optional mask pattern. Placeholder characters in the mask are filled with user input;
+    /// all other characters are treated as literals and inserted automatically.
+    /// <list type="bullet">
+    ///   <item><c>0</c> — digit (0–9)</item>
+    ///   <item><c>A</c> — letter (a–z, A–Z), case preserved</item>
+    ///   <item><c>*</c> — alphanumeric (letter or digit)</item>
+    ///   <item>any other character — literal separator, auto-inserted</item>
+    /// </list>
+    /// Examples:
+    /// <list type="bullet">
+    ///   <item><c>"00-0000000"</c>  → FEIN format (e.g. 12-3456789)</item>
+    ///   <item><c>"000-00-0000"</c> → SSN format  (e.g. 123-45-6789)</item>
+    ///   <item><c>"000-000-0000"</c>→ Phone       (e.g. 608-555-1234)</item>
+    ///   <item><c>"AA-000"</c>      → Mixed       (e.g. AB-123)</item>
+    /// </list>
+    /// When set, overrides <see cref="MaxLength"/> with the full mask length.
+    /// </summary>
+    [Parameter] public string? Mask { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the field is required. Sets aria-required for screen readers.
     /// </summary>
     [Parameter] public bool Required { get; set; }
@@ -90,6 +110,12 @@
     [CascadingParameter] private EditContext? EditContext { get; set; }
 
     private Expression<Func<string?>>? ResolvedExpression => For ?? ValueExpression;
+
+    /// <summary>
+    /// When a <see cref="Mask"/> is set, returns the full mask length (including literal
+    /// separators) as the effective maxlength. Otherwise falls back to <see cref="MaxLength"/>.
+    /// </summary>
+    private int? EffectiveMaxLength => Mask is not null ? Mask.Length : MaxLength;
 
     private string? HintId => !string.IsNullOrWhiteSpace(FormatText) ? $"{Id}-hint" : null;
 
@@ -191,14 +217,19 @@
     }
 
     /// <summary>
-    /// Handles input changes and notifies parent
+    /// Handles input changes and notifies parent.
+    /// Applies mask formatting when <see cref="Mask"/> is set, or strips non-digits
+    /// when <see cref="InputMode"/> is <c>"numeric"</c>.
     /// </summary>
     private async Task OnInput(ChangeEventArgs e)
     {
         var raw = e.Value?.ToString() ?? "";
 
-        // Strip non-digits and enforce max length for numeric fields
-        if (InputMode == "numeric")
+        if (Mask is not null)
+        {
+            raw = ApplyMask(raw, Mask);
+        }
+        else if (InputMode == "numeric")
         {
             raw = new string(raw.Where(char.IsDigit).ToArray());
             if (MaxLength.HasValue && raw.Length > MaxLength.Value)
@@ -214,4 +245,70 @@
             EditContext.NotifyFieldChanged(FieldIdentifier.Create(ResolvedExpression));
         }
     }
+
+    /// <summary>
+    /// Formats <paramref name="input"/> according to <paramref name="mask"/>.
+    /// Processes input and mask in parallel: valid input characters fill placeholder
+    /// positions; literal separator characters are auto-inserted. Invalid input
+    /// characters (wrong type for the placeholder) are silently skipped.
+    /// Trailing separators are never appended when input is exhausted.
+    /// </summary>
+    /// <remarks>
+    /// Placeholder types: <c>'0'</c> = digit, <c>'A'</c> = letter, <c>'*'</c> = alphanumeric.
+    /// </remarks>
+    private static string ApplyMask(string input, string mask)
+    {
+        var result = new System.Text.StringBuilder();
+        var maskIndex = 0;
+        var inputIndex = 0;
+
+        while (inputIndex < input.Length && maskIndex < mask.Length)
+        {
+            var maskChar = mask[maskIndex];
+            var inputChar = input[inputIndex];
+
+            if (IsPlaceholder(maskChar))
+            {
+                if (IsValidForPlaceholder(inputChar, maskChar))
+                {
+                    result.Append(inputChar);
+                    inputIndex++;
+                    maskIndex++;
+                }
+                else
+                {
+                    // Input char does not match this placeholder type — skip it
+                    inputIndex++;
+                }
+            }
+            else
+            {
+                // Literal separator — auto-insert it
+                result.Append(maskChar);
+                maskIndex++;
+                // If the user already typed this literal, consume it so it isn't doubled
+                if (inputIndex < input.Length && input[inputIndex] == maskChar)
+                    inputIndex++;
+            }
+        }
+
+        return result.ToString();
+    }
+
+    /// <summary>Returns true when <paramref name="maskChar"/> is a placeholder, not a literal.</summary>
+    private static bool IsPlaceholder(char maskChar) =>
+        maskChar == '0' || maskChar == 'A' || maskChar == '*';
+
+    /// <summary>
+    /// Returns true when <paramref name="inputChar"/> satisfies the constraint of
+    /// <paramref name="maskChar"/>.
+    /// </summary>
+    private static bool IsValidForPlaceholder(char inputChar, char maskChar) =>
+        maskChar switch
+        {
+            '0' => char.IsDigit(inputChar),
+            'A' => char.IsLetter(inputChar),
+            '*' => char.IsLetterOrDigit(inputChar),
+            _   => false
+        };
 }
