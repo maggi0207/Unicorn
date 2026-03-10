@@ -70,7 +70,7 @@ When user clicks "USE ADDRESS AS ENTERED":
 | Feature | Status | Notes |
 |---|---|---|
 | Show address correction for invalid addresses | Done | `!isValid` |
-| Show address correction for valid + standardized | Done | `CorrectedAddress is not null` |
+| Show address correction for valid + standardized | Removed | Was `CorrectedAddress is not null` — caused correction page to show even for valid addresses; reverted to `!isValid` only |
 | Copy suggested values into Original on accept | Done | In-place mutation of `AddressModel` |
 | Multi-address correction queue | Done | `CorrectionIndex` iterates through list |
 | Navigate to BusinessContact after all corrections | Done | When `CorrectionIndex >= count` |
@@ -100,11 +100,51 @@ These were added based on real service behavior and UX requirements:
 
 Items to discuss and finalize:
 
-- [ ] **Section header label for physical locations** — Currently shows "Physical Location 1", "Physical Location 2". Confirm if Figma uses different labels.
-- [ ] **When both mailing and physical are identical** — Should we skip the correction for physical if user already accepted the same suggestion for mailing?
-- [ ] **EditAddress behavior for physical locations** — Currently always navigates back to BusinessInformation. Should it scroll to or highlight the specific address field?
-- [ ] **Service unavailable UX** — Currently shows a warning with "Use As Entered". Should there be a retry button?
-- [ ] **Address correction for BusinessContact page** — BusinessContact also has an address. Does it go through the same correction flow?
+### 1. Section Header Label — Needs Design Confirmation
+
+**Current behavior:** The section header shows a generic label such as "Business Mailing Address" or "Physical Location 1".
+
+**Requirement:** The label must clearly communicate to the user which address they are correcting, especially when multiple addresses are queued. The exact wording and format (e.g. "Mailing Address — Step 1 of 2") needs to be confirmed against the Figma design before implementation.
+
+**Action needed:** Share design mock-up and get sign-off on the label format.
+
+---
+
+### 2. "Use Address As Entered" — Warning + Continue Flow
+
+**Current behavior:** Clicking "Use Address As Entered" shows the undeliverable warning above the page title.
+
+**Requirement (from UAT):** After the warning appears, a **Continue** button must be shown so the user can explicitly acknowledge the warning and proceed. The page should not auto-advance.
+
+**Open question:** Does the Continue button appear inline below the warning, or does it replace the button bar at the bottom? Confirm placement against UAT spec.
+
+---
+
+### 3. Duplicate Address — Skip Physical Correction if Mailing Already Accepted
+
+**Scenario:** The user's mailing address and physical address are identical. The service returns the same correction suggestion for both. The user already accepted the suggestion (or chose "Use As Entered") for mailing.
+
+**Requirement:** Should the physical address correction step be skipped automatically since the user already resolved the same address?
+
+**Options to decide:**
+- **Skip automatically** — If the corrected address for physical matches the already-accepted mailing correction, apply the same choice silently and advance.
+- **Always show** — Show the correction screen for each address independently, even if they are identical.
+
+**Action needed:** Product/UX decision required before implementation.
+
+---
+
+### 4. EditAddress Behavior for Physical Locations
+
+Currently always navigates back to BusinessInformation. Should it scroll to or highlight the specific address field?
+
+### 5. Service Unavailable UX
+
+Currently shows a warning with "Use As Entered". Should there be a retry button?
+
+### 6. Address Correction for BusinessContact Page
+
+BusinessContact also has a mailing address. Does it go through the same correction flow?
 
 ---
 
