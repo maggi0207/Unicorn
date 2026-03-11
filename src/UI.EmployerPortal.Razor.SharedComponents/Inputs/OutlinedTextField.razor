@@ -14,7 +14,7 @@
     <input id="@Id"
            class="master-input @(HasError ? "master-input--error" : "")"
            type="@Type"
-           value="@_inputValue"
+           value="@Value"
            @oninput="OnInput"
            @onblur="HandleBlur"
            maxlength="@EffectiveMaxLength"
@@ -151,21 +151,6 @@
     /// </summary>
     private bool _touched;
 
-    /// <summary>
-    /// The value currently rendered into the DOM input element.
-    /// Kept separate from <see cref="Value"/> so that Blazor's diff
-    /// always sends a DOM update when an invalid character is rejected
-    /// by the mask (preventing it from sticking in the browser input).
-    /// </summary>
-    private string? _inputValue;
-
-    /// <summary>
-    /// True while <see cref="OnInput"/> is running, preventing
-    /// <see cref="OnParametersSet"/> from overwriting <see cref="_inputValue"/>
-    /// mid-handler.
-    /// </summary>
-    private bool _isHandlingInput;
-
     private EditContext? _previousEditContext;
 
     private bool IsRequired
@@ -206,11 +191,6 @@
             _previousEditContext = EditContext;
             _touched = false;
         }
-
-        // Sync the render value from the Value parameter when not handling
-        // user input (e.g. pre-population or external model reset).
-        if (!_isHandlingInput && Value != _inputValue)
-            _inputValue = Value;
     }
 
     /// <summary>
@@ -241,55 +221,28 @@
     /// Applies mask formatting when <see cref="Mask"/> is set, or strips non-digits
     /// when <see cref="InputMode"/> is <c>"numeric"</c>.
     /// </summary>
-    /// <remarks>
-    /// When the masked/filtered result equals the current display value (e.g. user typed
-    /// an invalid character that was rejected), Blazor's diff would normally skip the DOM
-    /// update because the rendered value appears unchanged. To force the browser to revert
-    /// the invalid character, the handler temporarily clears <see cref="_inputValue"/> and
-    /// yields to allow one render cycle before restoring the correct value.
-    /// </remarks>
     private async Task OnInput(ChangeEventArgs e)
     {
-        _isHandlingInput = true;
-        try
+        var raw = e.Value?.ToString() ?? "";
+
+        if (Mask is not null)
         {
-            var raw = e.Value?.ToString() ?? "";
-
-            if (Mask is not null)
-            {
-                raw = ApplyMask(raw, Mask);
-            }
-            else if (InputMode == "numeric")
-            {
-                raw = new string(raw.Where(char.IsDigit).ToArray());
-                if (MaxLength.HasValue && raw.Length > MaxLength.Value)
-                    raw = raw[..MaxLength.Value];
-            }
-
-            // If the processed value is unchanged (e.g. user typed an invalid character
-            // that the mask rejected), Blazor's render diff would see no change and skip
-            // the DOM update — leaving the invalid character visible in the browser.
-            // Fix: momentarily clear the display value so the next render sends an update.
-            if (raw == _inputValue)
-            {
-                _inputValue = null;
-                StateHasChanged();
-                await Task.Yield();
-            }
-
-            _inputValue = raw;
-            Value = raw;
-
-            await ValueChanged.InvokeAsync(Value);
-
-            if (EditContext is not null && ResolvedExpression is not null)
-            {
-                EditContext.NotifyFieldChanged(FieldIdentifier.Create(ResolvedExpression));
-            }
+            raw = ApplyMask(raw, Mask);
         }
-        finally
+        else if (InputMode == "numeric")
         {
-            _isHandlingInput = false;
+            raw = new string(raw.Where(char.IsDigit).ToArray());
+            if (MaxLength.HasValue && raw.Length > MaxLength.Value)
+                raw = raw[..MaxLength.Value];
+        }
+
+        Value = raw;
+
+        await ValueChanged.InvokeAsync(Value);
+
+        if (EditContext is not null && ResolvedExpression is not null)
+        {
+            EditContext.NotifyFieldChanged(FieldIdentifier.Create(ResolvedExpression));
         }
     }
 
