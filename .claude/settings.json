@@ -21,10 +21,19 @@
       "Bash(git add:*)",
       "Bash(dotnet --version:*)",
       "Bash(dotnet sdk:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Read(//d/mahendra/**)",
+      "Read(//d/UI.EmployerPortal.Web/**)",
+      "Bash(ls -la \"d:\\\\UI.EmployerPortal.Web\\\\Services\"\" 2>/dev/null || echo \"Services folder not found \")",
+      "Bash(dotnet run:*)",
+      "Bash(taskkill /PID 46956 /F)",
+      "Bash(cmd /c \"taskkill /PID 46956 /F\")"
     ],
     "additionalDirectories": [
-      "d:\\Unicorn-repo"
+      "d:\\Unicorn-repo",
+      "D:\\UI.EmployerPortal.Web\\Services",
+      "D:\\UI.EmployerPortal.Web",
+      "D:\\mahendra\\BusinessContactInfo"
     ]
   }
 }

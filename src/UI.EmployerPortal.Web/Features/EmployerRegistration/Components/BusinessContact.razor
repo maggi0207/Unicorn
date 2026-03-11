@@ -3,17 +3,21 @@
 @using System.Linq.Expressions
 @using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.Model
-@using UI.EmployerPortal.Razor.SharedComponents.Notifications
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @inject NavigationManager Nav
 @inject IAddressValidationWrapper AddressValidator
 
-<h1 class="page-title">Business Contact</h1>
-<p class="page-subtitle">All fields are required unless noted</p>
+<div class="page_wrapper">
+    <div class="bi-page-content">
 
-<EditForm EditContext="@editContext" FormName="BusinessContact">
+        <h1 class="page-title">Business Contact</h1>
+        <p class="page-subtitle">All fields are required unless noted</p>
+
+        <EditForm EditContext="@editContext" FormName="BusinessContact">
 
     <DataAnnotationsValidator />
     <CustomValidator @ref="customValidator" />
@@ -86,7 +90,10 @@
                       Visible="@IsAddressVisible(Model.ContactAddress)" />
     }
 
-</EditForm>
+        </EditForm>
+
+    </div>
+</div>
 
 @code {
     private BusinessContactModel Model = new();

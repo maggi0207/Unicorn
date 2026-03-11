@@ -3,7 +3,8 @@
 @using System.Linq.Expressions
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Razor.SharedComponents.Address
-@using UI.EmployerPortal.Razor.SharedComponents.Notifications
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
@@ -11,10 +12,13 @@
 @inject IAddressValidationWrapper AddressValidator
 @inject RegistrationStateService RegistrationState
 
-<h1 class="page-title">Business Information</h1>
-<p class="page-subtitle">All fields are required unless noted</p>
+<div class="page_wrapper">
+    <div class="bi-page-content">
 
-<EditForm EditContext="@editContext" FormName="BusinessInformation">
+        <h1 class="page-title">Business Information</h1>
+        <p class="page-subtitle">All fields are required unless noted</p>
+
+        <EditForm EditContext="@editContext" FormName="BusinessInformation">
 
     <DataAnnotationsValidator />
     <CustomValidator @ref="customValidator" />
@@ -115,7 +119,10 @@
         </button>
     }
 
-</EditForm>
+        </EditForm>
+
+    </div>
+</div>
 
 @code {
     private BusinessInformationModel Model = new();
