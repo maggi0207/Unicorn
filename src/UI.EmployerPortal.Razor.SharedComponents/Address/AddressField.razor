@@ -8,7 +8,8 @@
                              @bind-Value="Address.Country"
                              Options="AddressModel.Countries"
                              For="() => Address.Country"
-                             Visible="Visible" />
+                             Visible="Visible"
+                             Disabled="Disabled" />
     </div>
 
     <div class="bi-field"></div>
@@ -17,19 +18,22 @@
         <OutlinedTextField Label="Street Address"
                            @bind-Value="Address.AddressLine1"
                            For="() => Address.AddressLine1"
-                           Visible="Visible" />
+                           Visible="Visible"
+                           Disabled="Disabled" />
     </div>
 
     <div class="bi-field">
         <OutlinedTextField Label="Suite,Apt.,Attn.,etc (Optional)"
-                           @bind-Value="Address.AddressLine2" />
+                           @bind-Value="Address.AddressLine2"
+                           Disabled="Disabled" />
     </div>
 
     <div class="bi-field">
         <OutlinedTextField Label="City"
                            @bind-Value="Address.City"
                            For="() => Address.City"
-                           Visible="Visible" />
+                           Visible="Visible"
+                           Disabled="Disabled" />
     </div>
 
     <div class="bi-field">
@@ -38,7 +42,8 @@
                              Options="AddressModel.States"
                              Placeholder="-- Select --"
                              For="() => Address.State"
-                             Visible="Visible" />
+                             Visible="Visible"
+                             Disabled="Disabled" />
     </div>
 
     <div class="bi-zip-row">
@@ -48,20 +53,28 @@
                                For="() => Address.Zip"
                                Visible="Visible"
                                InputMode="numeric"
-                               MaxLength="5" />
+                               MaxLength="5"
+                               Disabled="Disabled" />
         </div>
         <span class="bi-zip-dash">—</span>
         <div class="bi-ext-field">
             <OutlinedTextField Label="+4 (Optional)"
                                @bind-Value="Address.Extension"
                                InputMode="numeric"
-                               MaxLength="4" />
+                               MaxLength="4"
+                               Disabled="Disabled" />
         </div>
     </div>
 
 </div>
 
 @code {
+    /// <summary>The address model to bind all fields to.</summary>
     [Parameter, EditorRequired] public AddressModel Address { get; set; } = default!;
+
+    /// <summary>When true, forces all field error messages to be visible (e.g. after form submit).</summary>
     [Parameter] public bool Visible { get; set; }
+
+    /// <summary>When true, all input fields are rendered in disabled state.</summary>
+    [Parameter] public bool Disabled { get; set; }
 }

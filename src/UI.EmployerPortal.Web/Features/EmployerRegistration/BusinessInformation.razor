@@ -96,8 +96,19 @@
                     }
                 </div>
 
+                @if (index == 0)
+                {
+                    <label class="bi-same-as-mailing">
+                        <input type="checkbox"
+                               checked="@_physicalSameAsMailing"
+                               @onchange="OnPhysicalSameAsMailingChanged" />
+                        Physical Location is the same as the Business address.
+                    </label>
+                }
+
                 <AddressField Address="Model.PhysicalLocations[index]"
-                              Visible="@IsAddressVisible(Model.PhysicalLocations[index])" />
+                              Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
+                              Disabled="@(index == 0 && _physicalSameAsMailing)" />
             }
 
             @* ================= ADD LOCATION BUTTON ================= *@
@@ -131,6 +142,7 @@
     private CustomValidator? customValidator;
     private bool formSubmitted = false;
     private bool hasValidationErrors = false;
+    private bool _physicalSameAsMailing = false;
     private const int MaxPhysicalLocations = 3;
 
     // Tracks which fields the user has interacted with so errors show on field change
@@ -138,14 +150,23 @@
 
     protected override void OnInitialized()
     {
-        // Restore model if user navigated back from the address-correction page
+        // Restore model and checkbox state if user navigated back from address-correction
         if (RegistrationState.BusinessInfo is not null)
             Model = RegistrationState.BusinessInfo;
+        _physicalSameAsMailing = RegistrationState.PhysicalSameAsMailing;
 
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += (_, e) =>
         {
             _touchedFields.Add(e.FieldIdentifier);
+
+            // If mailing address changes while the "same as mailing" checkbox is on, re-sync physical[0]
+            if (_physicalSameAsMailing &&
+                Model.PhysicalLocations.Count > 0 &&
+                ReferenceEquals(e.FieldIdentifier.Model, Model.MailingAddress))
+            {
+                CopyMailingToPhysical(0);
+            }
 
             var allAddresses = new List<AddressModel> { Model.MailingAddress };
             allAddresses.AddRange(Model.PhysicalLocations);
@@ -168,6 +189,48 @@
                 StateHasChanged();
             }
         };
+    }
+
+    /// <summary>
+    /// Handles the "Physical Location is the same as the Business address" checkbox toggle.
+    /// When checked, copies all mailing address fields into PhysicalLocations[0] and disables them.
+    /// When unchecked, clears PhysicalLocations[0] so the user can enter a different address.
+    /// </summary>
+    private void OnPhysicalSameAsMailingChanged(ChangeEventArgs e)
+    {
+        _physicalSameAsMailing = e.Value is true;
+        if (_physicalSameAsMailing)
+            CopyMailingToPhysical(0);
+        else
+            ClearPhysicalLocation(0);
+        StateHasChanged();
+    }
+
+    /// <summary>Copies all mailing address fields into PhysicalLocations[<paramref name="index"/>].</summary>
+    private void CopyMailingToPhysical(int index)
+    {
+        var src  = Model.MailingAddress;
+        var dest = Model.PhysicalLocations[index];
+        dest.Country      = src.Country;
+        dest.AddressLine1 = src.AddressLine1;
+        dest.AddressLine2 = src.AddressLine2;
+        dest.City         = src.City;
+        dest.State        = src.State;
+        dest.Zip          = src.Zip;
+        dest.Extension    = src.Extension;
+    }
+
+    /// <summary>Clears all fields on PhysicalLocations[<paramref name="index"/>].</summary>
+    private void ClearPhysicalLocation(int index)
+    {
+        var dest = Model.PhysicalLocations[index];
+        dest.Country      = null;
+        dest.AddressLine1 = null;
+        dest.AddressLine2 = null;
+        dest.City         = null;
+        dest.State        = null;
+        dest.Zip          = null;
+        dest.Extension    = null;
     }
 
     /// <summary>
@@ -203,18 +266,22 @@
         hasValidationErrors = false;
 
         // Step 2: Service validation — only runs when local validation passed
-        RegistrationState.BusinessInfo = Model;
+        RegistrationState.BusinessInfo        = Model;
+        RegistrationState.PhysicalSameAsMailing = _physicalSameAsMailing;
         var corrections = new List<AddressCorrectionItem>();
 
         var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
         if (!mailingResult.IsValid)
-            corrections.Add(new AddressCorrectionItem("Business Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress));
+            corrections.Add(new AddressCorrectionItem("Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress, mailingResult.ErrorMessage));
 
-        for (var i = 0; i < Model.PhysicalLocations.Count; i++)
+        // When physical[0] is a copy of mailing, skip its service validation — any mailing correction
+        // will be mirrored to physical[0] on the Address Correction page.
+        var startIndex = _physicalSameAsMailing ? 1 : 0;
+        for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
         {
             var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
             if (!result.IsValid)
-                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1}", Model.PhysicalLocations[i], result.CorrectedAddress));
+                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1} Address", Model.PhysicalLocations[i], result.CorrectedAddress, result.ErrorMessage));
         }
 
         if (corrections.Any())
@@ -244,8 +311,13 @@
     {
         var errors = new Dictionary<FieldIdentifier, List<string>>();
 
+        // When physical[0] mirrors mailing, skip it — mailing validation covers it.
+        var physicalToValidate = _physicalSameAsMailing
+            ? Model.PhysicalLocations.Skip(1)
+            : Model.PhysicalLocations;
+
         var allAddresses = new List<AddressModel> { Model.MailingAddress };
-        allAddresses.AddRange(Model.PhysicalLocations);
+        allAddresses.AddRange(physicalToValidate);
 
         foreach (var address in allAddresses)
         {

@@ -25,7 +25,62 @@
     margin: 0 0 8px 0;
 }
 
-/* Address section header (e.g. "Business Mailing Address") */
+/* Warning banner (all grouped at top) */
+.ac-warning {
+    border: 1px solid #C82838;
+    background-color: #fff5f5;
+    border-radius: 4px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ac-warning-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.ac-warning-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ac-warning-text p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+/* Service error message bullets inside warning */
+.ac-warning-errors {
+    margin: 4px 0 0 0;
+    padding-left: 20px;
+    font-size: 14px;
+    line-height: 22px;
+    color: #C82838;
+}
+
+.ac-warning-errors li {
+    margin: 0;
+}
+
+/* One correction item wrapper */
+.ac-correction-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Separator between items */
+.ac-separator {
+    border: none;
+    border-top: 1px solid #d0d0d0;
+    margin: 0;
+}
+
+/* Address section header — e.g. "Mailing Address Entered" */
 .ac-section-header {
     width: 100%;
     border-bottom: 1px solid #003663;
@@ -38,39 +93,15 @@
     color: #003663;
 }
 
-/* Warning banner */
-.ac-warning {
-    border: 1px solid #C82838;
-    background-color: #fff5f5;
-    border-radius: 4px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.ac-warning-title {
-    margin: 0;
-    font-size: 14px;
-    line-height: 22px;
-}
-
-.ac-warning-body {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 0;
-    font-size: 14px;
-    line-height: 22px;
-}
-
-.ac-warning-icon {
-    flex-shrink: 0;
-    margin-top: 3px;
-}
-
-/* Section labels */
+/* Section labels — e.g. "Corrected Mailing Address:" */
 .ac-section-label {
+    margin: 0;
+    font-size: 16px;
+    color: #000000;
+}
+
+/* "The mailing address entered differs..." text */
+.ac-differs-text {
     margin: 0;
     font-size: 16px;
     color: #000000;
@@ -93,28 +124,61 @@
     color: #1a1a1a;
 }
 
-/* Undeliverable warning shown after "USE ADDRESS AS ENTERED" */
-.ac-undeliverable-warning {
-    color: #C82838;
-    font-family: Verdana, sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    margin: 0;
+/* Radio group */
+.ac-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* Action rows */
+.ac-radio-group--error .ac-radio-label {
+    color: #C82838;
+}
+
+.ac-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ac-radio-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #003663;
+    flex-shrink: 0;
+}
+
+/* "Using address as entered" confirmation note */
+.ac-accepted-note {
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
+    color: #555;
+}
+
+/* EDIT ADDRESS button row — right-aligned, used when suggestion exists */
+.ac-actions-edit {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Action row for no-suggestion case: text link left, button right */
 .ac-actions-entered {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.ac-actions-suggested {
-    display: flex;
-    justify-content: flex-end;
+.ac-actions-entered--error .btn--secondary {
+    outline-color: #C82838;
+    color: #C82838;
 }
 
-/* "EDIT ADDRESS" text link */
+/* "EDIT ADDRESS" text link — used in no-suggestion case */
 .ac-edit-link {
     background: none;
     border: none;
@@ -132,7 +196,31 @@
     color: #002a4d;
 }
 
-/* Buttons — mirror ButtonBar shared component */
+/* Footer: error banner stacked above CONTINUE button */
+.ac-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+/* Inline validation error shown above CONTINUE */
+.ac-page-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff5f5;
+    border: 1px solid #C82838;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #C82838;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -146,6 +234,13 @@
     text-transform: uppercase;
     cursor: pointer;
     border: none;
+}
+
+/* Small variant — for EDIT ADDRESS in suggestion case */
+.btn--sm {
+    padding: 6px 14px;
+    font-size: 14px;
+    line-height: 22px;
 }
 
 .btn--primary {

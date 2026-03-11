@@ -6,79 +6,140 @@
 <div class="page_wrapper">
     <div class="ac-page-content">
 
-        @if (_showUndeliverableWarning)
-        {
-            <p class="ac-undeliverable-warning">
-                Warning! Mail sent to this address may be returned by the post office as undeliverable.
-            </p>
-        }
-
         <h1 class="page-title">Address Correction</h1>
 
-        @if (_item is not null)
+        @* ── ALL WARNING BANNERS GROUPED AT TOP ── *@
+        @foreach (var item in _items)
         {
             <div class="ac-warning">
-                <p class="ac-warning-title">
-                    <strong>Verify your address:</strong>
-                    We think this address may be incorrect or incomplete.
-                </p>
-                <p class="ac-warning-body">
-                    <svg class="ac-warning-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                         aria-hidden="true">
+                <svg class="ac-warning-icon" width="20" height="20" viewBox="0 0 16 16" fill="none"
+                     aria-hidden="true">
+                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                </svg>
+                <div class="ac-warning-text">
+                    <p><strong>Verify your @GetTypeName(item.Label):</strong></p>
+                    <p>
+                        We think this @GetTypeName(item.Label) may be incorrect or incomplete.
+                        To proceed, please choose one of the options below.
+                        If you use the address as entered, mail may be undeliverable.
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                    {
+                        <ul class="ac-warning-errors">
+                            <li>@item.ErrorMessage</li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+
+        @* ── ADDRESS CORRECTION SECTIONS ── *@
+        @for (int i = 0; i < _items.Count; i++)
+        {
+            var idx = i;
+            var item = _items[idx];
+
+            <div class="ac-correction-block">
+
+                @* Section header: e.g. "Mailing Address Entered" *@
+                <div class="ac-section-header">
+                    <span>@GetSectionTitle(item.Label) Entered</span>
+                </div>
+
+                @* Entered address box *@
+                <div class="ac-address-box">
+                    <p>@FormatLine1(item.Original)</p>
+                    <p>@FormatLine2(item.Original)</p>
+                </div>
+
+                @if (item.Suggested is not null)
+                {
+                    @* EDIT ADDRESS — outlined button, right-aligned *@
+                    <div class="ac-actions-edit">
+                        <button type="button" class="btn btn--sm btn--secondary" @onclick="EditAddress">
+                            EDIT ADDRESS
+                        </button>
+                    </div>
+
+                    @* Corrected address — e.g. "Corrected Mailing Address:" *@
+                    <p class="ac-section-label">Corrected @GetSectionTitle(item.Label):</p>
+
+                    <div class="ac-address-box">
+                        <p>@FormatLine1(item.Suggested)</p>
+                        <p>@FormatLine2(item.Suggested)</p>
+                    </div>
+
+                    @* Type-specific differs text *@
+                    <p class="ac-differs-text">
+                        The @GetTypeName(item.Label) entered differs from the corrected @GetTypeName(item.Label).
+                    </p>
+
+                    @* Radio buttons with type-specific labels *@
+                    <div class="ac-radio-group @(_itemErrors.Contains(idx) ? "ac-radio-group--error" : "")">
+                        <label class="ac-radio-label">
+                            <input type="radio"
+                                   name="ac-choice-@idx"
+                                   checked="@(GetSelection(idx) == SelectionCorrected)"
+                                   @onchange="() => SetSelectionCorrected(idx)" />
+                            Use corrected @GetTypeName(item.Label)
+                        </label>
+                        <label class="ac-radio-label">
+                            <input type="radio"
+                                   name="ac-choice-@idx"
+                                   checked="@(GetSelection(idx) == SelectionEntered)"
+                                   @onchange="() => SetSelectionEntered(idx)" />
+                            Use @GetTypeName(item.Label) as entered
+                        </label>
+                    </div>
+                }
+                else
+                {
+                    @* No suggestion — EDIT ADDRESS text-link left, USE AS ENTERED button right *@
+                    @if (_acceptedAsEntered.Contains(idx))
+                    {
+                        <p class="ac-accepted-note">Using @GetTypeName(item.Label) as entered.</p>
+                    }
+                    else
+                    {
+                        <div class="ac-actions-entered @(_itemErrors.Contains(idx) ? "ac-actions-entered--error" : "")">
+                            <button type="button" class="ac-edit-link" @onclick="EditAddress">
+                                EDIT ADDRESS
+                            </button>
+                            <button type="button" class="btn btn--secondary"
+                                    @onclick="() => AcceptAsEntered(idx)">
+                                USE ADDRESS AS ENTERED
+                            </button>
+                        </div>
+                    }
+                }
+
+            </div>
+
+            @if (idx < _items.Count - 1)
+            {
+                <hr class="ac-separator" />
+            }
+        }
+
+        @* ── FOOTER: error banner + CONTINUE ── *@
+        <div class="ac-footer">
+            @if (_showContinueError)
+            {
+                <div class="ac-page-error">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <circle cx="8" cy="8" r="8" fill="#C82838" />
                         <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
                         <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
                     </svg>
-                    To proceed, please choose one of the options below. If you use the address as entered,
-                    mail may be undeliverable.
-                </p>
-            </div>
-
-            <div class="ac-section-header">
-                <span>@_item.Label</span>
-            </div>
-
-            <p class="ac-section-label">You entered:</p>
-
-            <div class="ac-address-box">
-                <p>@FormatLine1(_item.Original)</p>
-                <p>@FormatLine2(_item.Original)</p>
-            </div>
-
-            <div class="ac-actions-entered">
-                <button type="button" class="ac-edit-link" @onclick="EditAddress">
-                    EDIT ADDRESS
-                </button>
-                <button type="button" class="btn btn--secondary" @onclick="UseAsEntered">
-                    USE ADDRESS AS ENTERED
-                </button>
-            </div>
-
-            @if (_showUndeliverableWarning)
-            {
-                <div class="ac-actions-suggested">
-                    <button type="button" class="btn btn--primary" @onclick="Advance">
-                        CONTINUE
-                    </button>
+                    Please resolve all address corrections before continuing.
                 </div>
             }
-
-            @if (!_showUndeliverableWarning && _item.Suggested is not null)
-            {
-                <p class="ac-section-label">Corrected address:</p>
-
-                <div class="ac-address-box">
-                    <p>@FormatLine1(_item.Suggested)</p>
-                    <p>@FormatLine2(_item.Suggested)</p>
-                </div>
-
-                <div class="ac-actions-suggested">
-                    <button type="button" class="btn btn--primary" @onclick="UseSuggested">
-                        USE SUGGESTED ADDRESS
-                    </button>
-                </div>
-            }
-        }
+            <button type="button" class="btn btn--primary" @onclick="HandleContinue">
+                CONTINUE
+            </button>
+        </div>
 
     </div>
 </div>
@@ -87,21 +148,65 @@
     [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private AddressCorrectionItem? _item;
-    private bool _showUndeliverableWarning;
+    private List<AddressCorrectionItem> _items = new();
+
+    /// <summary>Per-item radio selection: "corrected" or "entered". Only for items with a suggestion.</summary>
+    private Dictionary<int, string> _selections = new();
+
+    /// <summary>Indices of no-suggestion items the user accepted as-entered.</summary>
+    private HashSet<int> _acceptedAsEntered = new();
+
+    /// <summary>Indices of items that were unresolved when CONTINUE was clicked.</summary>
+    private HashSet<int> _itemErrors = new();
+
+    private bool _showContinueError;
 
     protected override void OnInitialized()
     {
-        LoadCurrent();
+        _items = RegistrationState.AddressCorrections;
     }
 
-    private void LoadCurrent()
+    private const string SelectionCorrected = "corrected";
+    private const string SelectionEntered   = "entered";
+
+    /// <summary>
+    /// Returns the lowercase type name for use in body text and radio labels.
+    /// "Mailing Address" → "mailing address"; physical labels kept as-is lowercased.
+    /// </summary>
+    private static string GetTypeName(string label) => label.ToLower();
+
+    /// <summary>
+    /// Returns the title-cased label for section headers and "Corrected X:" labels.
+    /// "Mailing Address" → "Mailing Address"; "Physical Location 1 Address" → "Physical Location 1 Address".
+    /// </summary>
+    private static string GetSectionTitle(string label) => label;
+
+    /// <summary>Returns the current radio selection for item at <paramref name="index"/>, or null.</summary>
+    private string? GetSelection(int index)
+        => _selections.TryGetValue(index, out var v) ? v : null;
+
+    private void SetSelection(int index, string value)
     {
-        var index = RegistrationState.CorrectionIndex;
-        _item = index < RegistrationState.AddressCorrections.Count
-            ? RegistrationState.AddressCorrections[index]
-            : null;
-        _showUndeliverableWarning = false;
+        _selections[index] = value;
+        _itemErrors.Remove(index);
+        _showContinueError = false;
+    }
+
+    private void SetSelectionCorrected(int index) => SetSelection(index, SelectionCorrected);
+    private void SetSelectionEntered(int index)   => SetSelection(index, SelectionEntered);
+
+    /// <summary>
+    /// Marks a no-suggestion item as accepted, then immediately navigates forward
+    /// if this was the last unresolved item.
+    /// </summary>
+    private void AcceptAsEntered(int index)
+    {
+        _acceptedAsEntered.Add(index);
+        _itemErrors.Remove(index);
+        _showContinueError = false;
+
+        if (AreAllResolved())
+            ApplyAndNavigate();
     }
 
     private void EditAddress()
@@ -109,39 +214,80 @@
         Nav.NavigateTo("/employer-registration/business-information");
     }
 
-    private void UseAsEntered()
+    /// <summary>Validates all items are resolved, then applies and navigates.</summary>
+    private void HandleContinue()
     {
-        // Show undeliverable warning — user must click CONTINUE to actually advance
-        _showUndeliverableWarning = true;
+        _itemErrors.Clear();
+
+        for (var i = 0; i < _items.Count; i++)
+        {
+            var item = _items[i];
+            var resolved = item.Suggested is not null
+                ? _selections.ContainsKey(i)
+                : _acceptedAsEntered.Contains(i);
+
+            if (!resolved)
+                _itemErrors.Add(i);
+        }
+
+        if (_itemErrors.Count > 0)
+        {
+            _showContinueError = true;
+            return;
+        }
+
+        ApplyAndNavigate();
     }
 
-    private void UseSuggested()
+    /// <summary>Returns true when every correction item has been resolved by the user.</summary>
+    private bool AreAllResolved()
     {
-        // AddressModel is a class — copy suggested values into Original (same reference as model's address)
-        var s = _item!.Suggested!;
-        var o = _item.Original;
-        o.AddressLine1 = s.AddressLine1;
-        o.AddressLine2 = s.AddressLine2;
-        o.City         = s.City;
-        o.State        = s.State;
-        o.Zip          = s.Zip;
-        o.Extension    = s.Extension;
-        o.Country      = s.Country;
-        Advance();
+        for (var i = 0; i < _items.Count; i++)
+        {
+            var item = _items[i];
+            var resolved = item.Suggested is not null
+                ? _selections.ContainsKey(i)
+                : _acceptedAsEntered.Contains(i);
+            if (!resolved) return false;
+        }
+        return true;
     }
 
-    private void Advance()
+    /// <summary>Applies all accepted corrections then navigates to the next step.</summary>
+    private void ApplyAndNavigate()
     {
-        RegistrationState.CorrectionIndex++;
+        for (var i = 0; i < _items.Count; i++)
+        {
+            var item = _items[i];
+            if (item.Suggested is not null &&
+                _selections.TryGetValue(i, out var choice) &&
+                choice == SelectionCorrected)
+            {
+                ApplyCorrection(item.Original, item.Suggested);
 
-        if (RegistrationState.CorrectionIndex < RegistrationState.AddressCorrections.Count)
-        {
-            LoadCurrent();
+                // Mirror mailing correction to physical[0] when it is a copy of mailing
+                if (RegistrationState.PhysicalSameAsMailing &&
+                    RegistrationState.BusinessInfo is not null &&
+                    ReferenceEquals(item.Original, RegistrationState.BusinessInfo.MailingAddress))
+                {
+                    ApplyCorrection(RegistrationState.BusinessInfo.PhysicalLocations[0], item.Suggested);
+                }
+            }
         }
-        else
-        {
-            Nav.NavigateTo("/employer-registration/business-contact");
-        }
+
+        Nav.NavigateTo("/employer-registration/business-contact");
+    }
+
+    /// <summary>Copies all address fields from <paramref name="source"/> into <paramref name="target"/>.</summary>
+    private static void ApplyCorrection(AddressModel target, AddressModel source)
+    {
+        target.AddressLine1 = source.AddressLine1;
+        target.AddressLine2 = source.AddressLine2;
+        target.City         = source.City;
+        target.State        = source.State;
+        target.Zip          = source.Zip;
+        target.Extension    = source.Extension;
+        target.Country      = source.Country;
     }
 
     private static string FormatLine1(AddressModel a)
