@@ -34,9 +34,17 @@
 
 @code {
     private int _currentStep = 1;
+    private bool _stepRestored = false;
 
     private BusinessInformation? _businessInformationRef;
     private BusinessContact?     _businessContactRef;
+
+    /// <summary>
+    /// Supplied from the URL query string (e.g. ?step=4).
+    /// Used by AddressCorrection to tell the wizard which step to restore to.
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "step")]
+    public int StepParam { get; set; }
 
     /// <summary>Wizard step definitions matching the full employer registration flow.</summary>
     private readonly List<WizardStep> _wizardSteps = new()
@@ -50,13 +58,17 @@
         new() { StepNumber = 7, Icon = "/icons/employer_reg_step_7.svg", ActionButtonText = "SUBMIT"   },
     };
 
-    /// <summary>Restores the current step from state (e.g., after returning from the Address Correction page).</summary>
-    protected override void OnInitialized()
+    /// <summary>
+    /// Restores the wizard step from the query parameter on first render.
+    /// Called on every parameter update, but only applies the step once to avoid
+    /// overwriting the user's in-wizard navigation.
+    /// </summary>
+    protected override void OnParametersSet()
     {
-        if (RegistrationState.CurrentStep > 0)
+        if (!_stepRestored && StepParam > 0)
         {
-            _currentStep = RegistrationState.CurrentStep;
-            RegistrationState.CurrentStep = 0;
+            _currentStep = StepParam;
+            _stepRestored = true;
         }
     }
 

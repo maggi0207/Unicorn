@@ -212,8 +212,7 @@
     /// <summary>Returns the user to BusinessInformation (step 3) to edit their address.</summary>
     private void EditAddress()
     {
-        RegistrationState.CurrentStep = 3;
-        Nav.NavigateTo("/employer-registration/steps");
+        Nav.NavigateTo("/employer-registration/steps?step=3");
     }
 
     /// <summary>Validates all items are resolved, then applies and navigates.</summary>
@@ -277,8 +276,7 @@
             }
         }
 
-        RegistrationState.CurrentStep = 4;
-        Nav.NavigateTo("/employer-registration/steps");
+        Nav.NavigateTo("/employer-registration/steps?step=4");
     }
 
     /// <summary>Copies all address fields from <paramref name="source"/> into <paramref name="target"/>.</summary>
