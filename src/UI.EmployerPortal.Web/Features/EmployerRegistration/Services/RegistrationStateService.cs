@@ -24,6 +24,12 @@ public class RegistrationStateService
     /// PhysicalLocations[0] as well.
     /// </summary>
     public bool PhysicalSameAsMailing { get; set; }
+
+    /// <summary>
+    /// The wizard step to restore when navigating back to the EmployerRegistrationSteps page
+    /// (e.g., after completing the Address Correction flow). Zero means no restoration needed.
+    /// </summary>
+    public int CurrentStep { get; set; }
 }
 
 /// <summary>

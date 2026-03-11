@@ -1,0 +1,325 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Notifications
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@inject NavigationManager Nav
+@inject IAddressValidationWrapper AddressValidator
+@inject RegistrationStateService RegistrationState
+
+<h1 class="page-title">Business Information</h1>
+<p class="page-subtitle">All fields are required unless noted</p>
+
+<EditForm EditContext="@editContext" FormName="BusinessInformation">
+
+    <DataAnnotationsValidator />
+    <CustomValidator @ref="customValidator" />
+
+    @* ================= ERROR BANNER ================= *@
+    <NotificationBanner Visible="@(formSubmitted && hasValidationErrors)"
+                        Title="Missing information"
+                        Message="Please correct the errors below" />
+
+    @* ================= BUSINESS DETAILS ================= *@
+    <div class="bi-fields-grid">
+
+        <div class="bi-field">
+            <FEINField @bind-Value="Model.FEIN"
+                       For="() => Model.FEIN"
+                       Visible="@IsVisible(() => Model.FEIN)" />
+        </div>
+
+        <div class="bi-field"></div>
+
+        <div class="bi-field">
+            <OutlinedTextField Label="Legal Name"
+                               @bind-Value="Model.LegalName"
+                               For="() => Model.LegalName"
+                               Visible="@IsVisible(() => Model.LegalName)" />
+        </div>
+
+        <div class="bi-field">
+            <OutlinedTextField Label="Trade Name (Optional)"
+                               @bind-Value="Model.TradeName" />
+        </div>
+
+        <div class="bi-field">
+            <PhoneNumberField @bind-Value="Model.PhoneNumber"
+                              For="() => Model.PhoneNumber"
+                              Visible="@IsVisible(() => Model.PhoneNumber)" />
+        </div>
+
+        <div class="bi-field">
+            <OutlinedTextField Label="Email Address"
+                               Type="email"
+                               @bind-Value="Model.Email"
+                               For="() => Model.Email"
+                               FormatText="name@example.com"
+                               Visible="@IsVisible(() => Model.Email)" />
+        </div>
+
+    </div>
+
+    @* ================= MAILING ADDRESS ================= *@
+    <div class="bi-section-header">
+        <span>Business Mailing Address</span>
+    </div>
+
+    <AddressField Address="Model.MailingAddress"
+                  Visible="@IsAddressVisible(Model.MailingAddress)" />
+
+    @* ================= PHYSICAL LOCATIONS ================= *@
+    @for (int i = 0; i < Model.PhysicalLocations.Count; i++)
+    {
+        var index = i;
+        <div class="bi-section-header">
+            <span>Physical Location @(index + 1)</span>
+            @if (index > 0)
+            {
+                <button type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)">
+                    Remove
+                </button>
+            }
+        </div>
+
+        @if (index == 0)
+        {
+            <label class="bi-same-as-mailing">
+                <input type="checkbox"
+                       checked="@_physicalSameAsMailing"
+                       @onchange="OnPhysicalSameAsMailingChanged" />
+                Physical Location is the same as the Business address.
+            </label>
+        }
+
+        <AddressField Address="Model.PhysicalLocations[index]"
+                      Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
+                      Disabled="@(index == 0 && _physicalSameAsMailing)" />
+    }
+
+    @* ================= ADD LOCATION BUTTON ================= *@
+    @if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
+    {
+        <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M8 3V13M3 8H13"
+                      stroke="#0D6EFD"
+                      stroke-width="2"
+                      stroke-linecap="round" />
+            </svg>
+            Add Another Physical Location
+        </button>
+    }
+
+</EditForm>
+
+@code {
+    private BusinessInformationModel Model = new();
+    private EditContext editContext = default!;
+    private CustomValidator? customValidator;
+    private bool formSubmitted = false;
+    private bool hasValidationErrors = false;
+    private bool _physicalSameAsMailing = false;
+    private const int MaxPhysicalLocations = 3;
+
+    /// <summary>Tracks which fields the user has interacted with so errors show on field change.</summary>
+    private HashSet<FieldIdentifier> _touchedFields = new();
+
+    /// <summary>Initializes the edit context and restores model from state if the user navigated back.</summary>
+    protected override void OnInitialized()
+    {
+        if (RegistrationState.BusinessInfo is not null)
+            Model = RegistrationState.BusinessInfo;
+        _physicalSameAsMailing = RegistrationState.PhysicalSameAsMailing;
+
+        editContext = new EditContext(Model);
+        editContext.OnFieldChanged += (_, e) =>
+        {
+            _touchedFields.Add(e.FieldIdentifier);
+
+            if (_physicalSameAsMailing &&
+                Model.PhysicalLocations.Count > 0 &&
+                ReferenceEquals(e.FieldIdentifier.Model, Model.MailingAddress))
+            {
+                CopyMailingToPhysical(0);
+            }
+
+            var allAddresses = new List<AddressModel> { Model.MailingAddress };
+            allAddresses.AddRange(Model.PhysicalLocations);
+
+            if (formSubmitted && allAddresses.Any(a => ReferenceEquals(a, e.FieldIdentifier.Model)))
+            {
+                InvokeAsync(() =>
+                {
+                    customValidator?.ClearErrors();
+                    var errors = ValidateAddressModels();
+                    if (errors.Any()) customValidator?.DisplayErrors(errors);
+                    hasValidationErrors = editContext.GetValidationMessages().Any();
+                    StateHasChanged();
+                });
+            }
+            else
+            {
+                hasValidationErrors = editContext.GetValidationMessages().Any();
+                StateHasChanged();
+            }
+        };
+    }
+
+    /// <summary>
+    /// Validates the form and runs service-side address validation.
+    /// Returns true when all validations pass (wizard may advance).
+    /// Returns false when validation fails or when navigating to address correction.
+    /// </summary>
+    public async Task<bool> Validate()
+    {
+        formSubmitted = true;
+        customValidator?.ClearErrors();
+
+        var topLevelValid = editContext.Validate();
+        var addressErrors = ValidateAddressModels();
+
+        if (addressErrors.Any())
+            customValidator?.DisplayErrors(addressErrors);
+
+        if (!topLevelValid || addressErrors.Any())
+        {
+            hasValidationErrors = true;
+            StateHasChanged();
+            return false;
+        }
+
+        hasValidationErrors = false;
+
+        RegistrationState.BusinessInfo = Model;
+        RegistrationState.PhysicalSameAsMailing = _physicalSameAsMailing;
+        var corrections = new List<AddressCorrectionItem>();
+
+        var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
+        if (!mailingResult.IsValid)
+            corrections.Add(new AddressCorrectionItem("Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress, mailingResult.ErrorMessage));
+
+        var startIndex = _physicalSameAsMailing ? 1 : 0;
+        for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
+        {
+            var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
+            if (!result.IsValid)
+                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1} Address", Model.PhysicalLocations[i], result.CorrectedAddress, result.ErrorMessage));
+        }
+
+        if (corrections.Any())
+        {
+            RegistrationState.AddressCorrections = corrections;
+            RegistrationState.CorrectionIndex = 0;
+            RegistrationState.CurrentStep = 4;
+            Nav.NavigateTo("/employer-registration/address-correction");
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>Handles the "Physical Location is the same as the Business address" checkbox toggle.</summary>
+    private void OnPhysicalSameAsMailingChanged(ChangeEventArgs e)
+    {
+        _physicalSameAsMailing = e.Value is true;
+        if (_physicalSameAsMailing)
+            CopyMailingToPhysical(0);
+        else
+            ClearPhysicalLocation(0);
+        StateHasChanged();
+    }
+
+    /// <summary>Copies all mailing address fields into PhysicalLocations[<paramref name="index"/>].</summary>
+    private void CopyMailingToPhysical(int index)
+    {
+        var src  = Model.MailingAddress;
+        var dest = Model.PhysicalLocations[index];
+        dest.Country      = src.Country;
+        dest.AddressLine1 = src.AddressLine1;
+        dest.AddressLine2 = src.AddressLine2;
+        dest.City         = src.City;
+        dest.State        = src.State;
+        dest.Zip          = src.Zip;
+        dest.Extension    = src.Extension;
+    }
+
+    /// <summary>Clears all fields on PhysicalLocations[<paramref name="index"/>].</summary>
+    private void ClearPhysicalLocation(int index)
+    {
+        var dest = Model.PhysicalLocations[index];
+        dest.Country      = null;
+        dest.AddressLine1 = null;
+        dest.AddressLine2 = null;
+        dest.City         = null;
+        dest.State        = null;
+        dest.Zip          = null;
+        dest.Extension    = null;
+    }
+
+    /// <summary>Returns true when a field's errors should be visible (after submission or interaction).</summary>
+    private bool IsVisible(Expression<Func<string?>> For)
+        => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+
+    /// <summary>Returns true when an address section's errors should be visible.</summary>
+    private bool IsAddressVisible(AddressModel address)
+        => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
+
+    /// <summary>Runs DataAnnotations validation on all address models.</summary>
+    private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+
+        var physicalToValidate = _physicalSameAsMailing
+            ? Model.PhysicalLocations.Skip(1)
+            : Model.PhysicalLocations;
+
+        var allAddresses = new List<AddressModel> { Model.MailingAddress };
+        allAddresses.AddRange(physicalToValidate);
+
+        foreach (var address in allAddresses)
+        {
+            var ctx = new ValidationContext(address);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(address, ctx, results, true);
+
+            foreach (var result in results)
+            {
+                foreach (var memberName in result.MemberNames)
+                {
+                    var fi = new FieldIdentifier(address, memberName);
+                    if (!errors.ContainsKey(fi))
+                        errors[fi] = new List<string>();
+                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+                }
+            }
+        }
+
+        return errors;
+    }
+
+    /// <summary>Adds a new physical location up to the maximum allowed.</summary>
+    private void AddPhysicalLocation()
+    {
+        if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
+        {
+            Model.PhysicalLocations.Add(new AddressModel());
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>Removes the physical location at the specified index.</summary>
+    private void RemovePhysicalLocation(int index)
+    {
+        if (Model.PhysicalLocations.Count > 1 && index >= 0 && index < Model.PhysicalLocations.Count)
+        {
+            Model.PhysicalLocations.RemoveAt(index);
+            customValidator?.ClearErrors();
+            StateHasChanged();
+        }
+    }
+}

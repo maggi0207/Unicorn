@@ -1,0 +1,189 @@
+@namespace UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+
+@if (IsVisible)
+{
+    <div class="wizard-container @CssClass">
+
+        @* ── STEP ICON / NUMBER ── *@
+        @if (CurrentStepData != null)
+        {
+            <div class="wizard-current-step">
+                <div class="step-indicator-single">
+                    <div class="step-circle-large">
+                        @if (!string.IsNullOrWhiteSpace(CurrentStepData.Icon) && CurrentStepData.Icon.EndsWith(".svg"))
+                        {
+                            <img src="@CurrentStepData.Icon" class="step-icon-large" alt="Step @CurrentStep" />
+                        }
+                        else
+                        {
+                            <span class="step-number-large">@CurrentStep</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="css-line"></div>
+
+        @* ── STEP CONTENT ── *@
+        @if (ChildContent != null)
+        {
+            <div class="wizard-content">
+                @ChildContent
+            </div>
+        }
+
+        @* ── NAVIGATION BUTTONS ── *@
+        @if (ShowNavigationButtons)
+        {
+            <div class="wizard-navigation">
+                <div class="wizard-navigation-left">
+                    @if (ShowBackButton)
+                    {
+                        <button type="button"
+                                class="wizard-btn wizard-btn-back"
+                                disabled="@(DisableBackOnFirstStep && CurrentStep <= 1)"
+                                @onclick="HandleBackClick">
+                            @ResolvedBackButtonText
+                        </button>
+                    }
+                    @if (ShowCancelButton)
+                    {
+                        <button type="button"
+                                class="wizard-btn wizard-btn-cancel"
+                                @onclick="HandleCancelClick">
+                            @ResolvedCancelButtonText
+                        </button>
+                    }
+                </div>
+                <div class="wizard-navigation-right">
+                    @if (ShowSaveAndQuitButton)
+                    {
+                        <button type="button"
+                                class="wizard-btn wizard-btn-savequit"
+                                @onclick="HandleSaveAndQuitClick">
+                            @ResolvedSaveAndQuitButtonText
+                        </button>
+                    }
+                    @if (ShowActionButton)
+                    {
+                        <button type="button"
+                                class="wizard-btn wizard-btn-action"
+                                @onclick="HandleActionClick">
+                            @ResolvedActionButtonText
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+}
+
+@code {
+    /// <summary>Controls whether the wizard is rendered. Default: true.</summary>
+    [Parameter] public bool IsVisible { get; set; } = true;
+
+    /// <summary>Collection of step definitions used to resolve per-step button text and icons.</summary>
+    [Parameter] public IEnumerable<WizardStep>? Steps { get; set; }
+
+    /// <summary>The currently active step number (1-based). Supports two-way binding via @bind-CurrentStep.</summary>
+    [Parameter] public int CurrentStep { get; set; } = 1;
+
+    /// <summary>The child content rendered inside the wizard content area.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Optional CSS class appended to the wizard container element.</summary>
+    [Parameter] public string? CssClass { get; set; }
+
+    /// <summary>Callback invoked when a step indicator is clicked.</summary>
+    [Parameter] public EventCallback<int> OnStepClicked { get; set; }
+
+    /// <summary>Controls whether navigation buttons are displayed. Default: true.</summary>
+    [Parameter] public bool ShowNavigationButtons { get; set; } = true;
+
+    /// <summary>Controls whether the Back button is displayed. Default: true.</summary>
+    [Parameter] public bool ShowBackButton { get; set; } = true;
+
+    /// <summary>Controls whether the Back button is disabled on the first step. Default: true.</summary>
+    [Parameter] public bool DisableBackOnFirstStep { get; set; } = true;
+
+    /// <summary>Controls whether the Cancel button is displayed. Default: true.</summary>
+    [Parameter] public bool ShowCancelButton { get; set; } = true;
+
+    /// <summary>Controls whether the Save and Quit button is displayed. Default: true.</summary>
+    [Parameter] public bool ShowSaveAndQuitButton { get; set; } = true;
+
+    /// <summary>Controls whether the primary action button is displayed. Default: true.</summary>
+    [Parameter] public bool ShowActionButton { get; set; } = true;
+
+    /// <summary>Callback invoked when the Back button is clicked.</summary>
+    [Parameter] public EventCallback OnBackClick { get; set; }
+
+    /// <summary>Callback invoked when the Cancel button is clicked.</summary>
+    [Parameter] public EventCallback OnCancelClick { get; set; }
+
+    /// <summary>Callback invoked when the Save and Quit button is clicked.</summary>
+    [Parameter] public EventCallback OnSaveAndQuitClick { get; set; }
+
+    /// <summary>Callback invoked when the primary action button is clicked.</summary>
+    [Parameter] public EventCallback OnActionClick { get; set; }
+
+    /// <summary>When true, the wizard auto-decrements CurrentStep on Back click. Default: true.</summary>
+    [Parameter] public bool AutoNavigateOnBack { get; set; } = true;
+
+    /// <summary>When true, the wizard auto-increments CurrentStep on Action click. Default: true.</summary>
+    [Parameter] public bool AutoNavigateOnAction { get; set; } = true;
+
+    /// <summary>Two-way binding callback for CurrentStep.</summary>
+    [Parameter] public EventCallback<int> CurrentStepChanged { get; set; }
+
+    /// <summary>Gets the WizardStep definition for the currently active step, or null if not found.</summary>
+    private WizardStep? CurrentStepData => Steps?.FirstOrDefault(s => s.StepNumber == CurrentStep);
+
+    private string ResolvedBackButtonText => CurrentStepData?.BackButtonText ?? "Back";
+    private string ResolvedCancelButtonText => CurrentStepData?.CancelButtonText ?? "Cancel";
+    private string ResolvedSaveAndQuitButtonText => CurrentStepData?.SaveAndQuitButtonText ?? "Save & Quit";
+    private string ResolvedActionButtonText => CurrentStepData?.ActionButtonText ?? "Continue";
+
+    /// <summary>Handles Back button click: fires OnBackClick callback, then auto-decrements step if configured.</summary>
+    private async Task HandleBackClick()
+    {
+        if (OnBackClick.HasDelegate)
+            await OnBackClick.InvokeAsync();
+
+        if (AutoNavigateOnBack && CurrentStep > 1)
+        {
+            CurrentStep--;
+            await CurrentStepChanged.InvokeAsync(CurrentStep);
+        }
+    }
+
+    /// <summary>Handles Cancel button click: fires OnCancelClick callback.</summary>
+    private async Task HandleCancelClick()
+    {
+        if (OnCancelClick.HasDelegate)
+            await OnCancelClick.InvokeAsync();
+    }
+
+    /// <summary>Handles action button click: fires OnActionClick callback, then auto-increments step if configured.</summary>
+    private async Task HandleActionClick()
+    {
+        if (OnActionClick.HasDelegate)
+            await OnActionClick.InvokeAsync();
+
+        if (AutoNavigateOnAction && CurrentStep < (Steps?.Count() ?? 0))
+        {
+            CurrentStep++;
+            await CurrentStepChanged.InvokeAsync(CurrentStep);
+        }
+    }
+
+    /// <summary>Handles Save and Quit button click: fires OnSaveAndQuitClick callback.</summary>
+    private async Task HandleSaveAndQuitClick()
+    {
+        if (OnSaveAndQuitClick.HasDelegate)
+            await OnSaveAndQuitClick.InvokeAsync();
+    }
+}

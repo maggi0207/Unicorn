@@ -1,0 +1,219 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Notifications
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@inject NavigationManager Nav
+@inject IAddressValidationWrapper AddressValidator
+
+<h1 class="page-title">Business Contact</h1>
+<p class="page-subtitle">All fields are required unless noted</p>
+
+<EditForm EditContext="@editContext" FormName="BusinessContact">
+
+    <DataAnnotationsValidator />
+    <CustomValidator @ref="customValidator" />
+
+    @* ================= ERROR BANNER ================= *@
+    <NotificationBanner Visible="@(formSubmitted && hasValidationErrors)"
+                        Title="Missing information"
+                        Message="Please correct the errors below" />
+
+    @* ================= CONTACT NAME ================= *@
+    <div class="bi-fields-grid">
+
+        <div class="bi-field">
+            <OutlinedTextField Label="First Name"
+                               @bind-Value="Model.FirstName"
+                               For="() => Model.FirstName"
+                               Visible="@IsVisible(() => Model.FirstName)" />
+        </div>
+
+        <div class="bi-field">
+            <OutlinedTextField Label="Last Name"
+                               @bind-Value="Model.LastName"
+                               For="() => Model.LastName"
+                               Visible="@IsVisible(() => Model.LastName)" />
+        </div>
+
+    </div>
+
+    @* ================= TITLE ================= *@
+    <div class="bc-title-field">
+        <OutlinedTextField Label="Title (Optional)"
+                           @bind-Value="Model.Title" />
+    </div>
+
+    @* ================= ADDRESS QUESTION ================= *@
+    <div class="bc-question">
+        <p class="bc-question-text">Is the Business Contact Address different from the Business Mailing Address?</p>
+
+        <div class="bc-radio-group">
+            <label class="bc-radio-label">
+                <input type="radio"
+                       name="isDifferentAddress"
+                       checked="@(Model.IsDifferentAddress == true)"
+                       @onchange="() => OnAddressChoiceChanged(true)" />
+                Yes
+            </label>
+            <label class="bc-radio-label">
+                <input type="radio"
+                       name="isDifferentAddress"
+                       checked="@(Model.IsDifferentAddress == false)"
+                       @onchange="() => OnAddressChoiceChanged(false)" />
+                No
+            </label>
+        </div>
+
+        @if (formSubmitted && Model.IsDifferentAddress == null)
+        {
+            <div class="bc-radio-error">Please select an option.</div>
+        }
+    </div>
+
+    @* ================= CONTACT ADDRESS (shown when Yes) ================= *@
+    @if (Model.IsDifferentAddress == true)
+    {
+        <div class="bi-section-header">
+            <span>Business Contact Address</span>
+        </div>
+
+        <AddressField Address="Model.ContactAddress"
+                      Visible="@IsAddressVisible(Model.ContactAddress)" />
+    }
+
+</EditForm>
+
+@code {
+    private BusinessContactModel Model = new();
+    private EditContext editContext = default!;
+    private CustomValidator? customValidator;
+    private bool formSubmitted = false;
+    private bool hasValidationErrors = false;
+
+    /// <summary>Tracks which fields the user has interacted with so errors show on field change.</summary>
+    private HashSet<FieldIdentifier> _touchedFields = new();
+
+    /// <summary>Initializes the edit context and wires up field change notifications.</summary>
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Model);
+        editContext.OnFieldChanged += (_, e) =>
+        {
+            _touchedFields.Add(e.FieldIdentifier);
+
+            if (formSubmitted && Model.IsDifferentAddress == true && ReferenceEquals(e.FieldIdentifier.Model, Model.ContactAddress))
+            {
+                InvokeAsync(() =>
+                {
+                    customValidator?.ClearErrors();
+                    var errors = ValidateContactAddress();
+                    if (errors.Any()) customValidator?.DisplayErrors(errors);
+                    hasValidationErrors = editContext.GetValidationMessages().Any();
+                    StateHasChanged();
+                });
+            }
+            else
+            {
+                hasValidationErrors = editContext.GetValidationMessages().Any();
+                StateHasChanged();
+            }
+        };
+    }
+
+    /// <summary>
+    /// Validates the form and runs service-side address validation when a different address is provided.
+    /// Returns true when all validations pass (wizard may advance). Returns false otherwise.
+    /// </summary>
+    public async Task<bool> Validate()
+    {
+        formSubmitted = true;
+        customValidator?.ClearErrors();
+
+        if (Model.IsDifferentAddress == null)
+        {
+            hasValidationErrors = true;
+            StateHasChanged();
+            return false;
+        }
+
+        var topLevelValid = editContext.Validate();
+
+        if (Model.IsDifferentAddress == true)
+        {
+            var addressErrors = ValidateContactAddress();
+
+            if (!addressErrors.Any())
+            {
+                var result = await AddressValidator.ValidateAsync(Model.ContactAddress);
+                if (!result.IsValid)
+                {
+                    var fi = new FieldIdentifier(Model.ContactAddress, nameof(Model.ContactAddress.State));
+                    addressErrors[fi] = new List<string>
+                    {
+                        result.ErrorMessage ?? "Address could not be validated. Please check the state and country."
+                    };
+                }
+            }
+
+            if (addressErrors.Any())
+            {
+                customValidator?.DisplayErrors(addressErrors);
+                hasValidationErrors = true;
+                StateHasChanged();
+                return false;
+            }
+        }
+
+        if (!topLevelValid)
+        {
+            hasValidationErrors = true;
+            StateHasChanged();
+            return false;
+        }
+
+        hasValidationErrors = false;
+        return true;
+    }
+
+    /// <summary>Returns true when a field's errors should be visible (after submission or interaction).</summary>
+    private bool IsVisible(Expression<Func<string?>> For)
+        => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+
+    /// <summary>Returns true when an address section's errors should be visible.</summary>
+    private bool IsAddressVisible(AddressModel address)
+        => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
+
+    /// <summary>Updates the address choice flag and triggers re-render.</summary>
+    private void OnAddressChoiceChanged(bool value)
+    {
+        Model.IsDifferentAddress = value;
+        StateHasChanged();
+    }
+
+    /// <summary>Runs DataAnnotations validation on the contact address model.</summary>
+    private Dictionary<FieldIdentifier, List<string>> ValidateContactAddress()
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+        var ctx = new ValidationContext(Model.ContactAddress);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(Model.ContactAddress, ctx, results, true);
+
+        foreach (var result in results)
+        {
+            foreach (var memberName in result.MemberNames)
+            {
+                var fi = new FieldIdentifier(Model.ContactAddress, memberName);
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+            }
+        }
+
+        return errors;
+    }
+}

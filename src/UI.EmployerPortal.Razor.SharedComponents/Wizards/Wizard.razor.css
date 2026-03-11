@@ -1,0 +1,167 @@
+/* Wizard Container */
+.wizard-container {
+    width: auto;
+    padding: 1rem;
+}
+
+/* Single Step Display (Current Step Only) */
+.wizard-current-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.step-indicator-single {
+    margin-bottom: 1rem;
+}
+
+.step-circle-large {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #003663;
+    border: 3px solid #003663;
+    box-shadow: 0 4px 8px rgba(0, 54, 99, 0.2);
+}
+
+.step-icon-large {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.step-number-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* Steps Container */
+.wizard-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Wizard Content Area */
+.wizard-content {
+    padding: 1rem 0;
+}
+
+/* Wizard Navigation Buttons */
+.wizard-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+    width: 100%;
+}
+
+.wizard-navigation-left {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.wizard-navigation-right {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+/* Wizard Button Base */
+.wizard-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: white;
+    font-family: inherit;
+}
+
+.wizard-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wizard-btn:active {
+    transform: translateY(0);
+}
+
+.wizard-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+}
+
+.wizard-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+    background-color: #f3f4f6;
+}
+
+.wizard-btn-cancel {
+    background-color: #ffffff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.wizard-btn-back {
+    background-color: #ffffff;
+    border-color: #9ca3af;
+}
+
+.wizard-btn-back:hover {
+    background-color: #ffffff;
+    border-color: #9ca3af;
+}
+
+.wizard-btn-savequit {
+    background-color: #ffffff;
+}
+
+.wizard-btn-action {
+    background-color: #003663;
+    color: #ffffff;
+    outline: 2px solid #003663;
+}
+
+.wizard-btn-action:hover {
+    background-color: #002a4d;
+}
+
+.css-line {
+    left: 0;
+    width: 100%;
+    height: 0;
+    border-top: 1px solid #ADADAD;
+    transform: translateZ(0);
+}
+
+@media (max-width: 768px) {
+    .wizard-navigation {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .wizard-navigation-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .wizard-btn {
+        flex: 1;
+        min-width: auto;
+    }
+}
