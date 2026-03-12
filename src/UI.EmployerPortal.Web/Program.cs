@@ -11,6 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddWcfServiceClients(builder.Configuration);
 builder.Services.AddScoped<IAddressValidationWrapper, AddressValidationService>();
 builder.Services.AddScoped<RegistrationStateService>();
+builder.Services.AddScoped<AddressValidationCoordinator>();
 
 var app = builder.Build();
 

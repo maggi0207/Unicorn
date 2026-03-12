@@ -9,7 +9,7 @@
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @inject NavigationManager Nav
-@inject IAddressValidationWrapper AddressValidator
+@inject AddressValidationCoordinator AddressCoordinator
 @inject RegistrationStateService RegistrationState
 
 <div class="page_wrapper">
@@ -166,21 +166,14 @@
                 return false;
             }
 
-            var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(
-                AddressValidator,
-                [("Business Contact Address", Model.ContactAddress)]);
+            var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
+                [("Business Contact Address", Model.ContactAddress)],
+                editStep: 4,
+                postCorrectionStep: 5,
+                onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
 
-            if (corrections.Any())
-            {
-                RegistrationState.ContactInfo = Model;
-                RegistrationState.AddressCorrections = corrections;
-                RegistrationState.CorrectionIndex = 0;
-                RegistrationState.EditStep = 4;
-                RegistrationState.PostCorrectionStep = 5;
-                RegistrationState.CurrentStep = 4;
-                Nav.NavigateTo("/employer-registration/address-correction");
+            if (!redirected)
                 return false;
-            }
         }
 
         if (!topLevelValid)

@@ -9,7 +9,7 @@
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @inject NavigationManager Nav
-@inject IAddressValidationWrapper AddressValidator
+@inject AddressValidationCoordinator AddressCoordinator
 @inject RegistrationStateService RegistrationState
 
 <div class="page_wrapper">
@@ -211,20 +211,10 @@
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
             addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
 
-        var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, addressesToValidate);
-
-        if (corrections.Any())
-        {
-            RegistrationState.AddressCorrections = corrections;
-            RegistrationState.CorrectionIndex = 0;
-            RegistrationState.EditStep = 3;
-            RegistrationState.PostCorrectionStep = 4;
-            RegistrationState.CurrentStep = 4;
-            Nav.NavigateTo("/employer-registration/address-correction");
-            return false;
-        }
-
-        return true;
+        return await AddressCoordinator.ValidateAndRedirectAsync(
+            addressesToValidate,
+            editStep: 3,
+            postCorrectionStep: 4);
     }
 
     /// <summary>Handles the "Physical Location is the same as the Business address" checkbox toggle.</summary>
