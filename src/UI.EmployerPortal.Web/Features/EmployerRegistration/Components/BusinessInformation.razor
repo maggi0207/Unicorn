@@ -207,14 +207,14 @@
         var corrections = new List<AddressCorrectionItem>();
 
         var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
-        if (!mailingResult.IsValid || mailingResult.CorrectedAddress is not null)
+        if (!mailingResult.IsValid || (mailingResult.CorrectedAddress is not null && !AddressesAreEqual(Model.MailingAddress, mailingResult.CorrectedAddress)))
             corrections.Add(new AddressCorrectionItem("Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress, mailingResult.ErrorMessage));
 
         var startIndex = _physicalSameAsMailing ? 1 : 0;
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
         {
             var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
-            if (!result.IsValid || result.CorrectedAddress is not null)
+            if (!result.IsValid || (result.CorrectedAddress is not null && !AddressesAreEqual(Model.PhysicalLocations[i], result.CorrectedAddress)))
                 corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1} Address", Model.PhysicalLocations[i], result.CorrectedAddress, result.ErrorMessage));
         }
 
@@ -308,6 +308,15 @@
 
         return errors;
     }
+
+    /// <summary>Returns true when all address fields of <paramref name="a"/> and <paramref name="b"/> are equal (case-insensitive).</summary>
+    private static bool AddressesAreEqual(AddressModel a, AddressModel b)
+        => string.Equals(a.AddressLine1, b.AddressLine1, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.AddressLine2, b.AddressLine2, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.City,         b.City,         StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.State,        b.State,        StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.Zip,          b.Zip,          StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.Extension,    b.Extension,    StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Adds a new physical location up to the maximum allowed.</summary>
     private void AddPhysicalLocation()
