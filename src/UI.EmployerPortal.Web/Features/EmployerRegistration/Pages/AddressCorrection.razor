@@ -221,10 +221,10 @@
         }
     }
 
-    /// <summary>Returns the user to BusinessInformation (step 3) to edit their address.</summary>
+    /// <summary>Returns the user to the originating step to edit their address.</summary>
     private void EditAddress()
     {
-        RegistrationState.CurrentStep = 3;
+        RegistrationState.CurrentStep = RegistrationState.EditStep;
         Nav.NavigateTo("/employer-registration/steps");
     }
 
@@ -272,7 +272,7 @@
             }
         }
 
-        RegistrationState.CurrentStep = 4;
+        RegistrationState.CurrentStep = RegistrationState.PostCorrectionStep;
         Nav.NavigateTo("/employer-registration/steps");
     }
 

@@ -10,6 +10,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @inject NavigationManager Nav
 @inject IAddressValidationWrapper AddressValidator
+@inject RegistrationStateService RegistrationState
 
 <div class="page_wrapper">
     <div class="bi-page-content">
@@ -105,9 +106,12 @@
     /// <summary>Tracks which fields the user has interacted with so errors show on field change.</summary>
     private HashSet<FieldIdentifier> _touchedFields = new();
 
-    /// <summary>Initializes the edit context and wires up field change notifications.</summary>
+    /// <summary>Initializes the edit context, restoring saved model if returning from address correction.</summary>
     protected override void OnInitialized()
     {
+        if (RegistrationState.ContactInfo is not null)
+            Model = RegistrationState.ContactInfo;
+
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += (_, e) =>
         {
@@ -154,24 +158,27 @@
         {
             var addressErrors = ValidateContactAddress();
 
-            if (!addressErrors.Any())
-            {
-                var result = await AddressValidator.ValidateAsync(Model.ContactAddress);
-                if (!result.IsValid)
-                {
-                    var fi = new FieldIdentifier(Model.ContactAddress, nameof(Model.ContactAddress.State));
-                    addressErrors[fi] = new List<string>
-                    {
-                        result.ErrorMessage ?? "Address could not be validated. Please check the state and country."
-                    };
-                }
-            }
-
             if (addressErrors.Any())
             {
                 customValidator?.DisplayErrors(addressErrors);
                 hasValidationErrors = true;
                 StateHasChanged();
+                return false;
+            }
+
+            var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(
+                AddressValidator,
+                [("Business Contact Address", Model.ContactAddress)]);
+
+            if (corrections.Any())
+            {
+                RegistrationState.ContactInfo = Model;
+                RegistrationState.AddressCorrections = corrections;
+                RegistrationState.CorrectionIndex = 0;
+                RegistrationState.EditStep = 4;
+                RegistrationState.PostCorrectionStep = 5;
+                RegistrationState.CurrentStep = 4;
+                Nav.NavigateTo("/employer-registration/address-correction");
                 return false;
             }
         }

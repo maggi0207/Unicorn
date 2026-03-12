@@ -204,24 +204,21 @@
 
         RegistrationState.BusinessInfo = Model;
         RegistrationState.PhysicalSameAsMailing = _physicalSameAsMailing;
-        var corrections = new List<AddressCorrectionItem>();
-
-        var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
-        if (!mailingResult.IsValid || (mailingResult.CorrectedAddress is not null && !AddressHelper.AddressesAreEqual(Model.MailingAddress, mailingResult.CorrectedAddress)))
-            corrections.Add(new AddressCorrectionItem("Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress, mailingResult.ErrorMessage));
-
         var startIndex = _physicalSameAsMailing ? 1 : 0;
+
+        var addressesToValidate = new List<(string, AddressModel)>
+            { ("Mailing Address", Model.MailingAddress) };
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
-        {
-            var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
-            if (!result.IsValid || (result.CorrectedAddress is not null && !AddressHelper.AddressesAreEqual(Model.PhysicalLocations[i], result.CorrectedAddress)))
-                corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1} Address", Model.PhysicalLocations[i], result.CorrectedAddress, result.ErrorMessage));
-        }
+            addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
+
+        var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, addressesToValidate);
 
         if (corrections.Any())
         {
             RegistrationState.AddressCorrections = corrections;
             RegistrationState.CorrectionIndex = 0;
+            RegistrationState.EditStep = 3;
+            RegistrationState.PostCorrectionStep = 4;
             RegistrationState.CurrentStep = 4;
             Nav.NavigateTo("/employer-registration/address-correction");
             return false;

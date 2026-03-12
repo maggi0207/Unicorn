@@ -12,6 +12,21 @@ public class RegistrationStateService
     /// <summary>The model saved before navigating to address correction, so it can be restored on edit.</summary>
     public BusinessInformationModel? BusinessInfo { get; set; }
 
+    /// <summary>The business contact model saved before navigating to address correction.</summary>
+    public BusinessContactModel? ContactInfo { get; set; }
+
+    /// <summary>
+    /// The wizard step to return to when the user clicks EDIT ADDRESS on the Address Correction page.
+    /// Defaults to 3 (Business Information).
+    /// </summary>
+    public int EditStep { get; set; } = 3;
+
+    /// <summary>
+    /// The wizard step to advance to after completing the Address Correction flow.
+    /// Defaults to 4 (Business Contact).
+    /// </summary>
+    public int PostCorrectionStep { get; set; } = 4;
+
     /// <summary>Address corrections collected after service validation on BusinessInformation submit.</summary>
     public List<AddressCorrectionItem> AddressCorrections { get; set; } = new();
 
