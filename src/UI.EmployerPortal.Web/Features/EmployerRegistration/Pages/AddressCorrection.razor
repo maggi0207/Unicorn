@@ -8,6 +8,28 @@
 
         <h1 class="page-title">Address Correction</h1>
 
+        @* ── REQUIRED OPTIONS MISSING BANNER (shown after failed CONTINUE) ── *@
+        @if (_itemErrors.Count > 0)
+        {
+            <div class="ac-required-banner">
+                <svg class="ac-required-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                     aria-hidden="true">
+                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                </svg>
+                <div>
+                    <p class="ac-required-title">Required Options Missing</p>
+                    <ul class="ac-required-links">
+                        @foreach (var errIdx in _itemErrors.OrderBy(x => x))
+                        {
+                            <li><a href="#ac-item-@errIdx">@GetTypeName(_items[errIdx].Label) option</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
         @* ── ALL WARNING BANNERS GROUPED AT TOP ── *@
         @foreach (var item in _items)
         {
@@ -41,7 +63,7 @@
             var idx = i;
             var item = _items[idx];
 
-            <div class="ac-correction-block">
+            <div id="ac-item-@idx" class="ac-correction-block">
 
                 @* Section header: e.g. "Mailing Address Entered" *@
                 <div class="ac-section-header">
@@ -76,8 +98,8 @@
                         The @GetTypeName(item.Label) entered differs from the corrected @GetTypeName(item.Label).
                     </p>
 
-                    @* Radio buttons with type-specific labels *@
-                    <div class="ac-radio-group @(_itemErrors.Contains(idx) ? "ac-radio-group--error" : "")">
+                    @* Radio buttons *@
+                    <div class="ac-radio-group">
                         <label class="ac-radio-label">
                             <input type="radio"
                                    name="ac-choice-@idx"
@@ -92,27 +114,34 @@
                                    @onchange="() => SetSelectionEntered(idx)" />
                             Use @GetTypeName(item.Label) as entered
                         </label>
+                        @if (_itemErrors.Contains(idx))
+                        {
+                            <p class="ac-field-error">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                                </svg>
+                                Please select an option.
+                            </p>
+                        }
                     </div>
                 }
                 else
                 {
-                    @* No suggestion — EDIT ADDRESS text-link left, USE AS ENTERED button right *@
-                    @if (_acceptedAsEntered.Contains(idx))
-                    {
-                        <p class="ac-accepted-note">Using @GetTypeName(item.Label) as entered.</p>
-                    }
-                    else
-                    {
-                        <div class="ac-actions-entered @(_itemErrors.Contains(idx) ? "ac-actions-entered--error" : "")">
-                            <button type="button" class="ac-edit-link" @onclick="EditAddress">
-                                EDIT ADDRESS
-                            </button>
-                            <button type="button" class="btn btn--secondary"
-                                    @onclick="() => AcceptAsEntered(idx)">
-                                USE ADDRESS AS ENTERED
-                            </button>
-                        </div>
-                    }
+                    @* No suggestion — EDIT ADDRESS button right-aligned, then checkbox *@
+                    <div class="ac-actions-edit">
+                        <button type="button" class="btn btn--sm btn--secondary" @onclick="EditAddress">
+                            EDIT ADDRESS
+                        </button>
+                    </div>
+
+                    <label class="ac-checkbox-label @(_itemErrors.Contains(idx) ? "ac-checkbox-label--error" : "")">
+                        <input type="checkbox"
+                               checked="@_acceptedAsEntered.Contains(idx)"
+                               @onchange="(e) => ToggleAcceptAsEntered(idx, e)" />
+                        Use @GetTypeName(item.Label) as entered
+                    </label>
                 }
 
             </div>
@@ -123,19 +152,8 @@
             }
         }
 
-        @* ── FOOTER: error banner + CONTINUE ── *@
+        @* ── FOOTER: CONTINUE ── *@
         <div class="ac-footer">
-            @if (_showContinueError)
-            {
-                <div class="ac-page-error">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="8" fill="#C82838" />
-                        <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
-                        <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
-                    </svg>
-                    Please resolve all address corrections before continuing.
-                </div>
-            }
             <button type="button" class="btn btn--primary" @onclick="HandleContinue">
                 CONTINUE
             </button>
@@ -153,13 +171,11 @@
     /// <summary>Per-item radio selection: "corrected" or "entered". Only for items with a suggestion.</summary>
     private Dictionary<int, string> _selections = new();
 
-    /// <summary>Indices of no-suggestion items the user accepted as-entered.</summary>
+    /// <summary>Indices of no-suggestion items accepted via checkbox.</summary>
     private HashSet<int> _acceptedAsEntered = new();
 
     /// <summary>Indices of items that were unresolved when CONTINUE was clicked.</summary>
     private HashSet<int> _itemErrors = new();
-
-    private bool _showContinueError;
 
     protected override void OnInitialized()
     {
@@ -171,14 +187,11 @@
 
     /// <summary>
     /// Returns the lowercase type name for use in body text and radio labels.
-    /// "Mailing Address" → "mailing address"; physical labels kept as-is lowercased.
+    /// "Mailing Address" → "mailing address".
     /// </summary>
     private static string GetTypeName(string label) => label.ToLower();
 
-    /// <summary>
-    /// Returns the title-cased label for section headers and "Corrected X:" labels.
-    /// "Mailing Address" → "Mailing Address"; "Physical Location 1 Address" → "Physical Location 1 Address".
-    /// </summary>
+    /// <summary>Returns the label as-is for section headers.</summary>
     private static string GetSectionTitle(string label) => label;
 
     /// <summary>Returns the current radio selection for item at <paramref name="index"/>, or null.</summary>
@@ -189,24 +202,23 @@
     {
         _selections[index] = value;
         _itemErrors.Remove(index);
-        _showContinueError = false;
     }
 
     private void SetSelectionCorrected(int index) => SetSelection(index, SelectionCorrected);
     private void SetSelectionEntered(int index)   => SetSelection(index, SelectionEntered);
 
-    /// <summary>
-    /// Marks a no-suggestion item as accepted, then immediately navigates forward
-    /// if this was the last unresolved item.
-    /// </summary>
-    private void AcceptAsEntered(int index)
+    /// <summary>Toggles the "use as entered" checkbox for a no-suggestion item.</summary>
+    private void ToggleAcceptAsEntered(int index, ChangeEventArgs e)
     {
-        _acceptedAsEntered.Add(index);
-        _itemErrors.Remove(index);
-        _showContinueError = false;
-
-        if (AreAllResolved())
-            ApplyAndNavigate();
+        if (e.Value is true)
+        {
+            _acceptedAsEntered.Add(index);
+            _itemErrors.Remove(index);
+        }
+        else
+        {
+            _acceptedAsEntered.Remove(index);
+        }
     }
 
     /// <summary>Returns the user to BusinessInformation (step 3) to edit their address.</summary>
@@ -216,7 +228,7 @@
         Nav.NavigateTo("/employer-registration/steps");
     }
 
-    /// <summary>Validates all items are resolved, then applies and navigates.</summary>
+    /// <summary>Validates all items are resolved, then applies corrections and navigates.</summary>
     private void HandleContinue()
     {
         _itemErrors.Clear();
@@ -233,26 +245,9 @@
         }
 
         if (_itemErrors.Count > 0)
-        {
-            _showContinueError = true;
             return;
-        }
 
         ApplyAndNavigate();
-    }
-
-    /// <summary>Returns true when every correction item has been resolved by the user.</summary>
-    private bool AreAllResolved()
-    {
-        for (var i = 0; i < _items.Count; i++)
-        {
-            var item = _items[i];
-            var resolved = item.Suggested is not null
-                ? _selections.ContainsKey(i)
-                : _acceptedAsEntered.Contains(i);
-            if (!resolved) return false;
-        }
-        return true;
     }
 
     /// <summary>Applies all accepted corrections then navigates to the next step.</summary>

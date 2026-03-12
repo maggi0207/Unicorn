@@ -207,14 +207,14 @@
         var corrections = new List<AddressCorrectionItem>();
 
         var mailingResult = await AddressValidator.ValidateAsync(Model.MailingAddress);
-        if (!mailingResult.IsValid)
+        if (!mailingResult.IsValid || mailingResult.CorrectedAddress is not null)
             corrections.Add(new AddressCorrectionItem("Mailing Address", Model.MailingAddress, mailingResult.CorrectedAddress, mailingResult.ErrorMessage));
 
         var startIndex = _physicalSameAsMailing ? 1 : 0;
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
         {
             var result = await AddressValidator.ValidateAsync(Model.PhysicalLocations[i]);
-            if (!result.IsValid)
+            if (!result.IsValid || result.CorrectedAddress is not null)
                 corrections.Add(new AddressCorrectionItem($"Physical Location {i + 1} Address", Model.PhysicalLocations[i], result.CorrectedAddress, result.ErrorMessage));
         }
 
