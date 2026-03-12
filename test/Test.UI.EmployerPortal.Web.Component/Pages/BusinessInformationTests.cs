@@ -1,13 +1,35 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
+using FakeItEasy;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
-using UI.EmployerPortal.Web.Features.EmployerRegistration;
+using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
-namespace Test.UI.EmployerPortal.Web.Component.Features.EmployerRegistration;
+namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
+/// <summary>
+/// Component tests for BusinessInformation.
+/// Validation is triggered via Validate() (called by the wizard), not a submit button.
+/// </summary>
 public class BusinessInformationTests : BunitContext
 {
+    private readonly IAddressValidationWrapper _fakeValidator;
+
+    /// <summary>Registers required services before each test.</summary>
+    public BusinessInformationTests()
+    {
+        _fakeValidator = A.Fake<IAddressValidationWrapper>();
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(true, null, null));
+
+        Services.AddSingleton(_fakeValidator);
+        Services.AddSingleton<RegistrationStateService>();
+        Services.AddSingleton<AddressValidationCoordinator>();
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+
     [Fact]
     public void Renders_Page_Title()
     {
@@ -36,39 +58,7 @@ public class BusinessInformationTests : BunitContext
         Assert.Contains("Physical Location 1", cut.Markup);
     }
 
-    [Fact]
-    public void Renders_Back_Save_Quit_And_Continue_Buttons()
-    {
-        var cut = Render<BusinessInformation>();
-        Assert.NotNull(cut.Find("button.btn--secondary"));
-        Assert.NotNull(cut.Find("button.btn--tertiary"));
-        Assert.NotNull(cut.Find("button[type='submit'].btn--primary"));
-    }
-
-    [Fact]
-    public void Continue_Button_Is_Submit_Type()
-    {
-        var cut = Render<BusinessInformation>();
-        Assert.NotNull(cut.Find("button[type='submit']"));
-    }
-
-    [Fact]
-    public void Back_Button_Navigates_To_Ownership()
-    {
-        var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--secondary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("employer-registration/ownership", nav.Uri);
-    }
-
-    [Fact]
-    public void Save_And_Quit_Navigates_To_Dashboard()
-    {
-        var cut = Render<BusinessInformation>();
-        cut.Find("button.btn--tertiary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("dashboard", nav.Uri);
-    }
+    // ── Physical Locations ────────────────────────────────────────────────────
 
     [Fact]
     public void Add_Another_Physical_Location_Button_Visible_Initially()
@@ -127,27 +117,37 @@ public class BusinessInformationTests : BunitContext
         Assert.DoesNotContain("Physical Location 2", cut.Markup);
     }
 
+    // ── Validation ────────────────────────────────────────────────────────────
+
     [Fact]
-    public void No_Error_Banner_Before_Submit()
+    public void No_Error_Banner_Before_Validate()
     {
         var cut = Render<BusinessInformation>();
         Assert.Empty(cut.FindAll(".notification-banner--error"));
     }
 
     [Fact]
-    public void Continue_With_Empty_Form_Shows_Error_Banner()
+    public async Task Validate_With_Empty_Form_Shows_Error_Banner()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button[type='submit']").Click();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".notification-banner--error"));
     }
 
     [Fact]
-    public void Error_Banner_Contains_Missing_Information_Text()
+    public async Task Error_Banner_Contains_Missing_Information_Text()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button[type='submit']").Click();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.Contains("Missing information", cut.Find(".notification-banner--error").TextContent);
+    }
+
+    [Fact]
+    public async Task Validate_With_Empty_Form_Returns_False()
+    {
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+        Assert.False(result);
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public class BusinessInformationTests : BunitContext
     }
 
     [Fact]
-    public void Field_Error_Shown_For_Touched_Required_Field_Without_Submit()
+    public void Field_Error_Shown_For_Touched_Required_Field_Without_Validate()
     {
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
@@ -166,7 +166,7 @@ public class BusinessInformationTests : BunitContext
     }
 
     [Fact]
-    public void No_Global_Error_Banner_When_Only_Field_Touched_Without_Submit()
+    public void No_Global_Error_Banner_When_Only_Field_Touched_Without_Validate()
     {
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").Input(string.Empty);
@@ -182,10 +182,10 @@ public class BusinessInformationTests : BunitContext
     }
 
     [Fact]
-    public void Continue_With_Empty_Form_Shows_Address_Field_Errors()
+    public async Task Validate_With_Empty_Form_Shows_Address_Field_Errors()
     {
         var cut = Render<BusinessInformation>();
-        cut.Find("button[type='submit']").Click();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".master-error"));
     }
 
@@ -203,5 +203,13 @@ public class BusinessInformationTests : BunitContext
         var cut = Render<BusinessInformation>();
         cut.Find("input[aria-label='Legal Name']").TriggerEvent("onblur", new FocusEventArgs());
         Assert.Empty(cut.FindAll(".notification-banner--error"));
+    }
+
+    [Fact]
+    public async Task Validate_Does_Not_Call_Address_Service_When_Form_Is_Invalid()
+    {
+        var cut = Render<BusinessInformation>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
     }
 }

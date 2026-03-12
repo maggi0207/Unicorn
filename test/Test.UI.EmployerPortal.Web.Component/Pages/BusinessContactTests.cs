@@ -1,13 +1,36 @@
 using Bunit;
+using FakeItEasy;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
-using UI.EmployerPortal.Web.Features.EmployerRegistration;
+using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
-namespace Test.UI.EmployerPortal.Web.Component.Features.EmployerRegistration;
+namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
+/// <summary>
+/// Component tests for BusinessContact.
+/// Validation is triggered via Validate() (called by the wizard), not a submit button.
+/// </summary>
 public class BusinessContactTests : BunitContext
 {
+    private readonly IAddressValidationWrapper _fakeValidator;
+
+    /// <summary>Registers required services before each test.</summary>
+    public BusinessContactTests()
+    {
+        _fakeValidator = A.Fake<IAddressValidationWrapper>();
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(true, null, null));
+
+        Services.AddSingleton(_fakeValidator);
+        Services.AddSingleton<RegistrationStateService>();
+        Services.AddSingleton<AddressValidationCoordinator>();
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+
     [Fact]
     public void Renders_Page_Title()
     {
@@ -47,7 +70,9 @@ public class BusinessContactTests : BunitContext
     public void Renders_Address_Question_Text()
     {
         var cut = Render<BusinessContact>();
-        Assert.Contains("Is the Business Contact Address different from the Business Mailing Address?", cut.Find(".bc-question-text").TextContent);
+        Assert.Contains(
+            "Is the Business Contact Address different from the Business Mailing Address?",
+            cut.Find(".bc-question-text").TextContent);
     }
 
     [Fact]
@@ -58,41 +83,13 @@ public class BusinessContactTests : BunitContext
         Assert.Equal(2, radios.Count);
     }
 
-    [Fact]
-    public void Renders_Back_Save_Quit_And_Continue_Buttons()
-    {
-        var cut = Render<BusinessContact>();
-        Assert.NotNull(cut.Find("button.btn--secondary"));
-        Assert.NotNull(cut.Find("button.btn--tertiary"));
-        Assert.NotNull(cut.Find("button[type='submit'].btn--primary"));
-    }
-
-    [Fact]
-    public void Continue_Button_Is_Submit_Type()
-    {
-        var cut = Render<BusinessContact>();
-        Assert.NotNull(cut.Find("button[type='submit']"));
-    }
-
-    [Fact]
-    public void No_Error_Banner_Before_Submit()
-    {
-        var cut = Render<BusinessContact>();
-        Assert.Empty(cut.FindAll(".notification-banner--error"));
-    }
+    // ── Contact Address Visibility ────────────────────────────────────────────
 
     [Fact]
     public void Contact_Address_Section_Hidden_Initially()
     {
         var cut = Render<BusinessContact>();
         Assert.Empty(cut.FindAll(".bi-section-header"));
-    }
-
-    [Fact]
-    public void No_Radio_Error_Before_Submit()
-    {
-        var cut = Render<BusinessContact>();
-        Assert.Empty(cut.FindAll(".bc-radio-error"));
     }
 
     [Fact]
@@ -113,38 +110,44 @@ public class BusinessContactTests : BunitContext
         Assert.Empty(cut.FindAll(".bi-section-header"));
     }
 
+    // ── Validation ────────────────────────────────────────────────────────────
+
     [Fact]
-    public void Continue_With_Empty_Fields_Shows_Error_Banner()
+    public void No_Error_Banner_Before_Validate()
     {
         var cut = Render<BusinessContact>();
-        cut.Find("button[type='submit']").Click();
+        Assert.Empty(cut.FindAll(".notification-banner--error"));
+    }
+
+    [Fact]
+    public void No_Radio_Error_Before_Validate()
+    {
+        var cut = Render<BusinessContact>();
+        Assert.Empty(cut.FindAll(".bc-radio-error"));
+    }
+
+    [Fact]
+    public async Task Validate_With_Empty_Fields_Shows_Error_Banner()
+    {
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".notification-banner--error"));
     }
 
     [Fact]
-    public void Continue_Without_Radio_Selection_Shows_Radio_Error()
+    public async Task Validate_Without_Radio_Selection_Shows_Radio_Error()
     {
         var cut = Render<BusinessContact>();
-        cut.Find("button[type='submit']").Click();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".bc-radio-error"));
     }
 
     [Fact]
-    public void Back_Button_Navigates_To_Business_Information()
+    public async Task Validate_With_Empty_Form_Returns_False()
     {
         var cut = Render<BusinessContact>();
-        cut.Find("button.btn--secondary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("employer-registration/business-information", nav.Uri);
-    }
-
-    [Fact]
-    public void Save_And_Quit_Navigates_To_Dashboard()
-    {
-        var cut = Render<BusinessContact>();
-        cut.Find("button.btn--tertiary").Click();
-        var nav = Services.GetRequiredService<NavigationManager>();
-        Assert.Contains("dashboard", nav.Uri);
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+        Assert.False(result);
     }
 
     [Fact]
@@ -155,7 +158,7 @@ public class BusinessContactTests : BunitContext
     }
 
     [Fact]
-    public void Field_Error_Shown_For_Touched_Required_Field_Without_Submit()
+    public void Field_Error_Shown_For_Touched_Required_Field_Without_Validate()
     {
         var cut = Render<BusinessContact>();
         cut.Find("input[aria-label='First Name']").Input(string.Empty);
@@ -163,7 +166,7 @@ public class BusinessContactTests : BunitContext
     }
 
     [Fact]
-    public void No_Global_Error_Banner_When_Only_Field_Touched_Without_Submit()
+    public void No_Global_Error_Banner_When_Only_Field_Touched_Without_Validate()
     {
         var cut = Render<BusinessContact>();
         cut.Find("input[aria-label='First Name']").Input(string.Empty);
@@ -179,10 +182,10 @@ public class BusinessContactTests : BunitContext
     }
 
     [Fact]
-    public void Continue_With_Empty_Fields_Shows_Field_Errors()
+    public async Task Validate_With_Empty_Fields_Shows_Field_Errors()
     {
         var cut = Render<BusinessContact>();
-        cut.Find("button[type='submit']").Click();
+        await cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".master-error"));
     }
 
@@ -200,5 +203,13 @@ public class BusinessContactTests : BunitContext
         var cut = Render<BusinessContact>();
         cut.Find("input[aria-label='First Name']").TriggerEvent("onblur", new FocusEventArgs());
         Assert.Empty(cut.FindAll(".notification-banner--error"));
+    }
+
+    [Fact]
+    public async Task Validate_Does_Not_Call_Address_Service_When_Form_Is_Invalid()
+    {
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
     }
 }
