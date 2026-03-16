@@ -7,8 +7,8 @@ internal sealed record WcfServiceClientConfiguration
     public static readonly WcfServiceClientConfiguration DefaultConfiguration = new()
     {
         ClientCredentialTypeValue = HttpClientCredentialType.Windows.ToString(),
-        MaxReceivedMessageSize    = 2_000_000,
-        SecurityModeValue         = BasicHttpSecurityMode.Transport.ToString(),
+        MaxReceivedMessageSize = 2_000_000,
+        SecurityModeValue = BasicHttpSecurityMode.Transport.ToString(),
     };
 
     public string? Url { get; init; }

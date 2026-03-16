@@ -73,10 +73,10 @@ public class FEINFieldTests : BunitContext
 
     [Theory]
     [InlineData("123456789", "12-3456789")]
-    [InlineData("1234",      "12-34")]
-    [InlineData("12",        "12")]
-    [InlineData("1",         "1")]
-    [InlineData("",          "")]
+    [InlineData("1234", "12-34")]
+    [InlineData("12", "12")]
+    [InlineData("1", "1")]
+    [InlineData("", "")]
     public async Task Formats_Digits_Correctly(string rawInput, string expected)
     {
         string? captured = null;

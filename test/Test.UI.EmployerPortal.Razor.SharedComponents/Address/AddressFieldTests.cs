@@ -10,11 +10,11 @@ public class AddressFieldTests : BunitContext
     {
         return new()
         {
-            Country      = "United States",
+            Country = "United States",
             AddressLine1 = "123 Main St",
-            City         = "Madison",
-            State        = "WI",
-            Zip          = "53703"
+            City = "Madison",
+            State = "WI",
+            Zip = "53703"
         };
     }
 

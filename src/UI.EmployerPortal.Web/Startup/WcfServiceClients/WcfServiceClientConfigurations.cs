@@ -18,10 +18,10 @@ internal sealed record WcfServiceClientConfigurations
     {
         return new WcfServiceClientConfiguration
         {
-            Url                       = configuration.GetValue<string?>($"{sectionName}:{serviceName}:Url"),
-            MaxReceivedMessageSize    = configuration.GetValue<int?>($"{sectionName}:{serviceName}:MaxReceivedMessageSize"),
+            Url = configuration.GetValue<string?>($"{sectionName}:{serviceName}:Url"),
+            MaxReceivedMessageSize = configuration.GetValue<int?>($"{sectionName}:{serviceName}:MaxReceivedMessageSize"),
             ClientCredentialTypeValue = configuration.GetValue<string?>($"{sectionName}:{serviceName}:ClientCredentialType"),
-            SecurityModeValue         = configuration.GetValue<string?>($"{sectionName}:{serviceName}:SecurityMode"),
+            SecurityModeValue = configuration.GetValue<string?>($"{sectionName}:{serviceName}:SecurityMode"),
         };
     }
 }

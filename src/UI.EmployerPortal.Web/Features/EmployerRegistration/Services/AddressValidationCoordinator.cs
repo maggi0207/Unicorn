@@ -21,8 +21,8 @@ public class AddressValidationCoordinator
         NavigationManager nav)
     {
         _validator = validator;
-        _state     = state;
-        _nav       = nav;
+        _state = state;
+        _nav = nav;
     }
 
     /// <summary>
@@ -56,10 +56,10 @@ public class AddressValidationCoordinator
 
         onBeforeNavigate?.Invoke();
 
-        _state.AddressCorrections  = corrections;
-        _state.CorrectionIndex     = 0;
-        _state.EditStep            = editStep;
-        _state.PostCorrectionStep  = postCorrectionStep;
+        _state.AddressCorrections = corrections;
+        _state.CorrectionIndex = 0;
+        _state.EditStep = editStep;
+        _state.PostCorrectionStep = postCorrectionStep;
 
         _nav.NavigateTo("/employer-registration/address-correction");
         return false;

@@ -17,7 +17,7 @@ public partial class EmployerRegistrationSteps
     private int _currentStep = 1;
 
     private BusinessInformation? _businessInformationRef;
-    private BusinessContact?     _businessContactRef;
+    private BusinessContact? _businessContactRef;
 
     /// <summary>Wizard step definitions matching the full employer registration flow.</summary>
     private readonly List<WizardStep> _wizardSteps = new()

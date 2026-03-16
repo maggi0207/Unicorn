@@ -145,14 +145,14 @@
         formSubmitted = true;
         customValidator?.ClearErrors();
 
+        var topLevelValid = editContext.Validate();
+
         if (Model.IsDifferentAddress == null)
         {
             hasValidationErrors = true;
             StateHasChanged();
             return false;
         }
-
-        var topLevelValid = editContext.Validate();
 
         if (Model.IsDifferentAddress == true)
         {

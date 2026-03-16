@@ -141,7 +141,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Shows_Error_Class_When_Visible_And_Field_Has_Error()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -164,7 +164,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void No_Error_Before_Blur_When_Visible_False()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -185,7 +185,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Shows_Error_After_Blur_Without_Visible()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -208,7 +208,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public async Task Shows_Error_When_ValidationRequested_Fires()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -249,7 +249,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Shows_SVG_Error_Icon_When_HasError()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -270,7 +270,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void Shows_Error_Message_Text_When_HasError()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);
@@ -305,7 +305,7 @@ public class OutlinedSelectFieldTests : BunitContext
     [Fact]
     public void AriaDescribedBy_Includes_ErrorId_When_HasError()
     {
-        var model   = new TestModel();
+        var model = new TestModel();
         var editCtx = new EditContext(model);
 
         var store = new ValidationMessageStore(editCtx);

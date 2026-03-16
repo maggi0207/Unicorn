@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
+using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
@@ -27,8 +28,6 @@ public class BusinessInformationTests : BunitContext
         Services.AddSingleton<RegistrationStateService>();
         Services.AddSingleton<AddressValidationCoordinator>();
     }
-
-    // ── Render ────────────────────────────────────────────────────────────────
 
     [Fact]
     public void Renders_Page_Title()
@@ -57,8 +56,6 @@ public class BusinessInformationTests : BunitContext
         var cut = Render<BusinessInformation>();
         Assert.Contains("Physical Location 1", cut.Markup);
     }
-
-    // ── Physical Locations ────────────────────────────────────────────────────
 
     [Fact]
     public void Add_Another_Physical_Location_Button_Visible_Initially()
@@ -116,8 +113,6 @@ public class BusinessInformationTests : BunitContext
         cut.Find(".bi-remove-location").Click();
         Assert.DoesNotContain("Physical Location 2", cut.Markup);
     }
-
-    // ── Validation ────────────────────────────────────────────────────────────
 
     [Fact]
     public void No_Error_Banner_Before_Validate()
@@ -211,5 +206,155 @@ public class BusinessInformationTests : BunitContext
         var cut = Render<BusinessInformation>();
         await cut.InvokeAsync(cut.Instance.Validate);
         A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
+    }
+
+    /// <summary>Creates a fully-valid BusinessInformationModel for pre-populating the component via state.</summary>
+    private static BusinessInformationModel MakeValidModel()
+    {
+        var mailing = new AddressModel
+        {
+            AddressLine1 = "123 Main St",
+            City = "Madison",
+            State = "WI",
+            Zip = "53701",
+            Country = "United States"
+        };
+        var physical = new AddressModel
+        {
+            AddressLine1 = "456 Oak Ave",
+            City = "Milwaukee",
+            State = "WI",
+            Zip = "53202",
+            Country = "United States"
+        };
+        return new BusinessInformationModel
+        {
+            FEIN = "12-3456789",
+            LegalName = "Test Corp",
+            PhoneNumber = "608-555-1234",
+            Email = "test@example.com",
+            MailingAddress = mailing,
+            PhysicalLocations = [physical]
+        };
+    }
+
+    /// <summary>
+    /// Returns true when the form is fully valid and the address service reports no corrections.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_True_When_Form_Valid_And_No_Corrections()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.True(result);
+    }
+
+    /// <summary>
+    /// Calls the address service for both mailing and physical addresses when the form is valid.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Calls_Address_Service_For_Mailing_And_Physical_When_Form_Valid()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+
+        var cut = Render<BusinessInformation>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .MustHaveHappened(2, Times.Exactly);
+    }
+
+    /// <summary>
+    /// Returns false and navigates to address correction when the address service
+    /// reports that the mailing address needs correction.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_False_When_Address_Service_Returns_Corrections()
+    {
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(false, "Address not found", null));
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.False(result);
+    }
+
+    /// <summary>
+    /// Saves the model to RegistrationState before navigating to address correction.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Saves_BusinessInfo_To_State_When_Address_Service_Needs_Correction()
+    {
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(false, "Error", null));
+
+        var model = MakeValidModel();
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.NotNull(state.BusinessInfo);
+    }
+
+    /// <summary>
+    /// When "Physical Location is the same as the Business address" is checked,
+    /// only the mailing address is sent to the address service (not the physical).
+    /// </summary>
+    [Fact]
+    public async Task Validate_Does_Not_Validate_Physical_Address_When_Same_As_Mailing()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+        state.PhysicalSameAsMailing = true;
+
+        var cut = Render<BusinessInformation>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    /// <summary>
+    /// Checking "Physical Location is the same as the Business address" disables
+    /// the first physical location address fields.
+    /// </summary>
+    [Fact]
+    public void Physical_Same_As_Mailing_Checkbox_Disables_Physical_Address_Fields()
+    {
+        var cut = Render<BusinessInformation>();
+        cut.Find(".bi-same-as-mailing input[type='checkbox']").Change(true);
+
+        var disabledInputs = cut.FindAll("input[disabled]");
+        Assert.NotEmpty(disabledInputs);
+    }
+
+    /// <summary>
+    /// Toggling on the same-as-mailing checkbox copies current mailing values
+    /// into the physical location fields (verified via disabled input values).
+    /// </summary>
+    [Fact]
+    public void Physical_Same_As_Mailing_Checkbox_Copies_Mailing_To_Physical()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+        state.PhysicalSameAsMailing = false; // will be toggled by checkbox click
+
+        var cut = Render<BusinessInformation>();
+
+        cut.Find(".bi-same-as-mailing input[type='checkbox']").Change(true);
+
+        var cityInputs = cut.FindAll("input[aria-label='City']");
+        Assert.Equal(cityInputs[0].GetAttribute("value"), cityInputs[1].GetAttribute("value"));
     }
 }

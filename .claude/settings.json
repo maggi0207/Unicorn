@@ -27,7 +27,8 @@
       "Bash(ls -la \"d:\\\\UI.EmployerPortal.Web\\\\Services\"\" 2>/dev/null || echo \"Services folder not found \")",
       "Bash(dotnet run:*)",
       "Bash(taskkill /PID 46956 /F)",
-      "Bash(cmd /c \"taskkill /PID 46956 /F\")"
+      "Bash(cmd /c \"taskkill /PID 46956 /F\")",
+      "Bash(xargs grep:*)"
     ],
     "additionalDirectories": [
       "d:\\Unicorn-repo",

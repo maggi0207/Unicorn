@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
+using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 namespace Test.UI.EmployerPortal.Web.Component.Pages;
 
@@ -28,8 +29,6 @@ public class BusinessContactTests : BunitContext
         Services.AddSingleton<RegistrationStateService>();
         Services.AddSingleton<AddressValidationCoordinator>();
     }
-
-    // ── Render ────────────────────────────────────────────────────────────────
 
     [Fact]
     public void Renders_Page_Title()
@@ -83,8 +82,6 @@ public class BusinessContactTests : BunitContext
         Assert.Equal(2, radios.Count);
     }
 
-    // ── Contact Address Visibility ────────────────────────────────────────────
-
     [Fact]
     public void Contact_Address_Section_Hidden_Initially()
     {
@@ -109,8 +106,6 @@ public class BusinessContactTests : BunitContext
         cut.FindAll("input[type='radio']")[1].Change(new ChangeEventArgs());
         Assert.Empty(cut.FindAll(".bi-section-header"));
     }
-
-    // ── Validation ────────────────────────────────────────────────────────────
 
     [Fact]
     public void No_Error_Banner_Before_Validate()
@@ -210,6 +205,145 @@ public class BusinessContactTests : BunitContext
     {
         var cut = Render<BusinessContact>();
         await cut.InvokeAsync(cut.Instance.Validate);
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
+    }
+
+    /// <summary>Creates a valid contact model with IsDifferentAddress = false (no contact address needed).</summary>
+    private static BusinessContactModel MakeValidModelNoAddress()
+        => new BusinessContactModel
+        {
+            FirstName = "John",
+            LastName = "Doe",
+            IsDifferentAddress = false
+        };
+
+    /// <summary>Creates a valid contact model with IsDifferentAddress = true and a populated contact address.</summary>
+    private static BusinessContactModel MakeValidModelWithAddress()
+        => new BusinessContactModel
+        {
+            FirstName = "John",
+            LastName = "Doe",
+            IsDifferentAddress = true,
+            ContactAddress = new AddressModel
+            {
+                AddressLine1 = "789 Elm St",
+                City = "Green Bay",
+                State = "WI",
+                Zip = "54301",
+                Country = "United States"
+            }
+        };
+
+    /// <summary>Returns true when the form is valid and the user selected "No" (no address to validate).</summary>
+    [Fact]
+    public async Task Validate_Returns_True_When_Form_Valid_And_No_Selected()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelNoAddress();
+
+        var cut = Render<BusinessContact>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.True(result);
+    }
+
+    /// <summary>Returns true when the form is valid, "Yes" is selected, and the service reports no corrections.</summary>
+    [Fact]
+    public async Task Validate_Returns_True_When_Yes_Selected_And_No_Corrections()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelWithAddress();
+
+        var cut = Render<BusinessContact>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.True(result);
+    }
+
+    /// <summary>
+    /// Calls the address service exactly once for the contact address when "Yes" is selected
+    /// and the contact address passes local validation.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Calls_Address_Service_Once_When_Yes_Selected_And_Address_Valid()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelWithAddress();
+
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    /// <summary>Does NOT call the address service when "No" is selected (no contact address to validate).</summary>
+    [Fact]
+    public async Task Validate_Does_Not_Call_Address_Service_When_No_Selected()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelNoAddress();
+
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
+    }
+
+    /// <summary>
+    /// Returns false and navigates to address correction when the address service
+    /// reports that the contact address needs correction.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_False_When_Address_Service_Returns_Corrections()
+    {
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(false, "Address not found", null));
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelWithAddress();
+
+        var cut = Render<BusinessContact>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.False(result);
+    }
+
+    /// <summary>
+    /// Saves the contact model to RegistrationState before navigating to address correction
+    /// so the component can restore it on return.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Saves_ContactInfo_To_State_Before_Navigation()
+    {
+        A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._))
+            .Returns(new AddressValidationResult(false, "Error", null));
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = MakeValidModelWithAddress();
+
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.NotNull(state.ContactInfo);
+    }
+
+    /// <summary>Does not call address service when the contact address fails local (DataAnnotations) validation.</summary>
+    [Fact]
+    public async Task Validate_Does_Not_Call_Address_Service_When_Contact_Address_Locally_Invalid()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.ContactInfo = new BusinessContactModel
+        {
+            FirstName = "John",
+            LastName = "Doe",
+            IsDifferentAddress = true,
+            ContactAddress = new AddressModel() // all required fields missing
+        };
+
+        var cut = Render<BusinessContact>();
+        await cut.InvokeAsync(cut.Instance.Validate);
+
         A.CallTo(() => _fakeValidator.ValidateAsync(A<AddressModel>._)).MustNotHaveHappened();
     }
 }

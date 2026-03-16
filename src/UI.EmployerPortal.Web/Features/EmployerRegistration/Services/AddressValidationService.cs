@@ -23,14 +23,14 @@ public class AddressValidationService : IAddressValidationWrapper
         var request = new GeneratedClient.AddressProxy
         {
             AddressRequestType = GeneratedClient.AddressRequestTypeEnum.Employer,
-            LineOneAddress     = address.AddressLine1,
-            LineTwoAddress     = address.AddressLine2,
-            CityName           = address.City,
-            StateCode          = address.State,
-            ZipCode            = address.Zip,
-            ZipCodeExtension   = address.Extension,
+            LineOneAddress = address.AddressLine1,
+            LineTwoAddress = address.AddressLine2,
+            CityName = address.City,
+            StateCode = address.State,
+            ZipCode = address.Zip,
+            ZipCodeExtension = address.Extension,
             // Service requires ISO country code ("US"), not the display name ("United States")
-            CountryCode        = ToCountryCode(address.Country)
+            CountryCode = ToCountryCode(address.Country)
         };
 
         GeneratedClient.ValidateAddressResponse response;
@@ -73,12 +73,12 @@ public class AddressValidationService : IAddressValidationWrapper
             {
                 AddressLine1 = line1,
                 AddressLine2 = line2,
-                City         = response.OutputAddress.CityName,
-                State        = response.OutputAddress.StateCode,
-                Zip          = response.OutputAddress.ZipCode,
-                Extension    = response.OutputAddress.ZipCodeExtension,
+                City = response.OutputAddress.CityName,
+                State = response.OutputAddress.StateCode,
+                Zip = response.OutputAddress.ZipCode,
+                Extension = response.OutputAddress.ZipCodeExtension,
                 // Service returns null CountryCode in OutputAddress; fall back to the input value.
-                Country      = response.OutputAddress.CountryCode ?? address.Country
+                Country = response.OutputAddress.CountryCode ?? address.Country
             };
         }
 
@@ -94,9 +94,9 @@ public class AddressValidationService : IAddressValidationWrapper
         switch (country)
         {
             case "United States": return "US";
-            case "Canada":        return "CA";
-            case "Mexico":        return "MX";
-            default:              return "US";
+            case "Canada": return "CA";
+            case "Mexico": return "MX";
+            default: return "US";
         }
     }
 }

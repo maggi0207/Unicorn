@@ -63,11 +63,11 @@ public class PhoneNumberFieldTests : BunitContext
 
     [Theory]
     [InlineData("1234567890", "123-456-7890")]
-    [InlineData("1234567",    "123-456-7")]
-    [InlineData("1234",       "123-4")]
-    [InlineData("123",        "123")]
-    [InlineData("12",         "12")]
-    [InlineData("",           "")]
+    [InlineData("1234567", "123-456-7")]
+    [InlineData("1234", "123-4")]
+    [InlineData("123", "123")]
+    [InlineData("12", "12")]
+    [InlineData("", "")]
     public async Task Formats_Digits_Correctly(string rawInput, string expected)
     {
         string? captured = null;
