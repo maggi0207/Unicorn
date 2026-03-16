@@ -122,18 +122,18 @@ public class BusinessInformationTests : BunitContext
     }
 
     [Fact]
-    public async Task Validate_With_Empty_Form_Shows_Error_Banner()
+    public void Validate_With_Empty_Form_Shows_Error_Banner()
     {
         var cut = Render<BusinessInformation>();
-        await cut.InvokeAsync(cut.Instance.Validate);
+        cut.InvokeAsync(cut.Instance.Validate);
         Assert.NotEmpty(cut.FindAll(".notification-banner--error"));
     }
 
     [Fact]
-    public async Task Error_Banner_Contains_Missing_Information_Text()
+    public void Error_Banner_Contains_Missing_Information_Text()
     {
         var cut = Render<BusinessInformation>();
-        await cut.InvokeAsync(cut.Instance.Validate);
+        cut.InvokeAsync(cut.Instance.Validate);
         Assert.Contains("Missing information", cut.Find(".notification-banner--error").TextContent);
     }
 
