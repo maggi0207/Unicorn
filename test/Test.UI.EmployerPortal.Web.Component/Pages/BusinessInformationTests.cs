@@ -348,7 +348,7 @@ public class BusinessInformationTests : BunitContext
     {
         var state = Services.GetRequiredService<RegistrationStateService>();
         state.BusinessInfo = MakeValidModel();
-        state.PhysicalSameAsMailing = false; // will be toggled by checkbox click
+        state.PhysicalSameAsMailing = false;
 
         var cut = Render<BusinessInformation>();
 
@@ -356,5 +356,80 @@ public class BusinessInformationTests : BunitContext
 
         var cityInputs = cut.FindAll("input[aria-label='City']");
         Assert.Equal(cityInputs[0].GetAttribute("value"), cityInputs[1].GetAttribute("value"));
+    }
+
+    /// <summary>
+    /// The "same as mailing" checkbox is disabled when the mailing address line contains "PO Box".
+    /// </summary>
+    [Fact]
+    public void Same_As_Mailing_Checkbox_Is_Disabled_When_Mailing_Is_PO_Box()
+    {
+        var model = MakeValidModel();
+        model.MailingAddress.AddressLine1 = "PO Box 1234";
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+
+        var checkbox = cut.Find(".bi-same-as-mailing input[type='checkbox']");
+        Assert.NotNull(checkbox.GetAttribute("disabled"));
+    }
+
+    /// <summary>
+    /// The "same as mailing" checkbox is enabled when the mailing address is a normal street address.
+    /// </summary>
+    [Fact]
+    public void Same_As_Mailing_Checkbox_Is_Enabled_When_Mailing_Is_Not_PO_Box()
+    {
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = MakeValidModel();
+
+        var cut = Render<BusinessInformation>();
+
+        var checkbox = cut.Find(".bi-same-as-mailing input[type='checkbox']");
+        Assert.Null(checkbox.GetAttribute("disabled"));
+    }
+
+    /// <summary>
+    /// Validate returns false and shows a field error when a physical location
+    /// street address contains "PO Box".
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_False_When_Physical_Location_Is_PO_Box()
+    {
+        var model = MakeValidModel();
+        model.PhysicalLocations[0].AddressLine1 = "PO Box 999";
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.False(result);
+        Assert.Contains("Physical location cannot be a PO Box", cut.Markup);
+    }
+
+    /// <summary>
+    /// When the checkbox is checked and the user subsequently types "PO Box" into
+    /// the mailing address, the checkbox is automatically unchecked.
+    /// </summary>
+    [Fact]
+    public void Same_As_Mailing_Checkbox_Auto_Unchecks_When_Mailing_Becomes_PO_Box()
+    {
+        var model = MakeValidModel();
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+        state.PhysicalSameAsMailing = false;
+
+        var cut = Render<BusinessInformation>();
+
+        cut.Find(".bi-same-as-mailing input[type='checkbox']").Change(true);
+
+        cut.Find("input[aria-label='Street Address']").Input("PO Box 999");
+
+        var checkbox = cut.Find(".bi-same-as-mailing input[type='checkbox']");
+        Assert.Null(checkbox.GetAttribute("checked"));
     }
 }

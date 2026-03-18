@@ -92,9 +92,10 @@
 
         @if (index == 0)
         {
-            <label class="bi-same-as-mailing">
+            <label class="bi-same-as-mailing @(IsMailingPoBox ? "bi-same-as-mailing--disabled" : "")">
                 <input type="checkbox"
                        checked="@_physicalSameAsMailing"
+                       disabled="@IsMailingPoBox"
                        @onchange="OnPhysicalSameAsMailingChanged" />
                 Physical Location is the same as the Business address.
             </label>
@@ -133,6 +134,15 @@
     private bool _physicalSameAsMailing = false;
     private const int MaxPhysicalLocations = 3;
 
+    /// <summary>Returns true when the mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
+    private bool IsMailingPoBox
+    {
+        get
+        {
+            return Model.MailingAddress.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+        }
+    }
+
     /// <summary>Tracks which fields the user has interacted with so errors show on field change.</summary>
     private HashSet<FieldIdentifier> _touchedFields = new();
 
@@ -148,11 +158,18 @@
         {
             _touchedFields.Add(e.FieldIdentifier);
 
-            if (_physicalSameAsMailing &&
-                Model.PhysicalLocations.Count > 0 &&
-                ReferenceEquals(e.FieldIdentifier.Model, Model.MailingAddress))
+            if (ReferenceEquals(e.FieldIdentifier.Model, Model.MailingAddress) &&
+                Model.PhysicalLocations.Count > 0)
             {
-                CopyMailingToPhysical(0);
+                if (_physicalSameAsMailing && IsMailingPoBox)
+                {
+                    _physicalSameAsMailing = false;
+                    ClearPhysicalLocation(0);
+                }
+                else if (_physicalSameAsMailing)
+                {
+                    CopyMailingToPhysical(0);
+                }
             }
 
             var allAddresses = new List<AddressModel> { Model.MailingAddress };
@@ -290,6 +307,18 @@
                         errors[fi] = new List<string>();
                     errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
                 }
+            }
+        }
+
+        foreach (var physical in physicalToValidate)
+        {
+            bool isPoBox = physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+            if (isPoBox)
+            {
+                var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine1));
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address.");
             }
         }
 
