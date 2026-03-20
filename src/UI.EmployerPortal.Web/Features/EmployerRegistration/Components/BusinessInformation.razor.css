@@ -134,6 +134,11 @@
     flex-shrink: 0;
 }
 
+.bi-same-as-mailing--disabled {
+    color: #767676;
+    cursor: not-allowed;
+}
+
 /* Add another location link */
 .bi-add-location {
     display: inline-flex;
