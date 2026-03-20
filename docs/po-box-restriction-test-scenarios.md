@@ -70,3 +70,33 @@
 | **Precondition** | Mailing City, State, Zip are filled |
 | **Steps** | Enter `PO Box 777` in mailing Street Address |
 | **Expected Result** | Checkbox is **disabled** regardless of other fields being valid |
+
+---
+
+### TC-08: Checkbox disabled when mailing Apt/Suite field contains PO Box
+
+| | |
+|---|---|
+| **Precondition** | Business Information page is open |
+| **Steps** | Enter `PO Box 1234` in the mailing address **Apt/Suite** field (AddressLine2) |
+| **Expected Result** | "Physical Location is the same as the Business address." checkbox is **disabled** |
+
+---
+
+### TC-09: Validation error when physical location Apt/Suite field is a PO Box
+
+| | |
+|---|---|
+| **Precondition** | Checkbox is unchecked, all other fields are valid |
+| **Steps** | Type `PO Box 500` into the Physical Location **Apt/Suite** field (AddressLine2), then click Continue |
+| **Expected Result** | Form fails validation, error shown under the Apt/Suite field: *"Physical location cannot be a PO Box. Please enter a street address."* |
+
+---
+
+### TC-10: Both AddressLine1 and AddressLine2 show errors when both contain PO Box
+
+| | |
+|---|---|
+| **Precondition** | Checkbox is unchecked, all other fields are valid |
+| **Steps** | Enter `PO Box 100` in Street Address AND `PO Box 200` in Apt/Suite for a physical location, then click Continue |
+| **Expected Result** | Two separate error messages shown — one under Street Address, one under Apt/Suite |

@@ -134,12 +134,13 @@
     private bool _physicalSameAsMailing = false;
     private const int MaxPhysicalLocations = 3;
 
-    /// <summary>Returns true when the mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
+    /// <summary>Returns true when either mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
     private bool IsMailingPoBox
     {
         get
         {
-            return Model.MailingAddress.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+            return Model.MailingAddress.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true
+                || Model.MailingAddress.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
         }
     }
 
@@ -312,10 +313,20 @@
 
         foreach (var physical in physicalToValidate)
         {
-            bool isPoBox = physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
-            if (isPoBox)
+            bool line1IsPoBox = physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+            bool line2IsPoBox = physical.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+
+            if (line1IsPoBox)
             {
                 var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine1));
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address.");
+            }
+
+            if (line2IsPoBox)
+            {
+                var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine2));
                 if (!errors.ContainsKey(fi))
                     errors[fi] = new List<string>();
                 errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address.");

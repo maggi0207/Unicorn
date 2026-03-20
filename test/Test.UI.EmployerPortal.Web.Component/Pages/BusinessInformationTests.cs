@@ -432,4 +432,65 @@ public class BusinessInformationTests : BunitContext
         var checkbox = cut.Find(".bi-same-as-mailing input[type='checkbox']");
         Assert.Null(checkbox.GetAttribute("checked"));
     }
+
+    /// <summary>
+    /// The "same as mailing" checkbox is disabled when the mailing Apt/Suite field contains "PO Box".
+    /// </summary>
+    [Fact]
+    public void Same_As_Mailing_Checkbox_Is_Disabled_When_Mailing_AddressLine2_Is_PO_Box()
+    {
+        var model = MakeValidModel();
+        model.MailingAddress.AddressLine2 = "PO Box 1234";
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+
+        var checkbox = cut.Find(".bi-same-as-mailing input[type='checkbox']");
+        Assert.NotNull(checkbox.GetAttribute("disabled"));
+    }
+
+    /// <summary>
+    /// Validate returns false and shows a field error when a physical location
+    /// Apt/Suite field contains "PO Box".
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_False_When_Physical_Location_AddressLine2_Is_PO_Box()
+    {
+        var model = MakeValidModel();
+        model.PhysicalLocations[0].AddressLine2 = "PO Box 999";
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.False(result);
+        Assert.Contains("Physical location cannot be a PO Box", cut.Markup);
+    }
+
+    /// <summary>
+    /// Validate returns false when both AddressLine1 and AddressLine2 of a physical location
+    /// contain "PO Box" — both fields independently show an error.
+    /// </summary>
+    [Fact]
+    public async Task Validate_Returns_False_When_Physical_Location_Both_Lines_Are_PO_Box()
+    {
+        var model = MakeValidModel();
+        model.PhysicalLocations[0].AddressLine1 = "PO Box 100";
+        model.PhysicalLocations[0].AddressLine2 = "PO Box 200";
+
+        var state = Services.GetRequiredService<RegistrationStateService>();
+        state.BusinessInfo = model;
+
+        var cut = Render<BusinessInformation>();
+        var result = await cut.InvokeAsync(cut.Instance.Validate);
+
+        Assert.False(result);
+        var errorCount = System.Text.RegularExpressions.Regex
+            .Matches(cut.Markup, "Physical location cannot be a PO Box").Count;
+        Assert.Equal(2, errorCount);
+    }
 }
