@@ -22,6 +22,7 @@
            aria-label="@Label"
            aria-invalid="@HasError"
            aria-required="@IsRequired"
+           placeholder="@Placeholder"
            aria-describedby="@AriaDescribedBy" />
 
     <!-- Format/Hint Text -->
@@ -34,7 +35,7 @@
     @if (HasError)
     {
         <div id="@ErrorId" class="master-error" aria-live="polite">
-            <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <mask id="mask0_5694_133" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="2" width="12" height="12">
                     <rect y="2" width="12" height="12" fill="#D9D9D9" />
                 </mask>
@@ -63,6 +64,11 @@
     [Parameter] public string? FormatText { get; set; }
     [Parameter] public int? MaxLength { get; set; } = null;
     [Parameter] public string? InputMode { get; set; }
+
+    /// <summary>
+    /// Optional placeholder text displayed inside the input when it has no value.
+    /// </summary>
+    [Parameter] public string? Placeholder { get; set; }
 
     /// <summary>
     /// Optional mask pattern. Placeholder characters in the mask are filled with user input;
