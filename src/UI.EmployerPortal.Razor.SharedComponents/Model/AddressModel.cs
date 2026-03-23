@@ -10,6 +10,11 @@ namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 public class AddressModel
 {
     /// <summary>
+    /// Optional institution or entity name associated with this address (e.g. bank name).
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
     /// Country name. Defaults to "United States".
     /// </summary>
     [Required(ErrorMessage = "Country is required.")]

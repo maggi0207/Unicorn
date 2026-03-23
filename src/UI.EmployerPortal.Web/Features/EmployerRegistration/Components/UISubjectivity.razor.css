@@ -1,0 +1,238 @@
+.ui-table-row-header {
+    font-family: Verdana;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    line-height: 160%;
+    letter-spacing: 0%;
+    text-align: right;
+}
+
+.ui-table-text-box {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.ui-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.ui-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.ui-section-header {
+    width: 100%;
+    border-bottom: 1px solid #003663;
+    margin-bottom: 20px;
+    margin-top: 8px;
+}
+
+    .ui-section-header span {
+        font-family: Verdana, sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 28.8px;
+        color: #003663;
+    }
+
+.ui-fields-grid {
+    display: grid;
+    grid-template-columns: 330px 330px;
+    gap: 24px;
+    width: 684px;
+}
+
+.ui-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.6px;
+    color: #000000;
+    margin: 0;
+}
+
+/* Zip + Extension row */
+.ui-zip-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    grid-column: span 1;
+}
+
+.ui-zip-field {
+    flex: 0 0 140px;
+}
+
+.ui-ext-field {
+    flex: 1;
+}
+
+.ui-zip-dash {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #424242;
+    flex-shrink: 0;
+    padding-top: 16px;
+}
+
+/* Button row */
+.ui-button-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+    width: 684px;
+}
+
+.ui-button-row-left {
+    display: flex;
+    align-items: center;
+}
+
+.ui-button-row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 25.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+}
+
+.btn--primary {
+    background: #003663;
+    color: #ffffff;
+    outline: 2px solid #003663;
+}
+
+    .btn--primary:hover {
+        background: #002a4d;
+    }
+
+.btn--secondary {
+    background: #ffffff;
+    color: #003663;
+    outline: 2px solid #003663;
+    outline-offset: -2px;
+}
+
+    .btn--secondary:hover {
+        background: #f0f4f8;
+    }
+
+.btn--tertiary {
+    background: transparent;
+    color: #003663;
+    outline: none;
+}
+
+    .btn--tertiary:hover {
+        text-decoration: underline;
+    }
+
+/* Form Row (Bootstrap) */
+::deep .form-row {
+    margin-bottom: 1.5rem;
+}
+
+/* Form Groups */
+::deep .form-group {
+    position: relative;
+    margin-bottom: 0;
+}
+
+::deep .form-label {
+    position: absolute;
+    top: -0.5rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #666;
+    background-color: #fff;
+    padding: 0 0.25rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+}
+
+.textboxReadOnlyBackgroundColor {
+    background-color: lightgray !important;
+}
+
+.ui-radio-section {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* FieldError Styles */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 2px 0;
+}
+
+.field-error__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+
+.field-error__text {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #C82838;
+}

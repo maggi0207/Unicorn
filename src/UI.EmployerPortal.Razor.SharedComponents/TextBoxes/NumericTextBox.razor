@@ -1,0 +1,51 @@
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+
+<input type="number"
+       class="numeric-textbox @CssClass @(IsReadonly ? "textboxReadOnlyBackgroundColor" : "")"
+       value="@Value"
+       min="@Min"
+       max="@Max"
+       step="@Step"
+       readonly="@IsReadonly"
+       @onchange="HandleChange" />
+
+@code {
+    /// <summary>The current numeric value.</summary>
+    [Parameter] public decimal? Value { get; set; }
+
+    /// <summary>Callback invoked when the value changes.</summary>
+    [Parameter] public EventCallback<decimal?> ValueChanged { get; set; }
+
+    /// <summary>The input data type controlling display formatting.</summary>
+    [Parameter] public InputDataTypes InputType { get; set; } = InputDataTypes.None;
+
+    /// <summary>When true, a currency symbol is shown alongside the input.</summary>
+    [Parameter] public bool ShowCurrencyIcon { get; set; }
+
+    /// <summary>Additional CSS classes applied to the input element.</summary>
+    [Parameter] public string CssClass { get; set; } = string.Empty;
+
+    /// <summary>Number of decimal places allowed.</summary>
+    [Parameter] public int DecimalPlaces { get; set; } = 2;
+
+    /// <summary>When true, the input is read-only.</summary>
+    [Parameter] public bool IsReadonly { get; set; }
+
+    /// <summary>Minimum allowed value.</summary>
+    [Parameter] public decimal Min { get; set; } = 0;
+
+    /// <summary>Maximum allowed value.</summary>
+    [Parameter] public decimal Max { get; set; } = decimal.MaxValue;
+
+    /// <summary>The increment step for the input.</summary>
+    private string Step => DecimalPlaces > 0 ? $"0.{new string('0', DecimalPlaces - 1)}1" : "1";
+
+    /// <summary>Handles the native change event and raises <see cref="ValueChanged"/>.</summary>
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var parsed))
+            await ValueChanged.InvokeAsync(parsed);
+        else
+            await ValueChanged.InvokeAsync(null);
+    }
+}

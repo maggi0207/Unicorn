@@ -1,0 +1,17 @@
+<div class="tooltip-wrapper" title="@(AllowHtml ? null : Text)">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>The tooltip text shown on hover. May contain HTML when <see cref="AllowHtml"/> is true.</summary>
+    [Parameter] public string Text { get; set; } = string.Empty;
+
+    /// <summary>When true, the tooltip text is treated as raw HTML markup.</summary>
+    [Parameter] public bool AllowHtml { get; set; }
+
+    /// <summary>Preferred placement of the tooltip relative to the trigger element (e.g. "auto", "top", "bottom").</summary>
+    [Parameter] public string Placement { get; set; } = "auto";
+
+    /// <summary>Content rendered inside the tooltip trigger area.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

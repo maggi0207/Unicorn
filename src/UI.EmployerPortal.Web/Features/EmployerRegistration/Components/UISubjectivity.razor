@@ -1,0 +1,638 @@
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@inject IYearQuarterPaidWagesService PaidWagesService
+
+<div class="page_wrapper">
+    <div class="ui-page-content">
+
+        <h1 class="page-title">Unemployment Insurance Subjectivity</h1>
+        <p class="page-subtitle">
+            These answers will help us determine whether your business is covered under Wisconsin's Unemployment Insurance Law. All fields are required unless noted.
+        </p>
+
+        <EditForm EditContext="@_subjectivityContext" FormName="UISubjectivity">
+
+            <DataAnnotationsValidator />
+            <CustomValidator @ref="_customValidator" />
+
+            <p class="page-subtitle">
+                Select your business category. <strong>To be considered a non-profit organization by the State of Wisconsin, you must have received a 501(c)(3) determination from the IRS.</strong>
+            </p>
+
+            <div id="section_1" class="ui-radio-section">
+                <RadioGroup TValue="BusinessCategory?"
+                            Value="_model.BusinessCategory"
+                            ValueChanged="OnBusinessCategoryChanged"
+                            ValueExpression="() => _model.BusinessCategory"
+                            Options="@BusinessCategories" />
+                <FieldError For="@(() => _model.BusinessCategory)"
+                            Visible="_formSubmitted" />
+            </div>
+
+            @if (Section2Visible())
+            {
+                <div id="section_2" class="ui-radio-section">
+                    <p class="page-subtitle">Have you applied for 501(c)(3) status with the IRS?</p>
+                    <br />
+                    <RadioGroup TValue="bool?"
+                                Value="_model.HasAppliedFor501c3Status"
+                                ValueChanged="OnHasAppliedFor501c3StatusChanged"
+                                ValueExpression="() => _model.HasAppliedFor501c3Status"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.HasAppliedFor501c3Status)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            <div class="ui-section-header">
+                <span>Financial Institution for Business Checking Account</span>
+            </div>
+
+            <AddressField Address="_model.FinancialInstitution"
+                          ShowName="true"
+                          Visible="@_showAddressErrors" />
+
+            <div class="ui-radio-section">
+                <p class="ui-text">
+                    <strong>Note: </strong>@GetNoteText()
+                    <a href="@GetPermittedExclusionsUrl()" class="link-underline-primary">Permitted Exclusions</a>
+                </p>
+            </div>
+
+            @if (Section3Visible())
+            {
+                <div id="section_3" class="ui-radio-section">
+                    <p class="ui-text">Do you have employees who work in states other than Wisconsin?</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.EmployeesInOtherStates"
+                                ValueChanged="OnEmployeesInOtherStatesChanged"
+                                ValueExpression="() => _model.EmployeesInOtherStates"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.EmployeesInOtherStates)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section6Visible())
+            {
+                <div id="section_6" class="ui-radio-section">
+                    <Tooltip Text="For-profit entities paying State Unemployment Tax (SUTA) in a state other than Wisconsin often have a FUTA liability. Some non-profit entities may owe SUTA but not FUTA. More details on FUTA liability can be found on the IRS website."
+                             AllowHtml="false"
+                             Placement="auto">
+                        <p class="ui-text">
+                            Do you have a <a href="https://www.irs.gov/taxtopics/tc759" target="_blank" rel="noopener noreferrer">Federal Unemployment Tax (FUTA)</a> liability based on payrolls in any state other than Wisconsin?
+                        </p>
+                    </Tooltip>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.FederalTaxLiability"
+                                ValueChanged="OnFederalTaxLiabilityChanged"
+                                ValueExpression="() => _model.FederalTaxLiability"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.FederalTaxLiability)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section4Visible())
+            {
+                <div id="section_4" class="ui-radio-section">
+                    <p class="ui-text">@GetWagesQuestion()</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.PaidWagesInAQuarterEmployees"
+                                ValueChanged="OnPaidWagesInAQuarterEmployeesChanged"
+                                ValueExpression="() => _model.PaidWagesInAQuarterEmployees"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.PaidWagesInAQuarterEmployees)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section5Visible())
+            {
+                <div id="section_5" class="ui-radio-section">
+                    <p class="ui-text">Quarter and year in which you first paid $1500 (q/yyyy):</p>
+                    <div class="form-row row">
+                        <div class="form-group col-md-12">
+                            <OutlinedTextField Label="Quarter and Year (q/yyyy)"
+                                               @bind-Value="_model.QuarterYearFirstPaidEmployees"
+                                               For="() => _model.QuarterYearFirstPaidEmployees"
+                                               Visible="_formSubmitted" />
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Section9Visible())
+            {
+                <div id="section_9" class="ui-radio-section">
+                    <p class="ui-text">Have you had at least one full- or part-time employee working for you in 20 different calendar weeks in a calendar year?</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.Employee20Weeks"
+                                ValueChanged="OnEmployee20WeeksChanged"
+                                ValueExpression="() => _model.Employee20Weeks"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.Employee20Weeks)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section13Visible())
+            {
+                <div id="section_13" class="ui-radio-section">
+                    <p class="ui-text">@GetExpectToPayWagesQuestion()</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.ExpectToPayWagesInAQuarter"
+                                ValueChanged="OnExpectToPayWagesInAQuarterChanged"
+                                ValueExpression="() => _model.ExpectToPayWagesInAQuarter"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.ExpectToPayWagesInAQuarter)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section14Visible())
+            {
+                <div id="section_14" class="ui-radio-section">
+                    <p class="ui-text">When?</p>
+                    <OutlinedSelectField @bind-Value="_model.WhenExpectToPayWagesInAQuarter"
+                                        Options="@ExpectedWagesCategories"
+                                        For="() => _model.WhenExpectToPayWagesInAQuarter"
+                                        Visible="true" />
+                </div>
+            }
+
+            @if (Section7Visible())
+            {
+                <div id="section_7" class="ui-radio-section">
+                    <p class="ui-text">@GetWagesQuestion()</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.PaidWagesInAQuarterTaxes"
+                                ValueChanged="OnPaidWagesInAQuarterTaxesChanged"
+                                ValueExpression="() => _model.PaidWagesInAQuarterTaxes"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.PaidWagesInAQuarterTaxes)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section8Visible())
+            {
+                <div id="section_8" class="ui-radio-section">
+                    <p class="ui-text">Quarter and year in which you first paid $1500 (q/yyyy):</p>
+                    <div class="form-row row">
+                        <div class="form-group col-md-12">
+                            <OutlinedTextField Label="Quarter and Year (q/yyyy)"
+                                               @bind-Value="_model.QuarterYearFirstPaidTaxes"
+                                               For="() => _model.QuarterYearFirstPaidTaxes"
+                                               Visible="_formSubmitted" />
+                            <FieldError For="@(() => _model.QuarterYearFirstPaidTaxes)"
+                                        Visible="_formSubmitted" />
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Section11Visible())
+            {
+                <div id="section_11" class="ui-radio-section">
+                    <p class="ui-text">Have you had at least 4 full or part-time employees working for you in Wisconsin on the same day in 20 different calendar weeks in a calendar year?</p>
+                    <RadioGroup TValue="bool?"
+                                Value="_model.Employee20WeeksFourOrMore"
+                                ValueChanged="OnEmployee20WeeksFourOrMoreChanged"
+                                ValueExpression="() => _model.Employee20WeeksFourOrMore"
+                                Options="@YesNoOptions" />
+                    <FieldError For="@(() => _model.Employee20WeeksFourOrMore)"
+                                Visible="_formSubmitted" />
+                </div>
+            }
+
+            @if (Section10Visible())
+            {
+                <div id="section_10" class="form-row row ui-radio-section">
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="dateWeek20Ended">
+                            Date 20th Week Ended
+                        </label>
+                        <InputDate id="dateWeek20Ended"
+                                   @bind-Value="_model.DateWeek20Ended"
+                                   class="form-control"
+                                   DisplayName="Date 20th Week Ended"
+                                   @bind-Value:format="MM/dd/yyyy" />
+                        <FieldError For="@(() => _model.DateWeek20Ended)"
+                                    Visible="_formSubmitted" />
+                    </div>
+                </div>
+            }
+
+            @if (_model.Wages != null && _model.Wages.Count > 0)
+            {
+                <p class="ui-text">Please enter the gross wages for which you have paid quarters in based on your answer to the date you first paid wages for work performed in WI</p>
+
+                <table>
+                    <tr style="text-align:center;">
+                        <th></th>
+                        <th>Q1</th>
+                        <th>Q2</th>
+                        <th>Q3</th>
+                        <th>Q4</th>
+                    </tr>
+                    @foreach (var row in _model.Wages)
+                    {
+                        <tr class="ui-table-row-header">
+                            <td class="ui-table-row-header">@row.Year</td>
+                            <td class="ui-table-text-box">
+                                <NumericTextBox @bind-Value="row.Q1Wages"
+                                                InputType="@InputDataTypes.Currency"
+                                                ShowCurrencyIcon="false"
+                                                CssClass="@(row.Q1Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                DecimalPlaces="@_decimalPlaces"
+                                                IsReadonly="@row.Q1Disabled"
+                                                Min="0" Max="10000000" />
+                            </td>
+                            <td class="ui-table-text-box">
+                                <NumericTextBox @bind-Value="row.Q2Wages"
+                                                InputType="@InputDataTypes.Currency"
+                                                ShowCurrencyIcon="false"
+                                                CssClass="@(row.Q2Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                DecimalPlaces="@_decimalPlaces"
+                                                IsReadonly="@row.Q2Disabled"
+                                                Min="0" Max="10000000" />
+                            </td>
+                            <td class="ui-table-text-box">
+                                <NumericTextBox @bind-Value="row.Q3Wages"
+                                                InputType="@InputDataTypes.Currency"
+                                                ShowCurrencyIcon="false"
+                                                CssClass="@(row.Q3Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                DecimalPlaces="@_decimalPlaces"
+                                                IsReadonly="@row.Q3Disabled"
+                                                Min="0" Max="10000000" />
+                            </td>
+                            <td class="ui-table-text-box">
+                                <NumericTextBox @bind-Value="row.Q4Wages"
+                                                InputType="@InputDataTypes.Currency"
+                                                ShowCurrencyIcon="false"
+                                                CssClass="@(row.Q4Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                DecimalPlaces="@_decimalPlaces"
+                                                IsReadonly="@row.Q4Disabled"
+                                                Min="0" Max="10000000" />
+                            </td>
+                        </tr>
+                    }
+                </table>
+
+                @if (_insufficientQuarterlyWageEntered)
+                {
+                    <div class="field-error" role="alert" aria-label="Validation error for Wage Entry">
+                        <span class="field-error__icon" aria-hidden="true">
+                            @GetAlertErrorIcon()
+                        </span>
+                        <span class="field-error__text">
+                            Insufficient quarterly wages reported.
+                        </span>
+                    </div>
+                }
+            }
+
+            <br />
+            <br />
+
+        </EditForm>
+
+        <br />
+        <Button Text="Validate" OnClick="Validate" />
+
+    </div>
+</div>
+
+@code {
+    // ─── State ───────────────────────────────────────────────────────────────
+
+    private SubjectivityModel _model = new();
+    private EditContext _subjectivityContext = default!;
+    private CustomValidator? _customValidator;
+    private bool _formSubmitted = false;
+    private bool _showAddressErrors = false;
+    private bool _insufficientQuarterlyWageEntered = false;
+    private int _decimalPlaces = 2;
+
+    /// <summary>Tracks the currently selected business category for conditional section visibility.</summary>
+    private BusinessCategory _businessCategory = BusinessCategory.Unknown;
+
+    /// <summary>TODO: This value should be passed in from Step 5 (date first paid wages).</summary>
+    private readonly DateTime? _dateFirstPaidWages = DateTime.Parse("7/1/2023");
+
+    // ─── Radio option lists ───────────────────────────────────────────────────
+
+    /// <summary>Yes / No options shared across all boolean radio groups.</summary>
+    private static readonly IReadOnlyList<RadioOption<bool?>> YesNoOptions =
+    [
+        new() { Value = true,  Label = "Yes" },
+        new() { Value = false, Label = "No"  },
+    ];
+
+    /// <summary>Business category options for the first section.</summary>
+    private static readonly IReadOnlyList<RadioOption<BusinessCategory?>> BusinessCategories =
+    [
+        new() { Value = BusinessCategory.Commercial,    Label = "Commercial" },
+        new() { Value = BusinessCategory.Domestic,      Label = "Domestic (in a private home)" },
+        new() { Value = BusinessCategory.Agricultural,  Label = "Agricultural (Farming)" },
+        new() { Value = BusinessCategory.NonProfit_501c3, Label = "Non-Profit with 501(c)(3) Ruling from IRS" },
+        new() { Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit (other)" },
+    ];
+
+    /// <summary>Expected future wage payment timing options for Section 14.</summary>
+    private static readonly List<SelectOption> ExpectedWagesCategories =
+    [
+        new() { Text = "Within 30 Days",   Value = "Within 30 Days"   },
+        new() { Text = "30 to 90 days",    Value = "30 to 90 days"    },
+        new() { Text = "6 months",         Value = "6 months"         },
+        new() { Text = "One year",         Value = "One year"         },
+        new() { Text = "More than a year", Value = "More than a year" },
+    ];
+
+    // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+    /// <summary>Initialises the model, loads wage rows, and wires up the edit context.</summary>
+    protected override void OnInitialized()
+    {
+        var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
+        _model = new SubjectivityModel { Wages = wages };
+        _subjectivityContext = new EditContext(_model);
+    }
+
+    // ─── Event handlers ───────────────────────────────────────────────────────
+
+    /// <summary>Handles business category selection changes.</summary>
+    private async Task OnBusinessCategoryChanged(BusinessCategory? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.BusinessCategory = value;
+            if (value.HasValue)
+                _businessCategory = value.Value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles 501(c)(3) application status changes.</summary>
+    private async Task OnHasAppliedFor501c3StatusChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.HasAppliedFor501c3Status = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles employees-in-other-states changes.</summary>
+    private async Task OnEmployeesInOtherStatesChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.EmployeesInOtherStates = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles FUTA liability changes and updates the paid-wages service.</summary>
+    private async Task OnFederalTaxLiabilityChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.FederalTaxLiability = value;
+            PaidWagesService.Update(value ?? false);
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles paid-wages-in-a-quarter (employee test) changes.</summary>
+    private async Task OnPaidWagesInAQuarterEmployeesChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.PaidWagesInAQuarterEmployees = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles paid-wages-in-a-quarter (tax test) changes.</summary>
+    private async Task OnPaidWagesInAQuarterTaxesChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.PaidWagesInAQuarterTaxes = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles 20-weeks employee test changes.</summary>
+    private async Task OnEmployee20WeeksChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.Employee20Weeks = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles 20-weeks four-or-more employee test changes (Non-Profit 501c3).</summary>
+    private async Task OnEmployee20WeeksFourOrMoreChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.Employee20WeeksFourOrMore = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    /// <summary>Handles expect-to-pay-wages changes.</summary>
+    private async Task OnExpectToPayWagesInAQuarterChanged(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            _model.ExpectToPayWagesInAQuarter = value;
+            _subjectivityContext.NotifyValidationStateChanged();
+        });
+    }
+
+    // ─── Validation ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Validates the full form. Called by the wizard to determine whether the step may advance.
+    /// DataAnnotationsValidator owns top-level <see cref="SubjectivityModel"/> field errors;
+    /// <see cref="CustomValidator"/> owns only the nested financial institution address errors.
+    /// Returns <c>true</c> when all validations pass; <c>false</c> otherwise.
+    /// </summary>
+    public async Task<bool> Validate()
+    {
+        try
+        {
+            _insufficientQuarterlyWageEntered = !PaidWagesService.PaidWagesMeetsQuarterlyMinimum(
+                _model.BusinessCategory ?? BusinessCategory.Commercial, _model.Wages);
+
+            _formSubmitted = true;
+            _showAddressErrors = false;
+            _customValidator?.ClearErrors();
+
+            // DataAnnotationsValidator validates top-level SubjectivityModel fields.
+            var topLevelValid = _subjectivityContext.Validate();
+
+            // CustomValidator validates the nested financial institution address only.
+            var addressErrors = ValidateAddressModel();
+            _showAddressErrors = addressErrors.Any();
+            if (addressErrors.Any())
+                _customValidator?.DisplayErrors(addressErrors);
+
+            if (!topLevelValid || addressErrors.Any() || _insufficientQuarterlyWageEntered)
+            {
+                StateHasChanged();
+                return false;
+            }
+
+            await InvokeAsync(StateHasChanged);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UISubjectivity.Validate crashed: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+            return false;
+        }
+    }
+
+    /// <summary>Runs DataAnnotations validation against the financial institution address.</summary>
+    private Dictionary<FieldIdentifier, List<string>> ValidateAddressModel()
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(_model.FinancialInstitution, new ValidationContext(_model.FinancialInstitution), results, true);
+
+        foreach (var result in results)
+        {
+            foreach (var memberName in result.MemberNames)
+            {
+                var fi = new FieldIdentifier(_model.FinancialInstitution, memberName);
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+            }
+        }
+
+        return errors;
+    }
+
+    // ─── Section visibility ───────────────────────────────────────────────────
+
+    /// <summary>Section 2 – 501(c)(3) application question. Shown only for Non-Profit_Other.</summary>
+    private bool Section2Visible()
+        => _businessCategory == BusinessCategory.NonProfit_Other;
+
+    /// <summary>Section 3 – Employees in other states. Shown once a business category is selected.</summary>
+    private bool Section3Visible()
+        => _businessCategory != BusinessCategory.Unknown;
+
+    /// <summary>Section 4 – Paid wages quarterly (employee test).</summary>
+    private bool Section4Visible()
+        => (_model.FederalTaxLiability.HasValue && !_model.FederalTaxLiability.Value) ||
+           (_model.EmployeesInOtherStates == false && _businessCategory != BusinessCategory.NonProfit_501c3);
+
+    /// <summary>Section 5 – Quarter/year first paid wages (employee test).</summary>
+    private bool Section5Visible()
+        => _model.PaidWagesInAQuarterEmployees ?? false;
+
+    /// <summary>Section 6 – FUTA liability question.</summary>
+    private bool Section6Visible()
+        => _businessCategory != BusinessCategory.NonProfit_501c3 &&
+           _model.EmployeesInOtherStates.HasValue && _model.EmployeesInOtherStates.Value;
+
+    /// <summary>Section 7 – Paid wages quarterly (tax test). Currently hidden.</summary>
+    private bool Section7Visible() => false;
+
+    /// <summary>Section 8 – Quarter/year first paid wages (tax test). Currently hidden.</summary>
+    private bool Section8Visible() => false;
+
+    /// <summary>Section 9 – 20 calendar weeks employee test.</summary>
+    private bool Section9Visible()
+        => (_model.FederalTaxLiability.HasValue && !_model.FederalTaxLiability.Value) ||
+           (_model.EmployeesInOtherStates == false &&
+            (_businessCategory == BusinessCategory.Commercial || _businessCategory == BusinessCategory.NonProfit_Other));
+
+    /// <summary>Section 10 – Date 20th week ended.</summary>
+    private bool Section10Visible()
+        => (_model.Employee20Weeks ?? false) &&
+           (_businessCategory == BusinessCategory.Commercial || _businessCategory == BusinessCategory.NonProfit_Other);
+
+    /// <summary>Section 11 – Four-or-more employees 20-weeks test (Non-Profit 501c3 only).</summary>
+    private bool Section11Visible()
+        => _businessCategory == BusinessCategory.NonProfit_501c3;
+
+    /// <summary>Section 13 – Expect to pay wages question.</summary>
+    private bool Section13Visible()
+    {
+        if (_businessCategory == BusinessCategory.Commercial)
+            return _model.PaidWagesInAQuarterEmployees == false && _model.Employee20Weeks == false;
+
+        if (_businessCategory == BusinessCategory.Domestic)
+            return _model.PaidWagesInAQuarterEmployees == false;
+
+        if (_businessCategory == BusinessCategory.Agricultural)
+            return _model.PaidWagesInAQuarterEmployees == false && _model.Employee20Weeks == false;
+
+        if (_businessCategory == BusinessCategory.NonProfit_501c3)
+            return false;
+
+        if (_businessCategory == BusinessCategory.NonProfit_Other)
+            return _model.PaidWagesInAQuarterEmployees == false && _model.Employee20Weeks == false;
+
+        return false;
+    }
+
+    /// <summary>Section 14 – When do you expect to pay wages (dropdown).</summary>
+    private bool Section14Visible()
+        => _model.ExpectToPayWagesInAQuarter ?? false;
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /// <summary>Returns the note text explaining excluded persons.</summary>
+    private static string GetNoteText()
+        => "You do not have to pay UI taxes on certain persons. " +
+           "When answering the following questions, do not include weeks of employment or wages paid " +
+           "to persons from the list of ";
+
+    /// <summary>Returns the URL for the Permitted Exclusions reference page.</summary>
+    private static string GetPermittedExclusionsUrl()
+        => "https://dwd.wisconsin.gov/ui201/t2201.htm#exclude";
+
+    /// <summary>Returns the wages question text appropriate for the selected business category.</summary>
+    private string GetWagesQuestion()
+        => _businessCategory switch
+        {
+            BusinessCategory.Domestic    => "Have you paid $1,000 or more in cash wages in a calendar quarter?",
+            BusinessCategory.Agricultural => "Have you paid $20,000 or more in cash wages for agricultural labor in a calendar quarter?",
+            _                            => "Have you paid $1,500 or more in wages in a calendar quarter?",
+        };
+
+    /// <summary>Returns the expect-to-pay wages question text appropriate for the selected business category.</summary>
+    private string GetExpectToPayWagesQuestion()
+        => _businessCategory switch
+        {
+            BusinessCategory.Domestic => "Do you expect to pay $1,000 or more in cash wages in a calendar quarter?",
+            _                         => "Do you expect to pay $1,500 or more in wages in a calendar quarter?",
+        };
+
+    /// <summary>Returns the alert error icon markup.</summary>
+    private static MarkupString GetAlertErrorIcon()
+    {
+        var icon = "_content/UI.EmployerPortal.Razor.SharedComponents/icons/master-alert-error.svg";
+        return new MarkupString($"<img src='{icon}' class='sort-icon' alt='Alert' />");
+    }
+}

@@ -1,0 +1,40 @@
+@using System.Linq.Expressions
+@typeparam TValue
+
+@foreach (var option in Options)
+{
+    var optionValue = option.Value;
+    <div class="radio-option">
+        <label class="radio-label">
+            <input type="radio"
+                   name="@_groupName"
+                   checked="@IsChecked(optionValue)"
+                   @onchange="() => HandleChange(optionValue)" />
+            @option.Label
+        </label>
+    </div>
+}
+
+@code {
+    /// <summary>The currently selected value.</summary>
+    [Parameter] public TValue? Value { get; set; }
+
+    /// <summary>Callback invoked when the selected value changes.</summary>
+    [Parameter] public EventCallback<TValue?> ValueChanged { get; set; }
+
+    /// <summary>Expression identifying the bound field, used for validation.</summary>
+    [Parameter] public Expression<Func<TValue?>>? ValueExpression { get; set; }
+
+    /// <summary>The list of radio options to render.</summary>
+    [Parameter] public IReadOnlyList<RadioOption<TValue?>> Options { get; set; } = Array.Empty<RadioOption<TValue?>>();
+
+    private readonly string _groupName = Guid.NewGuid().ToString("N");
+
+    /// <summary>Returns true when <paramref name="optionValue"/> matches the current <see cref="Value"/>.</summary>
+    private bool IsChecked(TValue? optionValue)
+        => EqualityComparer<TValue?>.Default.Equals(Value, optionValue);
+
+    /// <summary>Raises <see cref="ValueChanged"/> with the newly selected value.</summary>
+    private async Task HandleChange(TValue? optionValue)
+        => await ValueChanged.InvokeAsync(optionValue);
+}

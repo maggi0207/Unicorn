@@ -3,6 +3,18 @@
 
 <div class="bi-fields-grid">
 
+    @if (ShowName)
+    {
+        <div class="bi-field">
+            <OutlinedTextField Label="Name"
+                               @bind-Value="Address.Name"
+                               For="() => Address.Name"
+                               Visible="Visible"
+                               Disabled="Disabled" />
+        </div>
+        <div class="bi-field"></div>
+    }
+
     <div class="bi-field">
         <OutlinedSelectField Label="Country"
                              @bind-Value="Address.Country"
@@ -77,4 +89,7 @@
 
     /// <summary>When true, all input fields are rendered in disabled state.</summary>
     [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>When true, an optional Name field is rendered above the address fields.</summary>
+    [Parameter] public bool ShowName { get; set; }
 }

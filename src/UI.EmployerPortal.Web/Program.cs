@@ -12,6 +12,7 @@ builder.Services.AddWcfServiceClients(builder.Configuration);
 builder.Services.AddScoped<IAddressValidationWrapper, AddressValidationService>();
 builder.Services.AddScoped<RegistrationStateService>();
 builder.Services.AddScoped<AddressValidationCoordinator>();
+builder.Services.AddScoped<IYearQuarterPaidWagesService, YearQuarterPaidWagesService>();
 
 var app = builder.Build();
 

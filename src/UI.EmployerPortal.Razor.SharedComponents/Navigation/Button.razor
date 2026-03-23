@@ -1,0 +1,14 @@
+<button type="button" class="btn btn--primary" @onclick="HandleClick">
+    @Text
+</button>
+
+@code {
+    /// <summary>The label text displayed inside the button.</summary>
+    [Parameter] public string Text { get; set; } = string.Empty;
+
+    /// <summary>Callback invoked when the button is clicked.</summary>
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    /// <summary>Raises <see cref="OnClick"/> when the button is clicked.</summary>
+    private async Task HandleClick() => await OnClick.InvokeAsync();
+}
