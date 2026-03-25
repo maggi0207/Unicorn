@@ -55,6 +55,17 @@ public class AddressModel
     public string? Extension { get; set; }
 
     /// <summary>
+    /// Optional phone number associated with this address (used when <c>ShowPhone</c> is enabled on <c>AddressField</c>).
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// International dialing prefix for the phone number (e.g. "+1", "+52").
+    /// Defaults to "+1" (United States / Canada). Automatically updated when the country selection changes.
+    /// </summary>
+    public string? PhoneCountryCode { get; set; } = "+1";
+
+    /// <summary>
     /// Shared list of US states, territories, Canadian provinces, and military APO/FPO addresses.
     /// </summary>
     public static readonly List<SelectOption> States =
@@ -143,6 +154,6 @@ public class AddressModel
     [
         new() { Value = "United States", Text = "United States" },
         new() { Value = "Canada", Text = "Canada" },
-        new() { Value = "Mexico", Text = "Mexico" },
+        new() { Value = "Other International", Text = "Other International" },
     ];
 }

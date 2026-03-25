@@ -1,23 +1,87 @@
 @using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
 
-<OutlinedTextField Label="@Label"
-                   Value="@Value"
-                   ValueChanged="OnInput"
-                   For="@For"
-                   Type="tel"
-                   FormatText="(999-999-9999)"
-                   MaxLength="12"
-                   Visible="@Visible"
-                   Disabled="@Disabled" />
+@if (ShowCountryCode)
+{
+    <div class="phone-row">
+        <div class="phone-prefix-field">
+            <OutlinedTextField Label="Country Code"
+                               Value="@CountryCode"
+                               ValueChanged="OnPrefixInput"
+                               Visible="@Visible"
+                               Disabled="@ResolvedCountryCodeDisabled"
+                               MaxLength="5" />
+        </div>
+        <div class="phone-main-field">
+            <OutlinedTextField Label="@Label"
+                               Value="@Value"
+                               ValueChanged="OnInput"
+                               For="@For"
+                               Type="tel"
+                               Placeholder="(999-999-9999)"
+                               MaxLength="12"
+                               Visible="@Visible"
+                               Disabled="@Disabled" />
+        </div>
+    </div>
+}
+else
+{
+    <OutlinedTextField Label="@Label"
+                       Value="@Value"
+                       ValueChanged="OnInput"
+                       For="@For"
+                       Type="tel"
+                       FormatText="(999-999-9999)"
+                       MaxLength="12"
+                       Visible="@Visible"
+                       Disabled="@Disabled" />
+}
 
 @code {
+    /// <summary>Display label for the phone number field.</summary>
     [Parameter] public string Label { get; set; } = "Phone Number";
+
+    /// <summary>The formatted phone number value (e.g. "999-999-9999").</summary>
     [Parameter] public string? Value { get; set; }
+
+    /// <summary>Callback invoked when the phone number value changes.</summary>
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>Expression used to identify the field for validation.</summary>
     [Parameter] public Expression<Func<string?>>? For { get; set; }
+
+    /// <summary>When true, forces field error messages to be visible (e.g. after form submit).</summary>
     [Parameter] public bool Visible { get; set; }
+
+    /// <summary>When true, the field is rendered in a disabled/read-only state.</summary>
     [Parameter] public bool Disabled { get; set; }
 
+    /// <summary>
+    /// When true, only the country code prefix box is disabled. Defaults to <see cref="Disabled"/>.
+    /// Set to <c>false</c> to allow editing the prefix independently (e.g. for "Other International").
+    /// </summary>
+    [Parameter] public bool? CountryCodeDisabled { get; set; }
+
+    private bool ResolvedCountryCodeDisabled => CountryCodeDisabled ?? Disabled;
+
+    /// <summary>
+    /// When true, renders a country code prefix box (e.g. "+1") to the left of the phone number.
+    /// </summary>
+    [Parameter] public bool ShowCountryCode { get; set; }
+
+    /// <summary>
+    /// The international dialing prefix displayed in the prefix box (e.g. "+1", "+52").
+    /// Only used when <see cref="ShowCountryCode"/> is <c>true</c>.
+    /// </summary>
+    [Parameter] public string? CountryCode { get; set; }
+
+    /// <summary>Callback invoked when the country code prefix value changes.</summary>
+    [Parameter] public EventCallback<string?> CountryCodeChanged { get; set; }
+
+    /// <summary>
+    /// Strips non-digit characters, enforces 10-digit limit, and applies "999-999-9999" formatting.
+    /// </summary>
     private async Task OnInput(string? value)
     {
         var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
@@ -31,5 +95,18 @@
         };
 
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    /// <summary>
+    /// Ensures the prefix value always starts with "+" and propagates the change.
+    /// </summary>
+    private async Task OnPrefixInput(string? value)
+    {
+        var trimmed = (value ?? "").Trim();
+        if (trimmed.Length > 0 && !trimmed.StartsWith('+'))
+            trimmed = "+" + trimmed;
+
+        CountryCode = trimmed;
+        await CountryCodeChanged.InvokeAsync(CountryCode);
     }
 }

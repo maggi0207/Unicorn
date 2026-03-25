@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
 
 <div class="bi-fields-grid">
 
@@ -17,7 +18,8 @@
 
     <div class="bi-field">
         <OutlinedSelectField Label="Country"
-                             @bind-Value="Address.Country"
+                             Value="Address.Country"
+                             ValueChanged="OnCountryChanged"
                              Options="AddressModel.Countries"
                              For="() => Address.Country"
                              Visible="Visible"
@@ -78,6 +80,23 @@
         </div>
     </div>
 
+    @if (ShowPhone)
+    {
+        <div class="bi-field bi-phone-field">
+            <PhoneNumberField Label="Phone Number"
+                              Value="Address.PhoneNumber"
+                              ValueChanged="@(v => Address.PhoneNumber = v)"
+                              For="() => Address.PhoneNumber"
+                              ShowCountryCode="true"
+                              CountryCode="Address.PhoneCountryCode"
+                              CountryCodeChanged="@(v => Address.PhoneCountryCode = v)"
+                              CountryCodeDisabled="@(Address.Country != "Other International" || Disabled)"
+                              Visible="Visible"
+                              Disabled="Disabled" />
+        </div>
+        <div class="bi-field"></div>
+    }
+
 </div>
 
 @code {
@@ -92,4 +111,29 @@
 
     /// <summary>When true, an optional Name field is rendered above the address fields.</summary>
     [Parameter] public bool ShowName { get; set; }
+
+    /// <summary>
+    /// When true, a Phone Number field (with country code prefix) is rendered below the zip code row.
+    /// The country code prefix is automatically pre-filled when the Country selection changes.
+    /// </summary>
+    [Parameter] public bool ShowPhone { get; set; }
+
+    /// <summary>
+    /// Handles country selection changes. Updates <see cref="AddressModel.Country"/> and,
+    /// when <see cref="ShowPhone"/> is enabled, pre-fills <see cref="AddressModel.PhoneCountryCode"/>
+    /// with the corresponding international dialing prefix.
+    /// </summary>
+    private void OnCountryChanged(string country)
+    {
+        Address.Country = country;
+
+        if (ShowPhone)
+        {
+            Address.PhoneCountryCode = country switch
+            {
+                "United States" or "Canada" => "+1",
+                _ => null  // Other International — user fills in manually
+            };
+        }
+    }
 }

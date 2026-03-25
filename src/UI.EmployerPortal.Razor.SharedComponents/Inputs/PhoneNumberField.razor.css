@@ -1,0 +1,15 @@
+/* Phone number row: prefix code box + main number field */
+.phone-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+}
+
+.phone-prefix-field {
+    flex: 0 0 72px;
+}
+
+.phone-main-field {
+    flex: 1;
+}

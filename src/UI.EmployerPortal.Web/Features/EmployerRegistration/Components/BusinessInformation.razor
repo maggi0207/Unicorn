@@ -52,17 +52,11 @@
         </div>
 
         <div class="bi-field">
-            <PhoneNumberField @bind-Value="Model.PhoneNumber"
-                              For="() => Model.PhoneNumber"
-                              Visible="@IsVisible(() => Model.PhoneNumber)" />
-        </div>
-
-        <div class="bi-field">
             <OutlinedTextField Label="Email Address"
                                Type="email"
                                @bind-Value="Model.Email"
                                For="() => Model.Email"
-                               FormatText="name@example.com"
+                               Placeholder="name@example.com"
                                Visible="@IsVisible(() => Model.Email)" />
         </div>
 
@@ -74,6 +68,7 @@
     </div>
 
     <AddressField Address="Model.MailingAddress"
+                  ShowPhone="true"
                   Visible="@IsAddressVisible(Model.MailingAddress)" />
 
     @* ================= PHYSICAL LOCATIONS ================= *@
@@ -309,6 +304,19 @@
                     errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
                 }
             }
+        }
+
+        // Validate mailing address phone (shown only on mailing address, so not on AddressModel itself)
+        var phoneField = new FieldIdentifier(Model.MailingAddress, nameof(AddressModel.PhoneNumber));
+        if (string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneNumber))
+        {
+            if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
+            errors[phoneField].Add("Phone Number is required.");
+        }
+        else if (!System.Text.RegularExpressions.Regex.IsMatch(Model.MailingAddress.PhoneNumber, @"^\d{3}-\d{3}-\d{4}$"))
+        {
+            if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
+            errors[phoneField].Add("Phone Number must be in format 999-999-9999.");
         }
 
         foreach (var physical in physicalToValidate)

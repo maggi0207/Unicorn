@@ -30,14 +30,6 @@ public class BusinessInformationModel
     public string? TradeName { get; set; }
 
     /// <summary>
-    /// Business phone number in format 999-999-9999.
-    /// </summary>
-    [Required(ErrorMessage = "Phone Number is required.")]
-    [RegularExpression(@"^\d{3}-\d{3}-\d{4}$",
-        ErrorMessage = "Phone Number must be in format 999-999-9999.")]
-    public string? PhoneNumber { get; set; }
-
-    /// <summary>
     /// Business contact email address.
     /// </summary>
     [Required(ErrorMessage = "Email Address is required.")]
