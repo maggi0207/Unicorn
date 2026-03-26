@@ -10,10 +10,6 @@
     flex: 0 0 100px;
 }
 
-.phone-prefix-field .master-text-field label {
-    white-space: nowrap;
-}
-
 .phone-main-field {
     flex: 1;
 }
