@@ -83,7 +83,7 @@
     @if (ShowPhone)
     {
         <div class="bi-field"></div>
-        <div class="bi-field">
+        <div class="bi-phone-row">
             <PhoneNumberField Label="Phone Number"
                               Value="@Address.PhoneNumber"
                               ValueChanged="@(v => Address.PhoneNumber = v)"
@@ -95,7 +95,6 @@
                               Visible="Visible"
                               Disabled="Disabled" />
         </div>
-        <div class="bi-field"></div>
     }
 
 </div>

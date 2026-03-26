@@ -7,7 +7,11 @@
 }
 
 .phone-prefix-field {
-    flex: 0 0 100px;
+    flex: 0 0 170px;
+}
+
+.phone-prefix-field .master-text-field label {
+    white-space: nowrap;
 }
 
 .phone-main-field {
