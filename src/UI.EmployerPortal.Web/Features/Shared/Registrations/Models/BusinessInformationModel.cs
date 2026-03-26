@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
@@ -7,7 +8,7 @@ namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 /// Model for Step 3 (Business Information) of the employer registration wizard.
 /// Contains business details, mailing address, and physical location(s).
 /// </summary>
-public class BusinessInformationModel
+public class BusinessInformationModel : IEmployerRegistrationModelSection
 {
     #region Business Details
 
@@ -58,4 +59,34 @@ public class BusinessInformationModel
     };
 
     #endregion
+
+    /// <summary>
+    /// Returns survey responses for all populated business information fields.
+    /// </summary>
+    public List<SurveyResponse> GetSurveyResponses()
+    {
+        var responses = new List<SurveyResponse>();
+
+        if (!string.IsNullOrWhiteSpace(LegalName))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.BUS_LGL_NAM, _response = LegalName });
+        }
+
+        if (!string.IsNullOrWhiteSpace(TradeName))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.TRD_NAM, _response = TradeName });
+        }
+
+        if (!string.IsNullOrWhiteSpace(Email))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
+        }
+
+        if (!string.IsNullOrWhiteSpace(FEIN))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FEIN_NUM, _response = FEIN });
+        }
+
+        return responses;
+    }
 }

@@ -82,13 +82,14 @@
 
     @if (ShowPhone)
     {
-        <div class="bi-field bi-phone-field">
+        <div class="bi-field"></div>
+        <div class="bi-field">
             <PhoneNumberField Label="Phone Number"
-                              Value="Address.PhoneNumber"
+                              Value="@Address.PhoneNumber"
                               ValueChanged="@(v => Address.PhoneNumber = v)"
                               For="() => Address.PhoneNumber"
                               ShowCountryCode="true"
-                              CountryCode="Address.PhoneCountryCode"
+                              CountryCode="@Address.PhoneCountryCode"
                               CountryCodeChanged="@(v => Address.PhoneCountryCode = v)"
                               CountryCodeDisabled="@(Address.Country != "Other International" || Disabled)"
                               Visible="Visible"
