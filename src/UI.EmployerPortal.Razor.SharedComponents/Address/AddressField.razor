@@ -32,6 +32,7 @@
         <OutlinedTextField Label="Street Address"
                            @bind-Value="Address.AddressLine1"
                            For="() => Address.AddressLine1"
+                           Placeholder="123 Main Street"
                            Visible="Visible"
                            Disabled="Disabled" />
     </div>
@@ -39,6 +40,7 @@
     <div class="bi-field">
         <OutlinedTextField Label="Suite,Apt.,Attn.,etc (Optional)"
                            @bind-Value="Address.AddressLine2"
+                           Placeholder="Apt., Suite, Attn., etc."
                            Disabled="Disabled" />
     </div>
 
