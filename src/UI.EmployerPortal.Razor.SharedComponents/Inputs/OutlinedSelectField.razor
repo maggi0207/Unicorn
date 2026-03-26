@@ -13,8 +13,8 @@
     <!-- Select dropdown with error styling -->
     <select id="@Id"
             class="master-select @(HasError ? "master-select--error" : "")"
-            value="@(Value ?? "")"
-            @onchange="OnChange"
+            @bind="_currentValue"
+            @bind:after="OnAfterBind"
             @onblur="HandleBlur"
             disabled="@Disabled"
             aria-label="@Label"
@@ -23,11 +23,11 @@
             aria-describedby="@AriaDescribedBy">
         @if (!string.IsNullOrEmpty(Placeholder))
         {
-            <option value="" disabled selected="@(string.IsNullOrEmpty(Value))">@Placeholder</option>
+            <option value="">@Placeholder</option>
         }
         @foreach (var option in Options)
         {
-            <option value="@option.Value" selected="@(Value == option.Value)">@option.Text</option>
+            <option value="@option.Value">@option.Text</option>
         }
     </select>
 
@@ -100,6 +100,9 @@
         ? EditContext.GetValidationMessages(FieldIdentifier.Create(ResolvedExpression))
         : Enumerable.Empty<string>();
 
+    /// <summary>Local backing field kept in sync with <see cref="Value"/> so @bind can drive element.value correctly.</summary>
+    private string _currentValue = "";
+
     private bool _touched;
     private EditContext? _previousEditContext;
 
@@ -123,6 +126,8 @@
 
     protected override void OnParametersSet()
     {
+        _currentValue = Value ?? "";
+
         if (EditContext != _previousEditContext)
         {
             if (_previousEditContext is not null)
@@ -163,9 +168,10 @@
         await OnBlur.InvokeAsync();
     }
 
-    private async Task OnChange(ChangeEventArgs e)
+    /// <summary>Fires after @bind updates _currentValue from a user selection.</summary>
+    private async Task OnAfterBind()
     {
-        Value = e.Value?.ToString();
+        Value = _currentValue;
         await ValueChanged.InvokeAsync(Value);
 
         if (EditContext is not null && ResolvedExpression is not null)
