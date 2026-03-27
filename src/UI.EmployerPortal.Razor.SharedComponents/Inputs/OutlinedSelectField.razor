@@ -10,11 +10,15 @@
         @Label
     </label>
 
-    <!-- Select dropdown with error styling -->
+    <!-- Select dropdown with error styling.
+         @bind="BoundValue" uses Blazor's binding mechanism to set element.value as a DOM property
+         (not an HTML attribute), which correctly updates the browser's visual selection both on
+         initial render and on programmatic value changes (copy, edit-return).
+         BoundValue's setter fires all parent/EditContext notifications synchronously so there is
+         no async gap during which OnParametersSet could reset the value with stale data. -->
     <select id="@Id"
             class="master-select @(HasError ? "master-select--error" : "")"
-            @bind="_currentValue"
-            @bind:after="OnAfterBind"
+            @bind="BoundValue"
             @onblur="HandleBlur"
             disabled="@Disabled"
             aria-label="@Label"
@@ -100,14 +104,34 @@
         ? EditContext.GetValidationMessages(FieldIdentifier.Create(ResolvedExpression))
         : Enumerable.Empty<string>();
 
-    /// <summary>Local backing field kept in sync with <see cref="Value"/> so @bind drives element.value as a DOM property on programmatic changes.</summary>
+    /// <summary>
+    /// Local backing field for the bound select value.
+    /// Kept in sync with <see cref="Value"/> by <see cref="OnParametersSet"/> for programmatic
+    /// changes, and updated directly by <see cref="BoundValue"/>'s setter on user selection.
+    /// </summary>
     private string _currentValue = "";
-
-    /// <summary>True while a user-initiated selection is in flight; prevents OnParametersSet from overwriting _currentValue mid-async.</summary>
-    private bool _isUserChanging;
 
     private bool _touched;
     private EditContext? _previousEditContext;
+
+    /// <summary>
+    /// Property bound to the select element via @bind. Using a property (instead of @bind:after)
+    /// means all notifications fire synchronously in the setter — no async gap in which a
+    /// mid-cycle render could reset _currentValue with stale parent data.
+    /// </summary>
+    private string BoundValue
+    {
+        get => _currentValue;
+        set
+        {
+            if (_currentValue == value) return;
+            _currentValue = value;
+            Value = value;
+            _ = ValueChanged.InvokeAsync(value);
+            if (EditContext is not null && ResolvedExpression is not null)
+                EditContext.NotifyFieldChanged(FieldIdentifier.Create(ResolvedExpression));
+        }
+    }
 
     private bool IsRequired
     {
@@ -127,10 +151,15 @@
         ResolvedExpression is not null &&
         EditContext.GetValidationMessages(FieldIdentifier.Create(ResolvedExpression)).Any();
 
+    /// <summary>
+    /// Syncs _currentValue from the Value parameter on every parent render.
+    /// Because BoundValue's setter fires all notifications synchronously, by the time any
+    /// re-render reaches OnParametersSet the parent has already updated its model, so
+    /// Value reflects the correct current value in all scenarios.
+    /// </summary>
     protected override void OnParametersSet()
     {
-        if (!_isUserChanging)
-            _currentValue = Value ?? "";
+        _currentValue = Value ?? "";
 
         if (EditContext != _previousEditContext)
         {
@@ -170,23 +199,5 @@
         }
 
         await OnBlur.InvokeAsync();
-    }
-
-    /// <summary>
-    /// Fires after @bind updates _currentValue from a user selection.
-    /// Sets _isUserChanging before any await so OnParametersSet does not overwrite
-    /// _currentValue if a render fires mid-async (e.g. before the parent updates its model).
-    /// </summary>
-    private async Task OnAfterBind()
-    {
-        _isUserChanging = true;
-        Value = _currentValue;
-        await ValueChanged.InvokeAsync(Value);
-
-        if (EditContext is not null && ResolvedExpression is not null)
-        {
-            EditContext.NotifyFieldChanged(FieldIdentifier.Create(ResolvedExpression));
-        }
-        _isUserChanging = false;
     }
 }
