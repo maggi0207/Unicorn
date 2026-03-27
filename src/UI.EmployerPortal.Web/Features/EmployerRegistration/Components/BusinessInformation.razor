@@ -96,7 +96,8 @@
             </label>
         }
 
-        <AddressField Address="Model.PhysicalLocations[index]"
+        <AddressField @key="@(index == 0 ? (object)_physicalSameAsMailing : index)"
+                      Address="Model.PhysicalLocations[index]"
                       Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
                       Disabled="@(index == 0 && _physicalSameAsMailing)" />
     }
