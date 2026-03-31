@@ -455,6 +455,41 @@ public partial class UISubjectivity
         return errors;
     }
 
+    /// <summary>
+    /// Returns the disclaimer paragraph shown above the quarterly wages table.
+    /// Text varies by business category; the wages table is hidden entirely for NonProfit_501c3.
+    /// </summary>
+    private MarkupString GetWagesTableDisclaimer()
+    {
+        var exclusionsUrl = GetPermittedExclusionsUrl();
+
+        var permittedExclusionsLink = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>Permitted Exclusions</a>";
+        var excludedEmploymentLink  = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employment</a>";
+        var excludedEmployeesLink   = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employees</a>";
+
+        return BusinessCategory switch
+        {
+            BusinessCategory.Commercial or BusinessCategory.NonProfit_Other =>
+                new MarkupString(
+                    "Enter your gross quarterly payrolls below. Include all wages paid through the date that you complete this report. " +
+                    "Do not estimate the amount of wages you expect to pay in the future. Show wages paid only for work performed solely or primarily in Wisconsin. " +
+                   $"<strong>Do not enter the wages of Wisconsin residents who work entirely outside of Wisconsin. " +
+                   $"Do not include wages paid to persons with {permittedExclusionsLink}.</strong>"),
+
+            BusinessCategory.Domestic =>
+                new MarkupString(
+                    "Please provide the following quarterly payroll totals reflecting only cash wages paid for domestic employment in Wisconsin through the current date. " +
+                   $"<strong>Do not include wages paid for {excludedEmploymentLink}.</strong>"),
+
+            BusinessCategory.Agricultural =>
+                new MarkupString(
+                    "Complete the following record of your quarterly agricultural payroll in Wisconsin. Show gross cash wages paid in each calendar quarter. " +
+                   $"<strong>Do not include wages for {excludedEmployeesLink}.</strong>"),
+
+            _ => new MarkupString(string.Empty)
+        };
+    }
+
     private MarkupString GetMasterAlertErrorIcon()
     {
         var icon = "_content/UI.EmployerPortal.Razor.SharedComponents/icons/master-alert-error.svg";

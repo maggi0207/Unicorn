@@ -249,9 +249,9 @@
                 </div>
             }
 
-            @if (SubjectivityModel.Wages != null && SubjectivityModel.Wages.Count > 0)
+            @if (SubjectivityModel.Wages != null && SubjectivityModel.Wages.Count > 0 && BusinessCategory != BusinessCategory.NonProfit_501c3)
             {
-                <p class="ui-text">Please enter the gross wages for which you have paid quarters in based on your answer to the date you first paid wages for work performed in WI</p>
+                <p class="ui-text">@GetWagesTableDisclaimer()</p>
 
                 <table>
                     <tr style="text-align:center;">
