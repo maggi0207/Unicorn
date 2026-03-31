@@ -1,0 +1,993 @@
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@if (IsVisible)
+{
+    <div class="wizard-container">
+        @if (CurrentStepData != null)
+        {
+            <div class="wizard-current-step">
+                <div class="step-indicator-single">
+                    <div class="step-circle-large">
+                        @if (!string.IsNullOrWhiteSpace(CurrentStepData.Icon))
+                        {
+                            @if (CurrentStepData.Icon.EndsWith(".svg"))
+                            {
+                                <img src="@Assets[CurrentStepData.Icon]" class="" alt="Step @CurrentStep" />
+                                
+                            }
+                        }
+                        else
+                        {
+                            <span class="step-number-large">@CurrentStep</span>
+                        }                      
+                    </div>                   
+                </div>               
+            </div>
+          
+        }
+
+        <div class="css-line"></div>
+
+        @if (ChildContent != null)
+        {
+            <div class="wizard-content">
+                @ChildContent
+            </div>
+        }
+
+        @if (ShowNavigationButtons)
+        {
+            <div class="wizard-navigation">
+                <div class="wizard-navigation-left">
+                    @if (ShowBackButton)
+                    {
+                        <Button Variant="ButtonVariant.Secondary"
+                                Onclick="HandleBackClick"
+                                disabled="@(DisableBackOnFirstStep && CurrentStep <= 1)">
+                            @if (ResolvedShowBackButtonIcon)
+                            {
+                                <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                            }
+                            @ResolvedBackButtonText
+                        </Button>
+                    }
+                    @if (ShowCancelButton)
+                    {
+                        <Button Text="@ResolvedCancelButtonText"
+                                Variant="ButtonVariant.Secondary"
+                                ShowBorder="ResolvedShowCancelButtonBorder"
+                                Onclick="HandleCancelClick" />
+                    }
+                </div>
+
+                <div class="wizard-navigation-right">
+                    @if (ShowSaveAndQuitButton)
+                    {
+                        <Button Text="@ResolvedSaveAndQuitButtonText"
+                                Variant="ButtonVariant.Secondary"
+                                ShowBorder="ResolvedShowSaveAndQuitButtonBorder"
+                                Onclick="HandleSaveAndQuitClick" />
+                    }
+                    @if (ShowActionButton)
+                    {
+                        <Button Onclick="HandleActionClick">
+                            @ResolvedActionButtonText
+                            @if(ResolvedShowActionButtonIcon)
+                            {
+                                <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+                            }
+                        </Button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+--------------->
+using Microsoft.AspNetCore.Components;
+using UI.EmployerPortal.Razor.SharedComponents.Helpers;
+
+namespace UI.EmployerPortal.Razor.SharedComponents.Wizards;
+
+/// <summary>
+/// Generic wizard shell component that handles stepper and navigation.
+/// </summary>
+public partial class Wizard : ComponentBase
+{
+    /// <summary>
+    /// IsVisible
+    /// </summary>
+    [Parameter]
+    public bool IsVisible { get; set; } = true;
+
+    /// <summary>
+    /// Collection of steps to display in the wizard.
+    /// </summary>
+    [Parameter]
+    public IEnumerable<WizardStep>? Steps { get; set; }
+
+    /// <summary>
+    /// The currently active step number (1-based).
+    /// </summary>
+    [Parameter]
+    public int CurrentStep { get; set; } = 1;
+
+    /// <summary>
+    /// Optional content to be rendered below the wizard steps.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Optional CSS class to apply to the wizard container.
+    /// </summary>
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    /// <summary>
+    /// Callback invoked when a step is clicked (optional for navigation).
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> OnStepClicked { get; set; }
+
+    /// <summary>
+    /// Controls whether navigation buttons (Back, Cancel, Continue) are displayed.
+    /// </summary>
+    [Parameter]
+    public bool ShowNavigationButtons { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether the Back button is displayed.
+    /// </summary>
+    [Parameter]
+    public bool ShowBackButton { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether the Back button is disabled in the first step.
+    /// </summary>
+    [Parameter]
+    public bool DisableBackOnFirstStep { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether the Cancel button is displayed.
+    /// </summary>
+    [Parameter]
+    public bool ShowCancelButton { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether the Savd and Quit button is displayed.
+    /// </summary>
+    [Parameter]
+    public bool ShowSaveAndQuitButton { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether the submit button is displayed on the last step.
+    /// </summary>
+    [Parameter]
+    public bool ShowActionButton { get; set; } = true;
+
+    /// <summary>
+    /// Callback invoked when the Back button is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnBackClick { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the Cancel button is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnCancelClick { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the Save and Quit button is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnSaveAndQuitClick { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the Submit Report button is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnActionClick { get; set; }
+
+    /// <summary>
+    /// If true, automatically navigates to the previous step when Back is clicked.
+    /// </summary>
+    [Parameter]
+    public bool AutoNavigateOnBack { get; set; } = true;
+
+    /// <summary>
+    /// If true, automatically navigates to the next step when Continue is clicked.
+    /// </summary>
+    [Parameter]
+    public bool AutoNavigateOnAction { get; set; } = true;
+
+    /// <summary>
+    /// Two-way bindable parameter for CurrentStep to support automatic navigation.
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> CurrentStepChanged { get; set; }
+
+    /// <summary>
+    /// Gets the data for the current step based on the CurrentStep number.
+    /// </summary>
+    public WizardStep? CurrentStepData => Steps?.FirstOrDefault(s =>
+    {
+        return s.StepNumber == CurrentStep;
+    });
+
+    internal string ResolvedBackButtonText => CurrentStepData?.BackButtonText ?? "Back";
+    internal bool ResolvedShowBackButtonIcon => CurrentStepData?.ShowBackButtonIcon ?? true;
+    internal string ResolvedCancelButtonText => CurrentStepData?.CancelButtonText ?? "Cancel";
+    internal bool ResolvedShowCancelButtonBorder => CurrentStepData?.ShowCancelButtonBorder ?? false;
+    internal string ResolvedSaveAndQuitButtonText => CurrentStepData?.SaveAndQuitButtonText ?? "Save & Quit";
+    internal bool ResolvedShowSaveAndQuitButtonBorder => CurrentStepData?.ShowSaveAndQuitButtonBorder ?? false;
+    internal string ResolvedActionButtonText => CurrentStepData?.ActionButtonText ?? "Submit";
+    internal bool ResolvedShowActionButtonIcon => CurrentStepData?.ShowActionButtonIcon ?? true;
+
+    /// <inheritdoc />
+    protected override async Task OnParametersSetAsync()
+    {
+        await SetWizardSteps();
+    }
+
+    internal async Task SetWizardSteps()
+    {
+        if (Steps != null && Steps.Any())
+        {
+            var maxStep = Steps.Max(s =>
+            {
+                return s.StepNumber;
+            });
+
+            if (CurrentStep < 1)
+            {
+                CurrentStep = 1;
+            }
+            else if (CurrentStep > maxStep)
+            {
+                CurrentStep = maxStep;
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Handles step click events if navigation is enabled.
+    /// </summary>
+    internal async Task HandleStepClick(int stepNumber)
+    {
+        if (OnStepClicked.HasDelegate)
+        {
+            await OnStepClicked.InvokeAsync(stepNumber);
+        }
+    }
+
+    /// <summary>
+    /// Handles the Back button click.
+    /// </summary>
+    internal async Task HandleBackClick()
+    {
+        if (OnBackClick.HasDelegate)
+        {
+            await OnBackClick.InvokeAsync();
+        }
+
+        if (AutoNavigateOnBack && CurrentStep > 1)
+        {
+            CurrentStep--;
+            await CurrentStepChanged.InvokeAsync(CurrentStep);
+        }
+    }
+
+    /// <summary>
+    /// Handles the Cancel button click.
+    /// </summary>
+    internal async Task HandleCancelClick()
+    {
+        if (OnCancelClick.HasDelegate)
+        {
+            await OnCancelClick.InvokeAsync();
+        }
+    }
+
+    /// <summary>
+    /// Handles the Continue button click.
+    /// </summary>
+    internal async Task HandleActionClick()
+    {
+        if (OnActionClick.HasDelegate)
+        {
+            await OnActionClick.InvokeAsync();
+        }
+
+        if (AutoNavigateOnAction && CurrentStep < (Steps?.Count() ?? 0))
+        {
+            CurrentStep++;
+            await CurrentStepChanged.InvokeAsync(CurrentStep);
+        }
+    }
+
+    /// <summary>
+    /// Handles the Save and Quit button click.
+    /// </summary>
+    internal async Task HandleSaveAndQuitClick()
+    {
+        if (OnSaveAndQuitClick.HasDelegate)
+        {
+            await OnSaveAndQuitClick.InvokeAsync();
+        }
+    }
+}
+
+--------------->
+/* Wizard Container */
+.wizard-container {
+    width: auto;
+    padding: 1rem;
+}
+
+/* Single Step Display (Current Step Only) */
+.wizard-current-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /*margin-bottom: 2rem;
+    padding: 2rem 0;*/
+}
+
+.step-indicator-single {
+    margin-bottom: 1rem;
+}
+
+.step-circle-large {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #003663;
+    border: 3px solid #003663;
+    box-shadow: 0 4px 8px rgba(0, 54, 99, 0.2);
+}
+
+.step-icon-large {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.step-icon-emoji-large {
+    font-size: 3rem;
+}
+
+.step-number-large {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.step-label-single {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #003663;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.step-description-single {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    text-align: center;
+    max-width: 500px;
+}
+
+.step-progress-text {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin-top: 0.75rem;
+    font-weight: 500;
+}
+
+/* Steps Container */
+.wizard-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Individual Step */
+.wizard-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    text-align: center;
+}
+
+/* Step Indicator (Circle) */
+.step-indicator {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0.5rem;
+}
+
+.step-circle {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
+    background-color: #F5F5F5;
+    color: #6b7280;
+    border: 2px solid #F5F5F5;
+}
+
+/* Step Number */
+.step-number {
+    display: inline-block;
+}
+
+/* Step Icon (Check) */
+.step-icon.step-check {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Step Icon - Image */
+.step-icon-image {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* Step Icon - Font Awesome or other icon fonts */
+.step-icon-font {
+    font-size: 1.25rem;
+}
+
+/* Step Icon - Emoji */
+.step-icon-emoji {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Step Content (Label & Description) */
+.step-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 150px;
+}
+
+.step-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.step-description {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Step Connector Line */
+.step-connector {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #F5F5F5;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+.step-connector-completed {
+    background-color: #10b981;
+}
+
+/* Active Step Styles */
+.wizard-step.step-active .step-circle {
+    background-color: #003663;
+    color: #ffffff;
+    border-color: #003663;
+    box-shadow: 0 0 0 4px rgba(0, 54, 99, 0.1);
+}
+
+.wizard-step.step-active .step-label {
+    color: #003663;
+    font-weight: 600;
+}
+
+/* Active step icon color */
+.wizard-step.step-active .step-icon-image {
+    filter: brightness(0) invert(1);
+}
+
+/* Completed Step Styles */
+.wizard-step.step-completed .step-circle {
+    background-color: #10b981;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.wizard-step.step-completed .step-label {
+    color: #10b981;
+}
+
+/* Inactive Step Styles */
+.wizard-step.step-inactive .step-circle {
+    background-color: #F5F5F5;
+    color: #9ca3af;
+    border-color: #F5F5F5;
+}
+
+.wizard-step.step-inactive .step-label {
+    color: #9ca3af;
+}
+
+/* Inactive step icon color */
+.wizard-step.step-inactive .step-icon-image {
+    opacity: 0.7;
+}
+
+/* Wizard Content Area */
+.wizard-content {
+    padding: 1rem 0;
+}
+
+/* Wizard Navigation Buttons */
+.wizard-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+    width:100%;
+}
+
+.wizard-navigation-left {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.wizard-navigation-right {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+/* Wizard Button Base Styles */
+.wizard-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color:white;
+    font-family: inherit;
+}
+
+
+
+.wizard-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wizard-btn:active {
+    transform: translateY(0);
+}
+
+.wizard-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+}
+
+.wizard-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+    background-color: #f3f4f6;
+}
+
+/* Cancel Button */
+.wizard-btn-cancel {
+    background-color: #ffffff;
+    color: #6b7280;
+    border-color: #d1d5db;
+    margin-left:-4%;
+}
+
+/* Back Button */
+.wizard-btn-back {
+    background-color: #ffffff;
+    border-color: #9ca3af;
+}
+
+    .wizard-btn-back:hover {
+        background-color: #ffffff;
+        
+        border-color: #9ca3af;
+    }
+
+/* Continue Button */
+.wizard-btn-continue {
+    background-color: #ffffff;
+    
+}
+
+    .wizard-btn-continue:hover {
+        background-color: #ffffff;
+        border-color: none;
+    }
+
+/* Finish Button */
+.wizard-btn-finish {
+    background-color: #ffffff;
+
+}
+
+    .wizard-btn-finish:hover {
+        background-color: #ffffff;
+        border-color: none;
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wizard-navigation {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .wizard-navigation-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .wizard-btn {
+        flex: 1;
+        min-width: auto;
+    }
+
+    .wizard-btn-cancel {
+        width: 100%;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wizard-steps {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wizard-step {
+        flex-direction: row;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-indicator {
+        margin-bottom: 0;
+        margin-right: 1rem;
+    }
+
+    .step-content {
+        align-items: flex-start;
+        max-width: none;
+        flex: 1;
+    }
+
+    .step-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+    }
+
+    .step-connector {
+        display: none;
+    }
+}
+
+/* Optional: Clickable Steps (if navigation is enabled) */
+.wizard-step.step-clickable {
+    cursor: pointer;
+}
+
+.wizard-step.step-clickable:hover .step-circle {
+    transform: scale(1.05);
+}
+
+.wizard-step.step-completed.step-clickable:hover .step-circle {
+    background-color: #059669;
+}
+
+.wizard-step.step-inactive.step-clickable {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+
+.css-line {
+ 
+    left: 0;    
+    width: 100%; 
+    height: 0;
+    border-top: 1px solid #ADADAD; 
+    transform: translateZ(0); 
+}
+
+----------------->steps
+
+namespace UI.EmployerPortal.Razor.SharedComponents.Helpers;
+
+/// <summary>
+/// Represents a single step in the wizard component.
+/// Optional button text properties override the wizard-level defaults for the step.
+/// </summary>
+public class WizardStep
+{
+    /// <summary>
+    /// The step number (e.g., 1, 2, 3).
+    /// </summary>
+    public int StepNumber { get; set; }
+
+    /// <summary>
+    /// Optional icon path (e.g., "/icons.svg").
+    /// </summary>
+    public string? Icon { get; set; }
+
+    /// <summary>
+    /// Optional override for the Back button text on this step.
+    /// </summary>
+    public string BackButtonText { get; set; } = "Back";
+
+    /// <summary>
+    /// Controls whether the Back buton icon is visible on this step. Default: true
+    /// </summary>
+    public bool ShowBackButtonIcon { get; set; } = true;
+
+    /// <summary>
+    /// Optional override for the Cancel button text on this step.
+    /// </summary>
+    public string CancelButtonText { get; set; } = "Cancel";
+
+    /// <summary>
+    /// Controls whetehr the cancel button border is visible on this step. Default: false
+    /// </summary>
+    public bool ShowCancelButtonBorder { get; set; } = false;
+
+    /// <summary>
+    /// Optional override for the Save and Quit button text on this step.
+    /// </summary>
+    public string SaveAndQuitButtonText { get; set; } = "Save & Quit";
+
+    /// <summary>
+    /// Controls whetehr the SaveAndQuit button border is visible on this step. Default: false
+    /// </summary>
+    public bool ShowSaveAndQuitButtonBorder { get; set; } = false;
+
+    /// <summary>
+    /// Optional override for the Action button text on this step.
+    /// </summary>
+    public string ActionButtonText { get; set; } = "Submit";
+
+    /// <summary>
+    /// Controls whether the Back buton icon is visible on this step. Default: true
+    /// </summary>
+    public bool ShowActionButtonIcon { get; set; } = true;
+}
+---------------------->Employer reg steps
+@page "/employer-registration/steps"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+@inject NavigationManager Nav;
+
+
+<div class="page-content">
+
+    <Wizard Steps="@_wizardSteps"
+            @bind-CurrentStep="@_currentStep"
+            ShowCancelButton="false"
+            OnBackClick="HandleBackClick"
+            OnActionClick="HandleActionClick"
+            AutoNavigateOnAction="false"
+            DisableBackOnFirstStep="false">
+
+        @if (_currentStep == 1)
+        {
+            <PreliminaryQuestions @ref="_preliminaryQuestionsRef" />
+        }
+
+        @if (_currentStep == 2)
+        {
+            <Ownership @ref="_ownershipRef" />
+        }
+        @if (_currentStep == 3)
+        {
+            <BusinessInformation @ref="_businessInformationRef" />
+        }
+        @if (_currentStep == 4)
+        {
+            <BusinessContact @ref="_businessContactRef" />
+        }
+        @if (_currentStep == 5)
+        {
+            <BusinessActivity @ref="_businessActivityRef" />
+        }
+        @if (_currentStep == 6)
+        {
+            <UISubjectivity @ref="_uiSubjectivityRef" />
+        }
+        else if (_currentStep == 7)
+        {
+            <Verification @ref="_verificationRef" />
+
+        }
+
+    </Wizard>
+</div>
+
+------------------------>
+namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Pages;
+
+using global::UI.EmployerPortal.Razor.SharedComponents.Helpers;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+using Microsoft.AspNetCore.Components;
+
+/// <summary>
+/// Code-behind for the TaxReportOnly wizard page.
+/// </summary>
+public partial class EmployerRegistrationSteps
+{
+
+
+    /* [Inject]
+     private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;*/
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+
+    private int _currentStep = 1;
+
+    private PreliminaryQuestions? _preliminaryQuestionsRef;
+    private Ownership? _ownershipRef;
+    private BusinessInformation? _businessInformationRef;
+    private BusinessContact? _businessContactRef;
+    private BusinessActivity? _businessActivityRef;
+    private UISubjectivity? _uiSubjectivityRef;
+    private Verification? _verificationRef;
+
+
+    private readonly List<WizardStep> _wizardSteps = new()
+    {
+        new() { StepNumber = 1, Icon = "/icons/employer_reg_step_1.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 2, Icon = "/icons/employer_reg_step_2.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 3, Icon = "/icons/employer_reg_step_3.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 4, Icon = "/icons/employer_reg_step_4.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 5, Icon = "/icons/employer_reg_step_5.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 6, Icon = "/icons/employer_reg_step_6.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 7, Icon = "/icons/employer_reg_step_7.svg", ActionButtonText = "SUBMIT" }
+    };
+
+    /// ── Single source of truth for the page ───────────────────────────────────
+
+
+
+
+    /// ── Step 2: TaxDetailsData computed from the live _taxEntryData ───────────
+
+    /// <summary>
+    /// OnInitialized
+    /// </summary>
+    protected override void OnInitialized()
+    {
+
+    }
+
+
+
+    private async Task HandleActionClick()
+    {
+        bool isValid;
+
+        if (_currentStep == 1)
+        {
+            //Delegate validation to Preliminary Questions component
+            isValid = _preliminaryQuestionsRef?.Validate() ?? false;
+        }
+
+        else if (_currentStep == 2)    
+        {
+            //Delegate validation to Ownership component
+            isValid = await (_ownershipRef?.Validate() ?? Task.FromResult(false));
+        }
+
+        else if (_currentStep == 3)
+        {
+            //Delegate validation to Ownership component
+            isValid = await (_businessInformationRef?.Validate() ?? Task.FromResult(false));
+        }
+
+        else if (_currentStep == 4)
+        {
+            //Delegate validation to Ownership component
+            isValid = await (_businessContactRef?.Validate() ?? Task.FromResult(false));
+        }
+
+        else if (_currentStep == 5)
+        {
+            //Delegate validation to Ownership component
+            isValid = await (_businessActivityRef?.Validate() ?? Task.FromResult(false));
+        }
+
+        else if (_currentStep == 6)
+        {
+            //Delegate validation to Ownership component
+            isValid = await (_uiSubjectivityRef?.Validate() ?? Task.FromResult(false));
+        }
+
+        else
+        {
+            //Delegate validation to Step 7
+            isValid = true;
+        }
+
+
+        if (!isValid)
+        {
+            return;
+        }
+
+        if (_currentStep == _wizardSteps.Count)
+        {
+
+            await HandleSubmit();
+            return;
+
+        }
+_currentStep++;
+
+    }
+
+
+    private async Task HandleBackClick()
+{
+    if (_currentStep == 1)
+    {
+        //Delegate validation to Preliminary Questions component
+        Nav.NavigateTo("/employer-registration/employer-registration-welcome");
+    }
+}
+
+private async Task HandleSubmit()
+{
+    // WCF Service calls to save and register
+}
+
+
+}
+

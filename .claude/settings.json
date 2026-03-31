@@ -28,7 +28,8 @@
       "Bash(dotnet run:*)",
       "Bash(taskkill /PID 46956 /F)",
       "Bash(cmd /c \"taskkill /PID 46956 /F\")",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(find D:Unicorn-reposrcUI.EmployerPortal.Web -type f \\\\\\(-name *UISubjectivity* -o -name *Subjectivity* \\\\\\))"
     ],
     "additionalDirectories": [
       "d:\\Unicorn-repo",

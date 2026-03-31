@@ -217,7 +217,8 @@ public class BusinessInformationTests : BunitContext
             City = "Madison",
             State = "WI",
             Zip = "53701",
-            Country = "United States"
+            Country = "United States",
+            PhoneNumber = "608-555-1234"
         };
         var physical = new AddressModel
         {
@@ -231,7 +232,6 @@ public class BusinessInformationTests : BunitContext
         {
             FEIN = "12-3456789",
             LegalName = "Test Corp",
-            PhoneNumber = "608-555-1234",
             Email = "test@example.com",
             MailingAddress = mailing,
             PhysicalLocations = [physical]

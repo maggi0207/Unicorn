@@ -125,9 +125,9 @@ public class AddressFieldTests : BunitContext
     }
 
     [Fact]
-    public void Countries_List_Contains_Mexico()
+    public void Countries_List_Contains_OtherInternational()
     {
-        Assert.Contains(AddressModel.Countries, c => { return c.Value == "Mexico"; });
+        Assert.Contains(AddressModel.Countries, c => { return c.Value == "Other International"; });
     }
 
     [Fact]
