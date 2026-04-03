@@ -11,10 +11,12 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 public class AddressValidationService : IAddressValidationWrapper
 {
     private readonly GeneratedClient.IAddressValidationService _client;
+    private readonly ILogger<AddressValidationService> _logger;
 
-    public AddressValidationService(GeneratedClient.IAddressValidationService client)
+    public AddressValidationService(GeneratedClient.IAddressValidationService client, ILogger<AddressValidationService> logger)
     {
         _client = client;
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -38,16 +40,18 @@ public class AddressValidationService : IAddressValidationWrapper
         {
             response = await _client.ValidateAddressAsync(request);
         }
-        catch (CommunicationException)
+        catch (CommunicationException ex)
         {
             // WCF communication failure (network error, SOAP fault, serialization failure).
             // Treat as unverifiable — let the user proceed without a suggestion.
-            return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
+            _logger.LogError(ex, "WCF communication failure during address validation. Type: {ExType}, Message: {ExMessage}", ex.GetType().Name, ex.Message);
+            return new AddressValidationResult(true, null, null);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Unexpected failure — fail safe so the page does not crash.
-            return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
+            _logger.LogError(ex, "Unexpected failure during address validation. Type: {ExType}, Message: {ExMessage}", ex.GetType().Name, ex.Message);
+            return new AddressValidationResult(true, null, null);
         }
 
         // ErrorMessageOne is populated when the address could not be validated;
