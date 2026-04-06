@@ -162,10 +162,12 @@
                 {
                     _physicalSameAsMailing = false;
                     ClearPhysicalLocation(0);
+                    NotifyPhysicalLocationChanged(0);
                 }
                 else if (_physicalSameAsMailing)
                 {
                     CopyMailingToPhysical(0);
+                    NotifyPhysicalLocationChanged(0);
                 }
             }
 
@@ -239,6 +241,7 @@
             CopyMailingToPhysical(0);
         else
             ClearPhysicalLocation(0);
+        NotifyPhysicalLocationChanged(0);
         StateHasChanged();
     }
 
@@ -254,6 +257,19 @@
         dest.State        = src.State;
         dest.Zip          = src.Zip;
         dest.Extension    = src.Extension;
+    }
+
+    /// <summary>Notifies the EditContext that all fields on PhysicalLocations[<paramref name="index"/>] have changed, triggering re-validation.</summary>
+    private void NotifyPhysicalLocationChanged(int index)
+    {
+        var dest = Model.PhysicalLocations[index];
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Country)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine1)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine2)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.City)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.State)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Zip)));
+        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Extension)));
     }
 
     /// <summary>Clears all fields on PhysicalLocations[<paramref name="index"/>].</summary>
