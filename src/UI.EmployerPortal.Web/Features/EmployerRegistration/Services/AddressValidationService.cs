@@ -25,14 +25,14 @@ public class AddressValidationService : IAddressValidationWrapper
         var request = new GeneratedClient.AddressProxy
         {
             AddressRequestType = GeneratedClient.AddressRequestTypeEnum.Employer,
-            LineOneAddress = Sanitize(address.AddressLine1),
-            LineTwoAddress = Sanitize(address.AddressLine2),
-            CityName = Sanitize(address.City),
-            StateCode = Sanitize(address.State),
-            ZipCode = Sanitize(address.Zip),
-            ZipCodeExtension = Sanitize(address.Extension),
+            LineOneAddress = address.AddressLine1 ?? string.Empty,
+            LineTwoAddress = address.AddressLine2 ?? string.Empty,
+            CityName = address.City ?? string.Empty,
+            StateCode = address.State ?? string.Empty,
+            ZipCode = address.Zip ?? string.Empty,
+            ZipCodeExtension = address.Extension ?? string.Empty,
             // Service requires ISO country code ("US"), not the display name ("United States")
-            CountryCode = ToCountryCode(Sanitize(address.Country))
+            CountryCode = ToCountryCode(address.Country)
         };
 
         GeneratedClient.ValidateAddressResponse response;
@@ -40,17 +40,15 @@ public class AddressValidationService : IAddressValidationWrapper
         {
             response = await _client.ValidateAddressAsync(request);
         }
-        catch (CommunicationException ex)
+        catch (CommunicationException)
         {
             // WCF communication failure (network error, SOAP fault, serialization failure).
             // Treat as unverifiable — let the user proceed without a suggestion.
-            _logger.LogError(ex, "WCF communication failure during address validation. Type: {ExType}, Message: {ExMessage}", ex.GetType().Name, ex.Message);
             return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Unexpected failure — fail safe so the page does not crash.
-            _logger.LogError(ex, "Unexpected failure during address validation. Type: {ExType}, Message: {ExMessage}", ex.GetType().Name, ex.Message);
             return new AddressValidationResult(false, "Address validation is temporarily unavailable. Please try again.", null);
         }
 
@@ -102,15 +100,5 @@ public class AddressValidationService : IAddressValidationWrapper
             case "Mexico": return "MX";
             default: return "US";
         }
-    }
-
-    /// <summary>
-    /// Safely trims standard whitespaces and hidden zero-width spaces 
-    /// often accidentally injected by browser autofill (e.g. Chrome).
-    /// </summary>
-    private static string? Sanitize(string? input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return null;
-        return input.Trim().Trim('\u200B');
     }
 }
