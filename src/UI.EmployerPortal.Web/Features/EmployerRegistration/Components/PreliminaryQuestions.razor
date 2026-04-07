@@ -130,7 +130,7 @@
                                 The information provided is true and accurate to the best of my knowledge.
                             </label>
                         </div>
-                        <ValidationMessage For="() => Model.InformationIsAccurate" />
+                        <FieldError For="@(() => (object)Model.InformationIsAccurate)" Visible="@_formSubmitted" />
                         <br />
                     }
 

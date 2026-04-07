@@ -135,6 +135,13 @@ public partial class PreliminaryQuestions
     private void OnHaveEmployeesCurrentlyWorkingInWisconsinChanged(bool? value)
     {
         Model.HaveEmployeesCurrentlyWorkingInWisconsin = value;
+
+        if (value != true)
+        {
+            Model.InformationIsAccurate = false;
+            _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
+        }
+
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HaveEmployeesCurrentlyWorkingInWisconsin)));
     }
 
