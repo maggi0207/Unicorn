@@ -33,20 +33,23 @@
                                Placeholder="999999-999-9" />
             <br />
 
-            <!-- 501(c)(3) standalone question -->
-            <p>Are you a non-profit organization as described in s.501(c)(3) of the IRS code?</p>
-            <FieldError For="@(() => Model.IsNonProfit501c3)"
+            <br />
+
+
+            <!-- Question 1 -->
+            <p>Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
+            <FieldError For="@(() => Model.BusinessCategory)"
                         Visible="@_formSubmitted" />
-            <RadioGroup TValue="bool?"
-                        Value="Model.IsNonProfit501c3"
-                        ValueChanged="OnIsNonProfit501c3Changed"
-                        ValueExpression="() => Model.IsNonProfit501c3"
-                        Options="@YesNoRadioOptions" />
+            <RadioGroup TValue="BusinessCategory ?"
+                        Value="Model.BusinessCategory"
+                        ValueChanged="OnBusinessCategoryChanged"
+                        ValueExpression="() => Model.BusinessCategory"
+                        Options="@BusinessCategoryOptions" />
             <br />
 
             @if (Show501c3SubTree)
             {
-                <!-- 501(c)(3) Sub-Tree (shown when user answers Yes above) -->
+                <!-- 501(c)(3) Sub-Tree (shown when 501c3 category is selected above) -->
                 <p data-questionid="1.1">Do you have a 501(c)(3) ruling from the IRS?</p>
                 <FieldError For="@(() => Model.HasRulingFrom501c3IRS)"
                             Visible="@_formSubmitted" />
@@ -132,17 +135,6 @@
                     }
                 }
             }
-
-            <!-- Question 1 -->
-            <p>Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
-            <FieldError For="@(() => Model.BusinessCategory)"
-                        Visible="@_formSubmitted" />
-            <RadioGroup TValue="BusinessCategory ?"
-                        Value="Model.BusinessCategory"
-                        ValueChanged="OnBusinessCategoryChanged"
-                        ValueExpression="() => Model.BusinessCategory"
-                        Options="@BusinessCategoryOptions" />
-            <br />
 
             <!-- Question 2 -->
             <p>Have you acquired through sale, reorganization or other means an existing business operation in Wisconsin?</p>

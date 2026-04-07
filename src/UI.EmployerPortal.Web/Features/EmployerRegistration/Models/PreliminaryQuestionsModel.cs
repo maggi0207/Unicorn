@@ -23,12 +23,6 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public BusinessCategory? BusinessCategory { get; set; } = null;
 
     /// <summary>
-    /// Answer to "Are you a non-profit organization as described in s.501(c)(3) of the IRS code?"
-    /// When true the 501(c)(3) sub-tree is shown and Step 6 business category is auto-populated.
-    /// </summary>
-    public bool? IsNonProfit501c3 { get; set; } = null;
-
-    /// <summary>
     /// Answer to "Do you have a 501(c)(3) ruling from the IRS?"
     /// Shown when IsNonProfit501c3 is true.
     /// </summary>

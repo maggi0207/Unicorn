@@ -54,6 +54,7 @@ public partial class PreliminaryQuestions
       new RadioOption<BusinessCategory?> {Value = BusinessCategory.Commercial, Label = "Commercial"},
       new RadioOption<BusinessCategory?> {Value = BusinessCategory.Domestic, Label = "Domestic (in a private home)"},
       new RadioOption<BusinessCategory?> {Value = BusinessCategory.Agricultural, Label = "Agricultural (Farming)"},
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_501c3, Label = "Non-Profit with 501(c)(3) Ruling from IRS"},
       new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit (other)"},
     };
 
@@ -95,8 +96,8 @@ public partial class PreliminaryQuestions
     };
 
     // visibility delegates
-    // 501(c)(3) visibility — driven by the standalone Yes/No question, not business category
-    private bool Show501c3SubTree => Model.IsNonProfit501c3 == true;
+    // 501(c)(3) visibility — driven by the business category
+    private bool Show501c3SubTree => Model.BusinessCategory == BusinessCategory.NonProfit_501c3;
     private bool ShowRulingUpload => Show501c3SubTree && Model.HasRulingFrom501c3IRS == true;
     private bool ShowHasAppliedQuestion => Show501c3SubTree && Model.HasRulingFrom501c3IRS == false;
     private bool ShowAppliedUpload => ShowHasAppliedQuestion && Model.HasAppliedFor501c3WithIRS == true;
@@ -163,29 +164,21 @@ public partial class PreliminaryQuestions
 
     // change handlers
 
-    /// <summary>
-    /// Handles the standalone "Are you a non-profit 501(c)(3) organization?" Yes/No question.
-    /// When changed to No, resets all 501(c)(3) sub-tree fields.
-    /// </summary>
-    private void OnIsNonProfit501c3Changed(bool? value)
+    private void OnBusinessCategoryChanged(BusinessCategory? value)
     {
-        Model.IsNonProfit501c3 = value;
+        Model.BusinessCategory = value;
 
-        if (value != true)
+        // Reset 501(c)(3) sub-tree if user switches away from 501c3
+        if (value != BusinessCategory.NonProfit_501c3)
         {
             Model.HasRulingFrom501c3IRS = null;
             Model.HasAppliedFor501c3WithIRS = null;
             Model.WillSupplyDocumentationLater = false;
+            
             ResetField(() => Model.HasRulingFrom501c3IRS);
             ResetField(() => Model.HasAppliedFor501c3WithIRS);
         }
 
-        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.IsNonProfit501c3)));
-    }
-
-    private void OnBusinessCategoryChanged(BusinessCategory? value)
-    {
-        Model.BusinessCategory = value;
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.BusinessCategory)));
     }
 
@@ -376,10 +369,7 @@ public partial class PreliminaryQuestions
 
         if (isValid)
         {
-            // If user answered Yes to being a 501(c)(3) org, auto-populate Step 6 business category
-            RegistrationState.PreliminaryBusinessCategory = Model.IsNonProfit501c3 == true
-                ? BusinessCategory.NonProfit_501c3
-                : Model.BusinessCategory;
+            RegistrationState.PreliminaryBusinessCategory = Model.BusinessCategory;
         }
 
         return isValid;
@@ -411,15 +401,6 @@ public partial class PreliminaryQuestions
             if (!Regex.IsMatch(Model.UIAccountNumber, _uiAccountNumberRegex))
             {
                 _messageStore.Add(field, "Employer UI Account Number must match the given format.");
-            }
-        }
-        // 501(c)(3) standalone question
-        if (IsVisible(() => Model.IsNonProfit501c3))
-        {
-            var field = _editContext.Field(nameof(Model.IsNonProfit501c3));
-            if (!Model.IsNonProfit501c3.HasValue)
-            {
-                _messageStore.Add(field, "Answer if you are a non-profit organization as described in s.501(c)(3) of the IRS code.");
             }
         }
         // Business Category
