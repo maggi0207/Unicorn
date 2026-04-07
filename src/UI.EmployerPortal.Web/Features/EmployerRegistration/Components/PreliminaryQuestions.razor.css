@@ -1,0 +1,9 @@
+/* Acknowledgement checkbox */
+.form-check-input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #003663;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none;
+}
