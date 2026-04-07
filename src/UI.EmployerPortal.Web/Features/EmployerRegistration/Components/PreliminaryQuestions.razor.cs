@@ -369,7 +369,7 @@ public partial class PreliminaryQuestions
 
         if (isValid)
         {
-            RegistrationState.PreliminaryBusinessCategory = Model.BusinessCategory;
+            // The model is already part of the ModelStore, so no manual assignment is needed here.
         }
 
         return isValid;
