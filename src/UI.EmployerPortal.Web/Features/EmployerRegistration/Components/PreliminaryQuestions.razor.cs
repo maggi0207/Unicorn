@@ -136,11 +136,8 @@ public partial class PreliminaryQuestions
     {
         Model.HaveEmployeesCurrentlyWorkingInWisconsin = value;
 
-        if (value != true)
-        {
-            Model.InformationIsAccurate = false;
-            _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
-        }
+        Model.InformationIsAccurate = false;
+        _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
 
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HaveEmployeesCurrentlyWorkingInWisconsin)));
     }
@@ -149,6 +146,12 @@ public partial class PreliminaryQuestions
     {
         Model.ExpectFuturePayroll = value;
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.ExpectFuturePayroll)));
+    }
+
+    private void OnInformationIsAccurateChanged()
+    {
+        _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.InformationIsAccurate)));
     }
 
     private void OnHaveSoldOrTransferredBusinessChanged(bool? value)

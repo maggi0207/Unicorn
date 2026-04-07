@@ -123,9 +123,11 @@
                     @if (VisibilityCheckbox_InfoAccurate)
                     {
                         <div class="form-check">
-                            <InputCheckbox id="chk-info-accurate"
-                                           class="form-check-input"
-                                           @bind-Value="Model.InformationIsAccurate" />
+                            <input type="checkbox"
+                                   id="chk-info-accurate"
+                                   class="form-check-input @(_formSubmitted && !Model.InformationIsAccurate ? "invalid" : "")"
+                                   @bind="Model.InformationIsAccurate"
+                                   @bind:after="OnInformationIsAccurateChanged" />
                             <label class="form-check-label fw-bold" for="chk-info-accurate">
                                 The information provided is true and accurate to the best of my knowledge.
                             </label>
