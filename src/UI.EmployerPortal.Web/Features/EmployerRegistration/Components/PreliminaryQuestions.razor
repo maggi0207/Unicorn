@@ -4,6 +4,7 @@
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
+@using System.Linq.Expressions
 @inject NavigationManager Nav;
 
 <PageTitle>Preliminary Questions</PageTitle>
@@ -17,8 +18,9 @@
 
             <!-- FEIN -->
             <FEINField Label="FEIN"
-                        @bind-Value="Model.FEIN"
-                        For="() => Model.FEIN" />
+                       @bind-Value="Model.FEIN"
+                       For="() => Model.FEIN"
+                       Placeholder="99-9999999" />
             <br />
 
             <!-- UI Account Number -->
@@ -27,7 +29,7 @@
                                @bind-Value="Model.UIAccountNumber"
                                For="() => Model.UIAccountNumber"
                                Mask="000000-000-0"
-                               FormatText="(999999-999-9)" />
+                               Placeholder="999999-999-9" />
             <br />
 
             <!-- Question 1 -->
@@ -73,7 +75,7 @@
                                        @bind-Value="Model.AcquiredBusinessAccountNumber"
                                        For="() => Model.AcquiredBusinessAccountNumber"
                                        Mask="000000-000-0"
-                                       FormatText="(999999-999-9)"/>
+                                       Placeholder="999999-999-9" />
                     <br />
                 }
                 else if (VisibilityQuestion_2_1_2)
@@ -106,7 +108,7 @@
                             Options="@YesNoRadioOptions"/>
                 <br />
 
-        
+
                 @if (VisibilityQuestion_3_1)
                 {
                     <!-- Question 3.1 (Question 3 Yes) -->
@@ -119,7 +121,6 @@
                                 ValueExpression="() => Model.HaveEmployeesCurrentlyWorkingInWisconsin"
                                 Options="@YesNoRadioOptions"/>
                     <br />
-
                     @if (VisibilityCheckbox_InfoAccurate)
                     {
                         <div class="form-check">
@@ -136,14 +137,14 @@
                         <br />
                     }
 
-                    @if (VisibilityQuestion_3_1_2)
+                    @* @if (VisibilityQuestion_3_1_2)
                     {
                         <!-- Question 3.1.2 (Question 3.1 No) -->
                         <span data-questionid="3.1.2"></span>
                         <OutlinedTextField Label="Last Employment Date"
                                            Type="date"
                                            @bind-Value="LastEmploymentDateAsString"
-                                           For="() => LastEmploymentDateAsString"/>
+                                           For="() => LastEmploymentDateAsString" />
                         <br />
 
                         <OutlinedTextField Label="Last Payroll Date"
@@ -151,9 +152,9 @@
                                            @bind-Value="LastPayrollDateAsString"
                                            For="() => LastPayrollDateAsString" />
                         <br />
-                    }
+                    } *@
                 }
-                else if(VisibilityQuestion_3_2)
+                 @if(VisibilityQuestion_3_2)
                 {
                     <!-- Question 3.2 (Question 3 No) -->
                     <p data-questionid="3.2">Do you expect to pay wages for work performed in Wisconsin in the future?</p>
@@ -171,17 +172,17 @@
                     {
                         <span data-questionid="3.2.1"></span>
                         <OutlinedSelectField Label="When?"
-                                         @bind-Value="ExpectedFuturePayrollPeriodAsString"
-                                         Options="FuturePayPeriodOptions"
-                                         For="() => ExpectedFuturePayrollPeriodAsString"/>
+                                             @bind-Value="ExpectedFuturePayrollPeriodAsString"
+                                             Options="FuturePayPeriodOptions"
+                                             For="() => ExpectedFuturePayrollPeriodAsString"/>
                         <FieldError For="@(() => Model.ExpectedFuturePayrollPeriod)"
                                     Visible="@_formSubmitted" />
                         <br />
                     }
                 }
             }
-    
-            <!-- Question 4 (Question 3.1 Yes) -->
+
+            @* <!-- Question 4 (Question 3.1 Yes) -->
             @if (VisibilityQuestion_4)
             {
                 <p data-questionid="4">Did you sell or transfer your business?</p>
@@ -191,8 +192,126 @@
                             Value="Model.HaveSoldOrTransferredBusiness"
                             ValueChanged="OnHaveSoldOrTransferredBusinessChanged"
                             ValueExpression="() => Model.HaveSoldOrTransferredBusiness"
-                            Options="@YesNoRadioOptions"/>
+                            Options="@YesNoRadioOptions" />
                 <br />
+            }--Removing this question as per story 824 *@
+
+            @if (VisibilityQuestion_4)
+            {
+                <div class="no-employee-section">
+                    <p class="section-title">
+                        Select the reason you no longer have paid employees working in Wisconsin.
+                    </p>
+                    <FieldError For="@(() => Model.SelectedNoEmployeeReason)"
+                                Visible="@_formSubmitted" />
+                    <RadioGroup TValue="NoEmployeeReason?"
+                                Value="Model.SelectedNoEmployeeReason"
+                                ValueChanged="OnNoEmployeReasonChanged"
+                                ValueExpression="() => Model.SelectedNoEmployeeReason"
+                                Options="@NoEmployeReasonOptions" />
+                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.NotOperatingInWisconsin)
+                    {
+                        <!-- Question 3.1.2 (Question 3.1 No) -->
+                        <span data-questionid="3.1.2"></span>
+                        <OutlinedTextField Label="Last Employment Date"
+                                           Type="date"
+                                           @bind-Value="LastEmploymentDateAsString"
+                                           For="() => LastEmploymentDateAsString"
+                                           Visible="@IsVisible(()=>Model.LastEmploymentDate)" />
+                        <br />
+
+                        <OutlinedTextField Label="Last Payroll Date"
+                                           Type="date"
+                                           @bind-Value="LastPayrollDateAsString"
+                                           For="() => LastPayrollDateAsString"
+                                           Visible="@IsVisible(()=>Model.LastPayrollDate)" />
+                        <br />
+                    }
+                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
+                    {
+                        <div class="peo-container">
+                            <div class="field-wrapper peo-name">
+                                <OutlinedTextField Label="PEO Name"
+                                                   @bind-Value="Model.PEOName"
+                                                   For="() => Model.PEOName"
+                                                   Visible="@IsVisible(()=>Model.PEOName)" />
+                            </div>
+                            <br/>
+                            <div class="peo-row">
+                                <div class="peo-ui">
+                                    <OutlinedTextField Label="PEO UI Account Number"
+                                                       @bind-Value="Model.PEOUIAccountNumber"
+                                                       For="() => Model.PEOUIAccountNumber"
+                                                       Mask="000000-000-0"
+                                                       Placeholder="999999-999-9"
+                                                       Visible="@IsVisible(()=>Model.PEOUIAccountNumber)" />
+                                </div>
+
+                                <span class="or-text">OR</span>
+
+                                <div class="peo-fein">
+                                    <OutlinedTextField Label="PEO FEIN"
+                                                       Value="@_peoValue"
+                                                       ValueChanged="OnInput"
+                                                       For="() => Model.PEOFEIN"
+                                                       Placeholder="11-2233445"
+                                                       MaxLength="10"
+                                                       Visible="@IsVisible(()=>Model.PEOFEIN)" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="field-wrapper peo-date">
+                                <OutlinedTextField Label="Date leasing agreement started"
+                                                   Type="date"
+                                                   @bind-Value="LeasingStartDateAsString"
+                                                   For="() => LeasingStartDateAsString"
+                                                   Visible="@IsVisible(()=>Model.LeasingStartDate)" />
+                            </div>
+                        </div>
+                    }
+                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
+                    {
+                        <div class="no-employee-reason-wrapper">
+                            <OutlinedTextField Label="Enter the reason for business continuation."
+                                               @bind-Value="Model.NoEmployeeExplanation"
+                                               For="() => Model.NoEmployeeExplanation" />
+                        </div>
+                    }
+
+                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.FiscalAgent)
+                    {
+                        <div class="fiscal-container">
+                            <!-- Row: Fiscal Agent Name (half width) -->
+                            <div class="fiscal-row">
+                                <div class="field-wrapper fiscal-half">
+                                    <OutlinedTextField Label="Fiscal Agent Name"
+                                                       @bind-Value="Model.FiscalAgentName"
+                                                       For="() => Model.FiscalAgentName"
+                                                       Visible="@IsVisible(()=>Model.FiscalAgentName)" />
+                                </div>
+                            </div>
+                            <br />
+                            <!-- Full width: UI Account Number -->
+                            <div class="field-wrapper fiscal-full">
+                                <OutlinedTextField Label="Fiscal Agent UI Account Number"
+                                                   @bind-Value="Model.FiscalAgentUIAccountNumber"
+                                                   For="() => Model.FiscalAgentUIAccountNumber"
+                                                   Mask="000000-000-0"
+                                                   Placeholder="999999-999-9"
+                                                   Visible="@IsVisible(()=>Model.FiscalAgentUIAccountNumber)" />
+                            </div>
+                        </div>
+                    }
+                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.Other)
+                    {
+                        <div class="field-wrapper provide-reason">
+                            <OutlinedTextField Label="Provide reason"
+                                               @bind-Value="Model.OtherReason"
+                                               For="() => Model.OtherReason"
+                                               Visible="@IsVisible(()=>Model.OtherReason)" />
+                        </div>
+                    }
+                </div>
             }
         </EditForm>
     </div>
