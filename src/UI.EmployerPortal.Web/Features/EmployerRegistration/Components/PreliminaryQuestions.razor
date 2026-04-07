@@ -33,20 +33,20 @@
                                Placeholder="999999-999-9" />
             <br />
 
-            <!-- Question 1 -->
-            <p>Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
-            <FieldError For="@(() => Model.BusinessCategory)"
+            <!-- 501(c)(3) standalone question -->
+            <p>Are you a non-profit organization as described in s.501(c)(3) of the IRS code?</p>
+            <FieldError For="@(() => Model.IsNonProfit501c3)"
                         Visible="@_formSubmitted" />
-            <RadioGroup TValue="BusinessCategory ?"
-                        Value="Model.BusinessCategory"
-                        ValueChanged="OnBusinessCategoryChanged"
-                        ValueExpression="() => Model.BusinessCategory"
-                        Options="@BusinessCategoryOptions" />
+            <RadioGroup TValue="bool?"
+                        Value="Model.IsNonProfit501c3"
+                        ValueChanged="OnIsNonProfit501c3Changed"
+                        ValueExpression="() => Model.IsNonProfit501c3"
+                        Options="@YesNoRadioOptions" />
             <br />
 
             @if (Show501c3SubTree)
             {
-                <!-- 501(c)(3) Sub-Tree -->
+                <!-- 501(c)(3) Sub-Tree (shown when user answers Yes above) -->
                 <p data-questionid="1.1">Do you have a 501(c)(3) ruling from the IRS?</p>
                 <FieldError For="@(() => Model.HasRulingFrom501c3IRS)"
                             Visible="@_formSubmitted" />
@@ -61,7 +61,6 @@
                 {
                     <!-- Q1.1 Yes: has ruling -->
                     <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
-                    <p class="fw-bold">File upload</p>
                     <FileUpload Title="501(c)(3) Ruling from IRS" />
                     <div class="form-check">
                         <input type="checkbox"
@@ -93,7 +92,6 @@
                     {
                         <!-- Q1.1.2 Yes: applied -->
                         <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
-                        <p class="fw-bold">File upload</p>
                         <FileUpload Title="Articles of Incorporation" />
                         <FileUpload Title="IRS Acceptance Letter" />
                         <div class="form-check">
@@ -119,7 +117,6 @@
                             Once your 501(c)(3) application has been accepted by the IRS, please submit a copy of
                             your application acceptance letter.
                         </p>
-                        <p class="fw-bold">File upload</p>
                         <FileUpload Title="Articles of Incorporation" />
                         <div class="form-check">
                             <input type="checkbox"
@@ -135,6 +132,17 @@
                     }
                 }
             }
+
+            <!-- Question 1 -->
+            <p>Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
+            <FieldError For="@(() => Model.BusinessCategory)"
+                        Visible="@_formSubmitted" />
+            <RadioGroup TValue="BusinessCategory ?"
+                        Value="Model.BusinessCategory"
+                        ValueChanged="OnBusinessCategoryChanged"
+                        ValueExpression="() => Model.BusinessCategory"
+                        Options="@BusinessCategoryOptions" />
+            <br />
 
             <!-- Question 2 -->
             <p>Have you acquired through sale, reorganization or other means an existing business operation in Wisconsin?</p>

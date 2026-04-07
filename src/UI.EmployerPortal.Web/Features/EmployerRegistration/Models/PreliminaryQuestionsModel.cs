@@ -8,6 +8,12 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 {
     /// <summary>
+    /// Answer to "Are you a non-profit organization as described in s.501(c)(3) of the IRS code?"
+    /// When true the 501(c)(3) sub-tree is shown and Step 6 business category is auto-populated.
+    /// </summary>
+    public bool? IsNonProfit501c3 { get; set; } = null;
+
+    /// <summary>
     /// Federal Employer Identification Number
     /// </summary>
     public string FEIN { get; set; } = string.Empty;
