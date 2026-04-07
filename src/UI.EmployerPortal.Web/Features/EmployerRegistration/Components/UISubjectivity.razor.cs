@@ -10,17 +10,27 @@ using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 
 /// <summary>
-/// 
+///
 /// </summary>
 public partial class UISubjectivity
 {
     [Inject]
     private IYearQuarterPaidWagesService PaidWagesService { get; set; } = default!;
 
+    [Inject]
+    private RegistrationStateService RegistrationState { get; set; } = default!;
+
     private bool _isFormValid = true;
     private bool _formSubmitted = false;
     private bool _showAddressErrors = false;
     private bool _insufficientQuarterlyWageEntered = false;
+
+    /// <summary>
+    /// True when BusinessCategory was pre-selected as NonProfit_501c3 from Step 1.
+    /// Causes the radio group to render as a disabled locked option instead of interactive.
+    /// </summary>
+    private bool _businessCategoryLockedFromStep1 = false;
+
     private int DecimalPlaces { get; set; } = 2;
 
     private readonly DateTime? _dateFirstPaidWages = DateTime.Parse("7/1/2023");  //TODO: This value is passed in from Step 5 
@@ -40,16 +50,16 @@ public partial class UISubjectivity
     public BusinessCategory BusinessCategory { get; set; } = BusinessCategory.Unknown;
 
     /// <summary>
-    /// 
+    /// Selectable business category options for Step 6.
+    /// NonProfit_501c3 is intentionally excluded — it is either pre-populated (locked) from Step 1
+    /// or not applicable. Users select from the remaining four options.
     /// </summary>
     public static readonly IReadOnlyList<RadioOption<BusinessCategory?>> BusinessCatagories = new[]
     {
-      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Commercial, Label = "Commercial"},
-      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Domestic, Label = "Domestic(in a private home)"},
-      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Agricultural, Label = "Agricultural(Farming)"},
-      new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_501c3, Label = "Non-Profit with 501(c) (3) Ruling from IRS"},
-      new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit(other)"}
-
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Commercial,     Label = "Commercial" },
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Domestic,       Label = "Domestic (in a private home)" },
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Agricultural,   Label = "Agricultural (Farming)" },
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit (other)" },
     };
 
     /// <summary>
@@ -149,12 +159,21 @@ public partial class UISubjectivity
     }
 
     /// <summary>
-    /// 
+    /// Initializes the subjectivity model and reads the BusinessCategory pre-selected in Step 1
+    /// from <see cref="RegistrationStateService"/>. If NonProfit_501c3 was confirmed in Step 1,
+    /// it is locked and cannot be changed here.
     /// </summary>
     protected override void OnInitialized()
     {
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
         SubjectivityModel = new SubjectivityModel() { Wages = wages };
+
+        if (RegistrationState.PreliminaryBusinessCategory == BusinessCategory.NonProfit_501c3)
+        {
+            _businessCategoryLockedFromStep1 = true;
+            SubjectivityModel.BusinessCategory = BusinessCategory.NonProfit_501c3;
+            BusinessCategory = BusinessCategory.NonProfit_501c3;
+        }
 
         _subjectivityContext = new EditContext(SubjectivityModel);
 
@@ -163,7 +182,6 @@ public partial class UISubjectivity
             _isFormValid = _subjectivityContext.Validate();
             StateHasChanged();
         };
-
     }
 
     private string GetPermittedExclusionsUrl()
@@ -504,7 +522,9 @@ public partial class UISubjectivity
     }
     private bool Section2Visible()
     {
-        return false;
+        // Show "Have you applied for 501(c)(3) status?" only when NonProfit_Other is selected.
+        // If Yes, we redirect the user back to Step 1 to correct their designation.
+        return BusinessCategory == BusinessCategory.NonProfit_Other;
     }
     private bool Section3Visible()
     {

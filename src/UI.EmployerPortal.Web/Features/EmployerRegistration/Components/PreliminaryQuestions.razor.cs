@@ -6,14 +6,17 @@ using Microsoft.AspNetCore.Components.Forms;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public partial class PreliminaryQuestions
 {
+    [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
+
     private bool _formSubmitted = false;
     private EditContext _editContext = default!;
     private ValidationMessageStore _messageStore = default!;
@@ -93,6 +96,14 @@ public partial class PreliminaryQuestions
     };
 
     // visibility delegates
+    // 501(c)(3) visibility
+    private bool Show501c3SubTree => Model.BusinessCategory == BusinessCategory.NonProfit_501c3;
+    private bool ShowRulingUpload => Show501c3SubTree && Model.HasRulingFrom501c3IRS == true;
+    private bool ShowHasAppliedQuestion => Show501c3SubTree && Model.HasRulingFrom501c3IRS == false;
+    private bool ShowAppliedUpload => ShowHasAppliedQuestion && Model.HasAppliedFor501c3WithIRS == true;
+    private bool ShowNotAppliedText => ShowHasAppliedQuestion && Model.HasAppliedFor501c3WithIRS == false;
+
+    // existing visibility
     private bool VisibilityQuestion_2_1 => Model.AcquiredExistingBusiness.HasValue && Model.AcquiredExistingBusiness.Value;
     private bool VisibilityQuestion_2_1_1 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && Model.KnowAcquiredBusinessAccountNumber.Value;
     private bool VisibilityQuestion_2_1_2 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && !Model.KnowAcquiredBusinessAccountNumber.Value;
@@ -155,7 +166,39 @@ public partial class PreliminaryQuestions
     private void OnBusinessCategoryChanged(BusinessCategory? value)
     {
         Model.BusinessCategory = value;
+
+        // Reset 501(c)(3) sub-tree when category changes away from NonProfit_501c3
+        if (value != BusinessCategory.NonProfit_501c3)
+        {
+            Model.HasRulingFrom501c3IRS = null;
+            Model.HasAppliedFor501c3WithIRS = null;
+            Model.WillSupplyDocumentationLater = false;
+            ResetField(() => Model.HasRulingFrom501c3IRS);
+            ResetField(() => Model.HasAppliedFor501c3WithIRS);
+        }
+
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.BusinessCategory)));
+    }
+
+    private void OnHasRulingFrom501c3IRSChanged(bool? value)
+    {
+        Model.HasRulingFrom501c3IRS = value;
+        Model.HasAppliedFor501c3WithIRS = null;
+        Model.WillSupplyDocumentationLater = false;
+        ResetField(() => Model.HasAppliedFor501c3WithIRS);
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
+    }
+
+    private void OnHasAppliedFor501c3WithIRSChanged(bool? value)
+    {
+        Model.HasAppliedFor501c3WithIRS = value;
+        Model.WillSupplyDocumentationLater = false;
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
+    }
+
+    private void OnWillSupplyDocumentationLaterChanged()
+    {
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
     }
 
     private void OnAcquiredExistingBusinessChanged(bool? value)
@@ -308,9 +351,10 @@ public partial class PreliminaryQuestions
         _touchedFields.Remove(field);
     }
 
-    ///<Summary>
-    /// Called by the parent wizard's HandleActionClick to validate be fore advancing
-    ///</Summary>
+    /// <summary>
+    /// Called by the parent wizard's HandleActionClick to validate before advancing.
+    /// Saves the selected BusinessCategory to RegistrationStateService so Step 6 can read it.
+    /// </summary>
     public bool Validate()
     {
         _formSubmitted = true;
@@ -319,7 +363,14 @@ public partial class PreliminaryQuestions
         _editContext.NotifyValidationStateChanged();
         StateHasChanged();
 
-        return !_editContext.GetValidationMessages().Any();
+        var isValid = !_editContext.GetValidationMessages().Any();
+
+        if (isValid)
+        {
+            RegistrationState.PreliminaryBusinessCategory = Model.BusinessCategory;
+        }
+
+        return isValid;
     }
 
     private readonly string _uiAccountNumberRegex = @"^\d{6}-\d{3}-\d$";
@@ -359,6 +410,24 @@ public partial class PreliminaryQuestions
                 _messageStore.Add(field, "Select your business category.");
             }
         }
+        // 501(c)(3) sub-tree validation
+        if (Show501c3SubTree && IsVisible(() => Model.HasRulingFrom501c3IRS))
+        {
+            var field = _editContext.Field(nameof(Model.HasRulingFrom501c3IRS));
+            if (!Model.HasRulingFrom501c3IRS.HasValue)
+            {
+                _messageStore.Add(field, "Answer if you have a 501(c)(3) ruling from the IRS.");
+            }
+        }
+        if (ShowHasAppliedQuestion && IsVisible(() => Model.HasAppliedFor501c3WithIRS))
+        {
+            var field = _editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS));
+            if (!Model.HasAppliedFor501c3WithIRS.HasValue)
+            {
+                _messageStore.Add(field, "Answer if you have applied for 501(c)(3) status with the IRS.");
+            }
+        }
+
         // Acquired Existing Business
         if (IsVisible(() => Model.AcquiredExistingBusiness))
         {

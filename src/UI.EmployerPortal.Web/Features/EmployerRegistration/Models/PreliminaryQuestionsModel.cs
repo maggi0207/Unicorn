@@ -88,6 +88,24 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public bool InformationIsAccurate { get; set; } = false;
 
     /// <summary>
+    /// Answer to "Do you have a 501(c)(3) ruling from the IRS?"
+    /// Shown when BusinessCategory is NonProfit_501c3.
+    /// </summary>
+    public bool? HasRulingFrom501c3IRS { get; set; } = null;
+
+    /// <summary>
+    /// Answer to "Have you applied for 501(c)(3) status with the IRS?"
+    /// Shown when BusinessCategory is NonProfit_501c3 and HasRulingFrom501c3IRS is false.
+    /// </summary>
+    public bool? HasAppliedFor501c3WithIRS { get; set; } = null;
+
+    /// <summary>
+    /// Checkbox: "I will supply required documentation at a later date."
+    /// Shown on all 501(c)(3) document upload paths as an alternative to uploading immediately.
+    /// </summary>
+    public bool WillSupplyDocumentationLater { get; set; } = false;
+
+    /// <summary>
     /// See interface
     /// </summary>
     /// <returns></returns>

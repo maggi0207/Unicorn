@@ -1,0 +1,267 @@
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+
+<div class="frame">
+    <div class="frame-inner">
+
+        @if (State == FileUploadState.Default)
+        {
+            <div class="frame-fileupload">
+                <div class="file-upload-row">File Upload</div>
+                <div class="upload-content">
+                    <div class="upload-content-left">
+                        <div class="upload-content-left-title">
+                            <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                            <strong>Gov ER Request for Creation Documents</strong>
+                        </div>
+                        <p class="upload-content-left-filetypes">
+                            Acceptable file types:
+                            @string.Join(",", AcceptableTypes.Select(type => type.Key))
+                        </p>
+                    </div>
+                    <div id="@_dropZoneId" class="upload-content-right">
+                        <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                        <p class="drag-drop" @onclick="OpenFileDialog">
+                            <p>Drag and drop your file, or &nbsp;<span class="browse-link">browse</span><br />The file must be 20MB or smaller</p>
+                        </p>
+                        <InputFile @ref="_inputFiles"
+                                   id="@_inPutId"
+                                   OnChange="@HandleFileSelected" multiple hidden></InputFile>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (State == FileUploadState.Uploading)
+        {
+            <div class="frame-fileupload">
+                <div class="file-upload-row">File is in process of getting uploaded</div>
+                <div class="upload-content">
+                    <div class="upload-content-left">
+                        <div class="upload-content-left-title">
+                            <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                            <strong>@Title</strong>
+                        </div>
+                        <p class="upload-content-left-filetypes">
+                            Acceptable file types:
+                            @string.Join(",", AcceptableTypes.Select(type => type.Key))
+                        </p>
+                    </div>
+                    <div class="upload-content-right">
+                        <div class="file-copy">
+                            <img src="@Assets["icons/file_copy.svg"]" alt="" class="cloud-icon" />@DisplayFileName
+                            <div class="file-actions">
+                                <div class="progress mt-3">
+                                    <div class="progress-bar" role="progressbar" style="width:@ProgressPercent%"></div>
+                                </div>
+                                <button class="cancel-btn" @onclick="CancelUpload">
+                                    <img src="@Assets["icons/close_small.svg"]" alt="" class="svg-icon" />Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (State == FileUploadState.Successful)
+        {
+            <div class="frame-fileupload">
+                <div class="file-upload-row">Successful File Upload</div>
+                <div class="upload-content">
+                    <div class="upload-content-left">
+                        <div class="upload-content-left-title">
+                            <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                            <strong>@Title</strong>
+                        </div>
+                        <p class="upload-content-left-filetypes">
+                            Acceptable file types:
+                            @string.Join(",", AcceptableTypes.Select(type => type.Key))
+                        </p>
+                    </div>
+                    <div class="upload-content-right">
+                        <div class="upload-content-right-button">
+                            <img src="@Assets["icons/file_copy.svg"]" alt="" class="cloud-icon" />@DisplayFileName
+                            <div class="btn-row">
+                                <button class="btn btn-reupload" @onclick="ReUpload">
+                                    <img src="@Assets["icons/cloud_upload_small.svg"]" alt="" class="svg-icon" />Re Upload
+                                </button>
+                                <button class="btn btn-download" @onclick="DownloadFile">
+                                    <img src="@Assets["icons/cloud_download.svg"]" alt="" class="svg-icon" />Download
+                                </button>
+                                <button class="btn btn-remove" @onclick="RemoveFile">
+                                    <img src="@Assets["icons/delete.svg"]" alt="" class="svg-icon" />Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (State == FileUploadState.ErrorsMustFix)
+        {
+            <div class="frame-fileupload">
+                <div class="file-upload-row">Successful File Upload</div>
+                <div class="upload-content">
+                    <div class="upload-content-left">
+                        <div class="upload-content-left-title">
+                            <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                            <strong>@Title</strong>
+                        </div>
+                        <p class="upload-content-left-filetypes">
+                            Acceptable file types:
+                            @string.Join(",", AcceptableTypes.Select(type => type.Key))
+                        </p>
+                        <a href="@ViewDetailsurl" target="_blank">View Details</a>
+                    </div>
+                    <div class="upload-content-right">
+                        <div class="upload-content-right-button">
+                            <div class="btn-row">
+                                <button class="btn btn-reupload" @onclick="ReUpload">
+                                    <img src="@Assets["icons/cloud_upload_small.svg"]" alt="" class="svg-icon" />Re Upload
+                                </button>
+                                <button class="btn btn-download" @onclick="DownloadFile">
+                                    <img src="@Assets["icons/cloud_download.svg"]" alt="" class="svg-icon" />Download
+                                </button>
+                                <button class="btn btn-remove" @onclick="RemoveFile">
+                                    <img src="@Assets["icons/delete.svg"]" alt="" class="svg-icon" />Remove
+                                </button>
+                            </div>
+                            <NotificationBanner NotificationType="NotificationType.Alert"
+                                                Title="Upload is Unsuccessful"
+                                                Message="Please correct the errors">
+                            </NotificationBanner>
+                            <p><b>@ValidationMessage</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The label displayed in the left column identifying what document this upload is for.
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Dictionary of acceptable MIME types keyed by display name (e.g. ".pdf", ".docx").
+    /// Displayed as a comma-separated list below the title.
+    /// </summary>
+    [Parameter]
+    public Dictionary<string, string> AcceptableTypes { get; set; } = new()
+    {
+        { ".pdf", "application/pdf" },
+        { ".doc", "application/msword" },
+        { ".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }
+    };
+
+    /// <summary>
+    /// URL shown as a "View Details" link in the ErrorsMustFix state.
+    /// </summary>
+    [Parameter]
+    public string ViewDetailsurl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Current display state of the component. Defaults to <see cref="FileUploadState.Default"/>.
+    /// </summary>
+    [Parameter]
+    public FileUploadState State { get; set; } = FileUploadState.Default;
+
+    /// <summary>
+    /// Raised when <see cref="State"/> changes so the parent can bind to it.
+    /// </summary>
+    [Parameter]
+    public EventCallback<FileUploadState> StateChanged { get; set; }
+
+    /// <summary>
+    /// Validation message shown below the error banner in the ErrorsMustFix state.
+    /// </summary>
+    [Parameter]
+    public string ValidationMessage { get; set; } = string.Empty;
+
+    /// <summary>The name of the file currently selected or uploaded, shown in progress/success states.</summary>
+    private string DisplayFileName { get; set; } = string.Empty;
+
+    /// <summary>Upload progress percentage (0–100) shown in the progress bar while uploading.</summary>
+    private int ProgressPercent { get; set; }
+
+    private string _dropZoneId = $"drop-zone-{Guid.NewGuid():N}";
+    private string _inPutId = $"file-input-{Guid.NewGuid():N}";
+    private InputFile? _inputFiles;
+
+    /// <summary>
+    /// Opens the hidden file input dialog when the user clicks the drag-drop area.
+    /// </summary>
+    private void OpenFileDialog()
+    {
+        // JS interop would invoke click on _inPutId in a real implementation
+    }
+
+    /// <summary>
+    /// Handles file selection from the InputFile control. Begins simulated upload progress.
+    /// </summary>
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles().FirstOrDefault();
+        if (file is null) return;
+
+        DisplayFileName = file.Name;
+        State = FileUploadState.Uploading;
+        await StateChanged.InvokeAsync(State);
+
+        // Simulate upload progress
+        for (int i = 0; i <= 100; i += 20)
+        {
+            ProgressPercent = i;
+            StateHasChanged();
+            await Task.Delay(200);
+        }
+
+        State = FileUploadState.Successful;
+        await StateChanged.InvokeAsync(State);
+    }
+
+    /// <summary>
+    /// Cancels the in-progress upload and resets to the default state.
+    /// </summary>
+    private async Task CancelUpload()
+    {
+        DisplayFileName = string.Empty;
+        ProgressPercent = 0;
+        State = FileUploadState.Default;
+        await StateChanged.InvokeAsync(State);
+    }
+
+    /// <summary>
+    /// Resets the component to the default state so the user can select a new file.
+    /// </summary>
+    private async Task ReUpload()
+    {
+        DisplayFileName = string.Empty;
+        ProgressPercent = 0;
+        State = FileUploadState.Default;
+        await StateChanged.InvokeAsync(State);
+    }
+
+    /// <summary>
+    /// Handles downloading the uploaded file. Delegates to JS interop in a real implementation.
+    /// </summary>
+    private void DownloadFile()
+    {
+        // JS interop download trigger goes here
+    }
+
+    /// <summary>
+    /// Removes the uploaded file and resets the component to the default state.
+    /// </summary>
+    private async Task RemoveFile()
+    {
+        DisplayFileName = string.Empty;
+        ProgressPercent = 0;
+        State = FileUploadState.Default;
+        await StateChanged.InvokeAsync(State);
+    }
+}

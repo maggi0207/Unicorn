@@ -4,6 +4,7 @@
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
 @using System.Linq.Expressions
 @inject NavigationManager Nav;
 
@@ -42,6 +43,98 @@
                         ValueExpression="() => Model.BusinessCategory"
                         Options="@BusinessCategoryOptions" />
             <br />
+
+            @if (Show501c3SubTree)
+            {
+                <!-- 501(c)(3) Sub-Tree -->
+                <p data-questionid="1.1">Do you have a 501(c)(3) ruling from the IRS?</p>
+                <FieldError For="@(() => Model.HasRulingFrom501c3IRS)"
+                            Visible="@_formSubmitted" />
+                <RadioGroup TValue="bool?"
+                            Value="Model.HasRulingFrom501c3IRS"
+                            ValueChanged="OnHasRulingFrom501c3IRSChanged"
+                            ValueExpression="() => Model.HasRulingFrom501c3IRS"
+                            Options="@YesNoRadioOptions" />
+                <br />
+
+                @if (ShowRulingUpload)
+                {
+                    <!-- Q1.1 Yes: has ruling -->
+                    <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
+                    <p class="fw-bold">File upload</p>
+                    <FileUpload Title="501(c)(3) Ruling from IRS" />
+                    <div class="form-check">
+                        <input type="checkbox"
+                               id="chk-supply-docs-ruling"
+                               class="form-check-input"
+                               @bind="Model.WillSupplyDocumentationLater"
+                               @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                        <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
+                            I will supply required documentation at a later date.
+                        </label>
+                    </div>
+                    <br />
+                }
+
+                @if (ShowHasAppliedQuestion)
+                {
+                    <!-- Q1.1 No: no ruling — ask if applied -->
+                    <p data-questionid="1.1.2">Have you applied for 501(c)(3) status with the IRS?</p>
+                    <FieldError For="@(() => Model.HasAppliedFor501c3WithIRS)"
+                                Visible="@_formSubmitted" />
+                    <RadioGroup TValue="bool?"
+                                Value="Model.HasAppliedFor501c3WithIRS"
+                                ValueChanged="OnHasAppliedFor501c3WithIRSChanged"
+                                ValueExpression="() => Model.HasAppliedFor501c3WithIRS"
+                                Options="@YesNoRadioOptions" />
+                    <br />
+
+                    @if (ShowAppliedUpload)
+                    {
+                        <!-- Q1.1.2 Yes: applied -->
+                        <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
+                        <p class="fw-bold">File upload</p>
+                        <FileUpload Title="Articles of Incorporation" />
+                        <FileUpload Title="IRS Acceptance Letter" />
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   id="chk-supply-docs-applied"
+                                   class="form-check-input"
+                                   @bind="Model.WillSupplyDocumentationLater"
+                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                            <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
+                                I will supply required documentation at a later date.
+                            </label>
+                        </div>
+                        <br />
+                    }
+
+                    @if (ShowNotAppliedText)
+                    {
+                        <!-- Q1.1.2 No: not applied -->
+                        <p data-questionid="1.1.2.2">
+                            You have indicated that you are a 501(c)(3) employer but have not yet applied for that
+                            designation with the IRS. We can only treat you as a 501(c)(3) entity if we have a copy
+                            of your 501(c)(3) ruling on file. Please upload a copy of your articles of incorporation.
+                            Once your 501(c)(3) application has been accepted by the IRS, please submit a copy of
+                            your application acceptance letter.
+                        </p>
+                        <p class="fw-bold">File upload</p>
+                        <FileUpload Title="Articles of Incorporation" />
+                        <div class="form-check">
+                            <input type="checkbox"
+                                   id="chk-supply-docs-not-applied"
+                                   class="form-check-input"
+                                   @bind="Model.WillSupplyDocumentationLater"
+                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                            <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
+                                I will supply required documentation at a later date.
+                            </label>
+                        </div>
+                        <br />
+                    }
+                }
+            }
 
             <!-- Question 2 -->
             <p>Have you acquired through sale, reorganization or other means an existing business operation in Wisconsin?</p>

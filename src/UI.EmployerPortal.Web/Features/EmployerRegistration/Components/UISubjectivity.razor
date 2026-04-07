@@ -32,30 +32,44 @@
             </p>
 
             <div id="section_1" class="ui-radio-section">
-                <RadioGroup TValue="BusinessCategory?"
-                            Value="SubjectivityModel.BusinessCategory"
-                            ValueChanged="OnBusinessCatagoryChanged"
-                            ValueExpression="() => SubjectivityModel.BusinessCategory"
-                            Options="@BusinessCatagories" />
-                <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
-                            Visible="_formSubmitted" />
-
+                @if (_businessCategoryLockedFromStep1)
+                {
+                    <!-- NonProfit_501c3 was set in Step 1: show greyed-out pre-selected option, then remaining interactive options -->
+                    <div class="ui-radio-locked-option">
+                        <input type="radio" disabled checked id="bc-nonprofit-501c3" />
+                        <label for="bc-nonprofit-501c3" class="ui-radio-locked-label">Non-Profit with 501(c)(3) Ruling from IRS</label>
+                    </div>
+                }
+                else
+                {
+                    <RadioGroup TValue="BusinessCategory?"
+                                Value="SubjectivityModel.BusinessCategory"
+                                ValueChanged="OnBusinessCatagoryChanged"
+                                ValueExpression="() => SubjectivityModel.BusinessCategory"
+                                Options="@BusinessCatagories" />
+                    <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
+                                Visible="_formSubmitted" />
+                }
             </div>
 
             @if (Section2Visible())
             {
-                    <div id="section_2" class="ui-radio-section">
-                        <p class="page-subtitle">Have you applied for 501(c)(3) status with the IRS?</p>
-                        <br />
+                <div id="section_2" class="ui-radio-section">
+                    <p class="page-subtitle">Have you applied for 501(c)(3) status with the IRS?</p>
+                    <br />
+                    <RadioGroup TValue="bool?"
+                                Value="SubjectivityModel.HasAppliedFor501c3Status"
+                                ValueChanged="OnHasAppliedFor501c3StatusChange"
+                                ValueExpression="() => SubjectivityModel.HasAppliedFor501c3Status"
+                                Options="@HasAppliedFor501c3Status" />
+                    <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
+                                Visible="_formSubmitted" />
 
-                        <RadioGroup TValue="bool?"
-                        Value="SubjectivityModel.HasAppliedFor501c3Status"
-                        ValueChanged="OnHasAppliedFor501c3StatusChange"
-                        ValueExpression="() => SubjectivityModel.HasAppliedFor501c3Status"
-                        Options="@HasAppliedFor501c3Status" />
-                        <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
-                        Visible="true" />
-                    </div>
+                    @if (SubjectivityModel.HasAppliedFor501c3Status == true)
+                    {
+                        <p class="ui-text ui-text--info">Please return to step one to correct your answer regarding your 501(c)(3) designation.</p>
+                    }
+                </div>
             }
 
             <div class="ui-section-header">
