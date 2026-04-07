@@ -1,30 +1,79 @@
 @page "/employer-registration/steps"
-@rendermode InteractiveServer
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
-
-<PageTitle>Employer Registration</PageTitle>
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@inject NavigationManager Nav;
+@inject RegistrationStateService RegistrationState
 
 <div class="page-content">
+    <div class="notification-container">
+        <NotificationBanner MessageStyle="MessageStyle.MultiLine"
+                            NotificationType="NotificationType.Warning"
+                            DismissButton="true"
+                            Title="Submission Errors"
+                            Messages="@_errorMessages"
+                            Visible="@_errorMessages.Any()" />
+    </div>
+    @if (!_saveAndQuit)
+    {
+        <Wizard Steps="@_wizardSteps"
+                @bind-CurrentStep="@_currentStep"
+                ShowCancelButton="false"
+                OnBackClick="HandleBackClick"
+                OnActionClick="HandleActionClick"
+                OnSaveAndQuitClick="HandleSaveAndQuit"
+                AutoNavigateOnAction="false"
+                AutoNavigateOnBack="false"
+                CssClass="@(_currentStep == 5 ? "wide-content" : "")"
+                DisableBackOnFirstStep="false">
 
-    <Wizard Steps="@_wizardSteps"
-            @bind-CurrentStep="@_currentStep"
-            ShowCancelButton="false"
-            OnBackClick="HandleBackClick"
-            OnActionClick="HandleActionClick"
-            AutoNavigateOnAction="false"
-            DisableBackOnFirstStep="false">
+            @if (_currentStep == 1)
+            {
+                <PreliminaryQuestions @ref="_preliminaryQuestionsRef"
+                                      Model="@ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel" />
+            }
 
-        @if (_currentStep == 3)
-        {
-            <BusinessInformation @ref="_businessInformationRef" />
-        }
+            @if (_currentStep == 2)
+            {
+                <Ownership @ref="_ownershipRef"
+                           Model="@ModelStore.EmployerRegistrationModel.OwnershipSessionData" />
+            }
+            @if (_currentStep == 3)
+            {
+                <BusinessInformation @ref="_businessInformationRef"
+                                     Model="@ModelStore.EmployerRegistrationModel.BusinessInformationModel" />
+            }
+            @if (_currentStep == 4)
+            {
+                <BusinessContact @ref="_businessContactRef"
+                                 Model="@ModelStore.EmployerRegistrationModel.BusinessContactModel" />
+            }
+            @if (_currentStep == 5)
+            {
+                <BusinessActivity @ref="_businessActivityRef"
+                                  Model="@ModelStore.EmployerRegistrationModel.BusinessActivityModel" />
+            }
+            @if (_currentStep == 6)
+            {
+                <UISubjectivity @ref="_uiSubjectivityRef" />
+            }
+            else if (_currentStep == 7)
+            {
+                <Verification @ref="_verificationRef"
+                            CurrentStep="@_currentStep"
+                            OnNavigateToStep="HandleVerificationEditClick" />
 
-        @if (_currentStep == 4)
-        {
-            <BusinessContact @ref="_businessContactRef" />
-        }
+            }
 
-    </Wizard>
-
+        </Wizard>
+    }
+    else
+    {
+        <SaveAndQuitSummary
+            CurrentStep="@_currentStep"
+            ContinueRegistration="HandleContinueRegistration"/>
+    }
 </div>

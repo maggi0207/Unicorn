@@ -261,10 +261,33 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM, _response = FiscalAgentName });
         }
-        if (!string.IsNullOrWhiteSpace(FiscalAgentUIAccountNumber))
+        if (BusinessCategory == BusinessCategory.NonProfit_501c3)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FA_UI_ACCT_NUM, _response = FiscalAgentUIAccountNumber });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NON_PRFT_FLG, _response = "Yes" });
         }
+
+        if (HasRulingFrom501c3IRS.HasValue)
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_501C3_RULING_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasRulingFrom501c3IRS.Value) });
+            
+            if (HasRulingFrom501c3IRS == true && WillSupplyDocumentationLater)
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_501C3_RULING, _response = "Yes" });
+            }
+        }
+
+        if (HasAppliedFor501c3WithIRS.HasValue)
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_APPLY_501C3, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasAppliedFor501c3WithIRS.Value) });
+            
+            if (HasAppliedFor501c3WithIRS == true && WillSupplyDocumentationLater)
+            {
+                // Both documents are marked as missing
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_ARTCL_INCORP, _response = "Yes" });
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_IRS_APP_ACCPT, _response = "Yes" });
+            }
+        }
+
         return responses;
     }
 }

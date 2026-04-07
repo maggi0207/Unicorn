@@ -46,13 +46,6 @@ public class RegistrationStateService
     /// (e.g., after completing the Address Correction flow). Zero means no restoration needed.
     /// </summary>
     public int CurrentStep { get; set; }
-
-    /// <summary>
-    /// BusinessCategory selected in Step 1 (PreliminaryQuestions).
-    /// When set to NonProfit_501c3, Step 6 (UISubjectivity) pre-populates and disables that option.
-    /// Null means Step 1 was not yet completed or a non-501c3 category was chosen.
-    /// </summary>
-    public BusinessCategory? PreliminaryBusinessCategory { get; set; }
 }
 
 /// <summary>

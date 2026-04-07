@@ -20,6 +20,9 @@ public partial class UISubjectivity
     [Inject]
     private RegistrationStateService RegistrationState { get; set; } = default!;
 
+    [Inject]
+    private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
+
     private bool _isFormValid = true;
     private bool _formSubmitted = false;
     private bool _showAddressErrors = false;
@@ -160,7 +163,7 @@ public partial class UISubjectivity
 
     /// <summary>
     /// Initializes the subjectivity model and reads the BusinessCategory pre-selected in Step 1
-    /// from <see cref="RegistrationStateService"/>. If NonProfit_501c3 was confirmed in Step 1,
+    /// from <see cref="EmployerRegistrationModelStore"/>. If NonProfit_501c3 was confirmed in Step 1,
     /// it is locked and cannot be changed here.
     /// </summary>
     protected override void OnInitialized()
@@ -168,7 +171,9 @@ public partial class UISubjectivity
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
         SubjectivityModel = new SubjectivityModel() { Wages = wages };
 
-        if (RegistrationState.PreliminaryBusinessCategory == BusinessCategory.NonProfit_501c3)
+        var preliminaryCategory = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.BusinessCategory;
+
+        if (preliminaryCategory == BusinessCategory.NonProfit_501c3)
         {
             _businessCategoryLockedFromStep1 = true;
             SubjectivityModel.BusinessCategory = BusinessCategory.NonProfit_501c3;
