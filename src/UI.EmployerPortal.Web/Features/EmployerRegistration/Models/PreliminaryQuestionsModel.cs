@@ -8,12 +8,6 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 {
     /// <summary>
-    /// Answer to "Are you a non-profit organization as described in s.501(c)(3) of the IRS code?"
-    /// When true the 501(c)(3) sub-tree is shown and Step 6 business category is auto-populated.
-    /// </summary>
-    public bool? IsNonProfit501c3 { get; set; } = null;
-
-    /// <summary>
     /// Federal Employer Identification Number
     /// </summary>
     public string FEIN { get; set; } = string.Empty;
@@ -24,12 +18,36 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public string UIAccountNumber { get; set; } = string.Empty;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public BusinessCategory? BusinessCategory { get; set; } = null;
 
     /// <summary>
-    /// 
+    /// Answer to "Are you a non-profit organization as described in s.501(c)(3) of the IRS code?"
+    /// When true the 501(c)(3) sub-tree is shown and Step 6 business category is auto-populated.
+    /// </summary>
+    public bool? IsNonProfit501c3 { get; set; } = null;
+
+    /// <summary>
+    /// Answer to "Do you have a 501(c)(3) ruling from the IRS?"
+    /// Shown when IsNonProfit501c3 is true.
+    /// </summary>
+    public bool? HasRulingFrom501c3IRS { get; set; } = null;
+
+    /// <summary>
+    /// Answer to "Have you applied for 501(c)(3) status with the IRS?"
+    /// Shown when IsNonProfit501c3 is true and HasRulingFrom501c3IRS is false.
+    /// </summary>
+    public bool? HasAppliedFor501c3WithIRS { get; set; } = null;
+
+    /// <summary>
+    /// Checkbox: "I will supply required documentation at a later date."
+    /// Shown on all 501(c)(3) document upload paths as an alternative to uploading immediately.
+    /// </summary>
+    public bool WillSupplyDocumentationLater { get; set; } = false;
+
+    /// <summary>
+    ///
     /// </summary>
     public bool? AcquiredExistingBusiness { get; set; } = null;
 
@@ -79,54 +97,97 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public bool? ExpectFuturePayroll { get; set; } = null;
 
     /// <summary>
-    /// 
-    /// </summary>
-    public FuturePayPeriod? ExpectedFuturePayrollPeriod { get; set; } = null;
-
-    /// <summary>
-    ///
-    /// </summary>
-    public bool? HaveSoldOrTransferredBusiness { get; set; } = null;
-
-    /// <summary>
     /// Acknowledgement checkbox shown when the employer confirms they still have paid employees in Wisconsin.
     /// </summary>
     public bool InformationIsAccurate { get; set; } = false;
 
     /// <summary>
-    /// Answer to "Do you have a 501(c)(3) ruling from the IRS?"
-    /// Shown when BusinessCategory is NonProfit_501c3.
+    /// 
     /// </summary>
-    public bool? HasRulingFrom501c3IRS { get; set; } = null;
+    public FuturePayPeriod? ExpectedFuturePayrollPeriod { get; set; } = null;
+
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    //public bool? HaveSoldOrTransferredBusiness { get; set; } = null;
 
     /// <summary>
-    /// Answer to "Have you applied for 501(c)(3) status with the IRS?"
-    /// Shown when BusinessCategory is NonProfit_501c3 and HasRulingFrom501c3IRS is false.
+    /// 
     /// </summary>
-    public bool? HasAppliedFor501c3WithIRS { get; set; } = null;
+    public string? NoEmployeeExplanation { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? PEOName { get; set; }
 
     /// <summary>
-    /// Checkbox: "I will supply required documentation at a later date."
-    /// Shown on all 501(c)(3) document upload paths as an alternative to uploading immediately.
+    /// 
     /// </summary>
-    public bool WillSupplyDocumentationLater { get; set; } = false;
+    public string? PEOUIAccountNumber { get; set; }
 
     /// <summary>
-    /// See interface
+    /// 
     /// </summary>
-    /// <returns></returns>
+    public string? PEOFEIN { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public DateOnly? LeasingStartDate { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? FiscalAgentName { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? FiscalAgentUIAccountNumber { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? OtherReason { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public NoEmployeeReason? SelectedNoEmployeeReason { get; set; } = null;
+
+
+    /// <inheritdoc/>
+    public List<Tuple<RegistrationAddressCode, AddressModel>> GetSurveyAddresses()
+    {
+        var addresses = new List<Tuple<RegistrationAddressCode, AddressModel>>();
+
+        if (AcquiredBusinessAddress != null)
+        {
+            addresses.Add(Tuple.Create(RegistrationAddressCode.Acquired_Business, AcquiredBusinessAddress));
+        }
+
+        return addresses;
+    }
+
+    /// <inheritdoc/>
+    public List<SurveyContact> GetSurveyContacts()
+    {
+        return new();
+    }
+
+    /// <inheritdoc />
     public List<SurveyResponse> GetSurveyResponses()
     {
         var responses = new List<SurveyResponse>();
 
         if (!string.IsNullOrWhiteSpace(FEIN))
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FEIN_NUM, _response = FEIN });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FEIN_NUM, _response = FEIN.Replace("-", string.Empty) });
         }
 
         if (!string.IsNullOrWhiteSpace(UIAccountNumber))
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_ACCT_NUM, _response = UIAccountNumber });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_ACCT_NUM, _response = UIAccountNumber.Replace("-", string.Empty) });
         }
 
         if (AcquiredExistingBusiness.HasValue)
@@ -178,7 +239,38 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LAST_PYRL_DT, _response = LastPayrollDate.Value.ToString("MM/dd/yyyy") });
         }
-
+        if (!string.IsNullOrWhiteSpace(PEOName))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NAME, _response = PEOName });
+        }
+        if (!string.IsNullOrWhiteSpace(PEOUIAccountNumber))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOUIAccountNumber });
+        }
+        if (!string.IsNullOrWhiteSpace(PEOFEIN))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOFEIN });
+        }
+        if (LeasingStartDate.HasValue)
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_DATE, _response = LeasingStartDate.Value.ToString("MM/dd/yyyy") });
+        }
+        if (!string.IsNullOrWhiteSpace(NoEmployeeExplanation))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_BUS_WITHOUT_EE, _response = NoEmployeeExplanation });
+        }
+        if (!string.IsNullOrWhiteSpace(OtherReason))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_OTHR_RSN, _response = OtherReason });
+        }
+        if (!string.IsNullOrWhiteSpace(FiscalAgentName))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM, _response = FiscalAgentName });
+        }
+        if (!string.IsNullOrWhiteSpace(FiscalAgentUIAccountNumber))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FA_UI_ACCT_NUM, _response = FiscalAgentUIAccountNumber });
+        }
         return responses;
     }
 }
