@@ -39,6 +39,13 @@
                         <input type="radio" disabled checked id="bc-nonprofit-501c3" />
                         <label for="bc-nonprofit-501c3" class="ui-radio-locked-label">Non-Profit with 501(c)(3) Ruling from IRS</label>
                     </div>
+                    <RadioGroup TValue="BusinessCategory?"
+                                Value="SubjectivityModel.BusinessCategory"
+                                ValueChanged="OnBusinessCatagoryChanged"
+                                ValueExpression="() => SubjectivityModel.BusinessCategory"
+                                Options="@BusinessCategoriesLockedAlternatives" />
+                    <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
+                                Visible="_formSubmitted" />
                 }
                 else
                 {
@@ -68,7 +75,7 @@
 
                     @if (SubjectivityModel.HasAppliedFor501c3Status == true)
                     {
-                        <p class="ui-text ui-text--info">Please return to step one to correct your answer regarding your 501(c)(3) designation.</p>
+                        <p class="ui-text"><strong>Please return to step one to correct your answer regarding your 501(c)(3) designation.</strong></p>
                     }
                 </div>
             }

@@ -62,6 +62,18 @@ public partial class UISubjectivity
     };
 
     /// <summary>
+    /// Alternative selectable options shown below the locked disabled Non-Profit 501(c)(3) radio
+    /// when the business category was pre-populated from Step 1. Only Commercial and Non-Profit (other)
+    /// are offered as corrections — Domestic and Agricultural are not valid alternatives for a
+    /// previously declared 501(c)(3) organisation.
+    /// </summary>
+    public static readonly IReadOnlyList<RadioOption<BusinessCategory?>> BusinessCategoriesLockedAlternatives = new[]
+    {
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Commercial,      Label = "Commercial" },
+        new RadioOption<BusinessCategory?> { Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit (other)" },
+    };
+
+    /// <summary>
     /// 
     /// </summary>
     public static readonly List<SelectOption> ExpectedWagesCatagories = new()
@@ -443,6 +455,13 @@ public partial class UISubjectivity
             _formSubmitted = true;
             _showAddressErrors = false;
             _customValidator?.ClearErrors();
+
+            // Block navigation when the user must correct their Step 1 answer before proceeding.
+            if (Section2Visible() && SubjectivityModel.HasAppliedFor501c3Status == true)
+            {
+                StateHasChanged();
+                return false;
+            }
 
             var validationErrors = ValidateModels();
 
