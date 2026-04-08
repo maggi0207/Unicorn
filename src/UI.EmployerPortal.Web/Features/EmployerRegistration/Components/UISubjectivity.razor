@@ -50,6 +50,7 @@
                     <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
                                 Visible="_formSubmitted" />
                 }
+
             </div>
 
             @if (Section2Visible())
@@ -90,11 +91,11 @@
                 <div id="section3" class="ui-radio-section">
                     <p class="ui-text">Do you have employees who work in states other than Wisconsin?</p>
                     <RadioGroup TValue="bool?"
-                    Value="SubjectivityModel.EmployeesInOtherStates"
-                    ValueChanged="OnEmployeesInOtherStatesChange"
-                    ValueExpression="() => SubjectivityModel.EmployeesInOtherStates"
+                    Value="SubjectivityModel.HasEmployeesOutsideWisconsin"
+                    ValueChanged="OnHasEmployeesOutsideWisconsinChange"
+                    ValueExpression="() => SubjectivityModel.HasEmployeesOutsideWisconsin"
                     Options="@HasEmployeesOutsideWisconsin" />
-                    <FieldError For="@(() => SubjectivityModel.EmployeesInOtherStates)"
+                    <FieldError For="@(() => SubjectivityModel.HasEmployeesOutsideWisconsin)"
                     Visible="_formSubmitted" />
                 </div>
             }
@@ -109,11 +110,11 @@
                     </Tooltip>
 
                     <RadioGroup TValue="bool?"
-                                Value="SubjectivityModel.FederalTaxLiability"
-                                ValueChanged="OnFederalTaxLiabilityChange"
-                                ValueExpression="() => SubjectivityModel.FederalTaxLiability"
-                                Options="@HasFederalTaxLiability" />
-                    <FieldError For="@(() => SubjectivityModel.FederalTaxLiability)"
+                                Value="SubjectivityModel.HasFutaLiabilityInOtherStates"
+                                ValueChanged="OnHasFutaLiabilityInOtherStatesChange"
+                                ValueExpression="() => SubjectivityModel.HasFutaLiabilityInOtherStates"
+                                Options="@HasHasFutaLiabilityInOtherStates" />
+                    <FieldError For="@(() => SubjectivityModel.HasFutaLiabilityInOtherStates)"
                                 Visible="_formSubmitted" />
                 </div>
             }
@@ -123,11 +124,11 @@
                 <div id="section_4" class="ui-radio-section">
                     <p class="ui-text">@GetWagesQuestion()</p>
                     <RadioGroup TValue="bool?"
-                                Value="SubjectivityModel.PaidWagesInAQuarterEmployees"
-                                ValueChanged="OnPaidWagesInAQuarterEmployeesChange"
-                                ValueExpression="() => SubjectivityModel.PaidWagesInAQuarterEmployees"
-                                Options="@HasPaidWagesInAQuarterEmployees" />
-                    <FieldError For="@(() => SubjectivityModel.PaidWagesInAQuarterEmployees)"
+                                Value="SubjectivityModel.PaidWagesOver1500Employees"
+                                ValueChanged="OnPaidWagesOver1500EmployeesChange"
+                                ValueExpression="() => SubjectivityModel.PaidWagesOver1500Employees"
+                                Options="@HasPaidWagesOver1500Employees" />
+                    <FieldError For="@(() => SubjectivityModel.PaidWagesOver1500Employees)"
                                 Visible="_formSubmitted" />
                 </div>
             }
@@ -139,8 +140,8 @@
                     <div class="form-row row">
                         <div class="form-group col-md-12">
                             <OutlinedTextField Label="Quarter and Year (q/yyyy)"
-                                               @bind-Value="SubjectivityModel.QuarterYearFirstPaidEmployees"
-                                               For="() => SubjectivityModel.QuarterYearFirstPaidEmployees"
+                                               @bind-Value="SubjectivityModel.FirstWageQuarterYearEmployees"
+                                               For="() => SubjectivityModel.FirstWageQuarterYearEmployees"
                                                Visible="_formSubmitted" />
                             <FieldError For="@(() => _formSubmitted)" Visible=_formSubmitted />
                         </div>
@@ -154,11 +155,11 @@
                 <div id="section_9" class="ui-radio-section">
                     <p class="ui-text">Have you had at least one full- or part-time employee working for you in 20 different calendar weeks in a calendar year?</p>
                     <RadioGroup TValue="bool?"
-                                Value="SubjectivityModel.Employee20Weeks"
-                                ValueChanged="OnEmployee20WeeksChange"
-                                ValueExpression="() => SubjectivityModel.Employee20Weeks"
-                                Options="@HasPaidEmployee20Weeks" />
-                    <FieldError For="@(() => SubjectivityModel.Employee20Weeks)"
+                                Value="SubjectivityModel.HasEmployeeIn20Weeks"
+                                ValueChanged="OnHasEmployeeIn20WeeksChange"
+                                ValueExpression="() => SubjectivityModel.HasEmployeeIn20Weeks"
+                                Options="@HasPaidHasEmployeeIn20Weeks" />
+                    <FieldError For="@(() => SubjectivityModel.HasEmployeeIn20Weeks)"
                                 Visible="_formSubmitted" />
                 </div>
             }
@@ -191,18 +192,18 @@
             }
 
 
-@*             @if (SubjectivityModel.FederalTaxLiability.HasValue && !SubjectivityModel.FederalTaxLiability.Value)
+@*             @if (SubjectivityModel.HasFutaLiabilityInOtherStates.HasValue && !SubjectivityModel.HasFutaLiabilityInOtherStates.Value)
 
  *@         @if (Section7Visible())
             {
                 <div id="section_7" class="ui-radio-section">
                     <p class="ui-text">@GetWagesQuestion()</p>
                     <RadioGroup TValue="bool?"
-                                Value="SubjectivityModel.PaidWagesInAQuarterTaxes"
-                                ValueChanged="OnPaidWagesInAQuarterTaxesChange"
-                                ValueExpression="() => SubjectivityModel.PaidWagesInAQuarterTaxes"
-                                Options="@HasPaidWagesInAQuarterTaxes" />
-                    <FieldError For="@(() => SubjectivityModel.PaidWagesInAQuarterTaxes)"
+                                Value="SubjectivityModel.PaidWagesOrTaxesOver1500"
+                                ValueChanged="OnPaidWagesOrTaxesOver1500Change"
+                                ValueExpression="() => SubjectivityModel.PaidWagesOrTaxesOver1500"
+                                Options="@HasPaidWagesOrTaxesOver1500" />
+                    <FieldError For="@(() => SubjectivityModel.PaidWagesOrTaxesOver1500)"
                                 Visible="_formSubmitted" />
                 </div>
             }
@@ -235,7 +236,7 @@
                             Value="SubjectivityModel.Employee20WeeksFourOrMore"
                             ValueChanged="OnEmployee20WeeksFourOrMoreChange"
                             ValueExpression="() => SubjectivityModel.Employee20WeeksFourOrMore"
-                            Options="@HasPaidEmployee20Weeks" />
+                            Options="@HasPaidHasEmployeeIn20Weeks" />
                 <FieldError For="@(() => SubjectivityModel.Employee20WeeksFourOrMore)"
                             Visible="_formSubmitted" />
             </div>
@@ -244,20 +245,20 @@
 
         @if (Section10Visible())
 
-@*             @if (SubjectivityModel.Employee20Weeks.HasValue && SubjectivityModel.Employee20Weeks.Value)
+            @*             @if (SubjectivityModel.HasEmployeeIn20Weeks.HasValue && SubjectivityModel.HasEmployeeIn20Weeks.Value)
  *@            {
                 <div id="section_10" class="form-row row ui-radio-section">
                     <div class="form-group col-md-6">
 
-                        <label class="form-label" for="dateWeek20Ended">
+                        <label class="form-label" for="Week20EndDate">
                             Date 20th Week Ended
                         </label>
-                        <InputDate id="dateWeek20Ended"
-                                   @bind-Value="SubjectivityModel.DateWeek20Ended"
+                        <InputDate id="Week20EndDate"
+                                   @bind-Value="SubjectivityModel.Week20EndDate"
                                    class="form-control"
                                    DisplayName="Date 20th Week Ended"
                                    @bind-Value:format="MM/dd/yyyy" />
-                        <FieldError For="@(() => SubjectivityModel.DateWeek20Ended)"
+                        <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
                                     Visible="_formSubmitted" />
                     </div>
                 </div>
@@ -266,7 +267,6 @@
             @if (SubjectivityModel.Wages != null && SubjectivityModel.Wages.Count > 0 && BusinessCategory != BusinessCategory.NonProfit_501c3)
             {
                 <p class="ui-text">@GetWagesTableDisclaimer()</p>
-
                 <table>
                     <tr style="text-align:center;">
                         <th></th>

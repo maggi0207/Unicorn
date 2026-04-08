@@ -10,16 +10,12 @@ using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 
 /// <summary>
-///
+/// 
 /// </summary>
 public partial class UISubjectivity
 {
     [Inject]
     private IYearQuarterPaidWagesService PaidWagesService { get; set; } = default!;
-
-    [Inject]
-    private RegistrationStateService RegistrationState { get; set; } = default!;
-
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
 
@@ -27,13 +23,6 @@ public partial class UISubjectivity
     private bool _formSubmitted = false;
     private bool _showAddressErrors = false;
     private bool _insufficientQuarterlyWageEntered = false;
-
-    /// <summary>
-    /// True when BusinessCategory was pre-selected as NonProfit_501c3 from Step 1.
-    /// Causes the radio group to render as a disabled locked option instead of interactive.
-    /// </summary>
-    private bool _businessCategoryLockedFromStep1 = false;
-
     private int DecimalPlaces { get; set; } = 2;
 
     private readonly DateTime? _dateFirstPaidWages = DateTime.Parse("7/1/2023");  //TODO: This value is passed in from Step 5 
@@ -41,6 +30,12 @@ public partial class UISubjectivity
     private EditContext _subjectivityContext = default!;
 
     private CustomValidator? _customValidator;
+
+    /// <summary>
+    /// True when BusinessCategory was pre-selected as NonProfit_501c3 from Step 1.
+    /// Causes the radio group to render as a disabled locked option instead of interactive.
+    /// </summary>
+    private bool _businessCategoryLockedFromStep1 = false;
 
     /// <summary>
     /// 
@@ -52,17 +47,18 @@ public partial class UISubjectivity
     /// </summary>
     public BusinessCategory BusinessCategory { get; set; } = BusinessCategory.Unknown;
 
+
     /// <summary>
-    /// Selectable business category options for Step 6.
-    /// NonProfit_501c3 is intentionally excluded — it is either pre-populated (locked) from Step 1
-    /// or not applicable. Users select from the remaining four options.
+    /// 
     /// </summary>
     public static readonly IReadOnlyList<RadioOption<BusinessCategory?>> BusinessCatagories = new[]
     {
-        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Commercial,     Label = "Commercial" },
-        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Domestic,       Label = "Domestic (in a private home)" },
-        new RadioOption<BusinessCategory?> { Value = BusinessCategory.Agricultural,   Label = "Agricultural (Farming)" },
-        new RadioOption<BusinessCategory?> { Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit (other)" },
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Commercial, Label = "Commercial"},
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Domestic, Label = "Domestic(in a private home)"},
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.Agricultural, Label = "Agricultural(Farming)"},
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_501c3, Label = "Non-Profit with 501(c) (3) Ruling from IRS"},
+      new RadioOption<BusinessCategory?> {Value = BusinessCategory.NonProfit_Other, Label = "Non-Profit(other)"}
+
     };
 
     /// <summary>
@@ -71,10 +67,10 @@ public partial class UISubjectivity
     public static readonly List<SelectOption> ExpectedWagesCatagories = new()
     {
       new SelectOption() {  Text = "Within 30 Days", Value = "Within 30 Days"},
-      new SelectOption() {  Text = "", Value = "30 to 90 days"},
-      new SelectOption() {  Text = "", Value = "6 months"},
-      new SelectOption() {  Text = "", Value = "One year"},
-      new SelectOption() {  Text = "", Value = "More than a year"}
+      new SelectOption() {  Text = "30 to 90 days", Value = "30 to 90 days"},
+      new SelectOption() {  Text = "6 months", Value = "6 months"},
+      new SelectOption() {  Text = "One year", Value = "One year"},
+      new SelectOption() {  Text = "More than a year", Value = "More than a year"}
     };
 
     /// <summary>
@@ -107,7 +103,7 @@ public partial class UISubjectivity
     /// <summary>
     /// 
     /// </summary>
-    public static readonly IReadOnlyList<RadioOption<bool?>> HasFederalTaxLiability = new[]
+    public static readonly IReadOnlyList<RadioOption<bool?>> HasHasFutaLiabilityInOtherStates = new[]
 {
       new RadioOption<bool?> {Value =true, Label = "Yes"},
       new RadioOption<bool?> {Value =false, Label = "No"}
@@ -126,7 +122,7 @@ public partial class UISubjectivity
     /// <summary>
     /// 
     /// </summary>
-    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidWagesInAQuarterEmployees = new[]
+    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidWagesOver1500Employees = new[]
 {
       new RadioOption<bool?> {Value =true, Label = "Yes"},
       new RadioOption<bool?> {Value =false, Label = "No"}
@@ -135,7 +131,7 @@ public partial class UISubjectivity
     /// <summary>
     /// 
     /// </summary>
-    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidWagesInAQuarterTaxes = new[]
+    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidWagesOrTaxesOver1500 = new[]
 {
       new RadioOption<bool?> {Value =true, Label = "Yes"},
       new RadioOption<bool?> {Value =false, Label = "No"}
@@ -144,7 +140,7 @@ public partial class UISubjectivity
     /// <summary>
     /// 
     /// </summary>
-    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidEmployee20Weeks = new[]
+    public static readonly IReadOnlyList<RadioOption<bool?>> HasPaidHasEmployeeIn20Weeks = new[]
     {
       new RadioOption<bool?> {Value =true, Label = "Yes"},
       new RadioOption<bool?> {Value =false, Label = "No"}
@@ -162,14 +158,15 @@ public partial class UISubjectivity
     }
 
     /// <summary>
-    /// Initializes the subjectivity model and reads the BusinessCategory pre-selected in Step 1
-    /// from <see cref="EmployerRegistrationModelStore"/>. If NonProfit_501c3 was confirmed in Step 1,
-    /// it is locked and cannot be changed here.
+    /// 
     /// </summary>
     protected override void OnInitialized()
     {
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
+
         SubjectivityModel = new SubjectivityModel() { Wages = wages };
+
+        _subjectivityContext = new EditContext(SubjectivityModel);
 
         var preliminaryCategory = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.BusinessCategory;
 
@@ -180,13 +177,12 @@ public partial class UISubjectivity
             BusinessCategory = BusinessCategory.NonProfit_501c3;
         }
 
-        _subjectivityContext = new EditContext(SubjectivityModel);
-
         _subjectivityContext.OnFieldChanged += (_, __) =>
         {
             _isFormValid = _subjectivityContext.Validate();
             StateHasChanged();
         };
+
     }
 
     private string GetPermittedExclusionsUrl()
@@ -239,80 +235,133 @@ public partial class UISubjectivity
 
     private async Task OnExpectToPayWagesInAQuarterChange(bool? value)
     {
+        SubjectivityModel.ExpectToPayWagesInAQuarter = value;
+        // CHANGED**
+        if (value == false)
+        {
+            SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        }
         await InvokeAsync(() =>
         {
-            SubjectivityModel.ExpectToPayWagesInAQuarter = value;
+            // CHANGED**
+            _subjectivityContext.Validate();
+        });
+    }
+
+    private async Task OnHasEmployeesOutsideWisconsinChange(bool? value)
+
+    {
+        SubjectivityModel.HasEmployeesOutsideWisconsin = value;
+        // CHANGED: clear dependent fields when branch changes**
+        if (value == false)
+        {
+            SubjectivityModel.HasFutaLiabilityInOtherStates = null;
+            SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
+            SubjectivityModel.QuarterYearFirstPaidTaxes = null;
+        }
+        else if (value == true)
+        {
+            SubjectivityModel.PaidWagesOver1500Employees = null;
+            SubjectivityModel.FirstWageQuarterYearEmployees = null;
+            SubjectivityModel.HasEmployeeIn20Weeks = null;
+            SubjectivityModel.Week20EndDate = null;
+            SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+            SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        }
+        await InvokeAsync(() =>
+        {
+            // CHANGED: validate again after clearing hidden fields**
+            _subjectivityContext.Validate();
+        });
+
+    }
+
+
+    private async Task OnHasFutaLiabilityInOtherStatesChange(bool? value)
+    {
+        SubjectivityModel.HasFutaLiabilityInOtherStates = value;
+        PaidWagesService.Update(value ?? false);
+        // CHANGED: clear dependent fields**
+        if (value == true)
+        {
+            SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
+            SubjectivityModel.QuarterYearFirstPaidTaxes = null;
+            SubjectivityModel.HasEmployeeIn20Weeks = null;
+            SubjectivityModel.Week20EndDate = null;
+        }
+        await InvokeAsync(() =>
+        {
+            // CHANGED**
+            _subjectivityContext.Validate();
+        });
+    }
+
+    private async Task OnHasFutaLiabilityInOtherStatesOutsideWisconsinChange(bool? value)
+    {
+        await InvokeAsync(() =>
+        {
+            SubjectivityModel.HasHasFutaLiabilityInOtherStatesOutsideWisconsin = value;
 
             _subjectivityContext.NotifyValidationStateChanged();
 
         });
     }
 
-    private async Task OnEmployeesInOtherStatesChange(bool? value)
+    private async Task OnPaidWagesOver1500EmployeesChange(bool? value)
     {
+        SubjectivityModel.PaidWagesOver1500Employees = value;
+        if (value == false)
+        {
+            SubjectivityModel.FirstWageQuarterYearEmployees = null;
+            SubjectivityModel.HasEmployeeIn20Weeks = null;
+            SubjectivityModel.Week20EndDate = null;
+        }
+        else if (value == true)
+        {
+            // CHANGED: if user selects Yes, downstream No-branch fields should be cleared**
+            SubjectivityModel.HasEmployeeIn20Weeks = null;
+            SubjectivityModel.Week20EndDate = null;
+        }
         await InvokeAsync(() =>
         {
-            SubjectivityModel.EmployeesInOtherStates = value;
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
-        });
-    }
-
-    private async Task OnFederalTaxLiabilityChange(bool? value)
-    {
-        await InvokeAsync(() =>
-        {
-            SubjectivityModel.FederalTaxLiability = value;
-            PaidWagesService.Update(value ?? false);
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
-        });
-    }
-
-    private async Task OnFederalTaxLiabilityOutsideWisconsinChange(bool? value)
-    {
-        await InvokeAsync(() =>
-        {
-            SubjectivityModel.HasFederalTaxLiabilityOutsideWisconsin = value;
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
+            // CHANGED**
+            _subjectivityContext.Validate();
         });
     }
 
 
-    private async Task OnPaidWagesInAQuarterEmployeesChange(bool? value)
+    private async Task OnPaidWagesOrTaxesOver1500Change(bool? value)
     {
+        SubjectivityModel.PaidWagesOrTaxesOver1500 = value;
+        // CHANGED: clear dependent fields**
+        if (value == false)
+        {
+            SubjectivityModel.QuarterYearFirstPaidTaxes = null;
+        }
+        else if (value == true)
+        {
+            SubjectivityModel.HasEmployeeIn20Weeks = null;
+            SubjectivityModel.Week20EndDate = null;
+        }
         await InvokeAsync(() =>
         {
-            SubjectivityModel.PaidWagesInAQuarterEmployees = value;
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
+            // CHANGED**
+            _subjectivityContext.Validate();
         });
     }
 
-    private async Task OnPaidWagesInAQuarterTaxesChange(bool? value)
+    private async Task OnHasEmployeeIn20WeeksChange(bool? value)
     {
+        SubjectivityModel.HasEmployeeIn20Weeks = value;
+        // CHANGED**
+        if (value == false)
+        {
+            SubjectivityModel.Week20EndDate = null;
+        }
         await InvokeAsync(() =>
         {
-            SubjectivityModel.PaidWagesInAQuarterTaxes = value;
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
-        });
-    }
-
-    private async Task OnEmployee20WeeksChange(bool? value)
-    {
-        await InvokeAsync(() =>
-        {
-            SubjectivityModel.Employee20Weeks = value;
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
+            // CHANGED**
+            _subjectivityContext.Validate();
         });
     }
 
@@ -328,11 +377,11 @@ public partial class UISubjectivity
     }
 
 
-    private async Task OnDateWeek20EndedChange(DateTime? value)
+    private async Task OnWeek20EndDateChange(DateTime? value)
     {
         await InvokeAsync(() =>
         {
-            SubjectivityModel.DateWeek20Ended = value;
+            SubjectivityModel.Week20EndDate = value;
 
             _subjectivityContext.NotifyValidationStateChanged();
 
@@ -341,17 +390,27 @@ public partial class UISubjectivity
 
     private async Task OnBusinessCatagoryChanged(BusinessCategory? value)
     {
+        SubjectivityModel.BusinessCategory = value;
+        if (value.HasValue)
+        {
+            BusinessCategory = value.Value;
+        }
+        // CHANGED: reset flow-dependent answers**
+        SubjectivityModel.HasAppliedFor501c3Status = null;
+        SubjectivityModel.HasEmployeesOutsideWisconsin = null;
+        SubjectivityModel.HasFutaLiabilityInOtherStates = null;
+        SubjectivityModel.PaidWagesOver1500Employees = null;
+        SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
+        SubjectivityModel.FirstWageQuarterYearEmployees = null;
+        SubjectivityModel.QuarterYearFirstPaidTaxes = null;
+        SubjectivityModel.HasEmployeeIn20Weeks = null;
+        SubjectivityModel.Week20EndDate = null;
+        SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+        SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
         await InvokeAsync(() =>
         {
-            SubjectivityModel.BusinessCategory = value;
-
-            if (value.HasValue)
-            {
-                BusinessCategory = value.Value;
-            }
-
-            _subjectivityContext.NotifyValidationStateChanged();
-
+            // CHANGED**
+            _subjectivityContext.Validate();
         });
     }
 
@@ -404,6 +463,42 @@ public partial class UISubjectivity
             return false;
         }
     }
+
+    /// <summary>
+    /// Returns the disclaimer paragraph shown above the quarterly wages table.
+    /// Text varies by business category; the wages table is hidden entirely for NonProfit_501c3.
+    /// </summary>
+    private MarkupString GetWagesTableDisclaimer()
+    {
+        var exclusionsUrl = GetPermittedExclusionsUrl();
+
+        var permittedExclusionsLink = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>Permitted Exclusions</a>";
+        var excludedEmploymentLink = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employment</a>";
+        var excludedEmployeesLink = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employees</a>";
+
+        return BusinessCategory switch
+        {
+            BusinessCategory.Commercial or BusinessCategory.NonProfit_Other =>
+                new MarkupString(
+                    "Enter your gross quarterly payrolls below. Include all wages paid through the date that you complete this report. " +
+                    "Do not estimate the amount of wages you expect to pay in the future. Show wages paid only for work performed solely or primarily in Wisconsin. " +
+                   $"<strong>Do not enter the wages of Wisconsin residents who work entirely outside of Wisconsin. " +
+                   $"Do not include wages paid to persons with {permittedExclusionsLink}.</strong>"),
+
+            BusinessCategory.Domestic =>
+                new MarkupString(
+                    "Please provide the following quarterly payroll totals reflecting only cash wages paid for domestic employment in Wisconsin through the current date. " +
+                   $"<strong>Do not include wages paid for {excludedEmploymentLink}.</strong>"),
+
+            BusinessCategory.Agricultural =>
+                new MarkupString(
+                    "Complete the following record of your quarterly agricultural payroll in Wisconsin. Show gross cash wages paid in each calendar quarter. " +
+                   $"<strong>Do not include wages for {excludedEmployeesLink}.</strong>"),
+
+            _ => new MarkupString(string.Empty)
+        };
+    }
+
 
     private Dictionary<FieldIdentifier, List<string>> ValidateModels()
     {
@@ -478,41 +573,6 @@ public partial class UISubjectivity
         return errors;
     }
 
-    /// <summary>
-    /// Returns the disclaimer paragraph shown above the quarterly wages table.
-    /// Text varies by business category; the wages table is hidden entirely for NonProfit_501c3.
-    /// </summary>
-    private MarkupString GetWagesTableDisclaimer()
-    {
-        var exclusionsUrl = GetPermittedExclusionsUrl();
-
-        var permittedExclusionsLink = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>Permitted Exclusions</a>";
-        var excludedEmploymentLink  = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employment</a>";
-        var excludedEmployeesLink   = $"<a href='{exclusionsUrl}' target='_blank' rel='noopener noreferrer' class='link-underline-primary'>excluded employees</a>";
-
-        return BusinessCategory switch
-        {
-            BusinessCategory.Commercial or BusinessCategory.NonProfit_Other =>
-                new MarkupString(
-                    "Enter your gross quarterly payrolls below. Include all wages paid through the date that you complete this report. " +
-                    "Do not estimate the amount of wages you expect to pay in the future. Show wages paid only for work performed solely or primarily in Wisconsin. " +
-                   $"<strong>Do not enter the wages of Wisconsin residents who work entirely outside of Wisconsin. " +
-                   $"Do not include wages paid to persons with {permittedExclusionsLink}.</strong>"),
-
-            BusinessCategory.Domestic =>
-                new MarkupString(
-                    "Please provide the following quarterly payroll totals reflecting only cash wages paid for domestic employment in Wisconsin through the current date. " +
-                   $"<strong>Do not include wages paid for {excludedEmploymentLink}.</strong>"),
-
-            BusinessCategory.Agricultural =>
-                new MarkupString(
-                    "Complete the following record of your quarterly agricultural payroll in Wisconsin. Show gross cash wages paid in each calendar quarter. " +
-                   $"<strong>Do not include wages for {excludedEmployeesLink}.</strong>"),
-
-            _ => new MarkupString(string.Empty)
-        };
-    }
-
     private MarkupString GetMasterAlertErrorIcon()
     {
         var icon = "_content/UI.EmployerPortal.Razor.SharedComponents/icons/master-alert-error.svg";
@@ -527,9 +587,7 @@ public partial class UISubjectivity
     }
     private bool Section2Visible()
     {
-        // Show "Have you applied for 501(c)(3) status?" only when NonProfit_Other is selected.
-        // If Yes, we redirect the user back to Step 1 to correct their designation.
-        return BusinessCategory == BusinessCategory.NonProfit_Other;
+        return false;
     }
     private bool Section3Visible()
     {
@@ -537,18 +595,18 @@ public partial class UISubjectivity
     }
     private bool Section4Visible()
     {
-        return (SubjectivityModel.FederalTaxLiability.HasValue && !SubjectivityModel.FederalTaxLiability.Value) ||
-            (SubjectivityModel.EmployeesInOtherStates == false && BusinessCategory != BusinessCategory.NonProfit_501c3);
+        return (SubjectivityModel.HasFutaLiabilityInOtherStates.HasValue && !SubjectivityModel.HasFutaLiabilityInOtherStates.Value) ||
+            (SubjectivityModel.HasEmployeesOutsideWisconsin == false && BusinessCategory != BusinessCategory.NonProfit_501c3);
 
     }
     private bool Section5Visible()
     {
-        return SubjectivityModel.PaidWagesInAQuarterEmployees ?? false;
+        return SubjectivityModel.PaidWagesOver1500Employees ?? false;
     }
     private bool Section6Visible()
     {
         return BusinessCategory != BusinessCategory.NonProfit_501c3 &&
-            SubjectivityModel.EmployeesInOtherStates.HasValue && SubjectivityModel.EmployeesInOtherStates.Value;
+            SubjectivityModel.HasEmployeesOutsideWisconsin.HasValue && SubjectivityModel.HasEmployeesOutsideWisconsin.Value;
     }
     private bool Section7Visible()
     {
@@ -560,14 +618,14 @@ public partial class UISubjectivity
     }
     private bool Section9Visible()
     {
-        return (SubjectivityModel.FederalTaxLiability.HasValue && !SubjectivityModel.FederalTaxLiability.Value) ||
-            (SubjectivityModel.EmployeesInOtherStates == false) &&
+        return (SubjectivityModel.HasFutaLiabilityInOtherStates.HasValue && !SubjectivityModel.HasFutaLiabilityInOtherStates.Value) ||
+            (SubjectivityModel.HasEmployeesOutsideWisconsin == false) &&
             (BusinessCategory == BusinessCategory.Commercial || BusinessCategory == BusinessCategory.NonProfit_Other);
         ;
     }
     private bool Section10Visible()
     {
-        return (SubjectivityModel.Employee20Weeks ?? false) &&
+        return (SubjectivityModel.HasEmployeeIn20Weeks ?? false) &&
             (BusinessCategory == BusinessCategory.Commercial || BusinessCategory == BusinessCategory.NonProfit_Other);
     }
 
@@ -579,7 +637,7 @@ public partial class UISubjectivity
     private bool Section12Visible()
     {
         return BusinessCategory != BusinessCategory.NonProfit_501c3 &&
-            SubjectivityModel.EmployeesInOtherStates.HasValue && SubjectivityModel.EmployeesInOtherStates.Value;
+            SubjectivityModel.HasEmployeesOutsideWisconsin.HasValue && SubjectivityModel.HasEmployeesOutsideWisconsin.Value;
     }
 
     private bool Section13Visible()
@@ -588,17 +646,17 @@ public partial class UISubjectivity
 
         if (BusinessCategory == BusinessCategory.Commercial)
         {
-            return SubjectivityModel.PaidWagesInAQuarterEmployees == false && SubjectivityModel.Employee20Weeks == false;
+            return SubjectivityModel.PaidWagesOver1500Employees == false && SubjectivityModel.HasEmployeeIn20Weeks == false;
         }
 
         if (BusinessCategory == BusinessCategory.Domestic)
         {
-            return SubjectivityModel.PaidWagesInAQuarterEmployees == false;
+            return SubjectivityModel.PaidWagesOver1500Employees == false;
         }
 
         if (BusinessCategory == BusinessCategory.Agricultural)
         {
-            return SubjectivityModel.PaidWagesInAQuarterEmployees == false && SubjectivityModel.Employee20Weeks == false;
+            return SubjectivityModel.PaidWagesOver1500Employees == false && SubjectivityModel.HasEmployeeIn20Weeks == false;
         }
 
         if (BusinessCategory != BusinessCategory.NonProfit_501c3)
@@ -606,9 +664,9 @@ public partial class UISubjectivity
             return false;
         }
 
-        if (BusinessCategory != BusinessCategory.NonProfit_Other)
+        if (BusinessCategory == BusinessCategory.NonProfit_Other)
         {
-            return SubjectivityModel.PaidWagesInAQuarterEmployees == false && SubjectivityModel.Employee20Weeks == false;
+            return SubjectivityModel.PaidWagesOver1500Employees == false && SubjectivityModel.HasEmployeeIn20Weeks == false;
         }
 #pragma warning restore IDE0046 // Convert to conditional expression
 
