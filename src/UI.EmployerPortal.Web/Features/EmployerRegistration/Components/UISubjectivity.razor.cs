@@ -407,7 +407,7 @@ public partial class UISubjectivity
         {
             BusinessCategory = value.Value;
         }
-        // CHANGED: reset flow-dependent answers**
+        // Reset all flow-dependent answers so downstream sections start clean.
         SubjectivityModel.HasAppliedFor501c3Status = null;
         SubjectivityModel.HasEmployeesOutsideWisconsin = null;
         SubjectivityModel.HasFutaLiabilityInOtherStates = null;
@@ -419,10 +419,14 @@ public partial class UISubjectivity
         SubjectivityModel.Week20EndDate = null;
         SubjectivityModel.ExpectToPayWagesInAQuarter = null;
         SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+
+        // Notify the EditContext so OnFieldChanged fires → StateHasChanged() → UI re-renders.
+        _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.BusinessCategory)));
+
         await InvokeAsync(() =>
         {
-            // CHANGED**
             _subjectivityContext.Validate();
+            StateHasChanged();
         });
     }
 
@@ -606,7 +610,8 @@ public partial class UISubjectivity
     }
     private bool Section2Visible()
     {
-        return false;
+        // Show "Have you applied for 501(c)(3) status?" only when NonProfit_Other is selected.
+        return BusinessCategory == BusinessCategory.NonProfit_Other;
     }
     private bool Section3Visible()
     {
