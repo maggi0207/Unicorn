@@ -610,8 +610,18 @@ public partial class UISubjectivity
     }
     private bool Section2Visible()
     {
-        // Show "Have you applied for 501(c)(3) status?" only when NonProfit_Other is selected.
-        return BusinessCategory == BusinessCategory.NonProfit_Other;
+        // Regular flow: NonProfit_Other is selected.
+        if (BusinessCategory == BusinessCategory.NonProfit_Other) return true;
+
+        // Locked flow: Step 1 pre-set 501(c)(3) but the user is now switching to a different
+        // category. Show the question so they can confirm they have not applied for 501(c)(3)
+        // status — if they have, they must return to Step 1 to correct their answer.
+        if (_businessCategoryLockedFromStep1
+            && BusinessCategory != BusinessCategory.NonProfit_501c3
+            && BusinessCategory != BusinessCategory.Unknown)
+            return true;
+
+        return false;
     }
     private bool Section3Visible()
     {
