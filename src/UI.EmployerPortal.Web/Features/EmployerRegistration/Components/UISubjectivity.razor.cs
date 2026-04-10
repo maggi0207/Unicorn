@@ -32,10 +32,26 @@ public partial class UISubjectivity
     private CustomValidator? _customValidator;
 
     /// <summary>
-    /// True when BusinessCategory was pre-selected as NonProfit_501c3 from Step 1.
-    /// Causes the radio group to render as a disabled locked option instead of interactive.
+    /// Describes which of the 5 scenarios applies, driving what options are locked/disabled/selectable in Step 6.
     /// </summary>
-    private bool _businessCategoryLockedFromStep1 = false;
+    private enum BusinessCategoryScenario
+    {
+        /// <summary>Step 1 = Yes (NonProfit 501c3). Locked: NonProfit_501c3. Disabled: Commercial, NonProfit_Other.</summary>
+        LockedNonProfit501c3,
+        /// <summary>Step 1 = No, Step 5 = Agricultural. Locked: Agricultural. Disabled: Commercial, NonProfit_Other.</summary>
+        LockedAgricultural,
+        /// <summary>Step 1 = No, Step 5 = Domestic. Locked: Domestic. Disabled: Commercial, NonProfit_Other.</summary>
+        LockedDomestic,
+        /// <summary>Step 1 = No, Step 5 = Construction. Locked: Commercial. Disabled: NonProfit_Other.</summary>
+        LockedCommercial,
+        /// <summary>Step 1 = No, Step 5 = Other. Both Commercial and NonProfit_Other are selectable. Commercial pre-selected.</summary>
+        FreeChoice,
+    }
+
+    /// <summary>
+    /// The resolved scenario computed from Step 1 and Step 5 during OnInitialized.
+    /// </summary>
+    private BusinessCategoryScenario _scenario = BusinessCategoryScenario.FreeChoice;
 
     /// <summary>
     /// 
@@ -181,13 +197,22 @@ public partial class UISubjectivity
         _subjectivityContext = new EditContext(SubjectivityModel);
 
         var isNonProfitFromStep1 = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.IsNonProfitOrg == true;
+        var step5Activity = ModelStore.EmployerRegistrationModel.BusinessActivityModel.PrincipalBusinessActivity;
 
-        if (isNonProfitFromStep1)
+        _scenario = ResolveScenario(isNonProfitFromStep1, step5Activity);
+
+        // Pre-set the locked/default category so downstream visibility methods work correctly
+        var lockedCategory = _scenario switch
         {
-            _businessCategoryLockedFromStep1 = true;
-            SubjectivityModel.BusinessCategory = BusinessCategory.NonProfit_501c3;
-            BusinessCategory = BusinessCategory.NonProfit_501c3;
-        }
+            BusinessCategoryScenario.LockedNonProfit501c3 => BusinessCategory.NonProfit_501c3,
+            BusinessCategoryScenario.LockedAgricultural   => BusinessCategory.Agricultural,
+            BusinessCategoryScenario.LockedDomestic       => BusinessCategory.Domestic,
+            BusinessCategoryScenario.LockedCommercial     => BusinessCategory.Commercial,
+            BusinessCategoryScenario.FreeChoice           => BusinessCategory.Commercial,
+            _                                             => BusinessCategory.Commercial,
+        };
+        SubjectivityModel.BusinessCategory = lockedCategory;
+        BusinessCategory = lockedCategory;
 
         _subjectivityContext.OnFieldChanged += (_, __) =>
         {
@@ -195,6 +220,59 @@ public partial class UISubjectivity
             StateHasChanged();
         };
 
+    }
+
+    /// <summary>
+    /// Determines the business category scenario for Step 6 based on Step 1 (non-profit answer)
+    /// and Step 5 (principal business activity selection).
+    /// </summary>
+    private static BusinessCategoryScenario ResolveScenario(bool isNonProfitFromStep1, PrincipalBusinessActivityType activity)
+    {
+        if (isNonProfitFromStep1)
+            return BusinessCategoryScenario.LockedNonProfit501c3;
+
+        var isAgricultural = activity is
+            PrincipalBusinessActivityType.AgricultureFarming or
+            PrincipalBusinessActivityType.AgricultureRaisingCropsFood or
+            PrincipalBusinessActivityType.AgricultureRaisingLivestock;
+
+        if (isAgricultural)
+            return BusinessCategoryScenario.LockedAgricultural;
+
+        var isDomestic = activity is
+            PrincipalBusinessActivityType.DomesticEmployNannyOrBabysitter or
+            PrincipalBusinessActivityType.DomesticRecipientOfHomeHelp or
+            PrincipalBusinessActivityType.DomesticRecipientOfInHomeHealthcare or
+            PrincipalBusinessActivityType.DomesticFiscalAgentElectingToBeEmployer;
+
+        if (isDomestic)
+            return BusinessCategoryScenario.LockedDomestic;
+
+        var isConstruction = activity is
+            PrincipalBusinessActivityType.ConstructionSpecialtyTrades or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradeRelated or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesCarpentry or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesConcrete or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesEarthMoving or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesElectricians or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesHardwoodFlooring or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesIronWork or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesPainters or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesPlumbers or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesRemodelingRepairAdditions or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesRoadWork or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesRoofing or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesSiding or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradesUtilityConstruction or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradeElectronicsInstallations or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradeFlooringExceptHardwood or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradeHeatingAndCooling or
+            PrincipalBusinessActivityType.ConstructionSpecialtyTradeWhitewashing;
+
+        if (isConstruction)
+            return BusinessCategoryScenario.LockedCommercial;
+
+        return BusinessCategoryScenario.FreeChoice;
     }
 
     private string GetPermittedExclusionsUrl()
@@ -616,7 +694,7 @@ public partial class UISubjectivity
         // Locked flow: Step 1 pre-set 501(c)(3) but the user is now switching to a different
         // category. Show the question so they can confirm they have not applied for 501(c)(3)
         // status — if they have, they must return to Step 1 to correct their answer.
-        if (_businessCategoryLockedFromStep1
+        if (_scenario == BusinessCategoryScenario.LockedNonProfit501c3
             && BusinessCategory != BusinessCategory.NonProfit_501c3
             && BusinessCategory != BusinessCategory.Unknown)
             return true;

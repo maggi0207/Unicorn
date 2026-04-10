@@ -32,32 +32,80 @@
             </p>
 
             <div id="section_1" class="ui-radio-section">
-                @if (_businessCategoryLockedFromStep1)
+                @switch (_scenario)
                 {
-                    <!-- NonProfit_501c3 was set in Step 1: show greyed-out pre-selected option, then remaining interactive options -->
-                    <div class="ui-radio-locked-option">
-                        <input type="radio" disabled checked id="bc-nonprofit-501c3" />
-                        <label for="bc-nonprofit-501c3" class="ui-radio-locked-label">Non-Profit with 501(c)(3) Ruling from IRS</label>
-                    </div>
-                    <RadioGroup TValue="BusinessCategory?"
-                                Value="SubjectivityModel.BusinessCategory"
-                                ValueChanged="OnBusinessCatagoryChanged"
-                                ValueExpression="() => SubjectivityModel.BusinessCategory"
-                                Options="@BusinessCategoriesLockedAlternatives" />
-                    <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
-                                Visible="_formSubmitted" />
-                }
-                else
-                {
-                    <RadioGroup TValue="BusinessCategory?"
-                                Value="SubjectivityModel.BusinessCategory"
-                                ValueChanged="OnBusinessCatagoryChanged"
-                                ValueExpression="() => SubjectivityModel.BusinessCategory"
-                                Options="@BusinessCatagories" />
-                    <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
-                                Visible="_formSubmitted" />
-                }
+                    case BusinessCategoryScenario.LockedNonProfit501c3:
+                        <!-- Step 1 = Yes: NonProfit_501c3 pre-selected (greyed), Commercial + NonProfit_Other disabled -->
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled checked id="bc-nonprofit-501c3" />
+                            <label for="bc-nonprofit-501c3" class="ui-radio-locked-label">Non-Profit with 501(c)(3) Ruling from IRS</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-commercial-disabled" />
+                            <label for="bc-commercial-disabled" class="ui-radio-locked-label">Commercial</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-nonprofit-other-disabled" />
+                            <label for="bc-nonprofit-other-disabled" class="ui-radio-locked-label">Non-Profit (other)</label>
+                        </div>
+                        break;
 
+                    case BusinessCategoryScenario.LockedAgricultural:
+                        <!-- Step 5 = Agricultural: Agricultural pre-selected (greyed), Commercial + NonProfit_Other disabled -->
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled checked id="bc-agricultural" />
+                            <label for="bc-agricultural" class="ui-radio-locked-label">Agricultural (Farming)</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-commercial-disabled" />
+                            <label for="bc-commercial-disabled" class="ui-radio-locked-label">Commercial</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-nonprofit-other-disabled" />
+                            <label for="bc-nonprofit-other-disabled" class="ui-radio-locked-label">Non-Profit (other)</label>
+                        </div>
+                        break;
+
+                    case BusinessCategoryScenario.LockedDomestic:
+                        <!-- Step 5 = Domestic: Domestic pre-selected (greyed), Commercial + NonProfit_Other disabled -->
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled checked id="bc-domestic" />
+                            <label for="bc-domestic" class="ui-radio-locked-label">Domestic (in a private home)</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-commercial-disabled" />
+                            <label for="bc-commercial-disabled" class="ui-radio-locked-label">Commercial</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-nonprofit-other-disabled" />
+                            <label for="bc-nonprofit-other-disabled" class="ui-radio-locked-label">Non-Profit (other)</label>
+                        </div>
+                        break;
+
+                    case BusinessCategoryScenario.LockedCommercial:
+                        <!-- Step 5 = Construction: Commercial pre-selected (greyed), NonProfit_Other disabled -->
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled checked id="bc-commercial" />
+                            <label for="bc-commercial" class="ui-radio-locked-label">Commercial</label>
+                        </div>
+                        <div class="ui-radio-locked-option">
+                            <input type="radio" disabled id="bc-nonprofit-other-disabled" />
+                            <label for="bc-nonprofit-other-disabled" class="ui-radio-locked-label">Non-Profit (other)</label>
+                        </div>
+                        break;
+
+                    case BusinessCategoryScenario.FreeChoice:
+                    default:
+                        <!-- Step 1 = No + Step 5 = Other: Commercial pre-selected, NonProfit_Other selectable -->
+                        <RadioGroup TValue="BusinessCategory?"
+                                    Value="SubjectivityModel.BusinessCategory"
+                                    ValueChanged="OnBusinessCatagoryChanged"
+                                    ValueExpression="() => SubjectivityModel.BusinessCategory"
+                                    Options="@BusinessCategoriesLockedAlternatives" />
+                        <FieldError For="@(() => SubjectivityModel.BusinessCategory)"
+                                    Visible="_formSubmitted" />
+                        break;
+                }
             </div>
 
             @if (Section2Visible())
