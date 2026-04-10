@@ -124,8 +124,7 @@
                     @if (SubjectivityModel.HasAppliedFor501c3Status == true)
                     {
                         <NotificationBanner NotificationType="NotificationType.Alert"
-                                            MessageStyle="MessageStyle.SingleLine"
-                                            Messages='@(new List<string> { "Please return to step one to correct your answer regarding your 501(c)(3) designation." })'
+                                            Message="Please return to step one to correct your answer regarding your 501(c)(3) designation."
                                             DismissButton="false" />
                     }
                 </div>

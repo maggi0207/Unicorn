@@ -1,0 +1,25 @@
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)
+
+So, for 185 what I am missing is if I select non-profit 501c in step 1. Then in step 6, it should be greyed out, repopulated, but along with that it should show two other options, commercial and non-profit. But not the other one, the agriculture and the other stuff. Agriculture and domestic should not show.
+
+That's an entire story to remove that, but let's just give them a feel that that's done. And it has to be greyed out and the other two have to be populated. Populated, yeah.
+
+Now if they choose on, if they come through something else also and if they choose option, I mean non, something other, what is that, non-profit other, then this display should show and if the step 1 thing is not matching, it should show that other. Even if they hit on commercial in step 1 and if they want to select non-profit other here, then have you applied for 501c3 with IRS has to, this question has to be shown with Radio Business or no. If they hit yes, then this question has to go, come, I mean, please, I mean, not the question like an error banner, please return to step 1. If they say no, then they can proceed with registration like any other employer.
+
+Yes, and we are going to show this whole thing only when step 1 is no, I mean step 1 non-profit other, that is not chosen and in step 6, the question to this is answered as yes. Okay, but if the user selects non-profit IRS, this question, I mean non-profit 501c in step 1, then we will not show this at all, clear? No, yeah. Okay, and this is the only thing pending for 185.
+
+Yes. And for 184? No, is anything pending here? No, right? No, all good. This was all showing, all good.
+
+All good. Okay, only one step then. That is fine.
+
+Yeah. I will do it. Yeah.
+
+No problem. Okay. Clear, right? Yeah, clear.
+
+Just that, do not show domestic or agriculture in the radio options. Yeah, understood. Keep that commented because we will have to incorporate that later when they choose domestic or agriculture option in step 5. Okay.
+
+Yeah, either way, I have to work on both 215 for whatever, that one and 187, right? So, it is fine. Okay. Okay, Nandini.
+
+Bye. Bye. Bye.
+
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)
