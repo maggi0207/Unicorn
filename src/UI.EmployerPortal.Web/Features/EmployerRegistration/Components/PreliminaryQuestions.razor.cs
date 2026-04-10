@@ -6,21 +6,21 @@ using Microsoft.AspNetCore.Components.Forms;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
-using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 
 /// <summary>
-///
+/// 
 /// </summary>
 public partial class PreliminaryQuestions
 {
-    [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
-
     private bool _formSubmitted = false;
     private EditContext _editContext = default!;
     private ValidationMessageStore _messageStore = default!;
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+    private List<string> ValidationErrors { get; set; } = new();
+    private List<string> ValidationFieldIds { get; set; } = new();
 
     private bool IsVisible<T>(Expression<Func<T>> fieldExpression)
     {
@@ -28,10 +28,6 @@ public partial class PreliminaryQuestions
         return _formSubmitted || _touchedFields.Contains(field);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    private string? _peoValue;
     /// <summary>
     /// 
     /// </summary>
@@ -95,7 +91,6 @@ public partial class PreliminaryQuestions
         new SelectOption {Value = FuturePayPeriod.MoreThanOneYear.ToString(), Text = "More than a year"},
     };
 
-    // visibility delegates
     // 501(c)(3) visibility — driven by the business category
     private bool Show501c3SubTree => Model.BusinessCategory == BusinessCategory.NonProfit_501c3;
     private bool ShowRulingUpload => Show501c3SubTree && Model.HasRulingFrom501c3IRS == true;
@@ -103,7 +98,8 @@ public partial class PreliminaryQuestions
     private bool ShowAppliedUpload => ShowHasAppliedQuestion && Model.HasAppliedFor501c3WithIRS == true;
     private bool ShowNotAppliedText => ShowHasAppliedQuestion && Model.HasAppliedFor501c3WithIRS == false;
 
-    // existing visibility
+
+    // visibility delegates
     private bool VisibilityQuestion_2_1 => Model.AcquiredExistingBusiness.HasValue && Model.AcquiredExistingBusiness.Value;
     private bool VisibilityQuestion_2_1_1 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && Model.KnowAcquiredBusinessAccountNumber.Value;
     private bool VisibilityQuestion_2_1_2 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && !Model.KnowAcquiredBusinessAccountNumber.Value;
@@ -163,44 +159,19 @@ public partial class PreliminaryQuestions
     }
 
     // change handlers
-
     private void OnBusinessCategoryChanged(BusinessCategory? value)
     {
         Model.BusinessCategory = value;
-
-        // Reset 501(c)(3) sub-tree if user switches away from 501c3
         if (value != BusinessCategory.NonProfit_501c3)
         {
             Model.HasRulingFrom501c3IRS = null;
             Model.HasAppliedFor501c3WithIRS = null;
             Model.WillSupplyDocumentationLater = false;
-            
+
             ResetField(() => Model.HasRulingFrom501c3IRS);
             ResetField(() => Model.HasAppliedFor501c3WithIRS);
         }
-
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.BusinessCategory)));
-    }
-
-    private void OnHasRulingFrom501c3IRSChanged(bool? value)
-    {
-        Model.HasRulingFrom501c3IRS = value;
-        Model.HasAppliedFor501c3WithIRS = null;
-        Model.WillSupplyDocumentationLater = false;
-        ResetField(() => Model.HasAppliedFor501c3WithIRS);
-        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
-    }
-
-    private void OnHasAppliedFor501c3WithIRSChanged(bool? value)
-    {
-        Model.HasAppliedFor501c3WithIRS = value;
-        Model.WillSupplyDocumentationLater = false;
-        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
-    }
-
-    private void OnWillSupplyDocumentationLaterChanged()
-    {
-        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
     }
 
     private void OnAcquiredExistingBusinessChanged(bool? value)
@@ -243,7 +214,7 @@ public partial class PreliminaryQuestions
     {
         Model.HaveEmployeesCurrentlyWorkingInWisconsin = value;
         Model.InformationIsAccurate = false;
-       _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
+        _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HaveEmployeesCurrentlyWorkingInWisconsin)));
     }
 
@@ -269,7 +240,7 @@ public partial class PreliminaryQuestions
         Model.NoEmployeeExplanation = null;
         Model.PEOName = null;
         Model.PEOUIAccountNumber = null;
-        _peoValue = null;
+        Model.PEOFEIN = null;
         Model.LeasingStartDate = null;
         Model.FiscalAgentName = null;
         Model.FiscalAgentUIAccountNumber = null;
@@ -293,22 +264,22 @@ public partial class PreliminaryQuestions
         RunValidation();
     }
 
-    private async Task OnInput(string? value)
-    {
-        var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 9)
-        {
-            digits = digits[..9];
-        }
+    //private async Task OnInput(string? value)
+    //{
+    //    var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+    //    if (digits.Length > 9)
+    //    {
+    //        digits = digits[..9];
+    //    }
 
-        _peoValue = digits.Length switch
-        {
-            > 2 => $"{digits[..2]}-{digits[2..]}",
-            _ => digits
-        };
-        Model.PEOFEIN = _peoValue;
-        await ValueChanged.InvokeAsync(Value);
-    }
+    //    _peoValue = digits.Length switch
+    //    {
+    //        > 2 => $"{digits[..2]}-{digits[2..]}",
+    //        _ => digits
+    //    };
+    //    Model.PEOFEIN = _peoValue;
+    //    _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.PEOFEIN)));
+    //}
     /// <inheritdoc/>
     protected override void OnInitialized()
     {
@@ -353,10 +324,29 @@ public partial class PreliminaryQuestions
         _touchedFields.Remove(field);
     }
 
-    /// <summary>
-    /// Called by the parent wizard's HandleActionClick to validate before advancing.
-    /// Saves the selected BusinessCategory to RegistrationStateService so Step 6 can read it.
-    /// </summary>
+    private void OnHasRulingFrom501c3IRSChanged(bool? value)
+    {
+        Model.HasRulingFrom501c3IRS = value;
+        Model.HasAppliedFor501c3WithIRS = null;
+        Model.WillSupplyDocumentationLater = false;
+        ResetField(() => Model.HasAppliedFor501c3WithIRS);
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
+    }
+    private void OnHasAppliedFor501c3WithIRSChanged(bool? value)
+    {
+        Model.HasAppliedFor501c3WithIRS = value;
+        Model.WillSupplyDocumentationLater = false;
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
+    }
+
+    private void OnWillSupplyDocumentationLaterChanged()
+    {
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
+    }
+
+    ///<Summary>
+    /// Called by the parent wizard's HandleActionClick to validate be fore advancing
+    ///</Summary>
     public bool Validate()
     {
         _formSubmitted = true;
@@ -365,14 +355,7 @@ public partial class PreliminaryQuestions
         _editContext.NotifyValidationStateChanged();
         StateHasChanged();
 
-        var isValid = !_editContext.GetValidationMessages().Any();
-
-        if (isValid)
-        {
-            // The model is already part of the ModelStore, so no manual assignment is needed here.
-        }
-
-        return isValid;
+        return !_editContext.GetValidationMessages().Any();
     }
 
     private readonly string _uiAccountNumberRegex = @"^\d{6}-\d{3}-\d$";
@@ -381,18 +364,19 @@ public partial class PreliminaryQuestions
     private void ValidateModel()
     {
         _messageStore.Clear();
+        ValidationErrors.Clear();
+        ValidationFieldIds.Clear();
+
+        var addressErrors = new Dictionary<FieldIdentifier, List<string>>();
+
         // FEIN
         if (IsVisible(() => Model.FEIN))
         {
             var field = _editContext.Field(nameof(Model.FEIN));
             if (string.IsNullOrWhiteSpace(Model.FEIN))
             {
-                _messageStore.Add(field, "Enter the FEIN of the business.");
-            }
-            else if (!Regex.IsMatch(Model.FEIN, @"^\d{2}-\d{7}$"))
-            {
-                _messageStore.Add(field, "FEIN must match the given format.");
-            }
+                _messageStore.Add(field, "Enter the FEIN of the business");
+            }        
         }
         // UI Account Number
         if (IsVisible(() => Model.UIAccountNumber) && !string.IsNullOrWhiteSpace(Model.UIAccountNumber))
@@ -400,7 +384,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.UIAccountNumber));
             if (!Regex.IsMatch(Model.UIAccountNumber, _uiAccountNumberRegex))
             {
-                _messageStore.Add(field, "Employer UI Account Number must match the given format.");
+                _messageStore.Add(field, "Employer UI Account Number must match the given format");
             }
         }
         // Business Category
@@ -409,7 +393,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.BusinessCategory));
             if (!Model.BusinessCategory.HasValue)
             {
-                _messageStore.Add(field, "Select your business category.");
+                _messageStore.Add(field, "Select your business category");
             }
         }
         // 501(c)(3) sub-tree validation
@@ -429,14 +413,13 @@ public partial class PreliminaryQuestions
                 _messageStore.Add(field, "Answer if you have applied for 501(c)(3) status with the IRS.");
             }
         }
-
         // Acquired Existing Business
         if (IsVisible(() => Model.AcquiredExistingBusiness))
         {
             var field = _editContext.Field(nameof(Model.AcquiredExistingBusiness));
             if (!Model.AcquiredExistingBusiness.HasValue)
             {
-                _messageStore.Add(field, "Select if you acquired an existing business.");
+                _messageStore.Add(field, "Select if you acquired an existing business");
             }
         }
         // Question 2.1
@@ -445,7 +428,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.KnowAcquiredBusinessAccountNumber));
             if (!Model.KnowAcquiredBusinessAccountNumber.HasValue)
             {
-                _messageStore.Add(field, "Answer if you know the Account Number of the acquired business.");
+                _messageStore.Add(field, "Answer if you know the Account Number of the acquired business");
             }
         }
         // Question 2.1.1
@@ -454,11 +437,14 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.AcquiredBusinessAccountNumber));
             if (string.IsNullOrWhiteSpace(Model.AcquiredBusinessAccountNumber))
             {
-                _messageStore.Add(field, "Enter the Account Number of the acquired business.");
+                _messageStore.Add(field, "Enter the Account Number of the acquired business");
             }
-            else if (!Regex.IsMatch(Model.AcquiredBusinessAccountNumber, _uiAccountNumberRegex))
+            else if (VisibilityQuestion_2_1_1
+         && !Regex.IsMatch(Model.AcquiredBusinessAccountNumber, _uiAccountNumberRegex))
             {
-                _messageStore.Add(field, "The Acquired Business UI Account Number must match the given format.");
+                _messageStore.Add(
+                    _editContext.Field(nameof(Model.AcquiredBusinessAccountNumber)),
+                    "The Acquired Business UI Account Number must match the given format");
             }
         }
         // Question 2.1.2
@@ -469,12 +455,12 @@ public partial class PreliminaryQuestions
                 var field = _editContext.Field(nameof(Model.AcquiredBusinessName));
                 if (string.IsNullOrWhiteSpace(Model.AcquiredBusinessName))
                 {
-                    _messageStore.Add(field, "Enter the Name of the acquired business.");
+                    _messageStore.Add(field, "Enter the Name of the acquired business");
                 }
             }
             if (Model.AcquiredBusinessAddress is not null)
             {
-                ValidateAddressAnnotations(Model.AcquiredBusinessAddress);
+                addressErrors = ValidateAddressAnnotations(Model.AcquiredBusinessAddress);
             }
         }
         // Question 3
@@ -484,7 +470,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.HavePaidEmployeesForWorkInWisconsin));
             if (!Model.HavePaidEmployeesForWorkInWisconsin.HasValue)
             {
-                _messageStore.Add(field, "Answer if you have paid employees for work completed in Wisconsin.");
+                _messageStore.Add(field, "Answer if you have paid employees for work completed in Wisconsin");
             }
         }
         // Question 3.1
@@ -494,7 +480,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.HaveEmployeesCurrentlyWorkingInWisconsin));
             if (!Model.HaveEmployeesCurrentlyWorkingInWisconsin.HasValue)
             {
-                _messageStore.Add(field, "Answer if you currently have employees working in the State of Wisconsin.");
+                _messageStore.Add(field, "Answer if you currently have employees working in the State of Wisconsin");
             }
         }
         // Acknowledgement checkbox (Q3.1 Yes)
@@ -502,7 +488,7 @@ public partial class PreliminaryQuestions
         {
             _messageStore.Add(
                 _editContext.Field(nameof(Model.InformationIsAccurate)),
-                "You must confirm that the information provided is true and accurate.");
+                "You must confirm that the information provided is true and accurate");
         }
 
         // Question 3.1.2
@@ -531,7 +517,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.ExpectFuturePayroll));
             if (!Model.ExpectFuturePayroll.HasValue)
             {
-                _messageStore.Add(field, "Answer if you expect to pay for work completed in the State of Wisconsin in the future.");
+                _messageStore.Add(field, "Answer if you expect to pay for work completed in the State of Wisconsin in the future");
             }
         }
         // Question 3.2.1
@@ -540,7 +526,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.ExpectedFuturePayrollPeriod));
             if (!Model.ExpectedFuturePayrollPeriod.HasValue)
             {
-                _messageStore.Add(field, "Pick the future time at which you expect to pay for work completed in the State of Wisconsin.");
+                _messageStore.Add(field, "Pick the future time at which you expect to pay for work completed in the State of Wisconsin");
             }
         }
         // Question 4
@@ -549,7 +535,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.SelectedNoEmployeeReason));
             if (!Model.SelectedNoEmployeeReason.HasValue)
             {
-                _messageStore.Add(field, "Select the reason you no longer have paid employees working in Wisconsin.");
+                _messageStore.Add(field, "Select the reason you no longer have paid employees working in Wisconsin");
             }
         }
         // Conditional cases
@@ -563,7 +549,7 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.NoEmployeeExplanation)),
-                            "Enter the reason for business continuation.");
+                            "Enter the reason for business continuation");
                     }
                     break;
                 case NoEmployeeReason.LeasingFromPEO:
@@ -572,7 +558,7 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.PEOName)),
-                            "Enter the PEO Name.");
+                            "Enter the PEO Name");
                     }
                     if (IsVisible(() => Model.PEOUIAccountNumber) &&
                         string.IsNullOrWhiteSpace(Model.PEOUIAccountNumber) &&
@@ -580,21 +566,21 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.PEOUIAccountNumber)),
-                            "Enter PEO UI Account Number or FEIN.");
+                            "Enter PEO UI Account Number or PEO FEIN");
                     }
                     if (!string.IsNullOrWhiteSpace(Model.PEOUIAccountNumber) &&
-                        !Regex.IsMatch(Model.PEOUIAccountNumber, _uiAccountNumberRegex))
+                       !Regex.IsMatch(Model.PEOUIAccountNumber, _uiAccountNumberRegex))
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.PEOUIAccountNumber)),
-                            "PEO UI Account Number must match the given format.");
+                            "PEO UI Account Number must match the given format");
                     }
                     if (IsVisible(() => Model.LeasingStartDate) &&
                         !Model.LeasingStartDate.HasValue)
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.LeasingStartDate)),
-                            "Enter the date leasing agreement started.");
+                            "Enter the date leasing agreement started");
                     }
                     break;
                 case NoEmployeeReason.FiscalAgent:
@@ -603,21 +589,21 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.FiscalAgentName)),
-                            "Enter the Fiscal Agent Name.");
+                            "Enter the Fiscal Agent Name");
                     }
                     if (IsVisible(() => Model.FiscalAgentUIAccountNumber) &&
                         string.IsNullOrWhiteSpace(Model.FiscalAgentUIAccountNumber))
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.FiscalAgentUIAccountNumber)),
-                            "Enter the Fiscal Agent UI Account Number.");
+                            "Enter the Fiscal Agent UI Account Number");
                     }
                     if (!string.IsNullOrWhiteSpace(Model.FiscalAgentUIAccountNumber) &&
                         !Regex.IsMatch(Model.FiscalAgentUIAccountNumber, _uiAccountNumberRegex))
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.FiscalAgentUIAccountNumber)),
-                            "Fiscal Agent UI Account Number must match the given format.");
+                            "Fiscal Agent UI Account Number must match the given format");
                     }
                     break;
                 case NoEmployeeReason.Other:
@@ -626,7 +612,7 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.OtherReason)),
-                            "Enter the reason.");
+                            "Enter the reason");
                     }
                     break;
                 case NoEmployeeReason.NotOperatingInWisconsin:
@@ -635,43 +621,100 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.LastEmploymentDate)),
-                            "Enter the last employment date.");
+                            "Enter the last employment date");
                     }
                     if (IsVisible(() => Model.LastPayrollDate) &&
                         !Model.LastPayrollDate.HasValue)
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.LastPayrollDate)),
-                            "Enter the last payroll date.");
+                            "Enter the last payroll date");
                     }
                     break;
             }
         }
 
+        //Bind Notification Banner
+        var properties = Model.GetType().GetProperties();
+        foreach (var prop in properties)
+        {
+            var fieldId = new FieldIdentifier(Model, prop.Name);
+            var errors = _editContext.GetValidationMessages(fieldId);
+
+            foreach (var error in errors)
+            {
+                ValidationErrors.Add(error);
+                ValidationFieldIds.Add(prop.Name);
+            }
+        }
+
+        //validation for address
+        if (addressErrors.Count != 0)
+        {
+            ValidationErrors.AddRange(addressErrors.Values.SelectMany(v =>
+            {
+                return v;
+            }).ToList());
+            ValidationFieldIds.AddRange(addressErrors.Keys.Select(k =>
+            {
+                return k.FieldName.ToString() ?? string.Empty;
+            }).ToList());
+        }
+
         _editContext.NotifyValidationStateChanged();
     }
 
-    private void ValidateAddressAnnotations(AddressModel address)
-    {
-        var results = new List<ValidationResult>();
-        var context = new ValidationContext(address);
+    //private void ValidateAddressAnnotations(AddressModel address)
+    //{
+    //    var results = new List<ValidationResult>();
+    //    var context = new ValidationContext(address);
 
-        Validator.TryValidateObject(address, context, results, validateAllProperties: true);
+    //    Validator.TryValidateObject(address, context, results, validateAllProperties: true);
+
+    //    foreach (var result in results)
+    //    {
+    //        if (result.MemberNames != null && result.MemberNames.Any())
+    //        {
+    //            foreach (var memberName in result.MemberNames)
+    //            {
+    //                var fieldIdentifier = new FieldIdentifier(address, memberName);
+    //                _messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "Invalid value.");
+    //            }
+    //        }
+    //        else
+    //        {
+    //            _messageStore.Add(new FieldIdentifier(address, string.Empty), result.ErrorMessage ?? "Invalid address.");
+    //        }
+    //    }
+    //}
+
+    /// <summary>Runs DataAnnotations validation on the contact address model.</summary>
+    private Dictionary<FieldIdentifier, List<string>> ValidateAddressAnnotations(AddressModel address)
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+        var ctx = new ValidationContext(address);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(address, ctx, results, true);
 
         foreach (var result in results)
         {
-            if (result.MemberNames != null && result.MemberNames.Any())
+            foreach (var memberName in result.MemberNames)
             {
-                foreach (var memberName in result.MemberNames)
+                var fi = new FieldIdentifier(address, memberName);
+
+                if (_touchedFields.Contains(fi))
                 {
-                    var fieldIdentifier = new FieldIdentifier(address, memberName);
-                    _messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "Invalid value.");
+                    _messageStore.Add(fi, result.ErrorMessage ?? "Invalid value.");
                 }
-            }
-            else
-            {
-                _messageStore.Add(new FieldIdentifier(address, string.Empty), result.ErrorMessage ?? "Invalid address.");
+
+                if (!errors.ContainsKey(fi))
+                {
+                    errors[fi] = new List<string>();
+                }
+                errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
             }
         }
+        return errors;
     }
+
 }

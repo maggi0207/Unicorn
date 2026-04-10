@@ -3,8 +3,9 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
-@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
 @using System.Linq.Expressions
 @inject NavigationManager Nav;
 
@@ -15,32 +16,48 @@
         <h1 class="page-title">Preliminary Questions</h1>
         <p class="page-subtitle">All fields are required unless noted</p>
 
-        <EditForm EditContext="_editContext">
+        <!-- Validation Error Summary -->
+        @if (_formSubmitted && ValidationErrors.Any())
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="ValidationErrors"
+                                MessageFieldIds="ValidationFieldIds"
+                                DismissButton="false">
+            </NotificationBanner>
+            <br />
+            <br />
+        }
 
+
+        <EditForm EditContext="_editContext">
+            <DataAnnotationsValidator />
             <!-- FEIN -->
             <FEINField Label="FEIN"
+                       Id="FEIN"
                        @bind-Value="Model.FEIN"
                        For="() => Model.FEIN"
-                       Placeholder="99-9999999" />
+                       Placeholder="99-9999999"
+                       Visible="@IsVisible(()=>Model.FEIN)" />
+
             <br />
 
             <!-- UI Account Number -->
             <!--Use Mask shared component at line 23 as reference in all your pages whereever needed-->
             <OutlinedTextField Label="Employer UI Account Number (Optional)"
+                               Id="UIAccountNumber"
+                               InputMode="numeric"
                                @bind-Value="Model.UIAccountNumber"
                                For="() => Model.UIAccountNumber"
                                Mask="000000-000-0"
                                Placeholder="999999-999-9" />
             <br />
 
-            <br />
-
-
             <!-- Question 1 -->
-            <p>Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
+            <p id="BusinessCategory">Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
             <FieldError For="@(() => Model.BusinessCategory)"
                         Visible="@_formSubmitted" />
-            <RadioGroup TValue="BusinessCategory ?"
+            <RadioGroup TValue="BusinessCategory?"
                         Value="Model.BusinessCategory"
                         ValueChanged="OnBusinessCategoryChanged"
                         ValueExpression="() => Model.BusinessCategory"
@@ -136,8 +153,9 @@
                 }
             }
 
+
             <!-- Question 2 -->
-            <p>Have you acquired through sale, reorganization or other means an existing business operation in Wisconsin?</p>
+            <p id="AcquiredExistingBusiness">Have you acquired through sale, reorganization or other means an existing business operation in Wisconsin?</p>
             <FieldError For="@(() => Model.AcquiredExistingBusiness)"
                         Visible="@_formSubmitted" />
             <RadioGroup TValue="bool?"
@@ -150,14 +168,14 @@
             @if (VisibilityQuestion_2_1)
             {
                 <!-- Question 2.1 -->
-                <p data-questionid="2.1">Do you know the Account Number of the acquired business?</p>
+                <p id="KnowAcquiredBusinessAccountNumber" data-questionid="2.1">Do you know the Account Number of the acquired business?</p>
                 <FieldError For="@(() => Model.KnowAcquiredBusinessAccountNumber)"
                             Visible="@_formSubmitted" />
                 <RadioGroup TValue="bool?"
                             Value="Model.KnowAcquiredBusinessAccountNumber"
                             ValueChanged="OnKnowAcquiredBusinessAccountNumberChanged"
                             ValueExpression="() => Model.KnowAcquiredBusinessAccountNumber"
-                            Options="@YesNoRadioOptions"/>
+                            Options="@YesNoRadioOptions" />
                 <br />
 
                 @if (VisibilityQuestion_2_1_1)
@@ -165,6 +183,7 @@
                     <!-- Question 2.1.1 (Question 2.1 Yes) -->
                     <span data-questionid="2.1.1"></span>
                     <OutlinedTextField Label="Acquired business Employer UI Account Number"
+                                       Id="AcquiredBusinessAccountNumber"
                                        @bind-Value="Model.AcquiredBusinessAccountNumber"
                                        For="() => Model.AcquiredBusinessAccountNumber"
                                        Mask="000000-000-0"
@@ -176,14 +195,15 @@
                     <!-- Question  2.1.2 (Question 2.1 No) -->
                     <span data-questionid="2.1.2"></span>
                     <OutlinedTextField Label="Name of the acquired business"
+                                       Id="AcquiredBusinessName"
                                        @bind-Value="Model.AcquiredBusinessName"
-                                       For="() => Model.AcquiredBusinessName"/>
+                                       For="() => Model.AcquiredBusinessName" />
                     <br />
 
                     <p>Current Address of Acquired Business</p>
                     <AddressField Address="Model.AcquiredBusinessAddress"
                                   Visible="true"
-                                  ErrorVisibleForField="(_) => _formSubmitted"/>
+                                  ErrorVisibleForField="(_) => _formSubmitted" />
                     <br />
                 }
             }
@@ -191,28 +211,28 @@
             @if (VisibilityQuestion_3)
             {
                 <!-- Question 3 -->
-                <p data-questionid="3">Have you paid employees for work performed in Wisconsin?<br /><span class="fw-bold">Do not include wages that have not yet been paid out, or wages reportable to a state other than Wisconsin.</span></p>
+                <p id="HavePaidEmployeesForWorkInWisconsin" data-questionid="3">Have you paid employees for work performed in Wisconsin?<br /><span class="fw-bold">Do not include wages that have not yet been paid out, or wages reportable to a state other than Wisconsin.</span></p>
                 <FieldError For="@(() => Model.HavePaidEmployeesForWorkInWisconsin)"
                             Visible="@_formSubmitted" />
                 <RadioGroup TValue="bool?"
                             Value="Model.HavePaidEmployeesForWorkInWisconsin"
                             ValueChanged="OnHavePaidEmployeesForWorkInWisconsinChanged"
                             ValueExpression="() => Model.HavePaidEmployeesForWorkInWisconsin"
-                            Options="@YesNoRadioOptions"/>
+                            Options="@YesNoRadioOptions" />
                 <br />
 
 
                 @if (VisibilityQuestion_3_1)
                 {
                     <!-- Question 3.1 (Question 3 Yes) -->
-                    <p data-questionid="3.1">Do you still have paid employees working in Wisconsin?</p>
+                    <p Id="HaveEmployeesCurrentlyWorkingInWisconsin" data-questionid="3.1">Do you still have paid employees working in Wisconsin?</p>
                     <FieldError For="@(() => Model.HaveEmployeesCurrentlyWorkingInWisconsin)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
                                 Value="Model.HaveEmployeesCurrentlyWorkingInWisconsin"
                                 ValueChanged="OnHaveEmployeesCurrentlyWorkingInWisconsinChanged"
                                 ValueExpression="() => Model.HaveEmployeesCurrentlyWorkingInWisconsin"
-                                Options="@YesNoRadioOptions"/>
+                                Options="@YesNoRadioOptions" />
                     <br />
                     @if (VisibilityCheckbox_InfoAccurate)
                     {
@@ -247,17 +267,17 @@
                         <br />
                     } *@
                 }
-                 @if(VisibilityQuestion_3_2)
+                @if (VisibilityQuestion_3_2)
                 {
                     <!-- Question 3.2 (Question 3 No) -->
-                    <p data-questionid="3.2">Do you expect to pay wages for work performed in Wisconsin in the future?</p>
+                    <p id="ExpectFuturePayroll" data-questionid="3.2">Do you expect to pay wages for work performed in Wisconsin in the future?</p>
                     <FieldError For="@(() => Model.ExpectFuturePayroll)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
                                 Value="Model.ExpectFuturePayroll"
                                 ValueChanged="OnExpectFuturePayrollChanged"
                                 ValueExpression="() => Model.ExpectFuturePayroll"
-                                Options="@YesNoRadioOptions"/>
+                                Options="@YesNoRadioOptions" />
                     <br />
 
                     <!-- Question 3.2.1 (Question 3.2 Yes) -->
@@ -265,9 +285,10 @@
                     {
                         <span data-questionid="3.2.1"></span>
                         <OutlinedSelectField Label="When?"
+                                             Id="ExpectedFuturePayrollPeriod"
                                              @bind-Value="ExpectedFuturePayrollPeriodAsString"
                                              Options="FuturePayPeriodOptions"
-                                             For="() => ExpectedFuturePayrollPeriodAsString"/>
+                                             For="() => ExpectedFuturePayrollPeriodAsString" />
                         <FieldError For="@(() => Model.ExpectedFuturePayrollPeriod)"
                                     Visible="@_formSubmitted" />
                         <br />
@@ -292,7 +313,7 @@
             @if (VisibilityQuestion_4)
             {
                 <div class="no-employee-section">
-                    <p class="section-title">
+                    <p id="SelectedNoEmployeeReason" class="section-title">
                         Select the reason you no longer have paid employees working in Wisconsin.
                     </p>
                     <FieldError For="@(() => Model.SelectedNoEmployeeReason)"
@@ -307,6 +328,7 @@
                         <!-- Question 3.1.2 (Question 3.1 No) -->
                         <span data-questionid="3.1.2"></span>
                         <OutlinedTextField Label="Last Employment Date"
+                                           Id="LastEmploymentDate"
                                            Type="date"
                                            @bind-Value="LastEmploymentDateAsString"
                                            For="() => LastEmploymentDateAsString"
@@ -314,6 +336,7 @@
                         <br />
 
                         <OutlinedTextField Label="Last Payroll Date"
+                                           Id="LastPayrollDate"
                                            Type="date"
                                            @bind-Value="LastPayrollDateAsString"
                                            For="() => LastPayrollDateAsString"
@@ -325,15 +348,18 @@
                         <div class="peo-container">
                             <div class="field-wrapper peo-name">
                                 <OutlinedTextField Label="PEO Name"
+                                                   Id="PEOName"
                                                    @bind-Value="Model.PEOName"
                                                    For="() => Model.PEOName"
                                                    Visible="@IsVisible(()=>Model.PEOName)" />
                             </div>
-                            <br/>
+                            <br />
                             <div class="peo-row">
                                 <div class="peo-ui">
                                     <OutlinedTextField Label="PEO UI Account Number"
                                                        @bind-Value="Model.PEOUIAccountNumber"
+                                                       InputMode="numeric"
+                                                       Id="PEOUIAccountNumber"
                                                        For="() => Model.PEOUIAccountNumber"
                                                        Mask="000000-000-0"
                                                        Placeholder="999999-999-9"
@@ -343,18 +369,29 @@
                                 <span class="or-text">OR</span>
 
                                 <div class="peo-fein">
-                                    <OutlinedTextField Label="PEO FEIN"
-                                                       Value="@_peoValue"
+                                    @* <OutlinedTextField Label="PEO FEIN"
+                                                       Value="@Model.PEOFEIN"
                                                        ValueChanged="OnInput"
                                                        For="() => Model.PEOFEIN"
                                                        Placeholder="11-2233445"
                                                        MaxLength="10"
-                                                       Visible="@IsVisible(()=>Model.PEOFEIN)" />
+                                                       Visible="@IsVisible(()=>Model.PEOFEIN)" /> *@
+                                    <FEINField Label="PEO FEIN"
+                                               Id="PEO FEIN"
+                                               @bind-Value="Model.PEOFEIN"
+                                               For="() => Model.PEOFEIN"
+                                               Placeholder="99-9999999"
+                                               Visible="@IsVisible(()=>Model.PEOFEIN)" />
+                                    <div class="validation-space">
+                                       <FieldError For="@(() => Model.PEOFEIN)"
+                                Visible="@_formSubmitted" />
+                                    </div>
                                 </div>
                             </div>
                             <br />
                             <div class="field-wrapper peo-date">
                                 <OutlinedTextField Label="Date leasing agreement started"
+                                                   Id="LeasingStartDate"
                                                    Type="date"
                                                    @bind-Value="LeasingStartDateAsString"
                                                    For="() => LeasingStartDateAsString"
@@ -366,6 +403,7 @@
                     {
                         <div class="no-employee-reason-wrapper">
                             <OutlinedTextField Label="Enter the reason for business continuation."
+                                               Id="NoEmployeeExplanation"
                                                @bind-Value="Model.NoEmployeeExplanation"
                                                For="() => Model.NoEmployeeExplanation" />
                         </div>
@@ -378,6 +416,7 @@
                             <div class="fiscal-row">
                                 <div class="field-wrapper fiscal-half">
                                     <OutlinedTextField Label="Fiscal Agent Name"
+                                                       Id="FiscalAgentName"
                                                        @bind-Value="Model.FiscalAgentName"
                                                        For="() => Model.FiscalAgentName"
                                                        Visible="@IsVisible(()=>Model.FiscalAgentName)" />
@@ -387,6 +426,7 @@
                             <!-- Full width: UI Account Number -->
                             <div class="field-wrapper fiscal-full">
                                 <OutlinedTextField Label="Fiscal Agent UI Account Number"
+                                                   Id="FiscalAgentUIAccountNumber"
                                                    @bind-Value="Model.FiscalAgentUIAccountNumber"
                                                    For="() => Model.FiscalAgentUIAccountNumber"
                                                    Mask="000000-000-0"
@@ -399,6 +439,7 @@
                     {
                         <div class="field-wrapper provide-reason">
                             <OutlinedTextField Label="Provide reason"
+                                               Id="OtherReason"
                                                @bind-Value="Model.OtherReason"
                                                For="() => Model.OtherReason"
                                                Visible="@IsVisible(()=>Model.OtherReason)" />
