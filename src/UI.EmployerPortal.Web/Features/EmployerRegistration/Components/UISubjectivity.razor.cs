@@ -229,7 +229,9 @@ public partial class UISubjectivity
     private static BusinessCategoryScenario ResolveScenario(bool isNonProfitFromStep1, PrincipalBusinessActivityType activity)
     {
         if (isNonProfitFromStep1)
+        {
             return BusinessCategoryScenario.LockedNonProfit501c3;
+        }
 
         var isAgricultural = activity is
             PrincipalBusinessActivityType.AgricultureFarming or
@@ -237,7 +239,9 @@ public partial class UISubjectivity
             PrincipalBusinessActivityType.AgricultureRaisingLivestock;
 
         if (isAgricultural)
+        {
             return BusinessCategoryScenario.LockedAgricultural;
+        }
 
         var isDomestic = activity is
             PrincipalBusinessActivityType.DomesticEmployNannyOrBabysitter or
@@ -246,7 +250,9 @@ public partial class UISubjectivity
             PrincipalBusinessActivityType.DomesticFiscalAgentElectingToBeEmployer;
 
         if (isDomestic)
+        {
             return BusinessCategoryScenario.LockedDomestic;
+        }
 
         var isConstruction = activity is
             PrincipalBusinessActivityType.ConstructionSpecialtyTrades or
@@ -270,7 +276,9 @@ public partial class UISubjectivity
             PrincipalBusinessActivityType.ConstructionSpecialtyTradeWhitewashing;
 
         if (isConstruction)
+        {
             return BusinessCategoryScenario.LockedCommercial;
+        }
 
         return BusinessCategoryScenario.FreeChoice;
     }
@@ -689,7 +697,10 @@ public partial class UISubjectivity
     private bool Section2Visible()
     {
         // Regular flow: NonProfit_Other is selected.
-        if (BusinessCategory == BusinessCategory.NonProfit_Other) return true;
+        if (BusinessCategory == BusinessCategory.NonProfit_Other)
+        {
+            return true;
+        }
 
         // Locked flow: Step 1 pre-set 501(c)(3) but the user is now switching to a different
         // category. Show the question so they can confirm they have not applied for 501(c)(3)
@@ -697,7 +708,9 @@ public partial class UISubjectivity
         if (_scenario == BusinessCategoryScenario.LockedNonProfit501c3
             && BusinessCategory != BusinessCategory.NonProfit_501c3
             && BusinessCategory != BusinessCategory.Unknown)
+        {
             return true;
+        }
 
         return false;
     }
