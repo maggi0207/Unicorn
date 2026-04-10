@@ -54,14 +54,14 @@
             <br />
 
             <!-- Question 1 -->
-            <p id="BusinessCategory">Select your business category. <span class="fw-bold">To be considered a non-profit organization by the State of Wisconsin, you must have recieved a 501(c)(3) determination from the IRS</span></p>
-            <FieldError For="@(() => Model.BusinessCategory)"
+            <p id="IsNonProfitOrg">Are you a non-profit organization as described in s.501(c)(3) of the IRS code?</p>
+            <FieldError For="@(() => Model.IsNonProfitOrg)"
                         Visible="@_formSubmitted" />
-            <RadioGroup TValue="BusinessCategory?"
-                        Value="Model.BusinessCategory"
-                        ValueChanged="OnBusinessCategoryChanged"
-                        ValueExpression="() => Model.BusinessCategory"
-                        Options="@BusinessCategoryOptions" />
+            <RadioGroup TValue="bool?"
+                        Value="Model.IsNonProfitOrg"
+                        ValueChanged="OnIsNonProfitOrgChanged"
+                        ValueExpression="() => Model.IsNonProfitOrg"
+                        Options="@YesNoRadioOptions" />
             <br />
 
             @if (Show501c3SubTree)

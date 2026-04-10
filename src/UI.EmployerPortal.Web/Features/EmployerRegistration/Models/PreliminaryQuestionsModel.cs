@@ -18,9 +18,10 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public string UIAccountNumber { get; set; } = string.Empty;
 
     /// <summary>
-    ///
+    /// Answer to "Are you a non-profit organization as described in s.501(c)(3) of the IRS code?"
+    /// Drives the entire 501(c)(3) sub-tree visibility.
     /// </summary>
-    public BusinessCategory? BusinessCategory { get; set; } = null;
+    public bool? IsNonProfitOrg { get; set; } = null;
 
     /// <summary>
     /// Answer to "Do you have a 501(c)(3) ruling from the IRS?"
@@ -261,7 +262,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM, _response = FiscalAgentName });
         }
-        if (BusinessCategory == BusinessCategory.NonProfit_501c3)
+        if (IsNonProfitOrg == true)
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NON_PRFT_FLG, _response = "Yes" });
         }
