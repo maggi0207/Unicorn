@@ -220,6 +220,11 @@
     opacity: 0.7;
 }
 
+.ui-radio-locked-option input[type="radio"]:disabled {
+    accent-color: #555555;
+    cursor: not-allowed;
+}
+
 .ui-radio-locked-label {
     font-family: Verdana, sans-serif;
     font-size: 16px;
