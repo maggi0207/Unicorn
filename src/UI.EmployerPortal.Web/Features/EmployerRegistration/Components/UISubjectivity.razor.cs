@@ -180,9 +180,9 @@ public partial class UISubjectivity
 
         _subjectivityContext = new EditContext(SubjectivityModel);
 
-        var preliminaryCategory = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.BusinessCategory;
+        var isNonProfitFromStep1 = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.IsNonProfitOrg == true;
 
-        if (preliminaryCategory == BusinessCategory.NonProfit_501c3)
+        if (isNonProfitFromStep1)
         {
             _businessCategoryLockedFromStep1 = true;
             SubjectivityModel.BusinessCategory = BusinessCategory.NonProfit_501c3;
