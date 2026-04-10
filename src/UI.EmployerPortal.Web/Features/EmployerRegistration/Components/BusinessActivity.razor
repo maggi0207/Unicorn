@@ -1,0 +1,177 @@
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+<PageTitle>Business Activity</PageTitle>
+<div class="page_wrapper">
+    <div class="bi-page-content">
+        <h1 class="page-title">Business Activity</h1>
+
+        @if (_showValidationSummary && ValidationErrors.Any())
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="ValidationErrors"
+                                MessageFieldIds="ValidationFieldIds"
+                                DismissButton="false">
+            </NotificationBanner>
+            <br />
+        }
+
+        @if (!_isSessionLoaded)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+                <div class="form-section">
+                    <!-- Date fields - Row 1 -->
+                    @if (ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.HavePaidEmployeesForWorkInWisconsin.HasValue
+                                    && ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.HavePaidEmployeesForWorkInWisconsin.Value)
+                    {
+                        <div class="form-row row">
+                            <div class="form-group col-md-6">
+                                <ValidatedDateInput Id="dateStarted"
+                                                    Label="Date business started or acquired"
+                                                    Value="@Model.DateBusinessStarted"
+                                                    ValueChanged="@(v => {Model.DateBusinessStarted = v; ValidateForm(); OnFieldChanged("DateBusinessStarted");})"
+                                                    Max="DateTime.Today"
+                                                    Width="350"
+                                                    HasError="@(FieldErrors.ContainsKey("DateBusinessStarted"))"
+                                                    ErrorMessage="@FieldErrors.GetValueOrDefault("DateBusinessStarted")"
+                                                    Visible="_showAllErrors"
+                                                    OnBlur="@(() => ValidateForm())" />
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <ValidatedDateInput Id="dateFirstPaid"
+                                                    Label="Date you first had paid employees working in WI"
+                                                    Value="@Model.DateFirstPaidEmployeesInWI"
+                                                    ValueChanged="@(v => {Model.DateFirstPaidEmployeesInWI = v;ValidateForm(); OnFieldChanged("DateFirstPaidEmployeesInWI");})"
+                                                    Max="DateTime.Today"
+                                                    Width="360"
+                                                    CSS="master-text-field-full"
+                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
+                                                    ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidEmployeesInWI")"
+                                                    Visible="_showAllErrors"
+                                                    OnBlur="@(() => ValidateForm())" />
+                            </div>
+                        </div>
+
+                        <!-- Date fields - Row 2 -->
+                        <div class="form-row row">
+                            <div class="col-md-6">
+                                <ValidatedDateInput Id="dateFirstWages"
+                                                    Label="Date first paid wages for work performed in WI"
+                                                    Value="@Model.DateFirstPaidWagesInWI"
+                                                    ValueChanged="@(v => {Model.DateFirstPaidWagesInWI = v; ValidateForm(); OnFieldChanged("DateBusinessStarted");})"
+                                                    Max="DateTime.Today"
+                                                    Width="350"
+                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
+                                                    ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidWagesInWI")"
+                                                    Visible="_showAllErrors"
+                                                    OnBlur="@(() => ValidateForm())" />
+                            </div>
+                        </div>
+                    }
+                    <!-- Principal Business Activity -->
+                    <div class="activity-section">
+                        <p>Select your principal business activity from the list below.</p>
+
+                        <div class="form-row row">
+                            <div class="col-12">
+                                <PrincipalBusinessActivitySelect Id="principal-activity"
+                                                                 Label="Principal Business Activity"
+                                                                 @bind-Value="Model.PrincipalBusinessActivity"
+                                                                 @bind-Value:after="OnPrincipalActivityChanged"
+                                                                 IsRequired="true"
+                                                                 HasError="@(FieldErrors.ContainsKey("PrincipalBusinessActivity"))"
+                                                                 ErrorMessage="@FieldErrors.GetValueOrDefault("PrincipalBusinessActivity")"
+                                                                 Visible="_showAllErrors" />
+                            </div>
+                        </div>
+
+                        @if (_showConstructionWarning)
+                        {
+                            <div class="row nb-information-multiline">
+                                <div class="col-md-11 text-start">
+                                    <ul style="list-style-type:none;" class="nb-text-multiline">
+                                        <li>
+                                            Any employer who is engaged in a construction industry who knowingly or intentionally provides
+                                            false information to the department for the purpose of misclassifying an employee as a non-employee
+                                            will be assessed a penalty. Additional information can be found at
+                                            <a href="https://dwd.wisconsin.gov/ui201/t2201.htm#employee_definition" target="_blank" rel="noopener noreferrer">
+                                                https://dwd.wisconsin.gov/ui201/t2201.htm#employee_definition
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Primary Business Activity Description -->
+                    <div class="activity-section">
+                        <p>
+                            <strong><u>Describe your primary business activity</u></strong>, such as: Principal line of merchandise sold,
+                            Type of construction work done, Products produced, Types of services provided
+                        </p>
+
+                        <div class="form-row row">
+                            <div class="col-12">
+                                <ValidatedTextArea Id="primaryDescription"
+                                                   Label="Primary Business Activity Description"
+                                               Value="@Model.PrimaryBusinessActivityDescription"
+                                               ValueChanged="@(v => {Model.PrimaryBusinessActivityDescription = v; ValidateForm(); OnFieldChanged("PrimaryBusinessActivityDescription");})"
+                                                   Rows="4"
+                                                   Width="750"
+                                                   MaxLength="255"
+                                                   HasError="@(FieldErrors.ContainsKey("PrimaryBusinessActivityDescription"))"
+                                                   ErrorMessage="@FieldErrors.GetValueOrDefault("PrimaryBusinessActivityDescription")"
+                                                   Visible="_showAllErrors"
+                                                   OnBlur="@(() => ValidateForm())" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wisconsin-specific description -->
+                    <div class="activity-section">
+                        <p>
+                            <strong>Describe the primary business activity for your Wisconsin based employment</strong>, such as: Principal line of
+                            merchandise sold, Type of construction work done, Products produced, Types of services provided
+                        </p>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox"
+                                       checked="@Model.SameAsPrimaryBusinessActivity"
+                                       @onchange="@(e => { Model.SameAsPrimaryBusinessActivity = (bool)(e.Value ?? false); ValidateForm(); })" />
+                                <span><strong>Same as the primary business activity.</strong></span>
+                            </label>
+                        </div>
+
+                        @if (!Model.SameAsPrimaryBusinessActivity)
+                        {
+                            <div class="form-row row">
+                                <div class="col-12">
+                                    <ValidatedTextArea Id="wiDescription"
+                                                       Label="Wisconsin Specific Business Activity"
+                                                       Value="@Model.WisconsinSpecificBusinessActivity"
+                                                       ValueChanged="@(v => {Model.WisconsinSpecificBusinessActivity = v; ValidateForm(); OnFieldChanged("WisconsinSpecificBusinessActivity");})"
+                                                       Rows="4"
+                                                       Width="750"
+                                                       MaxLength="255"
+                                                       HasError="@(FieldErrors.ContainsKey("WisconsinSpecificBusinessActivity"))"
+                                                       ErrorMessage="@FieldErrors.GetValueOrDefault("WisconsinSpecificBusinessActivity")"
+                                                       Visible="_showAllErrors"
+                                                       OnBlur="@(() => ValidateForm())" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+        }
+    </div>
+</div>
