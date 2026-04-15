@@ -1,17 +1,43 @@
 @using System.Linq.Expressions
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 
-@if (ShowCountryCode)
+@if (ShowCountryCode && !ResolvedCountryCodeDisabled)
 {
+    @* Other International — 3 columns: Area Code | Phone Number | Ext. *@
     <div class="phone-row">
         <div class="phone-prefix-field">
             <OutlinedTextField Label="International Area Code"
                                Value="@CountryCode"
                                ValueChanged="OnPrefixInput"
                                Visible="@Visible"
-                               Disabled="@ResolvedCountryCodeDisabled"
+                               Disabled="@Disabled"
                                MaxLength="5" />
         </div>
+        <div class="phone-main-field">
+            <OutlinedTextField Label="@Label"
+                               Value="@Value"
+                               ValueChanged="OnInput"
+                               For="@For"
+                               Type="tel"
+                               Placeholder="(999-999-9999)"
+                               MaxLength="12"
+                               Visible="@Visible"
+                               Disabled="@Disabled" />
+        </div>
+        <div class="phone-ext-field">
+            <OutlinedTextField Label="Ext."
+                               Value="@Extension"
+                               ValueChanged="ExtensionChanged"
+                               MaxLength="6"
+                               Visible="@Visible"
+                               Disabled="@Disabled" />
+        </div>
+    </div>
+}
+else if (ShowCountryCode)
+{
+    @* US / Canada — 2 columns: Phone Number | Ext. (+1 used silently, no prefix box) *@
+    <div class="phone-row">
         <div class="phone-main-field">
             <OutlinedTextField Label="@Label"
                                Value="@Value"
