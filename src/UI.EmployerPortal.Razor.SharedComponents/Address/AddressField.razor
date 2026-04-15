@@ -61,11 +61,17 @@
         <div class="bi-field">
             <OutlinedTextField Label="Address Line 3"
                                @bind-Value="Address.AddressLine3"
+                               For="() => Address.AddressLine3"
+                               Id="AddressLine3"
+                               Visible="Visible"
                                Disabled="Disabled" />
         </div>
         <div class="bi-field">
             <OutlinedTextField Label="Address Line 4"
                                @bind-Value="Address.AddressLine4"
+                               For="() => Address.AddressLine4"
+                               Id="AddressLine4"
+                               Visible="Visible"
                                Disabled="Disabled" />
         </div>
     }

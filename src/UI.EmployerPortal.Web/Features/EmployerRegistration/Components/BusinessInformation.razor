@@ -460,11 +460,21 @@
         {
             if (address.Country == "Other International")
             {
-                // Only AddressLine1 is shown for international addresses — skip City/State/Zip.
+                // City/State/Zip are not shown — validate only the visible address lines.
                 if (string.IsNullOrWhiteSpace(address.AddressLine1))
                 {
                     var fi = new FieldIdentifier(address, nameof(AddressModel.AddressLine1));
                     errors[fi] = new List<string> { "Address Line 1 is required." };
+                }
+                if (string.IsNullOrWhiteSpace(address.AddressLine3))
+                {
+                    var fi = new FieldIdentifier(address, nameof(AddressModel.AddressLine3));
+                    errors[fi] = new List<string> { "Address Line 3 is required." };
+                }
+                if (string.IsNullOrWhiteSpace(address.AddressLine4))
+                {
+                    var fi = new FieldIdentifier(address, nameof(AddressModel.AddressLine4));
+                    errors[fi] = new List<string> { "Address Line 4 is required." };
                 }
             }
             else
