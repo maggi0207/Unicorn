@@ -7,7 +7,7 @@
 }
 
 .phone-prefix-field {
-    flex: 0 0 170px;
+    flex: 0 0 200px;
 }
 
 .phone-prefix-field .master-text-field label {
@@ -20,4 +20,9 @@
 
 .phone-ext-field {
     flex: 0 0 80px;
+}
+
+/* US / Canada layout: cap to one grid-column width so phone + ext don't stretch across the full row */
+.phone-row--no-code {
+    max-width: 330px;
 }
