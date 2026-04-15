@@ -15,6 +15,12 @@ public class AddressModel
     public string? Name { get; set; }
 
     /// <summary>
+    /// Indicates whether the Name field is visible in the <c>AddressField</c> component.
+    /// Set automatically by the component via <c>ShowName</c> parameter.
+    /// </summary>
+    public bool IsNameVisible { get; set; }
+
+    /// <summary>
     /// Country name. Defaults to "United States".
     /// </summary>
     [Required(ErrorMessage = "Country is required.")]
@@ -55,15 +61,36 @@ public class AddressModel
     public string? Extension { get; set; }
 
     /// <summary>
+    /// Third address line used for international (Other International) addresses.
+    /// </summary>
+    public string? AddressLine3 { get; set; }
+
+    /// <summary>
+    /// Fourth address line used for international (Other International) addresses.
+    /// </summary>
+    public string? AddressLine4 { get; set; }
+
+    /// <summary>
     /// Optional phone number associated with this address (used when <c>ShowPhone</c> is enabled on <c>AddressField</c>).
     /// </summary>
     public string? PhoneNumber { get; set; }
 
     /// <summary>
     /// International dialing prefix for the phone number (e.g. "+1", "+52").
-    /// Defaults to "+1" (United States / Canada). Automatically updated when the country selection changes.
+    /// Defaults to "+1" (United States / Canada). Automatically updated when the country or phone type selection changes.
     /// </summary>
     public string? PhoneCountryCode { get; set; } = "+1";
+
+    /// <summary>
+    /// The country associated with the phone number (e.g. "United States", "Canada", "Other International").
+    /// Defaults to "United States". Controls whether the international area code prefix is editable.
+    /// </summary>
+    public string? PhoneType { get; set; } = "United States";
+
+    /// <summary>
+    /// Optional phone extension number displayed in the Ext. field of the phone row.
+    /// </summary>
+    public string? PhoneExtension { get; set; }
 
     /// <summary>
     /// Shared list of US states, territories, Canadian provinces, and military APO/FPO addresses.

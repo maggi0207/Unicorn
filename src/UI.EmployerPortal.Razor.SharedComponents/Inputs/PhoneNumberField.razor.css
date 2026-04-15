@@ -17,3 +17,7 @@
 .phone-main-field {
     flex: 1;
 }
+
+.phone-ext-field {
+    flex: 0 0 80px;
+}
