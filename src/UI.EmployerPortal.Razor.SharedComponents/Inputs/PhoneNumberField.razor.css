@@ -15,14 +15,9 @@
 }
 
 .phone-main-field {
-    flex: 1;
+    flex: 0 0 220px;
 }
 
 .phone-ext-field {
     flex: 0 0 80px;
-}
-
-/* US / Canada layout: cap to one grid-column width so phone + ext don't stretch across the full row */
-.phone-row--no-code {
-    max-width: 330px;
 }
