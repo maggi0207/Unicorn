@@ -4,6 +4,8 @@ using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
+
+
 /// <summary>
 /// Model for Step 3 (Business Information) of the employer registration wizard.
 /// Contains business details, mailing address, and physical location(s).
@@ -12,17 +14,11 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
 {
     #region Business Details
 
-    /// <summary>
-    /// Federal Employer Identification Number in format 99-9999999.
-    /// </summary>
-    [Required(ErrorMessage = "FEIN is required.")]
-    [RegularExpression(@"^\d{2}-\d{7}$", ErrorMessage = "FEIN must be in format 99-9999999.")]
-    public string? FEIN { get; set; }
 
     /// <summary>
     /// Legal business name as registered with the state.
     /// </summary>
-    [Required(ErrorMessage = "Legal Name is required.")]
+    [Required(ErrorMessage = "Legal Name is required")]
     public string? LegalName { get; set; }
 
     /// <summary>
@@ -33,8 +29,8 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     /// <summary>
     /// Business contact email address.
     /// </summary>
-    [Required(ErrorMessage = "Email Address is required.")]
-    [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+    [Required(ErrorMessage = "Email Address is required")]
+    [EmailAddress(ErrorMessage = "Please enter a valid email address")]
     public string? Email { get; set; }
 
     #endregion
@@ -57,12 +53,36 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     {
         new AddressModel()
     };
-
     #endregion
 
-    /// <summary>
-    /// Returns survey responses for all populated business information fields.
-    /// </summary>
+    /// <inheritdoc/>
+    public List<SurveyContact> GetSurveyContacts()
+    {
+        return new();
+    }
+
+    /// <inheritdoc/>
+    public List<Tuple<RegistrationAddressCode, AddressModel>> GetSurveyAddresses()
+    {
+        var addresses = new List<Tuple<RegistrationAddressCode, AddressModel>>();
+
+        if (!string.IsNullOrWhiteSpace(MailingAddress.AddressLine1))
+        {
+            addresses.Add(Tuple.Create(RegistrationAddressCode.Main_Business_Mailing, MailingAddress));
+        }
+
+        addresses.AddRange(PhysicalLocations.Where(pl =>
+        {
+            return !string.IsNullOrWhiteSpace(pl.AddressLine1);
+        }).Select(pl =>
+        {
+            return Tuple.Create(RegistrationAddressCode.Physical_Location, pl);
+        }));
+
+        return addresses;
+    }
+
+    /// <inheritdoc/>
     public List<SurveyResponse> GetSurveyResponses()
     {
         var responses = new List<SurveyResponse>();
@@ -77,14 +97,10 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.TRD_NAM, _response = TradeName });
         }
 
+        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EMAIL_NOTIFY, _response = "Yes" });
         if (!string.IsNullOrWhiteSpace(Email))
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
-        }
-
-        if (!string.IsNullOrWhiteSpace(FEIN))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FEIN_NUM, _response = FEIN });
         }
 
         return responses;

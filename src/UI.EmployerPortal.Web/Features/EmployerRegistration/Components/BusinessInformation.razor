@@ -8,113 +8,132 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @inject NavigationManager Nav
 @inject AddressValidationCoordinator AddressCoordinator
 @inject RegistrationStateService RegistrationState
 
+<PageTitle>Business Information</PageTitle>
+
 <div class="page_wrapper">
     <div class="bi-page-content">
+        <h1 class="page-title" aria-label="buisness-information">Business Information</h1>
+        <p class="page-subtitle" aria-label="noted-required-fields">All fields are required unless noted</p>
 
-        <h1 class="page-title">Business Information</h1>
-        <p class="page-subtitle">All fields are required unless noted</p>
+        <EditForm EditContext="@editContext" FormName="BusinessInformation" role="form">
 
-        <EditForm EditContext="@editContext" FormName="BusinessInformation">
+            <DataAnnotationsValidator />
+            <CustomValidator @ref="customValidator" />
 
-    <DataAnnotationsValidator />
-    <CustomValidator @ref="customValidator" />
-
-    @* ================= ERROR BANNER ================= *@
-    <NotificationBanner Visible="@(formSubmitted && hasValidationErrors)"
-                        Title="Missing information"
-                        Message="Please correct the errors below" />
-
-    @* ================= BUSINESS DETAILS ================= *@
-    <div class="bi-fields-grid">
-
-        <div class="bi-field">
-            <FEINField @bind-Value="Model.FEIN"
-                       For="() => Model.FEIN"
-                       Visible="@IsVisible(() => Model.FEIN)" />
-        </div>
-
-        <div class="bi-field"></div>
-
-        <div class="bi-field">
-            <OutlinedTextField Label="Legal Name"
-                               @bind-Value="Model.LegalName"
-                               For="() => Model.LegalName"
-                               Visible="@IsVisible(() => Model.LegalName)" />
-        </div>
-
-        <div class="bi-field">
-            <OutlinedTextField Label="Trade Name (Optional)"
-                               @bind-Value="Model.TradeName" />
-        </div>
-
-        <div class="bi-field">
-            <OutlinedTextField Label="Email Address"
-                               Type="email"
-                               @bind-Value="Model.Email"
-                               For="() => Model.Email"
-                               Placeholder="name@example.com"
-                               Visible="@IsVisible(() => Model.Email)" />
-        </div>
-
-    </div>
-
-    @* ================= MAILING ADDRESS ================= *@
-    <div class="bi-section-header">
-        <span>Business Mailing Address</span>
-    </div>
-
-    <AddressField Address="Model.MailingAddress"
-                  ShowPhone="true"
-                  Visible="@IsAddressVisible(Model.MailingAddress)" />
-
-    @* ================= PHYSICAL LOCATIONS ================= *@
-    @for (int i = 0; i < Model.PhysicalLocations.Count; i++)
-    {
-        var index = i;
-        <div class="bi-section-header">
-            <span>Physical Location @(index + 1)</span>
-            @if (index > 0)
+            @* ================= Validation Error Summary ================= *@
+            @if (_showValidationSummary && ValidationErrors.Any())
             {
-                <button type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)">
-                    Remove
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="ValidationErrors"
+                                    MessageFieldIds="ValidationFieldIds"
+                                    DismissButton="false">
+                </NotificationBanner>
+                <br />
+                <br />
+            }
+
+            @* ================= BUSINESS DETAILS ================= *@
+            <div class="bi-fields-grid" aria-label="Fill Buisness Details">
+                <div class="bi-field">
+                    <OutlinedTextField Label="Legal Name"
+                                       @bind-Value="Model.LegalName"
+                                       For="() => Model.LegalName"
+                                       Id="LegalName"
+                                       Maxlength="64"
+                                       OnBlur="() => ValidateCustomFields(nameof(Model.LegalName))"
+                                       Visible="@IsVisible(() => Model.LegalName)" />
+                </div>
+                <div class="bi-field">
+                    <OutlinedTextField Label="Trade Name (Optional)"
+                                       @bind-Value="Model.TradeName"
+                                       For="() => Model.TradeName"
+                                       Id="TradeName"
+                                       MaxLength="64"
+                                       OnBlur="() => ValidateCustomFields(nameof(Model.TradeName))" />
+                </div>
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Type="email"
+                                       @bind-Value="Model.Email"
+                                       For="() => Model.Email"
+                                       Placeholder="name@example.com"
+                                       Id="Email"
+                                       MaxLength="255"
+                                       Visible="@IsVisible(() => Model.Email)" />
+                </div>
+            </div>
+
+            @* ================= MAILING ADDRESS ================= *@
+            <fieldset>
+                <div class="bi-section-header">
+                    <legend>
+                        <h2 aria-labelledby="buisness-mailing-address">
+                            <span id="buisness-mailing-address">Business Mailing Address</span>
+                        </h2>
+                    </legend>
+                </div>
+
+                <AddressField Address="Model.MailingAddress"
+                              ShowPhone="true"
+                              Visible="@IsAddressVisible(Model.MailingAddress)" />
+            </fieldset>
+            @* ================= PHYSICAL LOCATIONS ================= *@
+            @for (int i = 0; i < Model.PhysicalLocations.Count; i++)
+            {
+                var index = i;
+                <fieldset>
+                    <div class="bi-section-header">
+                        <legend>
+                            <h2 aria-labelledby="btn-remove-physical-location">
+                                <span>Physical Location @(index + 1)</span>
+                                @if (index > 0)
+                                {
+                                    <button id="btn-remove-physical-location" type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)" aria-describedby="Physical Location @(index + 1)" aria-label="Remove Physical Location">
+                                        Remove
+                                    </button>
+                                }
+                            </h2>
+                        </legend>
+                    </div>
+
+                    @if (index == 0)
+                    {
+                        <label class="bi-same-as-mailing @(IsMailingPoBox ? "bi-same-as-mailing--disabled" : "")" aria-labelledby="checked-same-as-mailing">
+                            <input type="checkbox"
+                                   id="checked-same-as-mailing"
+                                   aria-label="Checked Physical Location"
+                                   checked="@_physicalSameAsMailing"
+                                   disabled="@IsMailingPoBox"
+                                   @onchange="OnPhysicalSameAsMailingChanged" />
+                            Physical Location is the same as the Business address.
+                        </label>
+                    }
+
+                    <AddressField Address="Model.PhysicalLocations[index]"
+                                  Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
+                                  Disabled="@(index == 0 && _physicalSameAsMailing)" />
+                </fieldset>
+            }
+
+            @* ================= ADD LOCATION BUTTON ================= *@
+            @if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
+            {
+                <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation" aria-label="Add Another Location">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M8 3V13M3 8H13"
+                              stroke="#0D6EFD"
+                              stroke-width="2"
+                              stroke-linecap="round" />
+                    </svg>
+                    Add Another Physical Location
                 </button>
             }
-        </div>
-
-        @if (index == 0)
-        {
-            <label class="bi-same-as-mailing @(IsMailingPoBox ? "bi-same-as-mailing--disabled" : "")">
-                <input type="checkbox"
-                       checked="@_physicalSameAsMailing"
-                       disabled="@IsMailingPoBox"
-                       @onchange="OnPhysicalSameAsMailingChanged" />
-                Physical Location is the same as the Business address.
-            </label>
-        }
-
-        <AddressField @key="@(index == 0 ? (object)_physicalSameAsMailing : index)"
-                      Address="Model.PhysicalLocations[index]"
-                      Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
-                      Disabled="@(index == 0 && _physicalSameAsMailing)" />
-    }
-
-    @* ================= ADD LOCATION BUTTON ================= *@
-    @if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
-    {
-        <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M8 3V13M3 8H13"
-                      stroke="#0D6EFD"
-                      stroke-width="2"
-                      stroke-linecap="round" />
-            </svg>
-            Add Another Physical Location
-        </button>
-    }
 
         </EditForm>
 
@@ -122,13 +141,18 @@
 </div>
 
 @code {
-    private BusinessInformationModel Model = new();
+    [Parameter] public BusinessInformationModel Model { get; set; } = new();
+    [Inject] private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
+
     private EditContext editContext = default!;
     private CustomValidator? customValidator;
     private bool formSubmitted = false;
     private bool hasValidationErrors = false;
     private bool _physicalSameAsMailing = false;
     private const int MaxPhysicalLocations = 3;
+    private List<string> ValidationErrors { get; set; } = new();
+    private List<string> ValidationFieldIds { get; set; } = new();
+    private bool _showValidationSummary = false;
 
     /// <summary>Returns true when either mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
     private bool IsMailingPoBox
@@ -193,6 +217,57 @@
         };
     }
 
+    private Dictionary<FieldIdentifier, List<string>> _customFieldErrors = new();
+
+    /// <summary>Validation for Legal Name</summary>
+    private void ValidateCustomFields(string fieldName)
+    {
+        //var errors = new Dictionary<FieldIdentifier, List<string>>();
+        var fieldId = new FieldIdentifier(Model, fieldName);
+        var ownershipType = ModelStore.EmployerRegistrationModel.OwnershipSessionData?.OwnershipType ?? OwnershipType.None;
+        //customValidator?.ClearErrors();
+        _customFieldErrors.Remove(fieldId);
+
+        if (fieldName == nameof(Model.LegalName))
+        {
+            if (ownershipType == OwnershipType.LLC &&
+                !string.IsNullOrWhiteSpace(Model.LegalName) &&
+                !Model.LegalName.TrimEnd().EndsWith("LLC", StringComparison.OrdinalIgnoreCase))
+            {
+                _customFieldErrors[fieldId] = new List<string>
+               { "Legal Name must end in LLC for a Limited Liability Company" };
+            }
+        }
+        // Trade Name validations (only if provided)
+
+        if ((fieldName == nameof(Model.TradeName)) && !string.IsNullOrWhiteSpace(Model.TradeName))
+
+        {
+            var messages = new List<string>();
+            if (Model.TradeName.Equals(Model.LegalName, StringComparison.OrdinalIgnoreCase))
+                messages.Add(("Trade Name cannot be the same as Legal Name"));
+
+            if (Model.TradeName.TrimEnd().EndsWith("LLC", StringComparison.OrdinalIgnoreCase))
+                messages.Add(("Trade Name cannot end with LLC"));
+
+            if (Model.TradeName.TrimEnd().EndsWith("Inc", StringComparison.OrdinalIgnoreCase))
+                messages.Add(("Trade Name cannot end with Inc"));
+
+            if (messages.Any())
+                _customFieldErrors[fieldId] = messages;
+
+        }
+
+        if (_customFieldErrors.Any())
+        {
+            _touchedFields.Add(fieldId);
+            customValidator?.ClearErrors();
+            customValidator?.DisplayErrors(_customFieldErrors);
+
+            StateHasChanged();
+        }
+    }
+
     /// <summary>
     /// Validates the form and runs service-side address validation.
     /// Returns true when all validations pass (wizard may advance).
@@ -202,21 +277,71 @@
     {
         formSubmitted = true;
         customValidator?.ClearErrors();
+        _customFieldErrors.Clear();
 
+        ValidationErrors.Clear();
+        ValidationFieldIds.Clear();
+        _showValidationSummary = false;
         var topLevelValid = editContext.Validate();
+
+        ValidateCustomFields(nameof(Model.LegalName));
+        ValidateCustomFields(nameof(Model.TradeName));
+
+
+        ValidationErrors.Clear();
+        ValidationFieldIds.Clear();
+        foreach (var (fi, messages) in _customFieldErrors)
+        {
+            foreach (var message in messages)
+            {
+                ValidationErrors.Add(message);
+                ValidationFieldIds.Add(fi.FieldName);
+            }
+        }
+        if (_customFieldErrors.Any())
+            _showValidationSummary = true;
+
+
         var addressErrors = ValidateAddressModels();
 
         if (addressErrors.Any())
             customValidator?.DisplayErrors(addressErrors);
 
-        if (!topLevelValid || addressErrors.Any())
+        if (!topLevelValid || _customFieldErrors.Any())
         {
+            var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
+            var properties = Model.GetType().GetProperties();
+
+            foreach (var prop in properties)
+            {
+                if (customFieldNames.Contains(prop.Name)) continue;
+                var fieldId = new FieldIdentifier(Model, prop.Name);
+                var errors = editContext.GetValidationMessages(fieldId);
+
+                foreach (var error in errors)
+                {
+                    ValidationErrors.Add(error);
+                    ValidationFieldIds.Add(prop.Name);
+                    _showValidationSummary = true;
+                }
+            }
+
+            if (addressErrors.Any())
+            {
+                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
+                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
+
+                _showValidationSummary = true;
+            }
+
             hasValidationErrors = true;
+            editContext.NotifyValidationStateChanged();
             StateHasChanged();
             return false;
         }
 
         hasValidationErrors = false;
+
 
         RegistrationState.BusinessInfo = Model;
         RegistrationState.PhysicalSameAsMailing = _physicalSameAsMailing;
@@ -248,15 +373,15 @@
     /// <summary>Copies all mailing address fields into PhysicalLocations[<paramref name="index"/>].</summary>
     private void CopyMailingToPhysical(int index)
     {
-        var src  = Model.MailingAddress;
+        var src = Model.MailingAddress;
         var dest = Model.PhysicalLocations[index];
-        dest.Country      = src.Country;
+        dest.Country = src.Country;
         dest.AddressLine1 = src.AddressLine1;
         dest.AddressLine2 = src.AddressLine2;
-        dest.City         = src.City;
-        dest.State        = src.State;
-        dest.Zip          = src.Zip;
-        dest.Extension    = src.Extension;
+        dest.City = src.City;
+        dest.State = src.State;
+        dest.Zip = src.Zip;
+        dest.Extension = src.Extension;
     }
 
     /// <summary>Notifies the EditContext that all fields on PhysicalLocations[<paramref name="index"/>] have changed, triggering re-validation.</summary>
@@ -276,13 +401,13 @@
     private void ClearPhysicalLocation(int index)
     {
         var dest = Model.PhysicalLocations[index];
-        dest.Country      = null;
+        dest.Country = null;
         dest.AddressLine1 = null;
         dest.AddressLine2 = null;
-        dest.City         = null;
-        dest.State        = null;
-        dest.Zip          = null;
-        dest.Extension    = null;
+        dest.City = null;
+        dest.State = null;
+        dest.Zip = null;
+        dest.Extension = null;
     }
 
     /// <summary>Returns true when a field's errors should be visible (after submission or interaction).</summary>
@@ -318,7 +443,7 @@
                     var fi = new FieldIdentifier(address, memberName);
                     if (!errors.ContainsKey(fi))
                         errors[fi] = new List<string>();
-                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid.");
+                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
                 }
             }
         }
@@ -328,12 +453,12 @@
         if (string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneNumber))
         {
             if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
-            errors[phoneField].Add("Phone Number is required.");
+            errors[phoneField].Add("Phone Number is required");
         }
         else if (!System.Text.RegularExpressions.Regex.IsMatch(Model.MailingAddress.PhoneNumber, @"^\d{3}-\d{3}-\d{4}$"))
         {
             if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
-            errors[phoneField].Add("Phone Number must be in format 999-999-9999.");
+            errors[phoneField].Add("Phone Number must be in format 999-999-9999");
         }
 
         foreach (var physical in physicalToValidate)
@@ -346,7 +471,7 @@
                 var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine1));
                 if (!errors.ContainsKey(fi))
                     errors[fi] = new List<string>();
-                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address.");
+                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
             }
 
             if (line2IsPoBox)
@@ -354,7 +479,7 @@
                 var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine2));
                 if (!errors.ContainsKey(fi))
                     errors[fi] = new List<string>();
-                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address.");
+                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
             }
         }
 
