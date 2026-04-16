@@ -174,6 +174,10 @@
                     _showValidationSummary = true;
                 }
             }
+
+            hasValidationErrors = true;
+            StateHasChanged();
+            return false;
         }
 
         if (Model.IsDifferentAddress == true)
@@ -191,21 +195,17 @@
                 return false;
             }
 
-            var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
-                [("Business Contact Address", Model.ContactAddress)],
-                editStep: 4,
-                postCorrectionStep: 5,
-                onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
+            if (Model.ContactAddress.Country == "United States")
+            {
+                var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
+                    [("Business Contact Address", Model.ContactAddress)],
+                    editStep: 4,
+                    postCorrectionStep: 5,
+                    onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
 
-            if (!redirected)
-                return false;
-        }
-
-        if (!topLevelValid)
-        {
-            hasValidationErrors = true;
-            StateHasChanged();
-            return false;
+                if (!redirected)
+                    return false;
+            }
         }
 
         hasValidationErrors = false;
@@ -237,26 +237,52 @@
       new RadioOption<bool?> {Value =false, Label = "No"}
     };
 
-    /// <summary>Runs DataAnnotations validation on the contact address model.</summary>
+    /// <summary>
+    /// Validates the contact address model. For Other International addresses, manually
+    /// checks AddressLine1/3/4 (City, State, Zip are not used). For all other countries,
+    /// uses DataAnnotations validation.
+    /// </summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateContactAddress()
     {
         var errors = new Dictionary<FieldIdentifier, List<string>>();
-        var ctx = new ValidationContext(Model.ContactAddress);
-        var results = new List<ValidationResult>();
-        Validator.TryValidateObject(Model.ContactAddress, ctx, results, true);
 
-        foreach (var result in results)
+        if (Model.ContactAddress.Country == "Other International")
         {
-            foreach (var memberName in result.MemberNames)
+            if (string.IsNullOrWhiteSpace(Model.ContactAddress.AddressLine1))
+                AddAddressError(errors, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
+            if (string.IsNullOrWhiteSpace(Model.ContactAddress.AddressLine3))
+                AddAddressError(errors, nameof(AddressModel.AddressLine3), "Address Line 3 is required.");
+            if (string.IsNullOrWhiteSpace(Model.ContactAddress.AddressLine4))
+                AddAddressError(errors, nameof(AddressModel.AddressLine4), "Address Line 4 is required.");
+        }
+        else
+        {
+            var ctx = new ValidationContext(Model.ContactAddress);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(Model.ContactAddress, ctx, results, true);
+
+            foreach (var result in results)
             {
-                var fi = new FieldIdentifier(Model.ContactAddress, memberName);
-                if (!errors.ContainsKey(fi))
-                    errors[fi] = new List<string>();
-                errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
+                foreach (var memberName in result.MemberNames)
+                {
+                    var fi = new FieldIdentifier(Model.ContactAddress, memberName);
+                    if (!errors.ContainsKey(fi))
+                        errors[fi] = new List<string>();
+                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
+                }
             }
         }
 
         return errors;
+    }
+
+    /// <summary>Adds a validation error for the specified field on the contact address model.</summary>
+    private void AddAddressError(Dictionary<FieldIdentifier, List<string>> errors, string memberName, string message)
+    {
+        var fi = new FieldIdentifier(Model.ContactAddress, memberName);
+        if (!errors.ContainsKey(fi))
+            errors[fi] = new List<string>();
+        errors[fi].Add(message);
     }
 
     private void ClearAddressErrors(bool? validateAddress)
