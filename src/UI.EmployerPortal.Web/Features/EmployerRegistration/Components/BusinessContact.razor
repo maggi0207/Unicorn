@@ -139,7 +139,8 @@
 
     /// <summary>
     /// Validates the form and runs service-side address validation when a different address is provided.
-    /// Returns true when all validations pass (wizard may advance). Returns false otherwise.
+    /// Collects all errors (top-level and address) before deciding to return, so every error
+    /// is visible on the first Continue click. Returns true only when all validations pass.
     /// </summary>
     public async Task<bool> Validate()
     {
@@ -151,28 +152,41 @@
 
         var topLevelValid = editContext.Validate();
 
-        if (!topLevelValid)
+        // Validate address only when user chose "Yes – different address".
+        var addressErrors = new Dictionary<FieldIdentifier, List<string>>();
+        if (Model.IsDifferentAddress == true)
         {
-            var properties = Model.GetType().GetProperties();
+            addressErrors = ValidateContactAddress();
+            if (addressErrors.Any())
+            {
+                customValidator?.DisplayErrors(addressErrors);
+            }
+        }
 
+        if (!topLevelValid || addressErrors.Any())
+        {
+            // Collect top-level DataAnnotations errors into the banner.
+            var properties = Model.GetType().GetProperties();
             foreach (var prop in properties)
             {
                 var fieldId = new FieldIdentifier(Model, prop.Name);
                 var errors = editContext.GetValidationMessages(fieldId);
-
                 foreach (var error in errors)
                 {
-                    if (prop.Name == "IsDifferentAddress")
-                    {
-                        ValidationErrors.Add("Please select if the Business Contact Address is different from the Business mailing address");
-                    }
-                    else
-                    {
-                        ValidationErrors.Add(error);
-                    }
+                    ValidationErrors.Add(prop.Name == "IsDifferentAddress"
+                        ? "Please select if the Business Contact Address is different from the Business mailing address"
+                        : error);
                     ValidationFieldIds.Add(prop.Name);
                     _showValidationSummary = true;
                 }
+            }
+
+            // Collect address errors into the banner.
+            if (addressErrors.Any())
+            {
+                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v));
+                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName ?? string.Empty));
+                _showValidationSummary = true;
             }
 
             hasValidationErrors = true;
@@ -180,32 +194,17 @@
             return false;
         }
 
-        if (Model.IsDifferentAddress == true)
+        // All valid — run WCF address check for US addresses only.
+        if (Model.IsDifferentAddress == true && Model.ContactAddress.Country == "United States")
         {
-            var addressErrors = ValidateContactAddress();
+            var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
+                [("Business Contact Address", Model.ContactAddress)],
+                editStep: 4,
+                postCorrectionStep: 5,
+                onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
 
-            if (addressErrors.Any())
-            {
-                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
-                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
-                customValidator?.DisplayErrors(addressErrors);
-                hasValidationErrors = true;
-                _showValidationSummary = true;
-                StateHasChanged();
+            if (!redirected)
                 return false;
-            }
-
-            if (Model.ContactAddress.Country == "United States")
-            {
-                var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
-                    [("Business Contact Address", Model.ContactAddress)],
-                    editStep: 4,
-                    postCorrectionStep: 5,
-                    onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
-
-                if (!redirected)
-                    return false;
-            }
         }
 
         hasValidationErrors = false;
