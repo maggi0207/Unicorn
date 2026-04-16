@@ -441,8 +441,10 @@
         => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
 
     /// <summary>
-    /// Runs country-aware validation on all address models via <see cref="AddressModel.ValidateByCountry"/>.
-    /// Returns combined errors across mailing and physical addresses.
+    /// Runs country-aware validation on all address models.
+    /// Other International: manual checks for visible address lines only.
+    /// Canada: manual checks using Canadian field labels (Province, Postal Code).
+    /// United States: DataAnnotations validation via <see cref="Validator.TryValidateObject"/>.
     /// </summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()
     {
@@ -457,11 +459,53 @@
 
         foreach (var address in allAddresses)
         {
-            foreach (var (fi, messages) in AddressModel.ValidateByCountry(address))
+            if (address.Country == "Other International")
             {
-                if (!errors.ContainsKey(fi))
-                    errors[fi] = new List<string>();
-                errors[fi].AddRange(messages);
+                if (string.IsNullOrWhiteSpace(address.AddressLine1))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
+                }
+                if (string.IsNullOrWhiteSpace(address.AddressLine3))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.AddressLine3), "Address Line 3 is required.");
+                }
+                if (string.IsNullOrWhiteSpace(address.AddressLine4))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.AddressLine4), "Address Line 4 is required.");
+                }
+            }
+            else if (address.Country == "Canada")
+            {
+                if (string.IsNullOrWhiteSpace(address.AddressLine1))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
+                }
+                if (string.IsNullOrWhiteSpace(address.City))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.City), "City is required.");
+                }
+                if (string.IsNullOrWhiteSpace(address.State))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.State), "Province is required.");
+                }
+                if (string.IsNullOrWhiteSpace(address.Zip))
+                {
+                    AddAddressError(errors, address, nameof(AddressModel.Zip), "Postal Code is required.");
+                }
+            }
+            else
+            {
+                var ctx = new ValidationContext(address);
+                var results = new List<ValidationResult>();
+                Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
+
+                foreach (var result in results)
+                {
+                    foreach (var memberName in result.MemberNames)
+                    {
+                        AddAddressError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid.");
+                    }
+                }
             }
         }
 
@@ -503,6 +547,21 @@
         }
 
         return errors;
+    }
+
+    /// <summary>Appends a validation error for the specified field on an address model into the errors dictionary.</summary>
+    private static void AddAddressError(
+        Dictionary<FieldIdentifier, List<string>> errors,
+        AddressModel address,
+        string memberName,
+        string message)
+    {
+        var fi = new FieldIdentifier(address, memberName);
+        if (!errors.TryGetValue(fi, out var list))
+        {
+            errors[fi] = list = new List<string>();
+        }
+        list.Add(message);
     }
 
     /// <summary>Adds a new physical location up to the maximum allowed.</summary>
