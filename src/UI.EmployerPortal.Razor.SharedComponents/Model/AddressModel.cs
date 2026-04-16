@@ -205,22 +205,36 @@ public class AddressModel
         if (address.Country == "Other International")
         {
             if (string.IsNullOrWhiteSpace(address.AddressLine1))
+            {
                 AddError(errors, address, nameof(AddressLine1), "Address Line 1 is required.");
+            }
             if (string.IsNullOrWhiteSpace(address.AddressLine3))
+            {
                 AddError(errors, address, nameof(AddressLine3), "Address Line 3 is required.");
+            }
             if (string.IsNullOrWhiteSpace(address.AddressLine4))
+            {
                 AddError(errors, address, nameof(AddressLine4), "Address Line 4 is required.");
+            }
         }
         else if (address.Country == "Canada")
         {
             if (string.IsNullOrWhiteSpace(address.AddressLine1))
+            {
                 AddError(errors, address, nameof(AddressLine1), "Address Line 1 is required.");
+            }
             if (string.IsNullOrWhiteSpace(address.City))
+            {
                 AddError(errors, address, nameof(City), "City is required.");
+            }
             if (string.IsNullOrWhiteSpace(address.State))
+            {
                 AddError(errors, address, nameof(State), "Province is required.");
+            }
             if (string.IsNullOrWhiteSpace(address.Zip))
+            {
                 AddError(errors, address, nameof(Zip), "Postal Code is required.");
+            }
         }
         else
         {
@@ -230,10 +244,8 @@ public class AddressModel
             Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
 
             foreach (var result in results)
-            {
                 foreach (var memberName in result.MemberNames)
                     AddError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid.");
-            }
         }
 
         return errors;
