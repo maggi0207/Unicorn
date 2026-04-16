@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 
@@ -183,4 +184,71 @@ public class AddressModel
         new() { Value = "Canada", Text = "Canada" },
         new() { Value = "Other International", Text = "Other International" },
     ];
+
+    /// <summary>
+    /// Validates an <see cref="AddressModel"/> instance using country-specific field labels and rules.
+    /// <list type="bullet">
+    ///   <item><description><b>United States</b>: DataAnnotations validation (Street Address, City, State, Zip Code).</description></item>
+    ///   <item><description><b>Canada</b>: Manual checks using Canadian field labels (Address Line 1, City, Province, Postal Code).</description></item>
+    ///   <item><description><b>Other International</b>: Manual checks for Address Line 1, Address Line 3, and Address Line 4.</description></item>
+    /// </list>
+    /// </summary>
+    /// <param name="address">The address model to validate.</param>
+    /// <returns>
+    /// A dictionary keyed by <see cref="FieldIdentifier"/> with one or more error messages per field.
+    /// An empty dictionary means the address is valid.
+    /// </returns>
+    public static Dictionary<FieldIdentifier, List<string>> ValidateByCountry(AddressModel address)
+    {
+        var errors = new Dictionary<FieldIdentifier, List<string>>();
+
+        if (address.Country == "Other International")
+        {
+            if (string.IsNullOrWhiteSpace(address.AddressLine1))
+                AddError(errors, address, nameof(AddressLine1), "Address Line 1 is required.");
+            if (string.IsNullOrWhiteSpace(address.AddressLine3))
+                AddError(errors, address, nameof(AddressLine3), "Address Line 3 is required.");
+            if (string.IsNullOrWhiteSpace(address.AddressLine4))
+                AddError(errors, address, nameof(AddressLine4), "Address Line 4 is required.");
+        }
+        else if (address.Country == "Canada")
+        {
+            if (string.IsNullOrWhiteSpace(address.AddressLine1))
+                AddError(errors, address, nameof(AddressLine1), "Address Line 1 is required.");
+            if (string.IsNullOrWhiteSpace(address.City))
+                AddError(errors, address, nameof(City), "City is required.");
+            if (string.IsNullOrWhiteSpace(address.State))
+                AddError(errors, address, nameof(State), "Province is required.");
+            if (string.IsNullOrWhiteSpace(address.Zip))
+                AddError(errors, address, nameof(Zip), "Postal Code is required.");
+        }
+        else
+        {
+            // United States — use DataAnnotations (Street Address, City, State, Zip Code)
+            var ctx = new ValidationContext(address);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
+
+            foreach (var result in results)
+            {
+                foreach (var memberName in result.MemberNames)
+                    AddError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid.");
+            }
+        }
+
+        return errors;
+    }
+
+    /// <summary>Appends an error message for the given field name into the errors dictionary.</summary>
+    private static void AddError(
+        Dictionary<FieldIdentifier, List<string>> errors,
+        AddressModel address,
+        string memberName,
+        string message)
+    {
+        var fi = new FieldIdentifier(address, memberName);
+        if (!errors.TryGetValue(fi, out var list))
+            errors[fi] = list = [];
+        list.Add(message);
+    }
 }
