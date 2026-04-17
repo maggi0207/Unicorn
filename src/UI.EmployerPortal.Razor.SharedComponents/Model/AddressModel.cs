@@ -10,87 +10,73 @@ namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 public class AddressModel
 {
     /// <summary>
-    /// Optional institution or entity name associated with this address (e.g. bank name).
+    /// Optional Name field.  Only required if 'IsNameVisible' is true.
     /// </summary>
+    [RequiredIfNameVisible("IsNameVisible", ErrorMessage = "Name Required")]
+    [MaxLength(255, ErrorMessage = "Name cannot exceed 255 characters")]
     public string? Name { get; set; }
-
-    /// <summary>
-    /// Indicates whether the Name field is visible in the <c>AddressField</c> component.
-    /// Set automatically by the component via <c>ShowName</c> parameter.
-    /// </summary>
-    public bool IsNameVisible { get; set; }
 
     /// <summary>
     /// Country name. Defaults to "United States".
     /// </summary>
-    [Required(ErrorMessage = "Country is required.")]
+    [Required(ErrorMessage = "Country is required")]
     public string? Country { get; set; } = "United States";
 
     /// <summary>
     /// Primary address line. Maps to "Address Line 2" in SUITES backend.
     /// </summary>
-    [Required(ErrorMessage = "Street Address is required.")]
+    [Required(ErrorMessage = "Street Address is required")]
+    [MaxLength(64, ErrorMessage = "Street Address cannot exceed 64 characters")]
     public string? AddressLine1 { get; set; }
 
     /// <summary>
     /// Secondary address line (optional). Maps to "Address Line 1" in SUITES backend.
     /// </summary>
+    [MaxLength(64, ErrorMessage = "Address Line 2 cannot exceed 64 characters")]
     public string? AddressLine2 { get; set; }
 
     /// <summary>
     /// City name.
     /// </summary>
-    [Required(ErrorMessage = "City is required.")]
+    [Required(ErrorMessage = "City is required")]
+    [MaxLength(64, ErrorMessage = "City cannot exceed 64 characters")]
     public string? City { get; set; }
 
     /// <summary>
     /// State abbreviation (e.g., "WI", "CA").
     /// </summary>
-    [Required(ErrorMessage = "State is required.")]
+    [Required(ErrorMessage = "State is required")]
     public string? State { get; set; }
 
     /// <summary>
     /// 5-digit ZIP code.
     /// </summary>
-    [Required(ErrorMessage = "Zip Code is required.")]
+    [Required(ErrorMessage = "Zip Code is required")]
+    [MaxLength(5, ErrorMessage = "Zip Code cannot exceed 5 characters")]
     public string? Zip { get; set; }
 
     /// <summary>
     /// Optional ZIP+4 extension.
     /// </summary>
+    [MaxLength(4, ErrorMessage = "Zip Extension cannot exceed 4 characters")]
     public string? Extension { get; set; }
 
     /// <summary>
-    /// Third address line used for international (Other International) addresses.
-    /// </summary>
-    public string? AddressLine3 { get; set; }
-
-    /// <summary>
-    /// Fourth address line used for international (Other International) addresses.
-    /// </summary>
-    public string? AddressLine4 { get; set; }
-
-    /// <summary>
+    /// If the Name field is visible, then it is required
     /// Optional phone number associated with this address (used when <c>ShowPhone</c> is enabled on <c>AddressField</c>).
     /// </summary>
     public string? PhoneNumber { get; set; }
 
     /// <summary>
     /// International dialing prefix for the phone number (e.g. "+1", "+52").
-    /// Defaults to "+1" (United States / Canada). Automatically updated when the country or phone type selection changes.
+    /// Defaults to "+1" (United States / Canada). Automatically updated when the country selection changes.
     /// </summary>
     public string? PhoneCountryCode { get; set; } = "+1";
 
     /// <summary>
-    /// The country associated with the phone number (e.g. "United States", "Canada", "Other International").
-    /// Defaults to "United States". Controls whether the international area code prefix is editable.
+    /// If the Name field is visible, then it is required
     /// </summary>
-    public string? PhoneType { get; set; } = "United States";
-
-    /// <summary>
-    /// Optional phone extension number displayed in the Ext. field of the phone row.
-    /// </summary>
-    public string? PhoneExtension { get; set; }
+    public bool IsNameVisible { get; set; } = false;
 
     /// <summary>
     /// Shared list of US states, territories, Canadian provinces, and military APO/FPO addresses.
@@ -181,7 +167,92 @@ public class AddressModel
     [
         new() { Value = "United States", Text = "United States" },
         new() { Value = "Canada", Text = "Canada" },
-        new() { Value = "Other International", Text = "Other International" },
+       new() { Value = "Other International", Text = "Other International" },
     ];
 
+    /// <summary>
+    /// Returns a list of lines that can be displayed with simple line breaks.
+    /// </summary>
+    /// <returns></returns>
+    public List<string> GetDisplayLines()
+    {
+        var lines = new List<string>();
+        switch (Country)
+        {
+            case "United States":
+            case "Canada":
+                if (!string.IsNullOrWhiteSpace(AddressLine2))
+                {
+                    lines.Add(AddressLine2);
+                }
+                if (!string.IsNullOrWhiteSpace(AddressLine1))
+                {
+                    lines.Add(AddressLine1);
+                }
+                lines.Add($"{City} {State}, {Zip}{(!string.IsNullOrWhiteSpace(Extension) ? $"+{Extension}" : string.Empty)}");
+                lines.Add(Country);
+                break;
+            default:
+                if (!string.IsNullOrWhiteSpace(AddressLine2))
+                {
+                    lines.Add(AddressLine2);
+                }
+                if (!string.IsNullOrWhiteSpace(AddressLine1))
+                {
+                    lines.Add(AddressLine1);
+                }
+                //if (!string.IsNullOrWhiteSpace(AddressLine3))
+                //{
+                //    lines.Add(AddressLine3);
+                //}
+                //if (!string.IsNullOrWhiteSpace(AddressLine4))
+                //{
+                //    lines.Add(AddressLine4);
+                //}
+                break;
+        }
+        return lines;
+    }
+}
+
+/// <summary>
+/// The 'Name' field may not be visible on the form.  In that event,
+/// the value is not required.
+/// </summary>
+public class RequiredIfNameVisibleAttribute : ValidationAttribute
+{
+    private readonly string _isNameVisible;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="isNameVisible"></param>
+    public RequiredIfNameVisibleAttribute(string isNameVisible)
+    {
+        _isNameVisible = isNameVisible;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var instance = context.ObjectInstance;
+        var isValidationRequired = instance.GetType().GetProperty(_isNameVisible)?.GetValue(instance, null);
+
+        var isRequired = isValidationRequired is not bool || (bool) isValidationRequired;
+
+        if (isRequired)
+        {
+            var name = value == null ? String.Empty : value.ToString();
+            return !String.IsNullOrWhiteSpace(name)
+                ? ValidationResult.Success
+                : new ValidationResult(ErrorMessage ?? "Name is required ", new[] { context.MemberName! });
+        }
+
+        return ValidationResult.Success;
+    }
 }

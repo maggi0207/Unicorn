@@ -1,4 +1,5 @@
 {
+  
   "permissions": {
     "allow": [
       "Read(//d/Unicorn-repo/**)",
@@ -37,5 +38,6 @@
       "D:\\UI.EmployerPortal.Web",
       "D:\\mahendra\\BusinessContactInfo"
     ]
-  }
+  },
+  "model": "opusplan"
 }

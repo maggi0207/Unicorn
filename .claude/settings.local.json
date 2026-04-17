@@ -7,5 +7,6 @@
       "Bash(git -C \"d:/Mahi Source/src/UI.EmployerPortal.Web\" rev-parse --show-toplevel)",
       "Bash(git -C \"d:/Mahi Source/src/UI.EmployerPortal.Razor.SharedComponents\" rev-parse --show-toplevel)"
     ]
-  }
+  },
+    "model": "opusplan"
 }
