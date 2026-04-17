@@ -72,11 +72,9 @@
             @* ================= MAILING ADDRESS ================= *@
             <fieldset>
                 <div class="bi-section-header">
-                    <legend>
-                        <h2 aria-labelledby="buisness-mailing-address">
-                            <span id="buisness-mailing-address">Business Mailing Address</span>
-                        </h2>
-                    </legend>
+                    <h2 aria-labelledby="buisness-mailing-address">
+                        <span id="buisness-mailing-address">Business Mailing Address</span>
+                    </h2>
                 </div>
 
                 <AddressField Address="Model.MailingAddress"
@@ -89,17 +87,15 @@
                 var index = i;
                 <fieldset>
                     <div class="bi-section-header">
-                        <legend>
-                            <h2 aria-labelledby="btn-remove-physical-location">
-                                <span>Physical Location @(index + 1)</span>
-                                @if (index > 0)
-                                {
-                                    <button id="btn-remove-physical-location" type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)" aria-describedby="Physical Location @(index + 1)" aria-label="Remove Physical Location">
-                                        Remove
-                                    </button>
-                                }
-                            </h2>
-                        </legend>
+                        <h2 aria-labelledby="btn-remove-physical-location">
+                            <span>Physical Location @(index + 1)</span>
+                            @if (index > 0)
+                            {
+                                <button id="btn-remove-physical-location" type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)" aria-describedby="Physical Location @(index + 1)" aria-label="Remove Physical Location">
+                                    Remove
+                                </button>
+                            }
+                        </h2>
                     </div>
 
                     @if (index == 0)
