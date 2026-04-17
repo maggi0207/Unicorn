@@ -154,16 +154,11 @@
     private List<string> ValidationFieldIds { get; set; } = new();
     private bool _showValidationSummary = false;
 
-    /// <summary>
-    /// Returns true when the mailing address is a US address and either address line contains "PO Box",
-    /// disabling the copy-to-physical checkbox.
-    /// </summary>
+    /// <summary>Returns true when either mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
     private bool IsMailingPoBox
     {
         get
         {
-            if (Model.MailingAddress.Country != "United States")
-                return false;
             return Model.MailingAddress.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true
                 || Model.MailingAddress.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
         }
@@ -312,7 +307,7 @@
         if (addressErrors.Any())
             customValidator?.DisplayErrors(addressErrors);
 
-        if (!topLevelValid || _customFieldErrors.Any() || addressErrors.Any())
+        if (!topLevelValid || _customFieldErrors.Any())
         {
             var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
             var properties = Model.GetType().GetProperties();
@@ -352,21 +347,10 @@
         RegistrationState.PhysicalSameAsMailing = _physicalSameAsMailing;
         var startIndex = _physicalSameAsMailing ? 1 : 0;
 
-        // Only US addresses go through the WCF address validation service.
-        // Canada and Other International addresses skip validation and proceed directly.
-        var addressesToValidate = new List<(string, AddressModel)>();
-
-        if (Model.MailingAddress.Country == "United States")
-            addressesToValidate.Add(("Mailing Address", Model.MailingAddress));
-
+        var addressesToValidate = new List<(string, AddressModel)>
+            { ("Mailing Address", Model.MailingAddress) };
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
-        {
-            if (Model.PhysicalLocations[i].Country == "United States")
-                addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
-        }
-
-        if (!addressesToValidate.Any())
-            return true;
+            addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
 
         return await AddressCoordinator.ValidateAndRedirectAsync(
             addressesToValidate,
@@ -394,8 +378,6 @@
         dest.Country = src.Country;
         dest.AddressLine1 = src.AddressLine1;
         dest.AddressLine2 = src.AddressLine2;
-        dest.AddressLine3 = src.AddressLine3;
-        dest.AddressLine4 = src.AddressLine4;
         dest.City = src.City;
         dest.State = src.State;
         dest.Zip = src.Zip;
@@ -409,8 +391,6 @@
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Country)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine1)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine2)));
-        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine3)));
-        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine4)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.City)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.State)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Zip)));
@@ -424,8 +404,6 @@
         dest.Country = null;
         dest.AddressLine1 = null;
         dest.AddressLine2 = null;
-        dest.AddressLine3 = null;
-        dest.AddressLine4 = null;
         dest.City = null;
         dest.State = null;
         dest.Zip = null;
@@ -440,12 +418,7 @@
     private bool IsAddressVisible(AddressModel address)
         => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
 
-    /// <summary>
-    /// Runs country-aware validation on all address models.
-    /// Other International: manual checks for visible address lines only.
-    /// Canada: manual checks using Canadian field labels (Province, Postal Code).
-    /// United States: DataAnnotations validation via <see cref="Validator.TryValidateObject"/>.
-    /// </summary>
+    /// <summary>Runs DataAnnotations validation on all address models.</summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()
     {
         var errors = new Dictionary<FieldIdentifier, List<string>>();
@@ -459,109 +432,58 @@
 
         foreach (var address in allAddresses)
         {
-            if (address.Country == "Other International")
-            {
-                if (string.IsNullOrWhiteSpace(address.AddressLine1))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
-                }
-                if (string.IsNullOrWhiteSpace(address.AddressLine3))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.AddressLine3), "Address Line 3 is required.");
-                }
-                if (string.IsNullOrWhiteSpace(address.AddressLine4))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.AddressLine4), "Address Line 4 is required.");
-                }
-            }
-            else if (address.Country == "Canada")
-            {
-                if (string.IsNullOrWhiteSpace(address.AddressLine1))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
-                }
-                if (string.IsNullOrWhiteSpace(address.City))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.City), "City is required.");
-                }
-                if (string.IsNullOrWhiteSpace(address.State))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.State), "Province is required.");
-                }
-                if (string.IsNullOrWhiteSpace(address.Zip))
-                {
-                    AddAddressError(errors, address, nameof(AddressModel.Zip), "Postal Code is required.");
-                }
-            }
-            else
-            {
-                var ctx = new ValidationContext(address);
-                var results = new List<ValidationResult>();
-                Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
+            var ctx = new ValidationContext(address);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(address, ctx, results, true);
 
-                foreach (var result in results)
+            foreach (var result in results)
+            {
+                foreach (var memberName in result.MemberNames)
                 {
-                    foreach (var memberName in result.MemberNames)
-                    {
-                        AddAddressError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid.");
-                    }
+                    var fi = new FieldIdentifier(address, memberName);
+                    if (!errors.ContainsKey(fi))
+                        errors[fi] = new List<string>();
+                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
                 }
             }
         }
 
-        // Phone validation (mailing address only).
+        // Validate mailing address phone (shown only on mailing address, so not on AddressModel itself)
         var phoneField = new FieldIdentifier(Model.MailingAddress, nameof(AddressModel.PhoneNumber));
         if (string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneNumber))
         {
             if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
             errors[phoneField].Add("Phone Number is required");
         }
-        else if (Model.MailingAddress.PhoneType != "Other International" &&
-                 !System.Text.RegularExpressions.Regex.IsMatch(Model.MailingAddress.PhoneNumber, @"^\d{3}-\d{3}-\d{4}$"))
+        else if (!System.Text.RegularExpressions.Regex.IsMatch(Model.MailingAddress.PhoneNumber, @"^\d{3}-\d{3}-\d{4}$"))
         {
             if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
             errors[phoneField].Add("Phone Number must be in format 999-999-9999");
         }
 
-        // PO Box check applies to US physical locations only.
         foreach (var physical in physicalToValidate)
         {
-            if (physical.Country != "United States") continue;
-
             bool line1IsPoBox = physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
             bool line2IsPoBox = physical.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
 
             if (line1IsPoBox)
             {
                 var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine1));
-                if (!errors.ContainsKey(fi)) errors[fi] = new List<string>();
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
                 errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
             }
 
             if (line2IsPoBox)
             {
                 var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine2));
-                if (!errors.ContainsKey(fi)) errors[fi] = new List<string>();
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
                 errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
             }
         }
 
         return errors;
-    }
-
-    /// <summary>Appends a validation error for the specified field on an address model into the errors dictionary.</summary>
-    private static void AddAddressError(
-        Dictionary<FieldIdentifier, List<string>> errors,
-        AddressModel address,
-        string memberName,
-        string message)
-    {
-        var fi = new FieldIdentifier(address, memberName);
-        if (!errors.TryGetValue(fi, out var list))
-        {
-            errors[fi] = list = new List<string>();
-        }
-        list.Add(message);
     }
 
     /// <summary>Adds a new physical location up to the maximum allowed.</summary>
