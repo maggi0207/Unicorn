@@ -103,22 +103,22 @@
         </div>
         <div class="bi-field">
             <OutlinedSelectField Label="Province"
-                                 @bind-Value="Address.State"
+                                 @bind-Value="Address.Province"
                                  Options="CanadaProvinces"
                                  Placeholder="-- Select --"
                                  Disabled="Disabled"
-                                 For="() => Address.State"
-                                 Id="State"
+                                 For="() => Address.Province"
+                                 Id="Province"
                                  Visible="Visible" />
         </div>
 
         @* Postal Code (single column) *@
         <div class="bi-field">
             <OutlinedTextField Label="Postal Code"
-                               @bind-Value="Address.Zip"
-                               For="() => Address.Zip"
+                               @bind-Value="Address.PostalCode"
+                               For="() => Address.PostalCode"
                                Disabled="Disabled"
-                               Id="Zip"
+                               Id="PostalCode"
                                Visible="Visible" />
         </div>
         <div class="bi-field"></div>
@@ -190,17 +190,21 @@
     @if (ShowPhone)
     {
         @* Phone Type dropdown *@
-        <div class="bi-field">
-            <OutlinedSelectField Label="Phone Type"
-                                 Value="@Address.PhoneType"
-                                 ValueChanged="OnPhoneTypeChanged"
-                                 Options="AddressModel.Countries"
-                                 Placeholder="-- Select --"
-                                 Disabled="Disabled"
-                                 For="() => Address.PhoneType"
-                                 Visible="Visible" />
-        </div>
-        <div class="bi-field"></div>
+        @if (Address.Country != "United States")
+        {
+            <div class="bi-field">
+                <OutlinedSelectField Label="Phone Type"
+                                     Value="@Address.PhoneType"
+                                     ValueChanged="OnPhoneTypeChanged"
+                                     Options="AddressModel.Countries"
+                                     Placeholder="-- Select --"
+                                     Disabled="Disabled"
+                                     For="() => Address.PhoneType"
+                                     Id="PhoneType"
+                                     Visible="Visible" />
+            </div>
+            <div class="bi-field"></div>
+        }
 
         @* 3-column row: International Area Code | Phone Number | Ext. *@
         <div class="bi-phone-row">
@@ -278,17 +282,38 @@
         {
             Address.City = null;
             Address.State = null;
+            Address.Province = null;
+            Address.Zip = null;
+            Address.PostalCode = null;
+            Address.Extension = null;
+        }
+        else if (country == "Canada")
+        {
+            Address.AddressLine3 = null;
+            Address.AddressLine4 = null;
+            Address.State = null;
             Address.Zip = null;
             Address.Extension = null;
+
+            if (previous != country)
+            {
+                Address.Province = null;
+                Address.PostalCode = null;
+            }
         }
         else
         {
             Address.AddressLine3 = null;
             Address.AddressLine4 = null;
+            Address.Province = null;
+            Address.PostalCode = null;
 
-            // Clear province selection when switching between US ↔ Canada
             if (previous != country)
+            {
                 Address.State = null;
+                Address.Zip = null;
+                Address.Extension = null;
+            }
         }
 
         if (ShowPhone)

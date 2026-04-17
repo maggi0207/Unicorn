@@ -139,8 +139,7 @@
 
     /// <summary>
     /// Validates the form and runs service-side address validation when a different address is provided.
-    /// Collects all errors (top-level and address) before deciding to return, so every error
-    /// is visible on the first Continue click. Returns true only when all validations pass.
+    /// Returns true when all validations pass (wizard may advance). Returns false otherwise.
     /// </summary>
     public async Task<bool> Validate()
     {
@@ -152,59 +151,68 @@
 
         var topLevelValid = editContext.Validate();
 
-        // Validate address only when user chose "Yes – different address".
-        var addressErrors = new Dictionary<FieldIdentifier, List<string>>();
-        if (Model.IsDifferentAddress == true)
+        if (!topLevelValid)
         {
-            addressErrors = ValidateContactAddress();
-            if (addressErrors.Any())
-            {
-                customValidator?.DisplayErrors(addressErrors);
-            }
-        }
-
-        if (!topLevelValid || addressErrors.Any())
-        {
-            // Collect top-level DataAnnotations errors into the banner.
             var properties = Model.GetType().GetProperties();
+
             foreach (var prop in properties)
             {
                 var fieldId = new FieldIdentifier(Model, prop.Name);
                 var errors = editContext.GetValidationMessages(fieldId);
+
                 foreach (var error in errors)
                 {
-                    ValidationErrors.Add(prop.Name == "IsDifferentAddress"
-                        ? "Please select if the Business Contact Address is different from the Business mailing address"
-                        : error);
+                    if (prop.Name == "IsDifferentAddress")
+                    {
+                        ValidationErrors.Add("Please select if the Business Contact Address is different from the Business mailing address");
+                    }
+                    else
+                    {
+                        ValidationErrors.Add(error);
+                    }
                     ValidationFieldIds.Add(prop.Name);
                     _showValidationSummary = true;
                 }
             }
+        }
 
-            // Collect address errors into the banner.
+        if (Model.IsDifferentAddress == true)
+        {
+            var addressErrors = ValidateContactAddress();
+
             if (addressErrors.Any())
             {
-                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v));
-                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName ?? string.Empty));
+                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
+                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
+                customValidator?.DisplayErrors(addressErrors);
+                hasValidationErrors = true;
                 _showValidationSummary = true;
+                StateHasChanged();
+                return false;
             }
 
+            if (Model.ContactAddress.Country == "United States")
+            {
+                var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
+                    [("Business Contact Address", Model.ContactAddress)],
+                    editStep: 4,
+                    postCorrectionStep: 5,
+                    onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
+
+                if (!redirected)
+                    return false;
+            }
+            else
+            {
+                RegistrationState.ContactInfo = Model;
+            }
+        }
+
+        if (!topLevelValid)
+        {
             hasValidationErrors = true;
             StateHasChanged();
             return false;
-        }
-
-        // All valid — run WCF address check for US addresses only.
-        if (Model.IsDifferentAddress == true && Model.ContactAddress.Country == "United States")
-        {
-            var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
-                [("Business Contact Address", Model.ContactAddress)],
-                editStep: 4,
-                postCorrectionStep: 5,
-                onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
-
-            if (!redirected)
-                return false;
         }
 
         hasValidationErrors = false;
@@ -236,82 +244,26 @@
       new RadioOption<bool?> {Value =false, Label = "No"}
     };
 
-    /// <summary>
-    /// Validates the contact address using country-specific rules and field labels.
-    /// Other International: manual checks for visible address lines only.
-    /// Canada: manual checks using Canadian field labels (Province, Postal Code).
-    /// United States: DataAnnotations validation via <see cref="Validator.TryValidateObject"/>.
-    /// </summary>
+    /// <summary>Runs DataAnnotations validation on the contact address model.</summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateContactAddress()
     {
         var errors = new Dictionary<FieldIdentifier, List<string>>();
-        var address = Model.ContactAddress;
+        var ctx = new ValidationContext(Model.ContactAddress);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(Model.ContactAddress, ctx, results, true);
 
-        if (address.Country == "Other International")
+        foreach (var result in results)
         {
-            if (string.IsNullOrWhiteSpace(address.AddressLine1))
+            foreach (var memberName in result.MemberNames)
             {
-                AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
-            }
-            if (string.IsNullOrWhiteSpace(address.AddressLine3))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.AddressLine3), "Address Line 3 is required.");
-            }
-            if (string.IsNullOrWhiteSpace(address.AddressLine4))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.AddressLine4), "Address Line 4 is required.");
-            }
-        }
-        else if (address.Country == "Canada")
-        {
-            if (string.IsNullOrWhiteSpace(address.AddressLine1))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.AddressLine1), "Address Line 1 is required.");
-            }
-            if (string.IsNullOrWhiteSpace(address.City))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.City), "City is required.");
-            }
-            if (string.IsNullOrWhiteSpace(address.State))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.State), "Province is required.");
-            }
-            if (string.IsNullOrWhiteSpace(address.Zip))
-            {
-                AddAddressError(errors, address, nameof(AddressModel.Zip), "Postal Code is required.");
-            }
-        }
-        else
-        {
-            var ctx = new ValidationContext(address);
-            var results = new List<ValidationResult>();
-            Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
-
-            foreach (var result in results)
-            {
-                foreach (var memberName in result.MemberNames)
-                {
-                    AddAddressError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid.");
-                }
+                var fi = new FieldIdentifier(Model.ContactAddress, memberName);
+                if (!errors.ContainsKey(fi))
+                    errors[fi] = new List<string>();
+                errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
             }
         }
 
         return errors;
-    }
-
-    /// <summary>Appends a validation error for the specified field on an address model into the errors dictionary.</summary>
-    private static void AddAddressError(
-        Dictionary<FieldIdentifier, List<string>> errors,
-        AddressModel address,
-        string memberName,
-        string message)
-    {
-        var fi = new FieldIdentifier(address, memberName);
-        if (!errors.TryGetValue(fi, out var list))
-        {
-            errors[fi] = list = new List<string>();
-        }
-        list.Add(message);
     }
 
     private void ClearAddressErrors(bool? validateAddress)

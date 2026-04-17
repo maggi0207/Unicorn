@@ -268,8 +268,8 @@ internal class EmployerRegistrationModelStore
                     LineTwoAddress = address.AddressLine1,
                     LineOneAddress = address.AddressLine2,
                     CityName = address.City,
-                    ProvinceCodeSK = GetStateProvinceAbbreviationFromCode(address.State),
-                    CanadianPostalCode = address.Zip,
+                    ProvinceCodeSK = GetStateProvinceAbbreviationFromCode(address.Province),
+                    CanadianPostalCode = address.PostalCode,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressCanadaAsync(caRequest);
 
@@ -280,8 +280,8 @@ internal class EmployerRegistrationModelStore
                     RegistrationAddressCodeSK = (int) addressCode,
                     LineOneAddress = address.AddressLine1,
                     LineTwoAddress = address.AddressLine2,
-                    LineThreeAddress = string.Empty, // model.AddressLine3,
-                    LineFourAddress = string.Empty, // model.AddressLine4,
+                    LineThreeAddress = address.AddressLine3 ?? string.Empty,
+                    LineFourAddress = address.AddressLine4 ?? string.Empty,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressOtherInternationalAsync(otherRequest);
         }

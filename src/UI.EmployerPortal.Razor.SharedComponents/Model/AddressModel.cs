@@ -36,6 +36,20 @@ public class AddressModel
     public string? AddressLine2 { get; set; }
 
     /// <summary>
+    /// Third address line (Only for Other International).
+    /// </summary>
+    [RequiredIfCountry("Other International", ErrorMessage = "Address Line 3 is required")]
+    [MaxLength(64, ErrorMessage = "Address Line 3 cannot exceed 64 characters")]
+    public string? AddressLine3 { get; set; }
+
+    /// <summary>
+    /// Fourth address line (Only for Other International).
+    /// </summary>
+    [RequiredIfCountry("Other International", ErrorMessage = "Address Line 4 is required")]
+    [MaxLength(64, ErrorMessage = "Address Line 4 cannot exceed 64 characters")]
+    public string? AddressLine4 { get; set; }
+
+    /// <summary>
     /// City name.
     /// </summary>
     [Required(ErrorMessage = "City is required")]
@@ -45,15 +59,28 @@ public class AddressModel
     /// <summary>
     /// State abbreviation (e.g., "WI", "CA").
     /// </summary>
-    [Required(ErrorMessage = "State is required")]
+    [RequiredIfCountry("United States", ErrorMessage = "State is required")]
     public string? State { get; set; }
+
+    /// <summary>
+    /// Canadian Province.
+    /// </summary>
+    [RequiredIfCountry("Canada", ErrorMessage = "Province is required")]
+    public string? Province { get; set; }
 
     /// <summary>
     /// 5-digit ZIP code.
     /// </summary>
-    [Required(ErrorMessage = "Zip Code is required")]
+    [RequiredIfCountry("United States", ErrorMessage = "Zip Code is required")]
     [MaxLength(5, ErrorMessage = "Zip Code cannot exceed 5 characters")]
     public string? Zip { get; set; }
+
+    /// <summary>
+    /// Canadian Postal Code.
+    /// </summary>
+    [RequiredIfCountry("Canada", ErrorMessage = "Postal Code is required")]
+    [MaxLength(20, ErrorMessage = "Postal Code cannot exceed 20 characters")]
+    public string? PostalCode { get; set; }
 
     /// <summary>
     /// Optional ZIP+4 extension.
@@ -72,6 +99,9 @@ public class AddressModel
     /// Defaults to "+1" (United States / Canada). Automatically updated when the country selection changes.
     /// </summary>
     public string? PhoneCountryCode { get; set; } = "+1";
+
+    public string? PhoneType { get; set; }
+    public string? PhoneExtension { get; set; }
 
     /// <summary>
     /// If the Name field is visible, then it is required
@@ -180,7 +210,6 @@ public class AddressModel
         switch (Country)
         {
             case "United States":
-            case "Canada":
                 if (!string.IsNullOrWhiteSpace(AddressLine2))
                 {
                     lines.Add(AddressLine2);
@@ -192,6 +221,18 @@ public class AddressModel
                 lines.Add($"{City} {State}, {Zip}{(!string.IsNullOrWhiteSpace(Extension) ? $"+{Extension}" : string.Empty)}");
                 lines.Add(Country);
                 break;
+            case "Canada":
+                if (!string.IsNullOrWhiteSpace(AddressLine2))
+                {
+                    lines.Add(AddressLine2);
+                }
+                if (!string.IsNullOrWhiteSpace(AddressLine1))
+                {
+                    lines.Add(AddressLine1);
+                }
+                lines.Add($"{City} {Province}, {PostalCode}{(!string.IsNullOrWhiteSpace(Extension) ? $"+{Extension}" : string.Empty)}");
+                lines.Add(Country);
+                break;
             default:
                 if (!string.IsNullOrWhiteSpace(AddressLine2))
                 {
@@ -201,14 +242,14 @@ public class AddressModel
                 {
                     lines.Add(AddressLine1);
                 }
-                //if (!string.IsNullOrWhiteSpace(AddressLine3))
-                //{
-                //    lines.Add(AddressLine3);
-                //}
-                //if (!string.IsNullOrWhiteSpace(AddressLine4))
-                //{
-                //    lines.Add(AddressLine4);
-                //}
+                if (!string.IsNullOrWhiteSpace(AddressLine3))
+                {
+                    lines.Add(AddressLine3);
+                }
+                if (!string.IsNullOrWhiteSpace(AddressLine4))
+                {
+                    lines.Add(AddressLine4);
+                }
                 break;
         }
         return lines;
@@ -251,6 +292,40 @@ public class RequiredIfNameVisibleAttribute : ValidationAttribute
             return !String.IsNullOrWhiteSpace(name)
                 ? ValidationResult.Success
                 : new ValidationResult(ErrorMessage ?? "Name is required ", new[] { context.MemberName! });
+        }
+
+        return ValidationResult.Success;
+    }
+}
+
+/// <summary>
+/// Requires a value if the selected country matches the specified criteria.
+/// </summary>
+public class RequiredIfCountryAttribute : ValidationAttribute
+{
+    private readonly string _country;
+
+    /// <summary>
+    /// Creates a new instance of RequiredIfCountryAttribute.
+    /// </summary>
+    /// <param name="country">The country that makes this property required.</param>
+    public RequiredIfCountryAttribute(string country)
+    {
+        _country = country;
+    }
+
+    /// <inheritdoc />
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var instance = context.ObjectInstance;
+        var countryPropertyValue = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+
+        if (countryPropertyValue == _country)
+        {
+            var strValue = value?.ToString();
+            return !string.IsNullOrWhiteSpace(strValue)
+                ? ValidationResult.Success
+                : new ValidationResult(ErrorMessage ?? $"{context.MemberName} is required", new[] { context.MemberName! });
         }
 
         return ValidationResult.Success;
