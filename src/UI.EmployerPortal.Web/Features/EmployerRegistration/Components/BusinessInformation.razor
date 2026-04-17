@@ -303,7 +303,7 @@
         if (addressErrors.Any())
             customValidator?.DisplayErrors(addressErrors);
 
-        if (!topLevelValid || _customFieldErrors.Any())
+        if (!topLevelValid || _customFieldErrors.Any() || addressErrors.Any())
         {
             var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
             var properties = Model.GetType().GetProperties();
@@ -326,7 +326,6 @@
             {
                 ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
                 ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
-
                 _showValidationSummary = true;
             }
 

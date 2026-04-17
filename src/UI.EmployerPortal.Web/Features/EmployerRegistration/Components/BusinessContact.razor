@@ -176,6 +176,7 @@
             }
         }
 
+        var addressValid = true;
         if (Model.IsDifferentAddress == true)
         {
             var addressErrors = ValidateContactAddress();
@@ -185,35 +186,34 @@
                 ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
                 ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
                 customValidator?.DisplayErrors(addressErrors);
-                hasValidationErrors = true;
-                _showValidationSummary = true;
-                StateHasChanged();
-                return false;
-            }
-
-            if (Model.ContactAddress.Country == "United States")
-            {
-                var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
-                    [("Business Contact Address", Model.ContactAddress)],
-                    editStep: 4,
-                    postCorrectionStep: 5,
-                    onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
-
-                if (!redirected)
-                    return false;
-            }
-            else
-            {
-                RegistrationState.ContactInfo = Model;
+                addressValid = false;
             }
         }
 
-        if (!topLevelValid)
+        if (!topLevelValid || !addressValid)
         {
             hasValidationErrors = true;
+            _showValidationSummary = true;
             StateHasChanged();
             return false;
         }
+
+        if (Model.IsDifferentAddress == true && Model.ContactAddress.Country == "United States")
+        {
+            var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
+                [("Business Contact Address", Model.ContactAddress)],
+                editStep: 4,
+                postCorrectionStep: 5,
+                onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
+
+            if (!redirected)
+                return false;
+        }
+        else
+        {
+            RegistrationState.ContactInfo = Model;
+        }
+
         hasValidationErrors = false;
         return true;
     }

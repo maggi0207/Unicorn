@@ -25,8 +25,8 @@ public class AddressModel
     /// <summary>
     /// Primary address line. Maps to "Address Line 2" in SUITES backend.
     /// </summary>
-    [Required(ErrorMessage = "Street Address is required")]
-    [MaxLength(64, ErrorMessage = "Street Address cannot exceed 64 characters")]
+    [AddressLine1Required]
+    [AddressLine1MaxLength]
     public string? AddressLine1 { get; set; }
 
     /// <summary>
@@ -335,6 +335,48 @@ public class RequiredIfCountryAttribute : ValidationAttribute
                 : new ValidationResult(ErrorMessage ?? $"{context.MemberName} is required", new[] { context.MemberName! });
         }
 
+        return ValidationResult.Success;
+    }
+}
+
+/// <summary>
+/// Custom required validation for AddressLine1 that displays "Street Address" for US and "Address Line 1" otherwise.
+/// </summary>
+public class AddressLine1RequiredAttribute : ValidationAttribute
+{
+    /// <inheritdoc />
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var strValue = value?.ToString();
+        if (string.IsNullOrWhiteSpace(strValue))
+        {
+            var instance = context.ObjectInstance;
+            var country = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+            var label = country == "United States" ? "Street Address" : "Address Line 1";
+            return new ValidationResult($"{label} is required", new[] { context.MemberName! });
+        }
+        return ValidationResult.Success;
+    }
+}
+
+/// <summary>
+/// Custom max length validation for AddressLine1 that dynamically labels as "Street Address" or "Address Line 1".
+/// </summary>
+public class AddressLine1MaxLengthAttribute : ValidationAttribute
+{
+    private readonly int _length = 64;
+
+    /// <inheritdoc />
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var strValue = value?.ToString();
+        if (!string.IsNullOrEmpty(strValue) && strValue.Length > _length)
+        {
+            var instance = context.ObjectInstance;
+            var country = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+            var label = country == "United States" ? "Street Address" : "Address Line 1";
+            return new ValidationResult($"{label} cannot exceed {_length} characters", new[] { context.MemberName! });
+        }
         return ValidationResult.Success;
     }
 }
