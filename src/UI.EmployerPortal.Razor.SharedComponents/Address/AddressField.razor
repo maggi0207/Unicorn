@@ -210,14 +210,14 @@
         <div class="bi-phone-row">
             <PhoneNumberField Label="Phone Number"
                               Value="@Address.PhoneNumber"
-                              ValueChanged="@(v => Address.PhoneNumber = v)"
+                              ValueChanged="OnPhoneNumberChanged"
                               For="() => Address.PhoneNumber"
                               ShowCountryCode="true"
                               CountryCode="@Address.PhoneCountryCode"
-                              CountryCodeChanged="@(v => Address.PhoneCountryCode = v)"
+                              CountryCodeChanged="OnPhoneCountryCodeChanged"
                               CountryCodeDisabled="@(Address.PhoneType != "Other International" || Disabled)"
                               Extension="@Address.PhoneExtension"
-                              ExtensionChanged="@(v => Address.PhoneExtension = v)"
+                              ExtensionChanged="OnPhoneExtensionChanged"
                               Visible="Visible"
                               Disabled="Disabled" />
         </div>
@@ -356,5 +356,29 @@
             "United States" or "Canada" => "+1",
             _ => null   // Other International — user fills in manually
         };
+    }
+
+    /// <summary>
+    /// Updates the <see cref="AddressModel.PhoneNumber"/> from the PhoneNumberField.
+    /// </summary>
+    private void OnPhoneNumberChanged(string value)
+    {
+        Address.PhoneNumber = value;
+    }
+
+    /// <summary>
+    /// Updates the <see cref="AddressModel.PhoneCountryCode"/> from the PhoneNumberField.
+    /// </summary>
+    private void OnPhoneCountryCodeChanged(string value)
+    {
+        Address.PhoneCountryCode = value;
+    }
+
+    /// <summary>
+    /// Updates the <see cref="AddressModel.PhoneExtension"/> from the PhoneNumberField.
+    /// </summary>
+    private void OnPhoneExtensionChanged(string value)
+    {
+        Address.PhoneExtension = value;
     }
 }
