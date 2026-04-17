@@ -351,7 +351,6 @@
             { ("Mailing Address", Model.MailingAddress) };
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
             addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
-
         var usAddressesToValidate = addressesToValidate.Where(a => a.Item2.Country == "United States").ToList();
 
         return await AddressCoordinator.ValidateAndRedirectAsync(
@@ -380,8 +379,6 @@
         dest.Country = src.Country;
         dest.AddressLine1 = src.AddressLine1;
         dest.AddressLine2 = src.AddressLine2;
-        dest.AddressLine3 = src.AddressLine3;
-        dest.AddressLine4 = src.AddressLine4;
         dest.City = src.City;
         dest.State = src.State;
         dest.Province = src.Province;
@@ -397,8 +394,6 @@
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Country)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine1)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine2)));
-        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine3)));
-        editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.AddressLine4)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.City)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.State)));
         editContext.NotifyFieldChanged(new FieldIdentifier(dest, nameof(AddressModel.Province)));
@@ -414,8 +409,6 @@
         dest.Country = null;
         dest.AddressLine1 = null;
         dest.AddressLine2 = null;
-        dest.AddressLine3 = null;
-        dest.AddressLine4 = null;
         dest.City = null;
         dest.State = null;
         dest.Province = null;
