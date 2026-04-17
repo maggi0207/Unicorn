@@ -100,7 +100,14 @@ public class AddressModel
     /// </summary>
     public string? PhoneCountryCode { get; set; } = "+1";
 
+    /// <summary>
+    /// Type of phone number (e.g. Mobile, Work, Home).
+    /// </summary>
     public string? PhoneType { get; set; }
+
+    /// <summary>
+    /// Optional extension for the phone number.
+    /// </summary>
     public string? PhoneExtension { get; set; }
 
     /// <summary>

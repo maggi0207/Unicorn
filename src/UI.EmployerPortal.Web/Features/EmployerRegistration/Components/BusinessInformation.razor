@@ -419,11 +419,15 @@
 
     /// <summary>Returns true when a field's errors should be visible (after submission or interaction).</summary>
     private bool IsVisible(Expression<Func<string?>> For)
-        => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+    {
+        return formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+    }
 
     /// <summary>Returns true when an address section's errors should be visible.</summary>
     private bool IsAddressVisible(AddressModel address)
-        => formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
+    {
+        return formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
+    }
 
     /// <summary>Runs DataAnnotations validation on all address models.</summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()

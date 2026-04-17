@@ -252,15 +252,27 @@
         new() { "AB", "BC", "MB", "NB", "NL", "NT", "NS", "NU", "ON", "PE", "QC", "SK", "YT" };
 
     /// <summary>Filtered list containing only Canadian provinces.</summary>
-    private List<SelectOption> CanadaProvinces =>
-        AddressModel.States.Where(s => _canadianProvinceCodes.Contains(s.Value)).ToList();
+    private List<SelectOption> CanadaProvinces
+    {
+        get
+        {
+            return AddressModel.States.Where(s => _canadianProvinceCodes.Contains(s.Value)).ToList();
+        }
+    }
 
     /// <summary>Filtered list containing only US states and territories (excludes Canadian provinces).</summary>
-    private List<SelectOption> UsStates =>
-        AddressModel.States.Where(s => !_canadianProvinceCodes.Contains(s.Value)).ToList();
+    private List<SelectOption> UsStates
+    {
+        get
+        {
+            return AddressModel.States.Where(s => !_canadianProvinceCodes.Contains(s.Value)).ToList();
+        }
+    }
 
     private bool IsErrorVisible(string fieldName)
-        => ErrorVisibleForField?.Invoke(fieldName) ?? Visible;
+    {
+        return ErrorVisibleForField?.Invoke(fieldName) ?? Visible;
+    }
 
     protected override void OnInitialized()
     {
