@@ -201,6 +201,16 @@
                     customValidator?.ClearErrors();
                     var errors = ValidateAddressModels();
                     if (errors.Any()) customValidator?.DisplayErrors(errors);
+                    RefreshValidationSummary();
+                    hasValidationErrors = editContext.GetValidationMessages().Any();
+                    StateHasChanged();
+                });
+            }
+            else if (formSubmitted)
+            {
+                InvokeAsync(() =>
+                {
+                    RefreshValidationSummary();
                     hasValidationErrors = editContext.GetValidationMessages().Any();
                     StateHasChanged();
                 });
@@ -283,52 +293,15 @@
         ValidateCustomFields(nameof(Model.LegalName));
         ValidateCustomFields(nameof(Model.TradeName));
 
-
-        ValidationErrors.Clear();
-        ValidationFieldIds.Clear();
-        foreach (var (fi, messages) in _customFieldErrors)
-        {
-            foreach (var message in messages)
-            {
-                ValidationErrors.Add(message);
-                ValidationFieldIds.Add(fi.FieldName);
-            }
-        }
-        if (_customFieldErrors.Any())
-            _showValidationSummary = true;
-
-
         var addressErrors = ValidateAddressModels();
 
         if (addressErrors.Any())
             customValidator?.DisplayErrors(addressErrors);
 
+        RefreshValidationSummary();
+
         if (!topLevelValid || _customFieldErrors.Any() || addressErrors.Any())
         {
-            var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
-            var properties = Model.GetType().GetProperties();
-
-            foreach (var prop in properties)
-            {
-                if (customFieldNames.Contains(prop.Name)) continue;
-                var fieldId = new FieldIdentifier(Model, prop.Name);
-                var errors = editContext.GetValidationMessages(fieldId);
-
-                foreach (var error in errors)
-                {
-                    ValidationErrors.Add(error);
-                    ValidationFieldIds.Add(prop.Name);
-                    _showValidationSummary = true;
-                }
-            }
-
-            if (addressErrors.Any())
-            {
-                ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
-                ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
-                _showValidationSummary = true;
-            }
-
             hasValidationErrors = true;
             editContext.NotifyValidationStateChanged();
             StateHasChanged();
@@ -352,6 +325,48 @@
             usAddressesToValidate,
             editStep: 3,
             postCorrectionStep: 4);
+    }
+
+    private void RefreshValidationSummary()
+    {
+        if (!formSubmitted) return;
+
+        ValidationErrors.Clear();
+        ValidationFieldIds.Clear();
+
+        var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
+        var properties = Model.GetType().GetProperties();
+
+        foreach (var prop in properties)
+        {
+            if (customFieldNames.Contains(prop.Name)) continue;
+            var fieldId = new FieldIdentifier(Model, prop.Name);
+            var errors = editContext.GetValidationMessages(fieldId);
+
+            foreach (var error in errors)
+            {
+                ValidationErrors.Add(error);
+                ValidationFieldIds.Add(prop.Name);
+            }
+        }
+
+        foreach (var (fi, messages) in _customFieldErrors)
+        {
+            foreach (var message in messages)
+            {
+                ValidationErrors.Add(message);
+                ValidationFieldIds.Add(fi.FieldName);
+            }
+        }
+
+        var addressErrors = ValidateAddressModels();
+        if (addressErrors.Any())
+        {
+            ValidationErrors.AddRange(addressErrors.Values.SelectMany(v => v).ToList());
+            ValidationFieldIds.AddRange(addressErrors.Keys.Select(k => k.FieldName.ToString() ?? string.Empty).ToList());
+        }
+
+        _showValidationSummary = ValidationErrors.Any();
     }
 
     /// <summary>Handles the "Physical Location is the same as the Business address" checkbox toggle.</summary>
