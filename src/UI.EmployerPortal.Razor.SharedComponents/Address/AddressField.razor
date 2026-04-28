@@ -20,7 +20,7 @@
                                  Options="AddressModel.Countries"
                                  For="() => Address.Country"
                                  Disabled="Disabled"
-                                 Id="Country"
+                                 Id="@($"{IdPrefix}Country")"
                                  Visible="Visible" />
         </div>
     }
@@ -33,7 +33,7 @@
                                  Options="AddressModel.Countries"
                                  For="() => Address.Country"
                                  Visible="Visible"
-                                 Id="Country"
+                                 Id="@($"{IdPrefix}Country")"
                                  Disabled="Disabled" />
         </div>
         <div class="bi-field"></div>
@@ -48,7 +48,7 @@
                                @bind-Value="Address.AddressLine1"
                                For="() => Address.AddressLine1"
                                Disabled="Disabled"
-                               Id="AddressLine1"
+                               Id="@($"{IdPrefix}AddressLine1")"
                                Visible="Visible" />
         </div>
         <div class="bi-field">
@@ -62,7 +62,7 @@
             <OutlinedTextField Label="Address Line 3"
                                @bind-Value="Address.AddressLine3"
                                For="() => Address.AddressLine3"
-                               Id="AddressLine3"
+                               Id="@($"{IdPrefix}AddressLine3")"
                                Visible="Visible"
                                Disabled="Disabled" />
         </div>
@@ -70,7 +70,7 @@
             <OutlinedTextField Label="Address Line 4"
                                @bind-Value="Address.AddressLine4"
                                For="() => Address.AddressLine4"
-                               Id="AddressLine4"
+                               Id="@($"{IdPrefix}AddressLine4")"
                                Visible="Visible"
                                Disabled="Disabled" />
         </div>
@@ -83,7 +83,7 @@
                                @bind-Value="Address.AddressLine1"
                                For="() => Address.AddressLine1"
                                Disabled="Disabled"
-                               Id="AddressLine1"
+                               Id="@($"{IdPrefix}AddressLine1")"
                                Visible="Visible" />
         </div>
         <div class="bi-field">
@@ -98,7 +98,7 @@
                                @bind-Value="Address.City"
                                For="() => Address.City"
                                Disabled="Disabled"
-                               Id="City"
+                               Id="@($"{IdPrefix}City")"
                                Visible="Visible" />
         </div>
         <div class="bi-field">
@@ -108,7 +108,7 @@
                                  Placeholder="-- Select --"
                                  Disabled="Disabled"
                                  For="() => Address.Province"
-                                 Id="Province"
+                                 Id="@($"{IdPrefix}Province")"
                                  Visible="Visible" />
         </div>
 
@@ -118,7 +118,7 @@
                                @bind-Value="Address.PostalCode"
                                For="() => Address.PostalCode"
                                Disabled="Disabled"
-                               Id="PostalCode"
+                               Id="@($"{IdPrefix}PostalCode")"
                                Visible="Visible" />
         </div>
         <div class="bi-field"></div>
@@ -132,7 +132,7 @@
                                For="() => Address.AddressLine1"
                                Placeholder="123 Main Street"
                                Disabled="Disabled"
-                               Id="AddressLine1"
+                               Id="@($"{IdPrefix}AddressLine1")"
                                Visible="Visible" />
         </div>
         <div class="bi-field">
@@ -148,7 +148,7 @@
                                @bind-Value="Address.City"
                                For="() => Address.City"
                                Disabled="Disabled"
-                               Id="City"
+                               Id="@($"{IdPrefix}City")"
                                Visible="Visible" />
         </div>
         <div class="bi-field">
@@ -158,7 +158,7 @@
                                  Placeholder="-- Select --"
                                  Disabled="Disabled"
                                  For="() => Address.State"
-                                 Id="State"
+                                 Id="@($"{IdPrefix}State")"
                                  Visible="Visible" />
         </div>
 
@@ -166,7 +166,7 @@
         <div class="bi-zip-row">
             <div class="bi-zip-field">
                 <OutlinedTextField Label="Zip Code"
-                                   Id="Zip"
+                                   Id="@($"{IdPrefix}Zip")"
                                    @bind-Value="Address.Zip"
                                    For="() => Address.Zip"
                                    InputMode="numeric"
@@ -200,7 +200,7 @@
                                      Placeholder="-- Select --"
                                      Disabled="Disabled"
                                      For="() => Address.PhoneType"
-                                     Id="PhoneType"
+                                     Id="@($"{IdPrefix}PhoneType")"
                                      Visible="Visible" />
             </div>
             <div class="bi-field"></div>
@@ -246,6 +246,12 @@
 
     /// <summary>When true, all input fields are rendered in disabled state.</summary>
     [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Optional prefix prepended to every field's HTML id attribute, enabling multiple
+    /// address sections on the same page without duplicate ids (e.g. "Mailing", "Physical0").
+    /// </summary>
+    [Parameter] public string IdPrefix { get; set; } = "";
 
     /// <summary>Canadian province codes used to filter <see cref="AddressModel.States"/>.</summary>
     private static readonly HashSet<string> _canadianProvinceCodes =
