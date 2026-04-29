@@ -7,6 +7,7 @@
     <div class="phone-row">
         <div class="phone-prefix-field">
             <OutlinedTextField Label="International Area Code"
+                               Id="@CountryCodeId"
                                Value="@CountryCode"
                                ValueChanged="OnPrefixInput"
                                Visible="@Visible"
@@ -15,6 +16,7 @@
         </div>
         <div class="phone-main-field">
             <OutlinedTextField Label="@Label"
+                               Id="@Id"
                                Value="@Value"
                                ValueChanged="OnInput"
                                For="@For"
@@ -40,6 +42,7 @@ else if (ShowCountryCode)
     <div class="phone-row">
         <div class="phone-main-field">
             <OutlinedTextField Label="@Label"
+                               Id="@Id"
                                Value="@Value"
                                ValueChanged="OnInput"
                                For="@For"
@@ -62,6 +65,7 @@ else if (ShowCountryCode)
 else
 {
     <OutlinedTextField Label="@Label"
+                       Id="@Id"
                        Value="@Value"
                        ValueChanged="OnInput"
                        For="@For"
@@ -73,6 +77,12 @@ else
 }
 
 @code {
+    /// <summary>HTML id for the phone number input, used for banner error navigation.</summary>
+    [Parameter] public string? Id { get; set; }
+
+    /// <summary>HTML id for the international area code input.</summary>
+    [Parameter] public string? CountryCodeId { get; set; }
+
     /// <summary>Display label for the phone number field.</summary>
     [Parameter] public string Label { get; set; } = "Phone Number";
 

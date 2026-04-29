@@ -336,28 +336,33 @@
         ValidationErrors.Clear();
         ValidationFieldIds.Clear();
 
-        var customFieldNames = _customFieldErrors.Keys.Select(k => k.FieldName).ToHashSet();
-        var properties = Model.GetType().GetProperties();
-
-        foreach (var prop in properties)
+        // Collect top-level field errors in UI layout order.
+        // Custom errors (LLC rule, trade name checks) take precedence over DataAnnotations for the same field.
+        var topLevelOrder = new[]
         {
-            if (customFieldNames.Contains(prop.Name)) continue;
-            var fieldId = new FieldIdentifier(Model, prop.Name);
-            var errors = editContext.GetValidationMessages(fieldId);
+            nameof(Model.LegalName),
+            nameof(Model.TradeName),
+            nameof(Model.Email)
+        };
 
-            foreach (var error in errors)
+        foreach (var fieldName in topLevelOrder)
+        {
+            var fi = new FieldIdentifier(Model, fieldName);
+            if (_customFieldErrors.TryGetValue(fi, out var customMessages))
             {
-                ValidationErrors.Add(error);
-                ValidationFieldIds.Add(prop.Name);
+                foreach (var msg in customMessages)
+                {
+                    ValidationErrors.Add(msg);
+                    ValidationFieldIds.Add(fieldName);
+                }
             }
-        }
-
-        foreach (var (fi, messages) in _customFieldErrors)
-        {
-            foreach (var message in messages)
+            else
             {
-                ValidationErrors.Add(message);
-                ValidationFieldIds.Add(fi.FieldName);
+                foreach (var error in editContext.GetValidationMessages(fi))
+                {
+                    ValidationErrors.Add(error);
+                    ValidationFieldIds.Add(fieldName);
+                }
             }
         }
 
@@ -475,88 +480,66 @@
         return formSubmitted || _touchedFields.Any(f => ReferenceEquals(f.Model, address));
     }
 
-    /// <summary>Runs DataAnnotations validation on all address models.</summary>
+    /// <summary>
+    /// Validates all address models in UI layout order.
+    /// Each address: DataAnnotations first, then phone (mailing only), then PO Box (physical only).
+    /// This preserves banner error order matching the on-screen field sequence.
+    /// </summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressModels()
     {
         var errors = new Dictionary<FieldIdentifier, List<string>>();
 
-        var physicalToValidate = _physicalSameAsMailing
+        var physicalToValidate = (_physicalSameAsMailing
             ? Model.PhysicalLocations.Skip(1)
-            : Model.PhysicalLocations;
+            : Model.PhysicalLocations).ToList();
 
-        var allAddresses = new List<AddressModel> { Model.MailingAddress };
-        allAddresses.AddRange(physicalToValidate);
+        // ── Mailing address ──────────────────────────────────────────────────
+        AddDataAnnotationErrors(errors, Model.MailingAddress);
 
-        foreach (var address in allAddresses)
-        {
-            var ctx = new ValidationContext(address);
-            var results = new List<ValidationResult>();
-            Validator.TryValidateObject(address, ctx, results, true);
-
-            foreach (var result in results)
-            {
-                foreach (var memberName in result.MemberNames)
-                {
-                    var fi = new FieldIdentifier(address, memberName);
-                    if (!errors.ContainsKey(fi))
-                        errors[fi] = new List<string>();
-                    errors[fi].Add(result.ErrorMessage ?? "This field is invalid");
-                }
-            }
-        }
-
-        // Validate mailing address phone (shown only on mailing address, so not on AddressModel itself)
-        var phoneField = new FieldIdentifier(Model.MailingAddress, nameof(AddressModel.PhoneNumber));
-        var phoneTypeField = new FieldIdentifier(Model.MailingAddress, nameof(AddressModel.PhoneType));
-        var phoneCountryCodeField = new FieldIdentifier(Model.MailingAddress, nameof(AddressModel.PhoneCountryCode));
-
+        // Phone comes right after mailing address fields in the UI.
         if (Model.MailingAddress.Country != "United States" && string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneType))
-        {
-            if (!errors.ContainsKey(phoneTypeField)) errors[phoneTypeField] = new List<string>();
-            errors[phoneTypeField].Add("Phone Type is required");
-        }
+            AddError(errors, Model.MailingAddress, nameof(AddressModel.PhoneType), "Phone Type is required");
 
         if (Model.MailingAddress.PhoneType == "Other International" && string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneCountryCode))
-        {
-            if (!errors.ContainsKey(phoneCountryCodeField)) errors[phoneCountryCodeField] = new List<string>();
-            errors[phoneCountryCodeField].Add("International Area Code is required");
-        }
+            AddError(errors, Model.MailingAddress, nameof(AddressModel.PhoneCountryCode), "International Area Code is required");
 
         if (string.IsNullOrWhiteSpace(Model.MailingAddress.PhoneNumber))
-        {
-            if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
-            errors[phoneField].Add("Phone Number is required");
-        }
-        else if ((Model.MailingAddress.Country == "United States" || Model.MailingAddress.Country == "Canada") 
+            AddError(errors, Model.MailingAddress, nameof(AddressModel.PhoneNumber), "Phone Number is required");
+        else if ((Model.MailingAddress.Country == "United States" || Model.MailingAddress.Country == "Canada")
                  && !System.Text.RegularExpressions.Regex.IsMatch(Model.MailingAddress.PhoneNumber, @"^\d{3}-\d{3}-\d{4}$"))
-        {
-            if (!errors.ContainsKey(phoneField)) errors[phoneField] = new List<string>();
-            errors[phoneField].Add("Phone Number must be in format 999-999-9999");
-        }
+            AddError(errors, Model.MailingAddress, nameof(AddressModel.PhoneNumber), "Phone Number must be in format 999-999-9999");
 
+        // ── Physical locations ───────────────────────────────────────────────
         foreach (var physical in physicalToValidate)
         {
-            bool line1IsPoBox = physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
-            bool line2IsPoBox = physical.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
+            AddDataAnnotationErrors(errors, physical);
 
-            if (line1IsPoBox)
-            {
-                var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine1));
-                if (!errors.ContainsKey(fi))
-                    errors[fi] = new List<string>();
-                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
-            }
+            if (physical.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true)
+                AddError(errors, physical, nameof(AddressModel.AddressLine1), "Physical location cannot be a PO Box. Please enter a street address");
 
-            if (line2IsPoBox)
-            {
-                var fi = new FieldIdentifier(physical, nameof(AddressModel.AddressLine2));
-                if (!errors.ContainsKey(fi))
-                    errors[fi] = new List<string>();
-                errors[fi].Add("Physical location cannot be a PO Box. Please enter a street address");
-            }
+            if (physical.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true)
+                AddError(errors, physical, nameof(AddressModel.AddressLine2), "Physical location cannot be a PO Box. Please enter a street address");
         }
 
         return errors;
+    }
+
+    private static void AddDataAnnotationErrors(Dictionary<FieldIdentifier, List<string>> errors, AddressModel address)
+    {
+        var ctx = new ValidationContext(address);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(address, ctx, results, validateAllProperties: true);
+        foreach (var result in results)
+            foreach (var memberName in result.MemberNames)
+                AddError(errors, address, memberName, result.ErrorMessage ?? "This field is invalid");
+    }
+
+    private static void AddError(Dictionary<FieldIdentifier, List<string>> errors, AddressModel address, string memberName, string message)
+    {
+        var fi = new FieldIdentifier(address, memberName);
+        if (!errors.TryGetValue(fi, out var list))
+            errors[fi] = list = new List<string>();
+        list.Add(message);
     }
 
     /// <summary>Adds a new physical location up to the maximum allowed.</summary>
