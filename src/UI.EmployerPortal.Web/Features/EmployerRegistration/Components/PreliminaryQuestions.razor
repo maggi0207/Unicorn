@@ -38,7 +38,8 @@
                        @bind-Value="Model.FEIN"
                        For="() => Model.FEIN"
                        Placeholder="99-9999999"
-                       Visible="@IsVisible(()=>Model.FEIN)" />
+                       Visible="@IsVisible(()=>Model.FEIN)"
+                       OnBlur="@(() => _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.FEIN))))" />
 
             <br />
 
@@ -50,7 +51,7 @@
                                @bind-Value="Model.UIAccountNumber"
                                For="() => Model.UIAccountNumber"
                                Mask="000000-000-0"
-                               Placeholder="999999-999-9" />
+                               Placeholder="999999-999-9"/>
             <br />
 
             <!-- Question 1 -->
@@ -81,14 +82,17 @@
                 {
                     <!-- Q1.1 Yes: has ruling -->
                     <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
-                    <FileUpload Title="501(c)(3) Ruling from IRS" />
+                    <FileUpload Title="501(c)(3) Ruling from IRS" Model="Model" SelFileType="FileType.Ruling" 
+                                OnFileUpload="@(fileName => {_rulingDocUploaded = true; Model.RulingDocFilename = Path.GetFileName(fileName);})" />
+                    <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <div class="form-check">
+                        <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
                         <input type="checkbox"
                                id="chk-supply-docs-ruling"
                                class="form-check-input"
                                @bind="Model.WillSupplyDocumentationLater"
                                @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                        <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
+                               
                             I will supply required documentation at a later date.
                         </label>
                     </div>
@@ -112,15 +116,19 @@
                     {
                         <!-- Q1.1.2 Yes: applied -->
                         <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
-                        <FileUpload Title="Articles of Incorporation" />
-                        <FileUpload Title="IRS Acceptance Letter" />
+                        <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
+                                    OnFileUpload="@(fileName => {_appliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
+                        <FileUpload Title="IRS Acceptance Letter" SelFileType="FileType.IRS" Model="Model"
+                                    OnFileUpload="@(fileName => {_appliedDocUploaded = true;  Model.IRSAcceptanceLetterFilename = Path.GetFileName(fileName);})" />
+                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
+                            <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
                             <input type="checkbox"
                                    id="chk-supply-docs-applied"
                                    class="form-check-input"
                                    @bind="Model.WillSupplyDocumentationLater"
                                    @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                            <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
+                            
                                 I will supply required documentation at a later date.
                             </label>
                         </div>
@@ -137,14 +145,16 @@
                             Once your 501(c)(3) application has been accepted by the IRS, please submit a copy of
                             your application acceptance letter.
                         </p>
-                        <FileUpload Title="Articles of Incorporation" />
+                        <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
+                                    OnFileUpload="@(fileName => {_notAppliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
+                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
+                            <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
                             <input type="checkbox"
                                    id="chk-supply-docs-not-applied"
                                    class="form-check-input"
                                    @bind="Model.WillSupplyDocumentationLater"
-                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                            <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
+                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />                           
                                 I will supply required documentation at a later date.
                             </label>
                         </div>
@@ -197,7 +207,8 @@
                     <OutlinedTextField Label="Name of the acquired business"
                                        Id="AcquiredBusinessName"
                                        @bind-Value="Model.AcquiredBusinessName"
-                                       For="() => Model.AcquiredBusinessName" />
+                                       For="() => Model.AcquiredBusinessName"
+                                       MaxLength="128" />
                     <br />
 
                     <p>Current Address of Acquired Business</p>
@@ -332,7 +343,8 @@
                                            Type="date"
                                            @bind-Value="LastEmploymentDateAsString"
                                            For="() => LastEmploymentDateAsString"
-                                           Visible="@IsVisible(()=>Model.LastEmploymentDate)" />
+                                           Visible="@IsVisible(()=>Model.LastEmploymentDate)"
+                                           FocusKey="response:3025"/>
                         <br />
 
                         <OutlinedTextField Label="Last Payroll Date"
@@ -383,8 +395,8 @@
                                                Placeholder="99-9999999"
                                                Visible="@IsVisible(()=>Model.PEOFEIN)" />
                                     <div class="validation-space">
-                                       <FieldError For="@(() => Model.PEOFEIN)"
-                                Visible="@_formSubmitted" />
+                                        <FieldError For="@(() => Model.PEOFEIN)"
+                                                    Visible="@_formSubmitted" />
                                     </div>
                                 </div>
                             </div>
@@ -393,6 +405,7 @@
                                 <OutlinedTextField Label="Date leasing agreement started"
                                                    Id="LeasingStartDate"
                                                    Type="date"
+                                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
                                                    @bind-Value="LeasingStartDateAsString"
                                                    For="() => LeasingStartDateAsString"
                                                    Visible="@IsVisible(()=>Model.LeasingStartDate)" />
