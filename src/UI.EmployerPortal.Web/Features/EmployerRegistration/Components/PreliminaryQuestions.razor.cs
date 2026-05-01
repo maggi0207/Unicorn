@@ -105,9 +105,14 @@ public partial class PreliminaryQuestions
         get => Model.LeasingStartDate?.ToString("yyyy-MM-dd");
         set
         {
-            Model.LeasingStartDate = string.IsNullOrWhiteSpace(value)
-                ? null
-                : DateOnly.ParseExact(value, "yyyy-MM-dd");
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Model.LeasingStartDate = null;
+            }
+            else
+            {
+                Model.LeasingStartDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            }
         }
     }
 
@@ -117,9 +122,14 @@ public partial class PreliminaryQuestions
         get => Model.LastEmploymentDate?.ToString("yyyy-MM-dd");
         set
         {
-            Model.LastEmploymentDate = string.IsNullOrWhiteSpace(value)
-                ? null
-                : DateOnly.ParseExact(value, "yyyy-MM-dd");
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Model.LastEmploymentDate = null;
+            }
+            else
+            {
+                Model.LastEmploymentDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            }
         }
     }
 
@@ -128,9 +138,14 @@ public partial class PreliminaryQuestions
         get => Model.LastPayrollDate?.ToString("yyyy-MM-dd");
         set
         {
-            Model.LastPayrollDate = string.IsNullOrWhiteSpace(value)
-                ? null
-                : DateOnly.ParseExact(value, "yyyy-MM-dd");
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Model.LastPayrollDate = null;
+            }
+            else
+            {
+                Model.LastPayrollDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            }
         }
     }
 
