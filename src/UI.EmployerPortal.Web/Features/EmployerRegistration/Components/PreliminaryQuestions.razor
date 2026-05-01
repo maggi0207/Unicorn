@@ -341,6 +341,7 @@
                         <OutlinedTextField Label="Last Employment Date"
                                            Id="LastEmploymentDate"
                                            Type="date"
+                                           max="9999-12-31"
                                            @bind-Value="LastEmploymentDateAsString"
                                            For="() => LastEmploymentDateAsString"
                                            Visible="@IsVisible(()=>Model.LastEmploymentDate)"
@@ -350,6 +351,7 @@
                         <OutlinedTextField Label="Last Payroll Date"
                                            Id="LastPayrollDate"
                                            Type="date"
+                                           max="9999-12-31"
                                            @bind-Value="LastPayrollDateAsString"
                                            For="() => LastPayrollDateAsString"
                                            Visible="@IsVisible(()=>Model.LastPayrollDate)" />
@@ -406,6 +408,7 @@
                                                    Id="LeasingStartDate"
                                                    Type="date"
                                                    min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
+                                                   max="9999-12-31"
                                                    @bind-Value="LeasingStartDateAsString"
                                                    For="() => LeasingStartDateAsString"
                                                    Visible="@IsVisible(()=>Model.LeasingStartDate)" />

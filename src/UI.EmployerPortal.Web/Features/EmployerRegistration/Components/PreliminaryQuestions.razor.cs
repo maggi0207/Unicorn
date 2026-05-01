@@ -800,6 +800,23 @@ public partial class PreliminaryQuestions
             }
         }
 
+        // Date facade fields store errors against component-level identifiers, not model properties.
+        // Collect them separately so the top banner includes them.
+        var dateFacades = new (FieldIdentifier Fi, string HtmlId)[]
+        {
+            (FieldIdentifier.Create(() => LastEmploymentDateAsString), "LastEmploymentDate"),
+            (FieldIdentifier.Create(() => LastPayrollDateAsString),    "LastPayrollDate"),
+            (FieldIdentifier.Create(() => LeasingStartDateAsString),   "LeasingStartDate"),
+        };
+        foreach (var (fi, htmlId) in dateFacades)
+        {
+            foreach (var error in _editContext.GetValidationMessages(fi))
+            {
+                ValidationErrors.Add(error);
+                ValidationFieldIds.Add(htmlId);
+            }
+        }
+
         //validation for address
         if (addressErrors.Count != 0)
         {
