@@ -19,6 +19,10 @@ public partial class PreliminaryQuestions
     private ValidationMessageStore _messageStore = default!;
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
 
+    private string? _leasingStartDateRaw;
+    private string? _lastEmploymentDateRaw;
+    private string? _lastPayrollDateRaw;
+
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
 
@@ -103,20 +107,32 @@ public partial class PreliminaryQuestions
     private string? LeasingStartDateAsString
     {
         get => Model.LeasingStartDate?.ToString("yyyy-MM-dd");
-        set => Model.LeasingStartDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        set
+        {
+            _leasingStartDateRaw = value;
+            Model.LeasingStartDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        }
     }
 
     // data type fascades
     private string? LastEmploymentDateAsString
     {
         get => Model.LastEmploymentDate?.ToString("yyyy-MM-dd");
-        set => Model.LastEmploymentDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        set
+        {
+            _lastEmploymentDateRaw = value;
+            Model.LastEmploymentDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        }
     }
 
     private string? LastPayrollDateAsString
     {
         get => Model.LastPayrollDate?.ToString("yyyy-MM-dd");
-        set => Model.LastPayrollDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        set
+        {
+            _lastPayrollDateRaw = value;
+            Model.LastPayrollDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+        }
     }
 
     private string? ExpectedFuturePayrollPeriodAsString
@@ -220,6 +236,9 @@ public partial class PreliminaryQuestions
         Model.OtherReason = null;
         Model.LastPayrollDate = null;
         Model.LastEmploymentDate = null;
+        _leasingStartDateRaw = null;
+        _lastEmploymentDateRaw = null;
+        _lastPayrollDateRaw = null;
 
         ResetField(() => Model.NoEmployeeExplanation);
         ResetField(() => Model.PEOName);
@@ -548,12 +567,13 @@ public partial class PreliminaryQuestions
                             _editContext.Field(nameof(Model.PEOUIAccountNumber)),
                             "PEO UI Account Number must match the given format");
                     }
-                    if (IsVisible(() => Model.LeasingStartDate) &&
-                        !Model.LeasingStartDate.HasValue)
+                    if (!string.IsNullOrWhiteSpace(_leasingStartDateRaw) && !Model.LeasingStartDate.HasValue)
                     {
-                        _messageStore.Add(
-                            _editContext.Field(nameof(Model.LeasingStartDate)),
-                            "Enter the date leasing agreement started");
+                        _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter a valid date");
+                    }
+                    else if (IsVisible(() => Model.LeasingStartDate) && !Model.LeasingStartDate.HasValue)
+                    {
+                        _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter the date leasing agreement started");
                     }
                     break;
                 case NoEmployeeReason.FiscalAgent:
@@ -589,19 +609,21 @@ public partial class PreliminaryQuestions
                     }
                     break;
                 case NoEmployeeReason.NotOperatingInWisconsin:
-                    if (IsVisible(() => Model.LastEmploymentDate) &&
-                        !Model.LastEmploymentDate.HasValue)
+                    if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
                     {
-                        _messageStore.Add(
-                            _editContext.Field(nameof(Model.LastEmploymentDate)),
-                            "Enter the last employment date");
+                        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
                     }
-                    if (IsVisible(() => Model.LastPayrollDate) &&
-                        !Model.LastPayrollDate.HasValue)
+                    else if (IsVisible(() => Model.LastEmploymentDate) && !Model.LastEmploymentDate.HasValue)
                     {
-                        _messageStore.Add(
-                            _editContext.Field(nameof(Model.LastPayrollDate)),
-                            "Enter the last payroll date");
+                        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter the last employment date");
+                    }
+                    if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
+                    {
+                        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
+                    }
+                    else if (IsVisible(() => Model.LastPayrollDate) && !Model.LastPayrollDate.HasValue)
+                    {
+                        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter the last payroll date");
                     }
                     break;
             }
