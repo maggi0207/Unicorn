@@ -103,50 +103,20 @@ public partial class PreliminaryQuestions
     private string? LeasingStartDateAsString
     {
         get => Model.LeasingStartDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                Model.LeasingStartDate = null;
-            }
-            else
-            {
-                Model.LeasingStartDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-            }
-        }
+        set => Model.LeasingStartDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
     }
 
     // data type fascades
     private string? LastEmploymentDateAsString
     {
         get => Model.LastEmploymentDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                Model.LastEmploymentDate = null;
-            }
-            else
-            {
-                Model.LastEmploymentDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-            }
-        }
+        set => Model.LastEmploymentDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
     }
 
     private string? LastPayrollDateAsString
     {
         get => Model.LastPayrollDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                Model.LastPayrollDate = null;
-            }
-            else
-            {
-                Model.LastPayrollDate = DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-            }
-        }
+        set => Model.LastPayrollDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
     }
 
     private string? ExpectedFuturePayrollPeriodAsString
