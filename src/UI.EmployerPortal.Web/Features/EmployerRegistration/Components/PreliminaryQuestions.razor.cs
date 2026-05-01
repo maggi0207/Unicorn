@@ -19,9 +19,11 @@ public partial class PreliminaryQuestions
     private ValidationMessageStore _messageStore = default!;
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
 
-    private string? _leasingStartDateRaw;
-    private string? _lastEmploymentDateRaw;
-    private string? _lastPayrollDateRaw;
+    // Tracks whether a file has been uploaded in each 501(c)(3) upload section.
+    // If false the user must check WillSupplyDocumentationLater to proceed.
+    private bool _rulingDocUploaded = false;
+    private bool _appliedDocUploaded = false;
+    private bool _notAppliedDocUploaded = false;
 
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
@@ -32,6 +34,28 @@ public partial class PreliminaryQuestions
         return _formSubmitted || _touchedFields.Contains(field);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum FileType
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        Ruling,
+        /// <summary>
+        /// /
+        /// </summary>
+        IRS,
+        /// <summary>
+        /// 
+        /// </summary>
+        INC,
+        /// <summary>
+        /// 
+        /// </summary>
+        GOV
+    }
     /// <summary>
     /// 
     /// </summary>
@@ -109,8 +133,9 @@ public partial class PreliminaryQuestions
         get => Model.LeasingStartDate?.ToString("yyyy-MM-dd");
         set
         {
-            _leasingStartDateRaw = value;
-            Model.LeasingStartDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            Model.LeasingStartDate = string.IsNullOrWhiteSpace(value)
+                ? null
+                : DateOnly.ParseExact(value, "yyyy-MM-dd");
         }
     }
 
@@ -120,8 +145,9 @@ public partial class PreliminaryQuestions
         get => Model.LastEmploymentDate?.ToString("yyyy-MM-dd");
         set
         {
-            _lastEmploymentDateRaw = value;
-            Model.LastEmploymentDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            Model.LastEmploymentDate = string.IsNullOrWhiteSpace(value)
+                ? null
+                : DateOnly.ParseExact(value, "yyyy-MM-dd");
         }
     }
 
@@ -130,8 +156,9 @@ public partial class PreliminaryQuestions
         get => Model.LastPayrollDate?.ToString("yyyy-MM-dd");
         set
         {
-            _lastPayrollDateRaw = value;
-            Model.LastPayrollDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
+            Model.LastPayrollDate = string.IsNullOrWhiteSpace(value)
+                ? null
+                : DateOnly.ParseExact(value, "yyyy-MM-dd");
         }
     }
 
@@ -167,10 +194,37 @@ public partial class PreliminaryQuestions
     {
         Model.AcquiredExistingBusiness = value;
 
+        //Clear
+        Model.KnowAcquiredBusinessAccountNumber = null;
+        Model.AcquiredBusinessAccountNumber = string.Empty;
+        Model.AcquiredBusinessName = string.Empty;
+        Model.AcquiredBusinessAddress = null;
+
+        Model.HavePaidEmployeesForWorkInWisconsin = null;
+        Model.HaveEmployeesCurrentlyWorkingInWisconsin = null;
+        Model.InformationIsAccurate = false;
+        Model.ExpectFuturePayroll = null;
+        Model.SelectedNoEmployeeReason = null;
+        Model.NoEmployeeExplanation = null;
+        Model.PEOName = null;
+        Model.PEOUIAccountNumber = null;
+        Model.PEOFEIN = null;
+        Model.LeasingStartDate = null;
+        Model.FiscalAgentName = null;
+        Model.FiscalAgentUIAccountNumber = null;
+        Model.OtherReason = null;
+        Model.LastEmploymentDate = null;
+        Model.LastPayrollDate = null;
+
         ResetField(() => Model.KnowAcquiredBusinessAccountNumber);
         ResetField(() => Model.AcquiredBusinessAccountNumber);
         ResetField(() => Model.AcquiredBusinessName);
         ResetField(() => Model.AcquiredBusinessAddress);
+        ResetField(() => Model.HavePaidEmployeesForWorkInWisconsin);
+        ResetField(() => Model.HaveEmployeesCurrentlyWorkingInWisconsin);
+        ResetField(() => Model.ExpectFuturePayroll);
+        ResetField(() => Model.ExpectedFuturePayrollPeriod);
+        ResetField(() => Model.SelectedNoEmployeeReason);
 
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.AcquiredExistingBusiness)));
     }
@@ -192,9 +246,27 @@ public partial class PreliminaryQuestions
     {
         Model.HavePaidEmployeesForWorkInWisconsin = value;
 
+        //Clear Q3.1 (shown when Yes)
+        Model.HaveEmployeesCurrentlyWorkingInWisconsin = null;
+        Model.InformationIsAccurate = false;
+
+        //Clear Q3.2 (shown when No)
+        Model.SelectedNoEmployeeReason = null;
+        Model.NoEmployeeExplanation = null;
+        Model.PEOName = null;
+        Model.PEOUIAccountNumber = null;
+        Model.PEOFEIN = null;
+        Model.LeasingStartDate = null;
+        Model.FiscalAgentName = null;
+        Model.FiscalAgentUIAccountNumber = null;
+        Model.OtherReason = null;
+        Model.LastEmploymentDate = null;
+        Model.LastPayrollDate = null;
+
         ResetField(() => Model.HaveEmployeesCurrentlyWorkingInWisconsin);
         ResetField(() => Model.ExpectFuturePayroll);
         ResetField(() => Model.ExpectedFuturePayrollPeriod);
+        ResetField(() => Model.SelectedNoEmployeeReason);
 
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HavePaidEmployeesForWorkInWisconsin)));
     }
@@ -203,6 +275,22 @@ public partial class PreliminaryQuestions
     {
         Model.HaveEmployeesCurrentlyWorkingInWisconsin = value;
         Model.InformationIsAccurate = false;
+
+        //Clear Q4 branch (shown when No)
+        Model.SelectedNoEmployeeReason = null;
+        Model.NoEmployeeExplanation = null;
+        Model.PEOName = null;
+        Model.PEOUIAccountNumber = null;
+        Model.PEOFEIN = null;
+        Model.LeasingStartDate = null;
+        Model.FiscalAgentName = null;
+        Model.FiscalAgentUIAccountNumber = null;
+        Model.OtherReason = null;
+        Model.LastEmploymentDate = null;
+        Model.LastPayrollDate = null;
+
+        ResetField(() => Model.SelectedNoEmployeeReason);
+
         _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HaveEmployeesCurrentlyWorkingInWisconsin)));
     }
@@ -210,6 +298,11 @@ public partial class PreliminaryQuestions
     private void OnExpectFuturePayrollChanged(bool? value)
     {
         Model.ExpectFuturePayroll = value;
+
+        //Clear
+        Model.ExpectedFuturePayrollPeriod = null;
+        ResetField(() => Model.ExpectedFuturePayrollPeriod);
+
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.ExpectFuturePayroll)));
     }
     private void OnInformationIsAccurateChanged()
@@ -236,9 +329,6 @@ public partial class PreliminaryQuestions
         Model.OtherReason = null;
         Model.LastPayrollDate = null;
         Model.LastEmploymentDate = null;
-        _leasingStartDateRaw = null;
-        _lastEmploymentDateRaw = null;
-        _lastPayrollDateRaw = null;
 
         ResetField(() => Model.NoEmployeeExplanation);
         ResetField(() => Model.PEOName);
@@ -321,19 +411,53 @@ public partial class PreliminaryQuestions
         Model.HasRulingFrom501c3IRS = value;
         Model.HasAppliedFor501c3WithIRS = null;
         Model.WillSupplyDocumentationLater = false;
+        _rulingDocUploaded = false;
+        _appliedDocUploaded = false;
+        _notAppliedDocUploaded = false;
         ResetField(() => Model.HasAppliedFor501c3WithIRS);
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
     }
+
     private void OnHasAppliedFor501c3WithIRSChanged(bool? value)
     {
         Model.HasAppliedFor501c3WithIRS = value;
         Model.WillSupplyDocumentationLater = false;
+        _appliedDocUploaded = false;
+        _notAppliedDocUploaded = false;
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
     }
 
     private void OnWillSupplyDocumentationLaterChanged()
     {
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
+    }
+
+    /// <summary>
+    /// /// Called by the wizard's Save and Quit handler to ensure FEIN is provided
+    /// before creating a registration record without one.
+    /// Only validates FEIN — other Step 1 fields are not checked.
+    /// </summary>
+
+    public bool ValidateFEINOnly()
+    {
+        _formSubmitted = true;
+        ValidationErrors.Clear();
+        ValidationFieldIds.Clear();
+        _messageStore.Clear(_editContext.Field(nameof(Model.FEIN)));
+
+        var feinResult = FEINField.ValidateFEIN(Model.FEIN);
+
+        if (!feinResult.IsValid)
+        {
+            _messageStore.Add(_editContext.Field(nameof(Model.FEIN)), feinResult.ErrorMessage);
+            ValidationErrors.Add(feinResult.ErrorMessage);
+            ValidationFieldIds.Add("FEIN");
+        }
+
+        _editContext.NotifyValidationStateChanged();
+        StateHasChanged();
+
+        return feinResult.IsValid;
     }
 
     ///<Summary>
@@ -361,14 +485,14 @@ public partial class PreliminaryQuestions
 
         var addressErrors = new Dictionary<FieldIdentifier, List<string>>();
 
-        // FEIN
+        // FEIN — all rules delegated to FEINField.ValidateFEIN()
         if (IsVisible(() => Model.FEIN))
         {
-            var field = _editContext.Field(nameof(Model.FEIN));
-            if (string.IsNullOrWhiteSpace(Model.FEIN))
+            var feinResult = FEINField.ValidateFEIN(Model.FEIN);
+            if (!feinResult.IsValid)
             {
-                _messageStore.Add(field, "Enter the FEIN of the business");
-            }        
+                _messageStore.Add(_editContext.Field(nameof(Model.FEIN)), feinResult.ErrorMessage);
+            }
         }
         // UI Account Number
         if (IsVisible(() => Model.UIAccountNumber) && !string.IsNullOrWhiteSpace(Model.UIAccountNumber))
@@ -376,7 +500,7 @@ public partial class PreliminaryQuestions
             var field = _editContext.Field(nameof(Model.UIAccountNumber));
             if (!Regex.IsMatch(Model.UIAccountNumber, _uiAccountNumberRegex))
             {
-                _messageStore.Add(field, "Employer UI Account Number must match the given format");
+                _messageStore.Add(field, "Account Number is not a valid format (999999-999-9)");
             }
         }
         // Non-profit question
@@ -404,6 +528,21 @@ public partial class PreliminaryQuestions
             {
                 _messageStore.Add(field, "Answer if you have applied for 501(c)(3) status with the IRS.");
             }
+        }
+        // Require a file upload OR the "supply later" checkbox for each visible upload section
+        var supplyLaterField = _editContext.Field(nameof(Model.WillSupplyDocumentationLater));
+        const string UploadOrCheckboxMsg = "Please upload the required documentation or select 'I will supply required documentation at a later date'";
+        if (ShowRulingUpload && !_rulingDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.RulingDocFilename))
+        {
+            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
+        }
+        if (ShowAppliedUpload && !_appliedDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.IRSAcceptanceLetterFilename))
+        {
+            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
+        }
+        if (ShowNotAppliedText && !_notAppliedDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.ArticlesOfIncorporationFilename))
+        {
+            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
         }
         // Acquired Existing Business
         if (IsVisible(() => Model.AcquiredExistingBusiness))
@@ -436,7 +575,7 @@ public partial class PreliminaryQuestions
             {
                 _messageStore.Add(
                     _editContext.Field(nameof(Model.AcquiredBusinessAccountNumber)),
-                    "The Acquired Business UI Account Number must match the given format");
+                    "Account Number is not a valid format (999999-999-9)");
             }
         }
         // Question 2.1.2
@@ -567,13 +706,24 @@ public partial class PreliminaryQuestions
                             _editContext.Field(nameof(Model.PEOUIAccountNumber)),
                             "PEO UI Account Number must match the given format");
                     }
-                    if (!string.IsNullOrWhiteSpace(_leasingStartDateRaw) && !Model.LeasingStartDate.HasValue)
+                    if (IsVisible(() => Model.LeasingStartDate))
                     {
-                        _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter a valid date");
-                    }
-                    else if (IsVisible(() => Model.LeasingStartDate) && !Model.LeasingStartDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter the date leasing agreement started");
+                        var leasingDateField = _editContext.Field(nameof(Model.LeasingStartDate));
+                        if (!Model.LeasingStartDate.HasValue)
+                        {
+                            _messageStore.Add(
+                                leasingDateField,
+                                "Enter the date leasing agreement started");
+                        }
+                        else
+                        {
+                            if (Model.LeasingStartDate.Value < DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)))
+                            {
+                                _messageStore.Add(
+                                    leasingDateField,
+                                    "The leasing agreement start date must be within the last six years.");
+                            }
+                        }
                     }
                     break;
                 case NoEmployeeReason.FiscalAgent:
@@ -609,21 +759,24 @@ public partial class PreliminaryQuestions
                     }
                     break;
                 case NoEmployeeReason.NotOperatingInWisconsin:
-                    if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
+                    if (IsVisible(() => Model.LastEmploymentDate))
                     {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
+                        var lastEmpField = _editContext.Field(nameof(Model.LastEmploymentDate));
+                        if (!Model.LastEmploymentDate.HasValue)
+                        {
+                            _messageStore.Add(lastEmpField, "Last Employment Date must be in a valid format (mm/dd/yyyy).");
+                        }
+                        else if (Model.LastEmploymentDate.Value > DateOnly.FromDateTime(DateTime.Today.AddDays(14)))
+                        {
+                            _messageStore.Add(lastEmpField, "Last Employment Date must be no later than today plus 2 weeks.");
+                        }
                     }
-                    else if (IsVisible(() => Model.LastEmploymentDate) && !Model.LastEmploymentDate.HasValue)
+                    if (IsVisible(() => Model.LastPayrollDate) &&
+                        !Model.LastPayrollDate.HasValue)
                     {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter the last employment date");
-                    }
-                    if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
-                    }
-                    else if (IsVisible(() => Model.LastPayrollDate) && !Model.LastPayrollDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter the last payroll date");
+                        _messageStore.Add(
+                            _editContext.Field(nameof(Model.LastPayrollDate)),
+                            "Last Payroll Date must be in a valid format (mm/dd/yyyy).");
                     }
                     break;
             }
