@@ -1,3 +1,17 @@
+.address-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.address-fieldset__legend {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #424242;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
 .bi-fields-grid {
     display: grid;
     grid-template-columns: 330px 330px;

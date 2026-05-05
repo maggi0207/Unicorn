@@ -3,6 +3,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 
+<fieldset class="address-fieldset">
+<legend class="address-fieldset__legend">@Legend</legend>
 <div class="bi-fields-grid">
 
     @* ── Country selector ───────────────────────────────────────── *@
@@ -226,8 +228,12 @@
     }
 
 </div>
+</fieldset>
 
 @code {
+    /// <summary>Describes the purpose of this address group — used as the fieldset legend for screen readers.</summary>
+    [Parameter, EditorRequired] public string Legend { get; set; } = default!;
+
     /// <summary>The address model bound to this component.</summary>
     [Parameter, EditorRequired] public AddressModel Address { get; set; } = default!;
 
