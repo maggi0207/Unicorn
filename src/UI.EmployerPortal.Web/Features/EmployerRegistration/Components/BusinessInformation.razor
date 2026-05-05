@@ -77,7 +77,8 @@
                     </h2>
                 </div>
 
-                <AddressField Address="Model.MailingAddress"
+                <AddressField Legend="Business Mailing Address"
+                              Address="Model.MailingAddress"
                               ShowPhone="true"
                               IdPrefix="Mailing"
                               Visible="@IsAddressVisible(Model.MailingAddress)" />
@@ -112,7 +113,8 @@
                         </label>
                     }
 
-                    <AddressField Address="Model.PhysicalLocations[index]"
+                    <AddressField Legend="@($"Physical Location {index + 1}")"
+                                  Address="Model.PhysicalLocations[index]"
                                   IdPrefix="@($"Physical{index}")"
                                   Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
                                   Disabled="@(index == 0 && _physicalSameAsMailing)" />
