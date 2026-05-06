@@ -130,11 +130,11 @@
     private Dictionary<string, object>? InputAttributes => BuildAttributes();
 
     private Dictionary<string, object> BuildAttributes() {
-        var attribs = AdditionalAttributes ?? new Dictionary<string, object>();
+        var attribs = new Dictionary<string, object>(AdditionalAttributes ?? new Dictionary<string, object>());
 
         if (!string.IsNullOrWhiteSpace(FocusKey))
         {
-            attribs.Add("data-focus-key", FocusKey);
+            attribs["data-focus-key"] = FocusKey;
         }
 
         return attribs;
