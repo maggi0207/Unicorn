@@ -5,11 +5,15 @@
 }
 
 .address-fieldset__legend {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #424242;
-    margin-bottom: 16px;
+    position: absolute;
+    width: 1px;
+    height: 1px;
     padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .bi-fields-grid {
