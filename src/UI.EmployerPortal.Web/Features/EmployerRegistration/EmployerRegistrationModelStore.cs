@@ -366,7 +366,7 @@ internal class EmployerRegistrationModelStore
         ["AP"] = 75,
     };
 
-    private static int GetStateProvinceAbbreviationFromCode(string? stateAbbreviation)
+    public static int GetStateProvinceAbbreviationFromCode(string? stateAbbreviation)
     {
         return stateAbbreviation != null
             ? StateProvinceAbbreviationToCode.TryGetValue(stateAbbreviation, out var code) ? code : 0

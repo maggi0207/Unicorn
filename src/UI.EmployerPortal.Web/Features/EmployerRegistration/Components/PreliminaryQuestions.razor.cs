@@ -104,11 +104,11 @@ public partial class PreliminaryQuestions
     /// </summary>
     public static readonly List<SelectOption> FuturePayPeriodOptions = new()
     {
-        new SelectOption {Value = FuturePayPeriod.WithinThirtyDays.ToString(), Text = "Within 30 days"},
-        new SelectOption {Value = FuturePayPeriod.ThirtyToNinetyDays.ToString(), Text = "30 to 90 days"},
-        new SelectOption {Value = FuturePayPeriod.SixMonths.ToString(), Text = "6 months"},
-        new SelectOption {Value = FuturePayPeriod.OneYear.ToString(), Text = "One year"},
-        new SelectOption {Value = FuturePayPeriod.MoreThanOneYear.ToString(), Text = "More than a year"},
+        new SelectOption {Value = "1", Text = "Within 30 days"},
+        new SelectOption {Value = "2", Text = "30 to 90 days"},
+        new SelectOption {Value = "3", Text = "6 months"},
+        new SelectOption {Value = "4", Text = "One year"},
+        new SelectOption {Value = "5", Text = "More than a year"},
     };
 
     // 501(c)(3) visibility — driven by the Yes/No non-profit question
@@ -165,12 +165,16 @@ public partial class PreliminaryQuestions
 
     private string? ExpectedFuturePayrollPeriodAsString
     {
-        get => Model.ExpectedFuturePayrollPeriod.ToString();
+        get => Model.ExpectedFuturePayrollPeriod.HasValue ? ((int)Model.ExpectedFuturePayrollPeriod.Value).ToString() : null;
         set
         {
-            if (Enum.TryParse<FuturePayPeriod>(value, out var period))
+            if (int.TryParse(value, out var intValue) && Enum.IsDefined(typeof(FuturePayPeriod), intValue))
             {
-                Model.ExpectedFuturePayrollPeriod = period;
+                Model.ExpectedFuturePayrollPeriod = (FuturePayPeriod)intValue;
+            }
+            else
+            {
+                Model.ExpectedFuturePayrollPeriod = null;
             }
         }
     }

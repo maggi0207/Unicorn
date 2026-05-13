@@ -96,11 +96,11 @@ public partial class UISubjectivity
     /// </summary>
     public static readonly List<SelectOption> ExpectedWagesCatagories = new()
     {
-      new SelectOption() {  Text = "Within 30 Days", Value = "Within 30 Days"},
-      new SelectOption() {  Text = "30 to 90 days", Value = "30 to 90 days"},
-      new SelectOption() {  Text = "6 months", Value = "6 months"},
-      new SelectOption() {  Text = "One year", Value = "One year"},
-      new SelectOption() {  Text = "More than a year", Value = "More than a year"}
+      new SelectOption() { Text = "Within 30 Days", Value = "1" },
+      new SelectOption() { Text = "30 to 90 days",  Value = "2" },
+      new SelectOption() { Text = "6 months",        Value = "3" },
+      new SelectOption() { Text = "One year",        Value = "4" },
+      new SelectOption() { Text = "More than a year",Value = "5" }
     };
 
     /// <summary>

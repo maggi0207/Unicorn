@@ -258,7 +258,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
 
         if (!IsOutsideUSA && IncorporationState != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD, _response = IncorporationState.ToString() });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString() });
         }
 
         if (IsOutsideUSA && ForeignCountry != null)
@@ -269,7 +269,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         if ((new List<OwnershipType> { OwnershipType.LLC, OwnershipType.LLP }).Contains(OwnershipType)
             && RegistrationState != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = RegistrationState });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString() });
         }
 
         if (OwnershipType == OwnershipType.LLC

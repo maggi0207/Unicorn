@@ -452,7 +452,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             responses.Add(new SurveyResponse()
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
-                                _response = SelectedNoEmployeeReason.Value.ToString(),
+                                _response = ((int)SelectedNoEmployeeReason.Value + 1).ToString(),
                                 _responseDisplay = reasonDisplay
                             });
 
@@ -543,7 +543,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     if (ExpectFuturePayroll.Value && ExpectedFuturePayrollPeriod.HasValue)
                     {
                         // 1.10
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ExpectedFuturePayrollPeriod.Value.ToString() });
+                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ((int)ExpectedFuturePayrollPeriod.Value).ToString() });
                     }
                 }
             }
