@@ -82,16 +82,16 @@
                 {
                     <!-- Q1.1 Yes: has ruling -->
                     <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
-                    <FileUpload Title="501(c)(3) Ruling from IRS" Model="Model" SelFileType="FileType.Ruling" 
+                    <FileUpload Title="501(c)(3) Ruling from IRS" Model="Model" SelFileType="FileType.Ruling"
                                 OnFileUpload="@(fileName => {_rulingDocUploaded = true; Model.RulingDocFilename = Path.GetFileName(fileName);})" />
                     <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <div class="form-check">
                         <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
-                        <input type="checkbox"
-                               id="chk-supply-docs-ruling"
-                               class="form-check-input"
-                               @bind="Model.WillSupplyDocumentationLater"
-                               @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                            <input type="checkbox"
+                                   id="chk-supply-docs-ruling"
+                                   class="form-check-input"
+                                   @bind="Model.WillSupplyDocumentationLater"
+                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
                                
                             I will supply required documentation at a later date.
                         </label>
@@ -123,11 +123,11 @@
                         <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
                             <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
-                            <input type="checkbox"
-                                   id="chk-supply-docs-applied"
-                                   class="form-check-input"
-                                   @bind="Model.WillSupplyDocumentationLater"
-                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                                <input type="checkbox"
+                                       id="chk-supply-docs-applied"
+                                       class="form-check-input"
+                                       @bind="Model.WillSupplyDocumentationLater"
+                                       @bind:after="OnWillSupplyDocumentationLaterChanged" />
                             
                                 I will supply required documentation at a later date.
                             </label>
@@ -150,11 +150,11 @@
                         <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
                             <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
-                            <input type="checkbox"
-                                   id="chk-supply-docs-not-applied"
-                                   class="form-check-input"
-                                   @bind="Model.WillSupplyDocumentationLater"
-                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />                           
+                                <input type="checkbox"
+                                       id="chk-supply-docs-not-applied"
+                                       class="form-check-input"
+                                       @bind="Model.WillSupplyDocumentationLater"
+                                       @bind:after="OnWillSupplyDocumentationLaterChanged" />
                                 I will supply required documentation at a later date.
                             </label>
                         </div>
@@ -346,7 +346,7 @@
                                            @bind-Value="LastEmploymentDateAsString"
                                            For="() => LastEmploymentDateAsString"
                                            Visible="@IsVisible(()=>Model.LastEmploymentDate)"
-                                           FocusKey="response:3025"/>
+                                           FocusKey="response:3025" />
                         <br />
 
                         <OutlinedTextField Label="Last Payroll Date"
@@ -393,6 +393,7 @@
                                                        MaxLength="10"
                                                        Visible="@IsVisible(()=>Model.PEOFEIN)" /> *@
                                     <FEINField Label="PEO FEIN"
+
                                                Id="PEO FEIN"
                                                @bind-Value="Model.PEOFEIN"
                                                For="() => Model.PEOFEIN"
