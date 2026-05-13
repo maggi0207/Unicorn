@@ -1,0 +1,152 @@
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.OwnershipForms
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+<div class="ownership-container">
+    <h1 class="ownership-title">Ownership</h1>
+
+    <!-- Validation Error Summary -->
+    @if (_showValidationSummary && ValidationErrors.Any())
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                MessageStyle="MessageStyle.MultiLine"
+                Messages="ValidationErrors"
+                MessageFieldIds="ValidationFieldIds"
+                DismissButton="false">
+        </NotificationBanner>        
+        <br />
+    }
+        
+    <EditForm EditContext="@EditContext" FormName="OwnershipForm">
+        <div class="form-section">
+            <!-- Ownership Type -->
+            <OwnershipTypeSelect Id="ownership-type"
+                                    Label="Ownership Type"
+                                    @bind-Value="Model.OwnershipType"                                     
+                                    IsRequired="true"
+                                    ValidationErrors="ValidationErrors"
+                                    @bind-Value:after="OnOwnershipTypeChanged"
+                                    CssClass="@(Model.OwnershipType == OwnershipType.None ? "input-validation-error" : string.Empty)" />
+           
+
+            @* Render dynamic component based on ownership type *@
+            @if (Model.OwnershipType != OwnershipType.None && _ownershipComponentMap.ContainsKey(Model.OwnershipType))
+            {
+                <DynamicComponent @key="Model.OwnershipType"
+                    Type="@_ownershipComponentMap[Model.OwnershipType]"
+                                    Parameters="@GetComponentParameters()" />
+            }
+
+            @* Corporate Officer Services *@
+            @if (ShowCorporateOfficerServicesSection)
+            {
+                <CorporateOfficerServicesSection @ref="_officerServicesSectionRef"
+                                                 Model="@_corporateOfficerServicesData"
+                                                 OnDataChanged="OnCorporateOfficerServicesChanged"
+                                                 RegisterValidate="RegisterOfficerServicesValidateCallback" />
+            }
+
+            @* LLC Documentation Section — always shown for LLCCorporation *@
+            @if (ShowLlcDocumentationSection)
+            {
+                <LlcDocumentationSection @ref="_llcDocSectionRef"
+                                         Model="@_llcDocumentationData"
+                                         OnDataChanged="OnLlcDocumentationChanged"
+                                         RegisterValidate="RegisterLlcDocValidateCallback" />
+            }
+
+            @* Qualified Settlement Fund *@
+            @if (ShowQsfSection)
+            {
+                <QualifiedSettlementFundSection @ref="_qsfSectionRef"
+                                                 Model="@_qsfData"
+                                                 OnDataChanged="OnQsfDataChanged"
+                                                 RegisterValidate="RegisterQsfValidateCallback" />
+            }
+             @* Ownership Agency Document *@
+            @if (ShowOWASection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                                Model="@Model.OwnershipAgencies"
+                                               OnDataChanged="OnOwaDataChanged"
+                                                RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* Ownership Country Agency Document *@
+            @if (ShowOWACSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@Model.OwnershipAgencies"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* FederalGovernmentAgency Agency Document *@
+            @if (ShowOWAFSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* LocalGovernmentUnitNotListed Agency Document *@
+            @if (ShowOWALSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* SchoolDistrict Agency Document *@
+            @if (ShowOWASCSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* StateGovernmentAgency Agency Document *@
+            @if (ShowOWASTSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* StateGovernmentUnitNotListed Agency Document *@
+            @if (ShowOWASTUSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* Township Agency Document *@
+            @if (ShowOWATSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+            @* Village Agency Document *@
+            @if (ShowOWAVSection)
+            {
+                <br />
+                <GovernmentEmpDocumentation @ref="_owaSectionRef"
+                                            Model="@_owaData"
+                                            OnDataChanged="OnOwaDataChanged"
+                                            RegisterValidate="RegisterOWAValidateCallback" />
+            }
+        </div>
+    </EditForm>
+</div>
