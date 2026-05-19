@@ -1,3 +1,4 @@
+Info------------->>
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Linq.Expressions
@@ -77,10 +78,10 @@
                     </h2>
                 </div>
 
-                <AddressField Legend="Business Mailing Address"
-                              Address="Model.MailingAddress"
+                <AddressField Address="Model.MailingAddress"
                               ShowPhone="true"
                               IdPrefix="Mailing"
+                              Legend="MailingAddress"
                               Visible="@IsAddressVisible(Model.MailingAddress)" />
             </fieldset>
             @* ================= PHYSICAL LOCATIONS ================= *@
@@ -89,11 +90,15 @@
                 var index = i;
                 <fieldset>
                     <div class="bi-section-header">
-                        <h2 aria-labelledby="btn-remove-physical-location">
-                            <span>Physical Location @(index + 1)</span>
+                        <h2 aria-labelledby="@($"header-physical-location-{index + 1}")">
+                            <span id="@($"header-physical-location-{index + 1}")">Physical Location @(index + 1)</span>
                             @if (index > 0)
                             {
-                                <button id="btn-remove-physical-location" type="button" class="bi-remove-location" @onclick="() => RemovePhysicalLocation(index)" aria-describedby="Physical Location @(index + 1)" aria-label="Remove Physical Location">
+                                <button
+                                    id="btn-remove-physical-location"
+                                    type="button" class="bi-remove-location"
+                                    @onclick="() => RemovePhysicalLocation(index)"
+                                    aria-describedby="@($"header-physical-location-{index + 1}")">
                                     Remove
                                 </button>
                             }
@@ -102,22 +107,26 @@
 
                     @if (index == 0)
                     {
-                        <label class="bi-same-as-mailing @(IsMailingPoBox ? "bi-same-as-mailing--disabled" : "")" aria-labelledby="checked-same-as-mailing">
+                        <label class="bi-same-as-mailing @(IsMailingPoBox ? "bi-same-as-mailing--disabled" : "")"
+                            aria-labelledby="checked-same-as-mailing">
                             <input type="checkbox"
                                    id="checked-same-as-mailing"
                                    aria-label="Checked Physical Location"
                                    checked="@_physicalSameAsMailing"
                                    disabled="@IsMailingPoBox"
+                                   class="form-check-input"
                                    @onchange="OnPhysicalSameAsMailingChanged" />
                             Physical Location is the same as the Business address.
                         </label>
                     }
 
-                    <AddressField Legend="@($"Physical Location {index + 1}")"
-                                  Address="Model.PhysicalLocations[index]"
-                                  IdPrefix="@($"Physical{index}")"
-                                  Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
-                                  Disabled="@(index == 0 && _physicalSameAsMailing)" />
+                    <div aria-describedby="@($"header-physical-location-{index + 1}")">
+                        <AddressField Address="Model.PhysicalLocations[index]"
+                                      IdPrefix="@($"Physical{index}")"
+                                      Legend="@($"Physical Address {index + 1}")"
+                                      Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
+                                      Disabled="@(index == 0 && _physicalSameAsMailing)" />
+                    </div>                    
                 </fieldset>
             }
 
@@ -327,8 +336,7 @@
 
         return await AddressCoordinator.ValidateAndRedirectAsync(
             usAddressesToValidate,
-            editStep: 3,
-            postCorrectionStep: 4);
+            editStep: 3);
     }
 
     private void RefreshValidationSummary()
@@ -339,7 +347,6 @@
         ValidationFieldIds.Clear();
 
         // Collect top-level field errors in UI layout order.
-        // Custom errors (LLC rule, trade name checks) take precedence over DataAnnotations for the same field.
         var topLevelOrder = new[]
         {
             nameof(Model.LegalName),
