@@ -6,6 +6,7 @@ Info------------->>
 @using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
@@ -88,17 +89,20 @@ Info------------->>
             @for (int i = 0; i < Model.PhysicalLocations.Count; i++)
             {
                 var index = i;
+                var physicalLocation = Model.PhysicalLocations[index];
+                var physicalLocationLabel = GetPhysicalLocationLabel(index);
+                var physicalLocationHeaderId = $"header-physical-location-{index + 1}";
                 <fieldset>
                     <div class="bi-section-header">
-                        <h2 aria-labelledby="@($"header-physical-location-{index + 1}")">
-                            <span id="@($"header-physical-location-{index + 1}")">Physical Location @(index + 1)</span>
+                        <h2 aria-labelledby="@physicalLocationHeaderId">
+                            <span id="@physicalLocationHeaderId">@physicalLocationLabel</span>
                             @if (index > 0)
                             {
                                 <button
                                     id="btn-remove-physical-location"
                                     type="button" class="bi-remove-location"
                                     @onclick="() => RemovePhysicalLocation(index)"
-                                    aria-describedby="@($"header-physical-location-{index + 1}")">
+                                    aria-describedby="@physicalLocationHeaderId">
                                     Remove
                                 </button>
                             }
@@ -120,29 +124,26 @@ Info------------->>
                         </label>
                     }
 
-                    <div aria-describedby="@($"header-physical-location-{index + 1}")">
-                        <AddressField Address="Model.PhysicalLocations[index]"
+                    <div aria-describedby="@physicalLocationHeaderId">
+                        <AddressField Address="@physicalLocation"
                                       IdPrefix="@($"Physical{index}")"
-                                      Legend="@($"Physical Address {index + 1}")"
-                                      Visible="@IsAddressVisible(Model.PhysicalLocations[index])"
+                                      Legend="@physicalLocationLabel"
+                                      Visible="@IsAddressVisible(physicalLocation)"
                                       Disabled="@(index == 0 && _physicalSameAsMailing)" />
                     </div>                    
                 </fieldset>
             }
 
             @* ================= ADD LOCATION BUTTON ================= *@
-            @if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
-            {
-                <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation" aria-label="Add Another Location">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <path d="M8 3V13M3 8H13"
-                              stroke="#0D6EFD"
-                              stroke-width="2"
-                              stroke-linecap="round" />
-                    </svg>
-                    Add Another Physical Location
-                </button>
-            }
+            <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation" aria-label="Add Another Location">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 3V13M3 8H13"
+                          stroke="#0D6EFD"
+                          stroke-width="2"
+                          stroke-linecap="round" />
+                </svg>
+                Add Another Physical Location
+            </button>
 
         </EditForm>
 
@@ -158,7 +159,6 @@ Info------------->>
     private bool formSubmitted = false;
     private bool hasValidationErrors = false;
     private bool _physicalSameAsMailing = false;
-    private const int MaxPhysicalLocations = 3;
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
     private bool _showValidationSummary = false;
@@ -171,6 +171,11 @@ Info------------->>
             return Model.MailingAddress.AddressLine1?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true
                 || Model.MailingAddress.AddressLine2?.Contains("PO Box", StringComparison.OrdinalIgnoreCase) == true;
         }
+    }
+
+    private static string GetPhysicalLocationLabel(int index)
+    {
+        return index == 0 ? "Physical Location" : $"Physical Location {index + 1}";
     }
 
     /// <summary>Tracks which fields the user has interacted with so errors show on field change.</summary>
@@ -331,7 +336,7 @@ Info------------->>
         var addressesToValidate = new List<(string, AddressModel)>
             { ("Mailing Address", Model.MailingAddress) };
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
-            addressesToValidate.Add(($"Physical Location {i + 1} Address", Model.PhysicalLocations[i]));
+            addressesToValidate.Add(($"{GetPhysicalLocationLabel(i)} Address", Model.PhysicalLocations[i]));
         var usAddressesToValidate = addressesToValidate.Where(a => a.Item2.Country == "United States").ToList();
 
         return await AddressCoordinator.ValidateAndRedirectAsync(
@@ -415,7 +420,7 @@ Info------------->>
             [Model.MailingAddress] = "Mailing Address"
         };
         for (var i = 0; i < Model.PhysicalLocations.Count; i++)
-            map[Model.PhysicalLocations[i]] = $"Physical Location {i + 1}";
+            map[Model.PhysicalLocations[i]] = GetPhysicalLocationLabel(i);
         return map;
     }
 
@@ -551,14 +556,11 @@ Info------------->>
         list.Add(message);
     }
 
-    /// <summary>Adds a new physical location up to the maximum allowed.</summary>
+    /// <summary>Adds a new physical location.</summary>
     private void AddPhysicalLocation()
     {
-        if (Model.PhysicalLocations.Count < MaxPhysicalLocations)
-        {
-            Model.PhysicalLocations.Add(new AddressModel());
-            StateHasChanged();
-        }
+        Model.PhysicalLocations.Add(new AddressModel());
+        StateHasChanged();
     }
 
     /// <summary>Removes the physical location at the specified index.</summary>
