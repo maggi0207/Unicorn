@@ -60,6 +60,7 @@
                         Visible="@_formSubmitted" />
             <RadioGroup TValue="bool?"
                         Value="Model.IsNonProfitOrg"
+                        LabelledById="IsNonProfitOrg"
                         ValueChanged="OnIsNonProfitOrgChanged"
                         ValueExpression="() => Model.IsNonProfitOrg"
                         Options="@YesNoRadioOptions" />
@@ -68,10 +69,11 @@
             @if (Show501c3SubTree)
             {
                 <!-- 501(c)(3) Sub-Tree (shown when 501c3 category is selected above) -->
-                <p data-questionid="1.1">Do you have a 501(c)(3) ruling from the IRS?</p>
+                <p data-questionid="1.1" id="data-questionid1">Do you have a 501(c)(3) ruling from the IRS?</p>
                 <FieldError For="@(() => Model.HasRulingFrom501c3IRS)"
                             Visible="@_formSubmitted" />
                 <RadioGroup TValue="bool?"
+                            LabelledById="data-questionid1"
                             Value="Model.HasRulingFrom501c3IRS"
                             ValueChanged="OnHasRulingFrom501c3IRSChanged"
                             ValueExpression="() => Model.HasRulingFrom501c3IRS"
@@ -84,7 +86,6 @@
                     <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
                     <FileUpload Title="501(c)(3) Ruling from IRS" Model="Model" SelFileType="FileType.Ruling"
                                 OnFileUpload="@(fileName => {_rulingDocUploaded = true; Model.RulingDocFilename = Path.GetFileName(fileName);})" />
-                    <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <div class="form-check">
                         <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
                             <input type="checkbox"
@@ -96,16 +97,18 @@
                             I will supply required documentation at a later date.
                         </label>
                     </div>
+                    <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <br />
                 }
 
                 @if (ShowHasAppliedQuestion)
                 {
                     <!-- Q1.1 No: no ruling — ask if applied -->
-                    <p data-questionid="1.1.2">Have you applied for 501(c)(3) status with the IRS?</p>
+                    <p data-questionid="1.1.2" id="data-questionid2">Have you applied for 501(c)(3) status with the IRS?</p>
                     <FieldError For="@(() => Model.HasAppliedFor501c3WithIRS)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
+                        LabelledById="data-questionid2"
                                 Value="Model.HasAppliedFor501c3WithIRS"
                                 ValueChanged="OnHasAppliedFor501c3WithIRSChanged"
                                 ValueExpression="() => Model.HasAppliedFor501c3WithIRS"
@@ -120,7 +123,6 @@
                                     OnFileUpload="@(fileName => {_appliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
                         <FileUpload Title="IRS Acceptance Letter" SelFileType="FileType.IRS" Model="Model"
                                     OnFileUpload="@(fileName => {_appliedDocUploaded = true;  Model.IRSAcceptanceLetterFilename = Path.GetFileName(fileName);})" />
-                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
                             <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
                                 <input type="checkbox"
@@ -132,6 +134,7 @@
                                 I will supply required documentation at a later date.
                             </label>
                         </div>
+                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <br />
                     }
 
@@ -147,7 +150,6 @@
                         </p>
                         <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
                                     OnFileUpload="@(fileName => {_notAppliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
-                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <div class="form-check">
                             <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
                                 <input type="checkbox"
@@ -158,6 +160,7 @@
                                 I will supply required documentation at a later date.
                             </label>
                         </div>
+                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                         <br />
                     }
                 }
@@ -169,6 +172,7 @@
             <FieldError For="@(() => Model.AcquiredExistingBusiness)"
                         Visible="@_formSubmitted" />
             <RadioGroup TValue="bool?"
+                        LabelledById="AcquiredExistingBusiness"
                         Value="Model.AcquiredExistingBusiness"
                         ValueChanged="OnAcquiredExistingBusinessChanged"
                         ValueExpression="() => Model.AcquiredExistingBusiness"
@@ -182,6 +186,7 @@
                 <FieldError For="@(() => Model.KnowAcquiredBusinessAccountNumber)"
                             Visible="@_formSubmitted" />
                 <RadioGroup TValue="bool?"
+                            LabelledById="KnowAcquiredBusinessAccountNumber"
                             Value="Model.KnowAcquiredBusinessAccountNumber"
                             ValueChanged="OnKnowAcquiredBusinessAccountNumberChanged"
                             ValueExpression="() => Model.KnowAcquiredBusinessAccountNumber"
@@ -226,6 +231,7 @@
                 <FieldError For="@(() => Model.HavePaidEmployeesForWorkInWisconsin)"
                             Visible="@_formSubmitted" />
                 <RadioGroup TValue="bool?"
+                            LabelledById="HavePaidEmployeesForWorkInWisconsin"
                             Value="Model.HavePaidEmployeesForWorkInWisconsin"
                             ValueChanged="OnHavePaidEmployeesForWorkInWisconsinChanged"
                             ValueExpression="() => Model.HavePaidEmployeesForWorkInWisconsin"
@@ -240,6 +246,7 @@
                     <FieldError For="@(() => Model.HaveEmployeesCurrentlyWorkingInWisconsin)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
+                                LabelledById="HaveEmployeesCurrentlyWorkingInWisconsin"
                                 Value="Model.HaveEmployeesCurrentlyWorkingInWisconsin"
                                 ValueChanged="OnHaveEmployeesCurrentlyWorkingInWisconsinChanged"
                                 ValueExpression="() => Model.HaveEmployeesCurrentlyWorkingInWisconsin"
@@ -285,6 +292,7 @@
                     <FieldError For="@(() => Model.ExpectFuturePayroll)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
+                                LabelledById="ExpectFuturePayroll"
                                 Value="Model.ExpectFuturePayroll"
                                 ValueChanged="OnExpectFuturePayrollChanged"
                                 ValueExpression="() => Model.ExpectFuturePayroll"
@@ -330,6 +338,7 @@
                     <FieldError For="@(() => Model.SelectedNoEmployeeReason)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="NoEmployeeReason?"
+                                LabelledById="SelectedNoEmployeeReason"
                                 Value="Model.SelectedNoEmployeeReason"
                                 ValueChanged="OnNoEmployeReasonChanged"
                                 ValueExpression="() => Model.SelectedNoEmployeeReason"
@@ -421,7 +430,7 @@
                     @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
                     {
                         <div class="no-employee-reason-wrapper">
-                            <OutlinedTextField Label="Enter the reason for business continuation."
+                            <OutlinedTextField Label="Why is the business continuing without employees?"
                                                Id="NoEmployeeExplanation"
                                                @bind-Value="Model.NoEmployeeExplanation"
                                                For="() => Model.NoEmployeeExplanation" />

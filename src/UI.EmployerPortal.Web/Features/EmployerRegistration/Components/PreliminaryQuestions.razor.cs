@@ -165,17 +165,12 @@ public partial class PreliminaryQuestions
 
     private string? ExpectedFuturePayrollPeriodAsString
     {
-        get => Model.ExpectedFuturePayrollPeriod.HasValue ? ((int)Model.ExpectedFuturePayrollPeriod.Value).ToString() : null;
+        get => Model.ExpectedFuturePayrollPeriod.HasValue ? ((int) Model.ExpectedFuturePayrollPeriod.Value).ToString() : null;
         set
         {
-            if (int.TryParse(value, out var intValue) && Enum.IsDefined(typeof(FuturePayPeriod), intValue))
-            {
-                Model.ExpectedFuturePayrollPeriod = (FuturePayPeriod)intValue;
-            }
-            else
-            {
-                Model.ExpectedFuturePayrollPeriod = null;
-            }
+            Model.ExpectedFuturePayrollPeriod = !int.TryParse(value, out var intValue) || !Enum.IsDefined(typeof(FuturePayPeriod), intValue)
+                ? null
+                : (FuturePayPeriod) intValue;
         }
     }
 
