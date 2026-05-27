@@ -813,7 +813,7 @@ public partial class PreliminaryQuestions
             foreach (var error in errors)
             {
                 ValidationErrors.Add(error);
-                ValidationFieldIds.Add(prop.Name);
+                ValidationFieldIds.Add(GetValidationFieldId(prop.Name));
             }
         }
 
@@ -848,6 +848,18 @@ public partial class PreliminaryQuestions
         }
 
         _editContext.NotifyValidationStateChanged();
+    }
+
+    private string GetValidationFieldId(string fieldName)
+    {
+        return fieldName switch
+        {
+            nameof(Model.WillSupplyDocumentationLater) when ShowRulingUpload => "chk-supply-docs-ruling",
+            nameof(Model.WillSupplyDocumentationLater) when ShowAppliedUpload => "chk-supply-docs-applied",
+            nameof(Model.WillSupplyDocumentationLater) when ShowNotAppliedText => "chk-supply-docs-not-applied",
+            nameof(Model.InformationIsAccurate) => "chk-info-accurate",
+            _ => fieldName
+        };
     }
 
     //private void ValidateAddressAnnotations(AddressModel address)
