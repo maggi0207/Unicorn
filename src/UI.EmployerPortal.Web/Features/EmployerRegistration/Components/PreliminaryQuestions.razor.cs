@@ -26,7 +26,6 @@ public partial class PreliminaryQuestions
     // Tracks whether a file has been uploaded in each 501(c)(3) upload section.
     // If false the user must check WillSupplyDocumentationLater to proceed.
     private bool _rulingDocUploaded = false;
-    private bool _appliedDocUploaded = false;
     private bool _notAppliedDocUploaded = false;
 
     private List<string> ValidationErrors { get; set; } = new();
@@ -413,7 +412,6 @@ public partial class PreliminaryQuestions
         Model.HasAppliedFor501c3WithIRS = null;
         Model.WillSupplyDocumentationLater = false;
         _rulingDocUploaded = false;
-        _appliedDocUploaded = false;
         _notAppliedDocUploaded = false;
         ResetField(() => Model.HasAppliedFor501c3WithIRS);
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
@@ -423,7 +421,6 @@ public partial class PreliminaryQuestions
     {
         Model.HasAppliedFor501c3WithIRS = value;
         Model.WillSupplyDocumentationLater = false;
-        _appliedDocUploaded = false;
         _notAppliedDocUploaded = false;
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
     }

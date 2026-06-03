@@ -120,9 +120,9 @@
                         <!-- Q1.1.2 Yes: applied -->
                         <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
                         <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
-                                    OnFileUpload="@(fileName => {_appliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
+                                    OnFileUpload="@(fileName => {Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
                         <FileUpload Title="IRS Acceptance Letter" SelFileType="FileType.IRS" Model="Model"
-                                    OnFileUpload="@(fileName => {_appliedDocUploaded = true;  Model.IRSAcceptanceLetterFilename = Path.GetFileName(fileName);})" />
+                                    OnFileUpload="@(fileName => {Model.IRSAcceptanceLetterFilename = Path.GetFileName(fileName);})" />
                         <div class="form-check">
                             <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
                                 <input type="checkbox"
