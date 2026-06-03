@@ -537,7 +537,10 @@ public partial class PreliminaryQuestions
         {
             _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
         }
-        if (ShowAppliedUpload && !_appliedDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.IRSAcceptanceLetterFilename))
+        if (ShowAppliedUpload
+            && !Model.WillSupplyDocumentationLater
+            && (string.IsNullOrWhiteSpace(Model.ArticlesOfIncorporationFilename)
+                || string.IsNullOrWhiteSpace(Model.IRSAcceptanceLetterFilename)))
         {
             _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
         }

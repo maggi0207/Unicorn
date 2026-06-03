@@ -316,13 +316,13 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                         }
                         else
                         {
-                            if (!string.IsNullOrWhiteSpace(RulingDocFilename))
+                            if (!string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename))
                             {
                                 // 1.22
                                 responses.Add(new()
                                 {
                                     _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
-                                    _response = RulingDocFilename,
+                                    _response = ArticlesOfIncorporationFilename,
                                 });
                             }
                             if (!string.IsNullOrWhiteSpace(IRSAcceptanceLetterFilename))
@@ -612,7 +612,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                             if (articlesUploaded)
                             {
-                                RulingDocFilename = articlesFilename!.ReplyText; // 1.22
+                                ArticlesOfIncorporationFilename = articlesFilename!.ReplyText; // 1.22
                             }
                             if (acceptanceUploaded)
                             {
