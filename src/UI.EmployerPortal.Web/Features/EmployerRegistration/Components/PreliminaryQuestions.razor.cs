@@ -123,14 +123,12 @@ public partial class PreliminaryQuestions
     private bool VisibilityQuestion_2_1 => Model.AcquiredExistingBusiness.HasValue && Model.AcquiredExistingBusiness.Value;
     private bool VisibilityQuestion_2_1_1 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && Model.KnowAcquiredBusinessAccountNumber.Value;
     private bool VisibilityQuestion_2_1_2 => VisibilityQuestion_2_1 && Model.KnowAcquiredBusinessAccountNumber.HasValue && !Model.KnowAcquiredBusinessAccountNumber.Value;
-    private bool VisibilityQuestion_3 => Model.AcquiredExistingBusiness.HasValue && !Model.AcquiredExistingBusiness.Value;
+    private bool VisibilityQuestion_3 => Model.AcquiredExistingBusiness.HasValue;
     private bool VisibilityQuestion_3_1 => VisibilityQuestion_3 && Model.HavePaidEmployeesForWorkInWisconsin.HasValue && Model.HavePaidEmployeesForWorkInWisconsin.Value;
-    private bool VisibilityQuestion_3_1_2 => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin.HasValue && !Model.HaveEmployeesCurrentlyWorkingInWisconsin.Value;
+    private bool VisibilityCheckbox_InfoAccurate => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin.HasValue && Model.HaveEmployeesCurrentlyWorkingInWisconsin.Value;
     private bool VisibilityQuestion_3_2 => VisibilityQuestion_3 && Model.HavePaidEmployeesForWorkInWisconsin.HasValue && !Model.HavePaidEmployeesForWorkInWisconsin.Value;
     private bool VisibilityQuestion_3_2_1 => VisibilityQuestion_3_2 && Model.ExpectFuturePayroll.HasValue && Model.ExpectFuturePayroll.Value;
-    //private bool VisibilityQuestion_4 => Model.ExpectFuturePayroll.HasValue && !Model.ExpectFuturePayroll.Value;
-    private bool VisibilityCheckbox_InfoAccurate => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin == true;
-    private bool VisibilityQuestion_4 => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin == false;
+    private bool VisibilityQuestion_4 => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin.HasValue && !Model.HaveEmployeesCurrentlyWorkingInWisconsin.Value;
 
     private string? LeasingStartDateAsString
     {
@@ -769,15 +767,15 @@ public partial class PreliminaryQuestions
                     {
                         if (!Model.LastEmploymentDate.HasValue)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Employment Date must be in a valid format (mm/dd/yyyy)");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
                         }
                         else if (Model.LastEmploymentDate.Value < dateMin)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Employment Date must be on or after {dateMin:MM/dd/yyyy}");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
                         }
                         else if (Model.LastEmploymentDate.Value > dateMax)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Employment Date must be no later than today plus 2 weeks");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
                         }
                     }
                     if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
@@ -788,15 +786,15 @@ public partial class PreliminaryQuestions
                     {
                         if (!Model.LastPayrollDate.HasValue)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Last Payroll Date must be in a valid format (mm/dd/yyyy)");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
                         }
                         else if (Model.LastPayrollDate.Value < dateMin)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Last Payroll Date must be on or after {dateMin:MM/dd/yyyy}");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
                         }
                         else if (Model.LastPayrollDate.Value > dateMax)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Last Payroll Date must be no later than today plus 2 weeks");
+                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
                         }
                     }
                     break;

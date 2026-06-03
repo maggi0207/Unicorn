@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
-using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components;
+using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
@@ -254,7 +254,8 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                 responses.Add(new SurveyResponse()
                 {
                     _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_501C3_RULING_FLG,
-                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasRulingFrom501c3IRS.Value)
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasRulingFrom501c3IRS.Value),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasRulingFrom501c3IRS.Value)
                 });
 
                 if (HasRulingFrom501c3IRS.Value)
@@ -452,7 +453,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             responses.Add(new SurveyResponse()
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
-                                _response = ((int)SelectedNoEmployeeReason.Value + 1).ToString(),
+                                _response = ((int) SelectedNoEmployeeReason.Value + 1).ToString(),
                                 _responseDisplay = reasonDisplay
                             });
 
@@ -543,7 +544,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     if (ExpectFuturePayroll.Value && ExpectedFuturePayrollPeriod.HasValue)
                     {
                         // 1.10
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ((int)ExpectedFuturePayrollPeriod.Value).ToString() });
+                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ((int) ExpectedFuturePayrollPeriod.Value).ToString() });
                     }
                 }
             }

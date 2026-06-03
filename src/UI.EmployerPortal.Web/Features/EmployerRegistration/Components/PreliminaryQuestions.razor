@@ -267,23 +267,6 @@
                         <FieldError For="@(() => (object)Model.InformationIsAccurate)" Visible="@_formSubmitted" />
                         <br />
                     }
-
-                    @* @if (VisibilityQuestion_3_1_2)
-                    {
-                        <!-- Question 3.1.2 (Question 3.1 No) -->
-                        <span data-questionid="3.1.2"></span>
-                        <OutlinedTextField Label="Last Employment Date"
-                                           Type="date"
-                                           @bind-Value="LastEmploymentDateAsString"
-                                           For="() => LastEmploymentDateAsString" />
-                        <br />
-
-                        <OutlinedTextField Label="Last Payroll Date"
-                                           Type="date"
-                                           @bind-Value="LastPayrollDateAsString"
-                                           For="() => LastPayrollDateAsString" />
-                        <br />
-                    } *@
                 }
                 @if (VisibilityQuestion_3_2)
                 {
@@ -314,21 +297,6 @@
                     }
                 }
             }
-
-            @* <!-- Question 4 (Question 3.1 Yes) -->
-            @if (VisibilityQuestion_4)
-            {
-                <p data-questionid="4">Did you sell or transfer your business?</p>
-                <FieldError For="@(() => Model.HaveSoldOrTransferredBusiness)"
-                            Visible="@_formSubmitted" />
-                <RadioGroup TValue="bool?"
-                            Value="Model.HaveSoldOrTransferredBusiness"
-                            ValueChanged="OnHaveSoldOrTransferredBusinessChanged"
-                            ValueExpression="() => Model.HaveSoldOrTransferredBusiness"
-                            Options="@YesNoRadioOptions" />
-                <br />
-            }--Removing this question as per story 824 *@
-
             @if (VisibilityQuestion_4)
             {
                 <div class="no-employee-section">
@@ -347,7 +315,7 @@
                     {
                         <!-- Question 3.1.2 (Question 3.1 No) -->
                         <span data-questionid="3.1.2"></span>
-                        <OutlinedTextField Label="Last Employment Date"
+                        <OutlinedTextField Label="Last Date You Had Employees"
                                            Id="LastEmploymentDate"
                                            Type="date"
                                            min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
@@ -358,7 +326,7 @@
                                            FocusKey="response:3025" />
                         <br />
 
-                        <OutlinedTextField Label="Last Payroll Date"
+                        <OutlinedTextField Label="Date of Last Payroll"
                                            Id="LastPayrollDate"
                                            Type="date"
                                            min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
@@ -394,15 +362,7 @@
                                 <span class="or-text">OR</span>
 
                                 <div class="peo-fein">
-                                    @* <OutlinedTextField Label="PEO FEIN"
-                                                       Value="@Model.PEOFEIN"
-                                                       ValueChanged="OnInput"
-                                                       For="() => Model.PEOFEIN"
-                                                       Placeholder="11-2233445"
-                                                       MaxLength="10"
-                                                       Visible="@IsVisible(()=>Model.PEOFEIN)" /> *@
                                     <FEINField Label="PEO FEIN"
-
                                                Id="PEO FEIN"
                                                @bind-Value="Model.PEOFEIN"
                                                For="() => Model.PEOFEIN"
@@ -430,10 +390,15 @@
                     @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
                     {
                         <div class="no-employee-reason-wrapper">
-                            <OutlinedTextField Label="Why is the business continuing without employees?"
+                            <label for="NoEmployeeExplanation">
+                                Why is the business continuing without employees?
+                            </label>
+                            <FieldError For="@(() => Model.NoEmployeeExplanation)"
+                                        Visible="@_formSubmitted" />
+                            <ValidatedTextArea Width="750"
                                                Id="NoEmployeeExplanation"
                                                @bind-Value="Model.NoEmployeeExplanation"
-                                               For="() => Model.NoEmployeeExplanation" />
+                                               MaxLength="500"/>
                         </div>
                     }
 
