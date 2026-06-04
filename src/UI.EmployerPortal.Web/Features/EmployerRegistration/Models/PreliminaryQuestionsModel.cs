@@ -871,10 +871,23 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ExpectedFuturePayrollPeriod.Value.ToString() });
                     //}
                     if (ExpectFuturePayroll.Value
-                        && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_TIME, out var expectFuturePayrollPeriod)
-                        && Enum.TryParse<FuturePayPeriod>(expectFuturePayrollPeriod.ReplyText, out var expectFuturePayrollPeriodValue))
+                        && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_TIME, out var expectFuturePayrollPeriod))
                     {
-                        ExpectedFuturePayrollPeriod = expectFuturePayrollPeriodValue;
+                        if (Enum.TryParse<FuturePayPeriod>(expectFuturePayrollPeriod.ReplyText, out var expectFuturePayrollPeriodValue))
+                        {
+                            ExpectedFuturePayrollPeriod = expectFuturePayrollPeriodValue;
+                        }
+                        else
+                        {
+                            switch (expectFuturePayrollPeriod.ReplyText)
+                            {
+                                case "Within 30 days": ExpectedFuturePayrollPeriod = FuturePayPeriod.WithinThirtyDays; break;
+                                case "30 to 90 days": ExpectedFuturePayrollPeriod = FuturePayPeriod.ThirtyToNinetyDays; break;
+                                case "6 months": ExpectedFuturePayrollPeriod = FuturePayPeriod.SixMonths; break;
+                                case "One year": ExpectedFuturePayrollPeriod = FuturePayPeriod.OneYear; break;
+                                case "More than a year": ExpectedFuturePayrollPeriod = FuturePayPeriod.MoreThanOneYear; break;
+                            }
+                        }
                     }
                 }
             }

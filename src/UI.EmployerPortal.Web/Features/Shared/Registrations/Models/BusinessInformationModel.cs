@@ -97,7 +97,7 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.TRD_NAM, _response = TradeName });
         }
 
-        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EMAIL_NOTIFY, _response = "Yes" });
+        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EMAIL_NOTIFY, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(true) });
         if (!string.IsNullOrWhiteSpace(Email))
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
