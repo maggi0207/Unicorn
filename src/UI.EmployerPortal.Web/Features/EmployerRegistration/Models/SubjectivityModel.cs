@@ -261,6 +261,10 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CMCL_PD_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOver1500Employees.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOver1500Employees.Value) });
             }
+            else if (PaidWagesOrTaxesOver1500.HasValue) // commercial employer has paid 1500 in quarter (taxes path)
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CMCL_PD_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOrTaxesOver1500.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOrTaxesOver1500.Value) });
+            }
 
             if (HasEmployeeIn20Weeks.HasValue) //6.32) // commercial employer had at least one employee during 20 different weeks in year
             {
@@ -295,7 +299,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other)
+            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other or Models.BusinessCategory.NonProfit)
         {
             if (HasEmployeeIn20Weeks.HasValue) //6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             {
@@ -506,7 +510,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 ExpectToPayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToPayFutaWagesInWisconsin.ReplyText);
 
                 // (6.23) // when expect future futa ag wages in wisconsin
-                if (ExpectToPayWagesPerformWI.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var whenExpectFutreFutaAgWagesInWisconsin))
+                if (ExpectToPayWagesPerformWI.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, out var whenExpectFutreFutaAgWagesInWisconsin))
                 {
                     WhenExpectToPayWagesInAQuarter = whenExpectFutreFutaAgWagesInWisconsin.ReplyText;
                 }
@@ -540,13 +544,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.28) // ag expect to have at least 10 employees for 20 weeks in year
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_PY_20K_FLG, out var expectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_10_IN_20_FLG, out var expectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
             {
                 ExpectToHaveWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToHaveAtLeast10AgEmployeesFor20WeeksInYear.ReplyText);
             }
 
             // (6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var whenExpectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_20K_10IN20_WHN_TXT, out var whenExpectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
             {
                 if (ExpectToPayWagesInAQuarter.HasValue && ExpectToPayWagesInAQuarter.Value)
                 {
@@ -570,7 +574,14 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             // commercial employer has paid 1500 in quarter
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_PD_1500_FLG, out var commercialEmployerHasPaid1500InQuarter))
             {
-                PaidWagesOver1500Employees = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
+                if (HasFutaLiabilityInOtherStates == false)
+                {
+                    PaidWagesOrTaxesOver1500 = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
+                }
+                else
+                {
+                    PaidWagesOver1500Employees = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
+                }
             }
 
             // (6.32) // commercial employer had at least one employee during 20 different weeks in year
@@ -581,7 +592,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
                 // (6.33) // date of end of 20th week of having one employee for 20 different weeks in year
                 if (HasEmployeeIn20Weeks.Value
-                    && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AG_10_IN_20_WK20_END_DT, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYear)
+                    && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_1_IN_20_WK20_END_DT, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYear)
                     && DateTime.TryParse(when20thWeekWithOneCommercialEmployeeFor20WeeksInYear.ReplyText, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYearValue))
                 {
                     Week20EndDate = when20thWeekWithOneCommercialEmployeeFor20WeeksInYearValue;
@@ -614,7 +625,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other or Models.BusinessCategory.NonProfit)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))
@@ -632,7 +643,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.42) // non profit employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
-            if ((BusinessCategory == Models.BusinessCategory.NonProfit_501c3 || BusinessCategory == Models.BusinessCategory.NonProfit_Other)
+            if ((BusinessCategory == Models.BusinessCategory.NonProfit_501c3 || BusinessCategory == Models.BusinessCategory.NonProfit_Other || BusinessCategory == Models.BusinessCategory.NonProfit)
                 && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_XPCT_4_IN_20_FLG, out var nonProfitExpects4EmployeesForSameDayIn20WeeksInYear))
             {
                 ExpectToHaveWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(nonProfitExpects4EmployeesForSameDayIn20WeeksInYear.ReplyText);
