@@ -60,3 +60,19 @@ Expected behavior:
 
 ## Overall Assessment
 The MCP tools appear largely functional. The primary issues are intent classification, tool routing, and consistency of tool selection. Immediate focus should be on improving intent recognition, logging, and reliable MCP tool execution.
+
+
+User
+ |
+ v
+Supervisor Agent
+ |
+ +--------------------+
+ |        |          |
+Intent   Knowledge  Action
+Agent    Agent      Agent
+                    |
+           +--------+--------+
+           |                 |
+      Inventory         Scrap
+      Agent             Agent
