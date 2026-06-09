@@ -1,116 +1,163 @@
-# DBeaver Survey Response Debugging
+# Export All Survey Responses From DBeaver
 
-Use this guide when final employer registration fails because `CompleteRegistration()` returns backend rule violations. The goal is to compare what the UI saved with what the database contains for the same `SurveyResponseSK`.
+Use this after you find the parent survey row in `SRVY_RESP`.
 
-## 1. Open A SQL Editor
+Example from screenshot:
 
-In DBeaver:
-
-1. Select the database connection, for example `DEV10`.
-2. Click the `SQL` button in the top toolbar.
-3. Choose `New SQL Script`.
-4. Make sure the correct connection/schema is selected in the script tab.
-5. Paste one query at a time.
-6. Press `Ctrl+Enter` to execute the current query.
-
-## 2. Get SurveyResponseSK From Debug
-
-In Visual Studio, put a breakpoint in:
-
-`EmployerRegistrationModelStore.CompleteRegistration()`
-
-Check this value:
-
-```csharp
-EmployerRegistrationModel.SurveyResponseSk
+```text
+SRVY_RESP_SK = 10006636
+SRVY_NUM_TXT = 56613218 - Prior Registration
 ```
 
-Use that value in the SQL queries below.
+The next goal is to get every saved question/answer row for that `SRVY_RESP_SK`.
 
-## 3. Find Related Tables
+## 1. Find The Child Response Table
 
-Run this first to find survey/response tables:
+Run this first:
 
 ```sql
-SELECT table_name
-FROM all_tables
+SELECT table_name, column_name
+FROM all_tab_columns
 WHERE owner = 'USERS'
-AND (
-    UPPER(table_name) LIKE '%SURVEY%'
-    OR UPPER(table_name) LIKE '%RESPONSE%'
-    OR UPPER(table_name) LIKE '%QUESTION%'
-    OR UPPER(table_name) LIKE '%REGISTRATION%'
+AND UPPER(column_name) IN (
+    'SRVY_RESP_SK',
+    'QSTN_SET_ITEM_SK',
+    'QUESTION_SET_ITEM_SK',
+    'RPLY_TXT',
+    'REPLY_TXT',
+    'RSPNS_TXT',
+    'RESPONSE_TXT'
 )
-ORDER BY table_name;
+ORDER BY table_name, column_id;
 ```
 
-## 4. Find Important Columns
+Find the table that has:
 
-Run this to find tables that store survey response keys, question item keys, and reply text:
+```text
+SRVY_RESP_SK
+QSTN_SET_ITEM_SK or QUESTION_SET_ITEM_SK
+RPLY_TXT or REPLY_TXT
+```
+
+That table contains the answers.
+
+## 2. Find Question Lookup Tables
+
+Run this to find tables that describe question item keys:
 
 ```sql
 SELECT table_name, column_name
 FROM all_tab_columns
 WHERE owner = 'USERS'
 AND (
-    UPPER(column_name) LIKE '%SURVEY_RESPONSE%'
+    UPPER(column_name) LIKE '%QSTN_SET_ITEM%'
     OR UPPER(column_name) LIKE '%QUESTION_SET_ITEM%'
-    OR UPPER(column_name) LIKE '%REPLY%'
-    OR UPPER(column_name) LIKE '%RESPONSE%'
+    OR UPPER(column_name) LIKE '%QSTN%'
+    OR UPPER(column_name) LIKE '%QUESTION%'
+    OR UPPER(column_name) LIKE '%ITEM%'
 )
 ORDER BY table_name, column_id;
 ```
 
-Look for columns similar to:
+Look for a lookup table that has:
 
 ```text
-SURVEY_RESPONSE_SK
-QUESTION_SET_ITEM_SK
-REPLY_TEXT
+QSTN_SET_ITEM_SK or QUESTION_SET_ITEM_SK
+QSTN_TXT or QUESTION_TEXT
+SHORT_DSC / DESCRIPTION / NAME
 ```
 
-## 5. Query Saved Responses
+## 3. Export Raw Answers
 
-After you identify the response table, query it by the `SurveyResponseSK`.
+Replace table and column names after you identify them.
 
-Replace `<response_table>` and `<survey_response_sk>`:
+If columns are abbreviated:
 
 ```sql
 SELECT *
-FROM <response_table>
-WHERE survey_response_sk = <survey_response_sk>
-ORDER BY question_set_item_sk;
+FROM <response_item_table>
+WHERE srvy_resp_sk = 10006636
+ORDER BY qstn_set_item_sk;
 ```
 
-Example:
+If columns use full names:
 
 ```sql
 SELECT *
-FROM SURVEY_RESPONSE_ITEM
-WHERE survey_response_sk = 948921
+FROM <response_item_table>
+WHERE survey_response_sk = 10006636
 ORDER BY question_set_item_sk;
 ```
 
-## 6. Check The Problem Field
+This gives the entire saved response from all steps.
 
-For the future payroll issue, look for:
+## 4. Export Answers With Question Text
+
+After finding the question lookup table, join it.
+
+Abbreviated-column example:
+
+```sql
+SELECT
+    r.srvy_resp_sk,
+    r.qstn_set_item_sk,
+    q.qstn_txt,
+    r.rply_txt
+FROM <response_item_table> r
+LEFT JOIN <question_item_table> q
+    ON q.qstn_set_item_sk = r.qstn_set_item_sk
+WHERE r.srvy_resp_sk = 10006636
+ORDER BY r.qstn_set_item_sk;
+```
+
+Full-column example:
+
+```sql
+SELECT
+    r.survey_response_sk,
+    r.question_set_item_sk,
+    q.question_text,
+    r.reply_text
+FROM <response_item_table> r
+LEFT JOIN <question_item_table> q
+    ON q.question_set_item_sk = r.question_set_item_sk
+WHERE r.survey_response_sk = 10006636
+ORDER BY r.question_set_item_sk;
+```
+
+## 5. Check Critical Fields
+
+Run this once you know the response item table:
+
+```sql
+SELECT *
+FROM <response_item_table>
+WHERE srvy_resp_sk = 10006636
+AND qstn_set_item_sk IN (
+    3022,
+    3023,
+    3140,
+    3146,
+    3147,
+    3160,
+    3161
+)
+ORDER BY qstn_set_item_sk;
+```
+
+Important fields:
 
 ```text
 3022 = EXPT_PAY_EE_FLG
 3023 = EXPT_PAY_EE_TIME
+3140 = BUS_LGL_NAM
+3146 = ER_EMAIL_ADR
+3147 = EMAIL_NOTIFY
+3160 = CNTC_FST_NAM
+3161 = CNTC_LAST_NAM
 ```
 
-Query only those items:
-
-```sql
-SELECT *
-FROM <response_table>
-WHERE survey_response_sk = <survey_response_sk>
-AND question_set_item_sk IN (3022, 3023)
-ORDER BY question_set_item_sk;
-```
-
-Expected value for `3023`:
+Expected for `3023`:
 
 ```text
 1
@@ -120,7 +167,7 @@ Expected value for `3023`:
 5
 ```
 
-Wrong value:
+Wrong for `3023`:
 
 ```text
 Within 30 days
@@ -130,70 +177,49 @@ One year
 More than a year
 ```
 
-If `3023` is saved as display text, backend cannot calculate the review date correctly.
+## 6. Export Results From DBeaver
 
-## 7. Compare Against UI Request
+In the result grid:
 
-In Visual Studio, put a breakpoint before:
+1. Right-click the result grid.
+2. Choose `Export Data`.
+3. Choose `CSV`.
+4. Export the full result.
+5. Keep the columns for item key, question text, and reply text.
+
+## 7. Compare With Frontend Model
+
+In Visual Studio, compare DB export to:
 
 ```csharp
-SavePortalResponsesAsync(saveResponseRequest)
+model.GetSurveyResponses()
 ```
 
-Check:
+and:
 
 ```csharp
 saveResponseRequest.Responses
 ```
 
-For item `3023`, compare:
+Decision:
 
 ```text
-UI request ReplyText
-DB saved ReplyText
+Exists in model, missing in request -> mapping dropped it.
+Exists in request, missing in DB -> save/update issue.
+Exists in DB with display text -> bad frontend mapping or old value not overwritten.
+Exists in DB with correct value, registration fails -> another required field is missing.
 ```
 
-Result meaning:
+## 8. What To Send Back For Analysis
+
+Share these from the DB export:
 
 ```text
-UI sends "Within 30 days" -> frontend mapping bug.
-UI sends "1", DB saves "Within 30 days" -> backend/WCF transform issue.
-UI sends "1", DB still has old "Within 30 days" -> frontend is not overwriting existing response.
-UI sends "1", DB has "1", registration still fails -> another required field is missing.
+SRVY_RESP_SK
+QSTN_SET_ITEM_SK
+Question text or description
+Reply text
+Final RegisterEmployerAsync rule violation text
 ```
 
-## 8. Other Important Item Keys
-
-Check these if final registration still fails:
-
-```text
-3140 = BUS_LGL_NAM
-3146 = ER_EMAIL_ADR
-3147 = EMAIL_NOTIFY
-3160 = CNTC_FST_NAM
-3161 = CNTC_LAST_NAM
-```
-
-Example:
-
-```sql
-SELECT *
-FROM <response_table>
-WHERE survey_response_sk = <survey_response_sk>
-AND question_set_item_sk IN (3022, 3023, 3140, 3146, 3147, 3160, 3161)
-ORDER BY question_set_item_sk;
-```
-
-## 9. What To Capture For The Bug
-
-Capture these values:
-
-```text
-SurveyResponseSK
-QuestionSetItemSK
-ReplyText from UI request
-ReplyText saved in DB
-RegisterEmployerAsync rule violation text
-```
-
-This proves whether the fix belongs in frontend mapping, save/update flow, or backend/WCF processing.
+Start with the critical fields in section 5. If those look correct, export all rows and compare the full response.
