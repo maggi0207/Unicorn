@@ -1,6 +1,4 @@
-using System.Globalization;
 using System.ServiceModel;
-using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
@@ -26,24 +24,6 @@ internal class EmployerRegistrationModelStore
 
     private readonly string _technicalDifficulties;
     private readonly string _generalError = "There was an error, please try again.";
-
-    private static readonly string DebugLogPath = Path.Combine(AppContext.BaseDirectory, "registration-debug.log");
-
-    private static void LogDebug(string message, params object?[] args)
-    {
-        var formatted = string.Format(CultureInfo.InvariantCulture, message, args);
-        Console.WriteLine($"[EmployerRegistrationDebug] {formatted}");
-        System.Diagnostics.Debug.WriteLine($"[EmployerRegistrationDebug] {formatted}");
-
-        try
-        {
-            File.AppendAllText(DebugLogPath, $"[EmployerRegistrationDebug] {formatted}{Environment.NewLine}");
-        }
-        catch
-        {
-            // Temporary debug logging only; ignore file write failures.
-        }
-    }
 
     private List<FileUploadService> _wcffileservices = [];
     private string? _uploadedFilePath;
@@ -127,8 +107,7 @@ internal class EmployerRegistrationModelStore
             {
                 var secureUserSkClaim = _userAccountService.GetUserSKClaim();
 
-                var exactMatch = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSk);
-                var match = exactMatch;
+                var match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSk);
 
                 if (!match.Value)
                 {
@@ -151,22 +130,7 @@ internal class EmployerRegistrationModelStore
                     };
 
 
-                    LogDebug("CompleteRegistration: SurveyResponseSK={SurveyResponseSK}, SecureUserSK={SecureUserSK}, HasExactMatch={HasExactMatch}, HasPartialMatch={HasPartialMatch}",
-                        surveyResponseSk,
-                        secureUserSkClaim,
-                        exactMatch.Value,
-                        match.Value && !exactMatch.Value);
-
-                    LogDebug("RegisterEmployerAsync request payload={RequestPayload}",
-                        JsonSerializer.Serialize(registerRequest, new JsonSerializerOptions { WriteIndented = true }));
-
                     var registerResponse = await _employerRegistrationService.RegisterEmployerAsync(registerRequest);
-
-                    LogDebug("RegisterEmployerAsync result: SurveyResponseSK={SurveyResponseSK}, RuleViolations={RuleViolations}, EmployerSK={EmployerSK}, CorrespondenceGenerationSK={CorrespondenceGenerationSK}",
-                        surveyResponseSk,
-                        JsonSerializer.Serialize(registerResponse.RuleViolations.Select(rv => new { rv.RuleViolation, rv.RuleViolationCode })),
-                        registerResponse.EmployerSK,
-                        registerResponse.CorrespondenceGenerationSK);
 
                     if (registerResponse.RuleViolations.Any())
                     {
@@ -457,22 +421,7 @@ internal class EmployerRegistrationModelStore
                     PerformValidationFlag = !suppressRegistrationViolations,
                 };
 
-                LogDebug("SavePortalResponsesAsync request: SurveyResponseSK={SurveyResponseSK}, SurveyNumberText={SurveyNumberText}, PerformValidationFlag={PerformValidationFlag}, Payload={Payload}",
-                    hasSurveyResponseSk ? surveyResponseSkValue : (int?)null,
-                    EmployerRegistrationModel.SurveyNumber,
-                    !suppressRegistrationViolations,
-                    JsonSerializer.Serialize(saveResponseRequest, new JsonSerializerOptions { WriteIndented = true }));
-
-                LogDebug("SavePortalResponsesAsync response item summary={ResponseSummary}",
-                    JsonSerializer.Serialize(responses.Select(r => new { QuestionSetItemSK = r.QuestionSetItemSK, ReplyText = r.ReplyText, QuestionSetCodeSK = r.QuestionSetCodeSK })));
-
                 var saveResponseResult = await _employerRegistrationService.SavePortalResponsesAsync(saveResponseRequest);
-
-                LogDebug("SavePortalResponsesAsync result: SurveyResponseSK={SurveyResponseSK}, SurveyNumber={SurveyNumber}, RuleViolations={RuleViolations}, RegistrationViolations={RegistrationViolations}",
-                    saveResponseResult.SurveyResponseSK,
-                    saveResponseResult.SurveyNumber,
-                    JsonSerializer.Serialize(saveResponseResult.RuleViolations.Select(rv => rv.RuleViolation)),
-                    JsonSerializer.Serialize(saveResponseResult.RegistrationViolations.Select(rv => new { rv.QuestionSetItemSK, rv.RuleViolations })));
 
                 // if we only have registration violations that say to skip subjectivity, then we can do that, otherwise we are going to have to call again anyways
                 if (saveResponseResult.RegistrationViolations.Any()
