@@ -1,3 +1,19 @@
+
+DESC ER_RGST;
+
+or
+
+SELECT *
+FROM ER_RGST
+FETCH FIRST 10 ROWS ONLY;
+
+or
+
+SELECT column_name, data_type
+FROM all_tab_columns
+WHERE table_name = 'ER_RGST';
+
+
 # Export All Survey Responses From DBeaver
 
 Use this after you find the parent survey row in `SRVY_RESP`.
