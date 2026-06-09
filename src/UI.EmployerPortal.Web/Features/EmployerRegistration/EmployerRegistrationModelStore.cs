@@ -130,7 +130,11 @@ internal class EmployerRegistrationModelStore
                     };
 
 
+                    Console.WriteLine($"[EmployerRegistrationDebug] CompleteRegistration start: SurveyResponseSK={surveyResponseSk}, SecureUserSK={secureUserSkClaim}, Match={match.Value}");
+
                     var registerResponse = await _employerRegistrationService.RegisterEmployerAsync(registerRequest);
+
+                    Console.WriteLine($"[EmployerRegistrationDebug] CompleteRegistration result: SurveyResponseSK={surveyResponseSk}, EmployerSK={registerResponse.EmployerSK}, CorrespondenceGenerationSK={registerResponse.CorrespondenceGenerationSK}, RuleViolations={string.Join(" | ", registerResponse.RuleViolations.Select(rv => rv.RuleViolation))}");
 
                     if (registerResponse.RuleViolations.Any())
                     {
@@ -239,7 +243,11 @@ internal class EmployerRegistrationModelStore
                 SurveyNumberText = surveyNumber ?? string.Empty
             };
 
+            Console.WriteLine($"[EmployerRegistrationDebug] ContinueSurvey request: FEIN={fein}, SurveyNumber={surveyNumber}, SecureUserSK={secureUserSKClaim}");
+
             var contiueRegistrationResponse = await _employerRegistrationService.ContinueRegistrationAsync(continueRegistrationRequest);
+
+            Console.WriteLine($"[EmployerRegistrationDebug] ContinueSurvey response: SurveyResponseSK={contiueRegistrationResponse.SurveyResponseSK}, Responses={contiueRegistrationResponse.Responses?.Length ?? 0}, Addresses={contiueRegistrationResponse.Addresses?.Length ?? 0}, Contacts={contiueRegistrationResponse.Contacts?.Length ?? 0}");
 
             if (!contiueRegistrationResponse.SurveyResponseSK.HasValue)
             {
