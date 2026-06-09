@@ -19,14 +19,15 @@ Run this first:
 SELECT table_name, column_name
 FROM all_tab_columns
 WHERE owner = 'USERS'
-AND UPPER(column_name) IN (
-    'SRVY_RESP_SK',
-    'QSTN_SET_ITEM_SK',
-    'QUESTION_SET_ITEM_SK',
-    'RPLY_TXT',
-    'REPLY_TXT',
-    'RSPNS_TXT',
-    'RESPONSE_TXT'
+AND (
+    UPPER(column_name) LIKE '%SRVY%'
+    OR UPPER(column_name) LIKE '%RESP%'
+    OR UPPER(column_name) LIKE '%RSP%'
+    OR UPPER(column_name) LIKE '%RPLY%'
+    OR UPPER(column_name) LIKE '%REPLY%'
+    OR UPPER(column_name) LIKE '%QSTN%'
+    OR UPPER(column_name) LIKE '%QUES%'
+    OR UPPER(column_name) LIKE '%ITEM%'
 )
 ORDER BY table_name, column_id;
 ```
