@@ -374,7 +374,7 @@ internal class EmployerRegistrationModelStore
                     StateCodeSK = GetStateProvinceAbbreviationFromCode(address.State),
                     ZipCode = address.Zip,
                     ZipExtension = address.Extension,
-                    // EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
+                    EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressUnitedStatesAsync(usRequest);
 
@@ -388,7 +388,7 @@ internal class EmployerRegistrationModelStore
                     CityName = address.City,
                     ProvinceCodeSK = GetStateProvinceAbbreviationFromCode(address.Province),
                     CanadianPostalCode = address.PostalCode,
-                    // EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
+                    EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressCanadaAsync(caRequest);
 
@@ -401,7 +401,7 @@ internal class EmployerRegistrationModelStore
                     LineTwoAddress = address.AddressLine2,
                     LineThreeAddress = address.AddressLine3 ?? string.Empty,
                     LineFourAddress = address.AddressLine4 ?? string.Empty,
-                    // EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
+                    EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressOtherInternationalAsync(otherRequest);
         }
