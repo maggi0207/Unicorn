@@ -258,7 +258,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
 
         if (!IsOutsideUSA && IncorporationState != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString() });
+            var stateName = AddressModel.States.FirstOrDefault(s => s.Value == IncorporationState)?.Text ?? IncorporationState;
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString(), _responseDisplay = stateName });
         }
 
         if (IsOutsideUSA && ForeignCountry != null)
@@ -269,7 +270,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         if ((new List<OwnershipType> { OwnershipType.LLC, OwnershipType.LLP }).Contains(OwnershipType)
             && RegistrationState != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString() });
+            var stateName = AddressModel.States.FirstOrDefault(s => s.Value == RegistrationState)?.Text ?? RegistrationState;
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString(), _responseDisplay = stateName });
         }
 
         if (OwnershipType == OwnershipType.LLC
