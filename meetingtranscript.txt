@@ -1,25 +1,61 @@
-(Transcribed by TurboScribe. Go Unlimited to remove this message.)
+6/17/2026, 2:21:48.075 PM
+SearchDocumentsAsync - DMS search returned 504 for docType Document. Returning empty results.
 
-So, for 185 what I am missing is if I select non-profit 501c in step 1. Then in step 6, it should be greyed out, repopulated, but along with that it should show two other options, commercial and non-profit. But not the other one, the agriculture and the other stuff. Agriculture and domestic should not show.
+6/17/2026, 2:21:48.074 PM
+End processing HTTP request after 304610.5106ms - 504
 
-That's an entire story to remove that, but let's just give them a feel that that's done. And it has to be greyed out and the other two have to be populated. Populated, yeah.
+6/17/2026, 2:21:48.074 PM
+Received HTTP response headers after 30458.8058ms - 504
 
-Now if they choose on, if they come through something else also and if they choose option, I mean non, something other, what is that, non-profit other, then this display should show and if the step 1 thing is not matching, it should show that other. Even if they hit on commercial in step 1 and if they want to select non-profit other here, then have you applied for 501c3 with IRS has to, this question has to be shown with Radio Business or no. If they hit yes, then this question has to go, come, I mean, please, I mean, not the question like an error banner, please return to step 1. If they say no, then they can proceed with registration like any other employer.
+6/17/2026, 2:21:17.615 PM
+Sending HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
 
-Yes, and we are going to show this whole thing only when step 1 is no, I mean step 1 non-profit other, that is not chosen and in step 6, the question to this is answered as yes. Okay, but if the user selects non-profit IRS, this question, I mean non-profit 501c in step 1, then we will not show this at all, clear? No, yeah. Okay, and this is the only thing pending for 185.
+6/17/2026, 2:21:17.614 PM
+Start processing HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
 
-Yes. And for 184? No, is anything pending here? No, right? No, all good. This was all showing, all good.
+6/17/2026, 2:21:17.614 PM
+{"DocType":"Document","Keywords":[{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]}
 
-All good. Okay, only one step then. That is fine.
+6/17/2026, 2:21:17.613 PM
+SearchDocumentsAsync - keywords = [{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]
 
-Yeah. I will do it. Yeah.
+6/17/2026, 2:21:17.613 PM
+SearchDocumentsAsync - documentTypeName = Document
 
-No problem. Okay. Clear, right? Yeah, clear.
+6/17/2026, 2:21:17.612 PM
+AuthenticationScheme: Bearer was successfully authenticated.
 
-Just that, do not show domestic or agriculture in the radio options. Yeah, understood. Keep that commented because we will have to incorporate that later when they choose domestic or agriculture option in step 5. Okay.
+6/17/2026, 2:21:17.612 PM
+Successfully validated the token.
 
-Yeah, either way, I have to work on both 215 for whatever, that one and 187, right? So, it is fine. Okay. Okay, Nandini.
+------------------------------------------------------------
 
-Bye. Bye. Bye.
+6/17/2026, 2:19:10.573 PM
+SearchDocumentsAsync - DMS search returned 504 for docType Form. Returning empty results.
 
-(Transcribed by TurboScribe. Go Unlimited to remove this message.)
+6/17/2026, 2:19:10.572 PM
+End processing HTTP request after 30162.1701ms - 504
+
+6/17/2026, 2:19:10.572 PM
+Received HTTP response headers after 30161.0616ms - 504
+
+6/17/2026, 2:18:40.411 PM
+Sending HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+
+6/17/2026, 2:18:40.410 PM
+Start processing HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+
+6/17/2026, 2:18:40.410 PM
+{"DocType":"Form","Keywords":[{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]}
+
+6/17/2026, 2:18:40.410 PM
+SearchDocumentsAsync - keywords = [{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]
+
+6/17/2026, 2:18:40.409 PM
+SearchDocumentsAsync - documentTypeName = Form
+
+6/17/2026, 2:18:40.408 PM
+AuthenticationScheme: Bearer was successfully authenticated.
+
+6/17/2026, 2:18:40.408 PM
+Successfully validated the token.
