@@ -12,10 +12,13 @@ public static class AddressHelper
     /// Used to detect whether a service-corrected address actually differs from the entered address.
     /// </summary>
     public static bool AddressesAreEqual(AddressModel a, AddressModel b)
-        => string.Equals(a.AddressLine1, b.AddressLine1, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(a.AddressLine2, b.AddressLine2, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(a.City, b.City, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(a.State, b.State, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(a.Zip, b.Zip, StringComparison.OrdinalIgnoreCase)
-        && string.Equals(a.Extension, b.Extension, StringComparison.OrdinalIgnoreCase);
+        => CompareField(a.AddressLine1, b.AddressLine1)
+        && CompareField(a.AddressLine2, b.AddressLine2)
+        && CompareField(a.City, b.City)
+        && CompareField(a.State, b.State)
+        && CompareField(a.Zip, b.Zip)
+        && CompareField(a.Extension, b.Extension);
+
+    private static bool CompareField(string val1, string val2)
+        => string.Equals(val1?.Trim() ?? string.Empty, val2?.Trim() ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 }
