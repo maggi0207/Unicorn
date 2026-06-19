@@ -1,61 +1,149 @@
-6/17/2026, 2:21:48.075 PM
-SearchDocumentsAsync - DMS search returned 504 for docType Document. Returning empty results.
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)
 
-6/17/2026, 2:21:48.074 PM
-End processing HTTP request after 304610.5106ms - 504
+A couple of things, right? Two or three things. Yes, yes. I can pull it up.
 
-6/17/2026, 2:21:48.074 PM
-Received HTTP response headers after 30458.8058ms - 504
+Yes, let me share. Yeah. These three things.
 
-6/17/2026, 2:21:17.615 PM
-Sending HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+Yeah. So, So, these three things, right? Like, one is, the first one is considering the seasonality before the decision-making scrap. Okay? So, here, what we can what we need to consider is let's say, if it is seasonality or history So, during this season or during this point of time we can scrap more.
 
-6/17/2026, 2:21:17.614 PM
-Start processing HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+Okay? So, what we can explore is, or else the other condition, right? The other condition, what we can do is we need to if it is, let's say if it is from a specific country, okay? Because it's hot, because the weather is very hot we need to scrap those particular products. Okay? That is not seasonality, but I'm giving you an example similar to seasonality. Okay? So, what we need to do is that we need to get all the products which are there in that country Okay? And then get the serial numbers and then do that scrap. 
 
-6/17/2026, 2:21:17.614 PM
-{"DocType":"Document","Keywords":[{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]}
+Okay? That's one aspect of it. Okay. Okay. 
 
-6/17/2026, 2:21:17.613 PM
-SearchDocumentsAsync - keywords = [{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]
+The second aspect of it is weather. We don't have to consider the weather out here. Okay. 
 
-6/17/2026, 2:21:17.613 PM
-SearchDocumentsAsync - documentTypeName = Document
+Okay. So, we can see Okay. Just give me a minute.
 
-6/17/2026, 2:21:17.612 PM
-AuthenticationScheme: Bearer was successfully authenticated.
+Let me go to circuit and then just Okay. Okay. So, the whole intention is because these, for some of these things, right? We don't have the data, so for that seasonality or for that, we need to call some sort of an LLM and then get the details dynamically and then apply those apply those values onto the dataset or what we have. 
 
-6/17/2026, 2:21:17.612 PM
-Successfully validated the token.
+Okay. I mean, I'll give you what exactly which is needed. Okay.
 
-------------------------------------------------------------
+Okay. So, it can be So, we can go with the trends, the weather patterns, the cyclic patterns or calendar events like holidays or special events or business, special events or something like that. So, we need to get these details from the LLM. 
 
-6/17/2026, 2:19:10.573 PM
-SearchDocumentsAsync - DMS search returned 504 for docType Form. Returning empty results.
+Okay. What it is suggesting is that advanced forecasting models such as ARIMA, auto, corporate, transformation. Okay. 
 
-6/17/2026, 2:19:10.572 PM
-End processing HTTP request after 30162.1701ms - 504
+So, these are some of the data where we don't have. Okay. One thing when you are calling these models, right? Don't pass any data, Cisco data. 
 
-6/17/2026, 2:19:10.572 PM
-Received HTTP response headers after 30161.0616ms - 504
+Okay. No confidential data. Okay. 
 
-6/17/2026, 2:18:40.411 PM
-Sending HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+Not only confidential data. So, if it is a seasonal pattern, right? During, if it is a seasonal pattern, we'll get that seasonal pattern like, for example, the holidays. Okay.
 
-6/17/2026, 2:18:40.410 PM
-Start processing HTTP request POST https://hca-crd-rfd-cus1-qa.azurefd.net/api/SearchDocuments
+During that holiday season, we don't get too many, we don't have to send because the scrap location will not be working during this point of time because of the holidays. Yeah. For example, during December, right? December, some of the US and Europe will be working light, right? Yeah. 
 
-6/17/2026, 2:18:40.410 PM
-{"DocType":"Form","Keywords":[{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]}
+And also in Jan, Feb, China, they'll not do, China is newer and they'll not do much work. So, based on these events, we should not be considering too many scrap recommendations to that particular location. Okay.
 
-6/17/2026, 2:18:40.410 PM
-SearchDocumentsAsync - keywords = [{"TypeId":null,"TypeName":"HCO.Effective Date","DataType":"6", ... }]
+Okay. So, we need to get this events and based on these events, we should not be recommending too many scrap to that location. This is one example, okay? Okay. 
 
-6/17/2026, 2:18:40.409 PM
-SearchDocumentsAsync - documentTypeName = Form
+As in, when we discuss more, one is the seasonality. Okay. In this seasonality, like you'll have calendar events. 
 
-6/17/2026, 2:18:40.408 PM
-AuthenticationScheme: Bearer was successfully authenticated.
+Okay. Calendar events. And during these events, we should not be sending scrap recommendations to these locations.
 
-6/17/2026, 2:18:40.408 PM
-Successfully validated the token.
+Okay. I'm giving you one example. Try to find which can give these events.
+
+Okay. The text is, do not pass any pass any data. Can you give me Can you give me the holidays in U.S. during Christmas? Okay.
+
+What happened? Can you give me when is Chinese New Year of the current calendar year? Okay. So, we'll document these things, but in the meanwhile, if we can see which model we can predict, we can use we can predict any model and we can take any model and then give these details. The best bet will be to use circuit and get these details as well.
+
+Okay. Okay. You're trying to achieve if you hit any challenges because we are using the free version, right? Yes.
+
+If that is a blocker or whatever, right? Whatever you find out, you keep posting in our space. Okay. If we can, then we'll work around and try to unblock you.
+
+Sure, Shakti. This file also I've shared with you, Shiva. I just got the mail.
+
+I think something which we just discussed, right? Example is a calendar in the meeting chat itself. That's one thing. The second aspect of it, right? The second aspect of it is where we need to look at that historical data.
+
+Okay. When I say that historical data one year back you are aware of this product family as part of that hierarchy or PU? Which one? In general, I'm asking. Whenever we introduce a product right, we have something known as a product family and also the PU associated to that. 
+
+This will be the hierarchy. The lowest will be the product. After that product, you'll have the product family.
+
+There are other things. Above the product family, you have a business unit. Let's say if for this BU last year I have executed too much scrap.
+
+Also, the notes last year notes should be captured somewhere and then we have to look at that notes and also based on that notes, we have to identify if similar product families or if it falls under the same business unit or product family, we need to apply that ML or AI and then come up with that answer as well. When I say come up with that answer what was done in the past and what is the LLM recommending in future? Based on the historical information? Based on the historical information, yes. That's the second thing.
+
+The third thing right, the third thing is the third thing is we'll create some business rules in the rank and we have to take those business rules and then apply it dynamically or pass it to LLM, in this case circuit and then we have to check what is the recommendation from LLM. Yeah, so I can think of these three things right now because in all three things, we are trying to gather some data. In the first case, we are using it from the current, what is happening in the current world. 
+
+The second is the past historical data, the second thing what we are considering it is. The third thing what we need to consider is the business rules which are defined in rank. Okay. 
+
+Yeah, so these three are three different things. Okay, so in my understanding, so whatever the machine learning model we were designing, so it will be giving the input to the LLM, am I right? Yes, it will give the input to LLM, yes. Right now in our current project, what we did was as per yesterday's discussion with Shakti, we are giving some stateful direction for the LLM to go this way based on this keyword or based on this user intent. 
+
+You have to pick or you have to trigger certain MCP tool and fetch the information and it just pop up in our UI, whatever it is, chat bot or website or anything. So now for a fully agentic or AI scenario, we are building a model in such a way that it has to analyze the user intent based on the, it may be the history of the data or user's behavior, it has to give some recommendation for the LLM so that LLM will pick from there and try to generate the answer based on the user intent. As of now, I am in a right way what you guys are thinking? Yes, yeah.
+
+Okay, okay. And one more example of the first scenario as well, right? Because you might be knowing Russia, Ukraine and also like the Iran as well, right? I am just giving an example. Yes.
+
+If there are any scrap locations there, because this is happening, we should not be sending that, we should not be recommending to send or we should not be sending it to those locations. So that means that we have to get the events from the LLM and pass that information from one of the LLM model and then pass that information either to circuit. Because these are events which is happening, so don't send any scrap recommendations to these locations.
+
+Okay. Okay. Yeah, so I got an idea. 
+
+Okay, I will think about it and I will tell you. Yeah, you can pick me today like at 10.30 like yeah, I have back to back calls and after that like I will be driving to work and you can pick me after that around 11, my time. Okay. 
+
+So why did you choose only calendar events just for better understanding? No, no, no, calendar event is an example but we will be adding others. I mean first to start with our POC, right? We need to think about all these things, right? So as and when we we can add more and more events to this. Okay, got it.
+
+Yeah, so what I got just now, I got idea is like you know the perplexity, right? I mean you are aware of it. It's an optimized search engine for Google or something which gives better recommendations. So we can instead what I'm thinking, I don't know exactly how does it work until I work on it. 
+
+For example, as a calendar event, so you can take calendar event or any Cold War tensions between different countries. So we can add you know like a layer or something to get up to date information whatever is going around the world. We don't need everything.
+
+We need something. So I mean we don't need everything but so currently we just gave two examples, right? But it has to be expanded to other events as well. That's what I was proposing that perplexity example. 
+
+So whatever the current events which are related to our which is going to affect our business processing, it may be delayed or it may be rejected due to their country's issue, whatever it may be. So can we, I mean I don't know how to add that filter in a technical terminology way to explain you, but how does it think do you think is it a good idea? So we can add multiple events as well. As of now, we are focusing on holiday events or some Cold War between the countries.
+
+Later, we can change. If at all scrap is getting demand in Abu Dhabi, when we get the right information, it may give us a pop-up or it may give us some kind of recommendation. I mean like an idea instead of we getting that news to reach to us so it will predict by itself, right? It will be fully automated. 
+
+Yeah, we can use that as well. I mean, but be careful like don't pass any data. Yeah, that's exactly. 
+
+Yeah. I will think about it. Do you have any suggestions on models? Because once we do this implementation and again like we have to go through all security guardrails and so on.
+
+So at that point of time, if we just go with whatever without any security considerations and so on, we will not go through that. Okay. Yeah, it's a waste of time. 
+
+Yeah, true. Do you have any suggestions of models Sunil? You said everything has to be like it should be a circuit should be a wrapper for any model you use for my understanding. Yes.
+
+Do you have any idea? You can use circuit as well and then get those details, right? I'm not sure how accurate circuit gonna give me. Yeah. Yes, I agree. 
+
+But just try with circuit and we can expand it to other models which are there in the market. Okay. Circuit also exposes multiple, right Srinath? Can you, I mean, you can maybe switch among both and see.
+
+Yeah, right now security is using GPT 3.5 or so because we are using free version, right? So it is restricted. If it is a paid, I think it can use multiple models or something as well. Right now, to my knowledge, only two, I guess.
+
+GPT Nano. Yeah, GPT Nano. I mean, I thought, I'm not sure. 
+
+Yeah, that's the only two models I have seen so far. Yeah, there are limitations to that, yes. Okay, let us try with this one.
+
+If I come up with any idea or anything, we'll discuss, Sunil, so that we can raise an axis or something based on our requirement. Yes, yeah. Okay, I'll look into it. 
+
+I'll come up with an idea. Yeah, yeah. Okay, Sunil. 
+
+Thank you. Okay, yeah. Thank you, Srinath. 
+
+Thank you, Sunil. And also one other thing, right? Yeah, yeah, yeah. Sorry.
+
+And also one other thing, today when we are passing, when we are getting the data, right? For scrap details, we are getting all the data, okay? And it is giving the scrap recommendations. Okay? Yeah. One other thing what I'm thinking is, we need to ignore that scrap recommendations, whatever we are getting it from the backend.
+
+Okay. We need to apply these, whatever we discussed just now, right? Oh, okay. Okay, okay, yeah. 
+
+Then come up with a scrap recommendation, yes. So instead of giving, instead of taking the MCP tool response recommendation, now our agent has to get the, whatever the use cases we discussed, based on that, it has to give us a recommendation, not with that MCP. Yes. 
+
+Not from the MCP tool. The MCP tool will give you the data. Only the data, okay.
+
+Only the data, yes. Okay, yeah, yeah. I mean, that's the main thing, right? With this, with the current right, I mean, to me there is no AI, rather than just using NLP.
+
+Okay. From the chat bot. Okay.
+
+But if we use this thing, then we can we can say that, okay, yeah, we are actually using agent or LLM, agentic framework. Okay. Okay. 
+
+Sure. Yeah. I explored one more thing last night. 
+
+I'll just frame it in a proper way and I'll just share it with you so that you can have that as well. Okay, okay, sure, yeah, yeah. Okay, Sunil, yeah. 
+
+Okay then, yeah. Thank you, thank you. Happy long weekend, Sunil.
+
+Yeah, yeah, yeah, sure, thank you, same to you. Yeah. Long weekend.
+
+But I'll be working on, I'll be, at least I'll be opening my laptop and then I'll be doing something tomorrow. Okay. So there is no long weekend for you. 
+
+Okay. Yeah. All right. 
+
+Well, I can get up late, but usually it doesn't matter for me either holiday or non-holiday, usually I get up around 6, 6.30, so. Okay. Okay, okay, good, good.
+
+All right, Sunil. Okay, okay, sure, sure, yeah. Thank you.
+
+Thank you.
+
+(Transcribed by TurboScribe. Go Unlimited to remove this message.)
