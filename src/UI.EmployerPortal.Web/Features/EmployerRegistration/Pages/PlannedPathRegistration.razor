@@ -1,0 +1,68 @@
+@page "/employer-registration/planned-path"
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@inject EmployerRegistrationInfo RegistrationInfo;
+@inject NavigationManager Nav;
+
+<div class="page_wrapper">
+    <div class="emppath-page-content">
+        <h3>Thank You for Submitting Your Employer Registration.</h3>
+        <p>It appears you may already be registered with our department. We will review your registration and contact you for additional information if necessary.</p>
+        <p>We will send you written notification of your Wisconsin Unemployment Insurance Account Number and tax rate(s) when your registration has been processed.</p>
+        <PlannedPathRegister></PlannedPathRegister>
+        <div class="custom-divider" ></div>
+        <div>
+            <p class="subtitle">What's Next?</p>
+            <p>If you need to complete another employer registration, click "REGISTER ANOTHER EMPLOYER." If you do not have another business to register, click "GO TO HOME" to be taken back to the portal home page.</p>
+        </div>
+     
+        <div class="drawer-footer">
+            <Button Text="GO TO HOME"
+                    Variant="Button.ButtonVariant.Primary"
+                    Size="Button.ButtonSize.Large"
+                    OnClick="gotohome" />
+        </div>
+        <div class="drawer-footer">
+            <Button Text="REGISTER ANOTHER EMPLOYER"
+                    Variant="Button.ButtonVariant.Primary"
+                    Size="Button.ButtonSize.Large"
+                    OnClick="registeranotheremployer" />
+        </div>
+      
+    </div>
+</div>
+
+
+@code
+{
+    private bool isFormValid = true;
+    private RegistrationModel model = new();
+    private EditContext editContext = default!;
+
+    public class RegistrationModel
+    {
+        public bool? HasRegistrationNumber { get; set; } = null;
+    }
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(model);
+
+        //Track validation state as user interacts
+        editContext.OnFieldChanged += (_, __) =>
+        {
+            isFormValid = editContext.Validate();
+            StateHasChanged();
+        };
+    }
+    private void gotohome()
+    {
+        Nav.NavigateTo(Nav.BaseUri);
+    }
+    private void registeranotheremployer()
+    {
+        Nav.NavigateTo("employer-registration");
+    }
+
+
+}

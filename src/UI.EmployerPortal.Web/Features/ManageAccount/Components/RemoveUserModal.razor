@@ -1,0 +1,56 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+
+@if (IsOpen)
+{
+    <div class="remove-user-backdrop">
+        <div class="remove-user-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-user-title">
+
+            @* ── Header ── *@
+            <div class="remove-user-header">
+                <h3 id="remove-user-title" class="remove-user-title">
+                    <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
+                    Remove User
+                </h3>
+                <button type="button" class="remove-user-close" @onclick="HandleCancel" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
+            </div>
+
+            @* ── Body ── *@
+            <div class="remove-user-body">
+                @if (IsBusy)
+                {
+                    <LoadingSpinner Message="Removing user..." />
+                }
+                else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <p class="remove-user-text remove-user-text-error">@ErrorMessage</p>
+                }
+                else
+                {
+                    <p class="remove-user-text">
+                        You are removing @UserDisplayName&rsquo;s access to the account. If you want to reinstate this
+                        user&rsquo;s access at a later date, you will need to generate a new access key.
+                    </p>
+                }
+            </div>
+
+            @* ── Footer ── *@
+            <div class="remove-user-footer">
+                @if (IsBusy)
+                {
+                    @* no buttons while in-flight *@
+                }
+                else
+                {
+                    <Button Text="DO NOT REMOVE USER"
+                            Variant="Button.ButtonVariant.Secondary"
+                            ShowBorder="false"
+                            OnClick="HandleCancel" />
+                    <Button Text="REMOVE USER"
+                            Variant="Button.ButtonVariant.Secondary"
+                            OnClick="HandleConfirm" />
+                }
+            </div>
+
+        </div>
+    </div>
+}

@@ -1,5 +1,4 @@
 using UI.EmployerPortal.Razor.SharedComponents.Model;
-using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
@@ -22,12 +21,6 @@ public class RegistrationStateService
     /// </summary>
     public int EditStep { get; set; } = 3;
 
-    /// <summary>
-    /// The wizard step to advance to after completing the Address Correction flow.
-    /// Defaults to 4 (Business Contact).
-    /// </summary>
-    public int PostCorrectionStep { get; set; } = 4;
-
     /// <summary>Address corrections collected after service validation on BusinessInformation submit.</summary>
     public List<AddressCorrectionItem> AddressCorrections { get; set; } = new();
 
@@ -46,6 +39,11 @@ public class RegistrationStateService
     /// (e.g., after completing the Address Correction flow). Zero means no restoration needed.
     /// </summary>
     public int CurrentStep { get; set; }
+
+    /// <summary>
+    /// Continue the save process of the CurrentStep upon returning to the steps page
+    /// </summary>
+    public bool ContinueActionClick { get; set; } = false;
 }
 
 /// <summary>
@@ -55,9 +53,11 @@ public class RegistrationStateService
 /// <param name="Original">The address the user entered. Updated in-place when the user accepts the suggestion.</param>
 /// <param name="Suggested">The standardized address returned by the validation service, or null if the service found no match.</param>
 /// <param name="ErrorMessage">Optional error message returned by the validation service, shown as a bullet in the warning banner.</param>
+/// <param name="IsOnlyCapitalizationOrZipExtensionChange">Flag to show that the change is only affecting capitolization or adding the zip extension.</param>
 public record AddressCorrectionItem(
     string Label,
     AddressModel Original,
     AddressModel? Suggested,
-    string? ErrorMessage = null
+    string? ErrorMessage = null,
+    bool IsOnlyCapitalizationOrZipExtensionChange = false
 );

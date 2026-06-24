@@ -1,9 +1,36 @@
 @page "/FileUploadPage"
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Services;
 
 <div>
-    <FileUpload Title="Wage Report"></FileUpload>
+   
+    <FileUpload Title="Wage Report" Model="@typeof(object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
+    <div class="drawer-footer">
+        <Button Text="LoadFile"
+                Variant="Button.ButtonVariant.Primary"
+                Size="Button.ButtonSize.Large"
+                OnClick="Loadfile" />
+    </div>
 </div>
 
 @code {
-}
+    [Inject] private IUploadServices UploadServices { get; set; } = default!;
+    private List<FileUploadService> _wcffileservice = [];
+    private string? uploadedFilePath;
+    private string? confnum ="7174167";
+    private async Task Loadfile()
+    {
+        _wcffileservice = await UploadServices.LoadFileWcf(uploadedFilePath!,confnum!,0);
+    }
+
+
+    private Task ReceiveFilePath(string path)
+    {
+        uploadedFilePath = path;
+        return Task.CompletedTask;
+    }
+
+    }
+
+

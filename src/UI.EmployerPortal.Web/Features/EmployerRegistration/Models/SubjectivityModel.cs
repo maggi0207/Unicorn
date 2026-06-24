@@ -11,9 +11,28 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 public class SubjectivityModel : IEmployerRegistrationModelSection
 {
     /// <summary>
+    /// 
+    /// </summary>
+    public SubjectivityModel() { }
+
+    /// <summary>
     /// Business Category
     /// </summary>
     public BusinessCategory? BusinessCategory { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public string AFL_XPCT_PY_WI_WGS_WHN_TXT { get; set; } = String.Empty;
+    /// <summary>
+    /// Have you paid agricultural wages for work performed in Wisconsin?
+    /// (Visible when HasFutaLiabilityInOtherStates = Yes)
+    /// </summary>
+    public bool? PayWagesPerformWI { get; set; }
+    /// <summary>
+    /// Do you expect to pay agricultural wages for work in Wisconsin
+    /// </summary>
+    [RequiredIfVisibleAttribute("ExpectToPayWagesPerformWI", false, ErrorMessage = "When to pay wages for work in Wisconsin?")]
+    public bool? ExpectToPayWagesPerformWI { get; set; }
 
     /// <summary>
     /// HasAppliedFor501c3Status
@@ -40,33 +59,38 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     public bool? HasFutaLiabilityInOtherStates { get; set; }
 
     /// <summary>
+    /// FinancialInstitution
+    /// </summary>
+    public FinancialInstitution FinancialInstitution { get; set; } = new();
+    /// <summary>
+    /// FinancialInstitution
+    /// </summary>
+    public AddressModel FinancialInstitutionaddress { get; set; } = new();
+
+    /// <summary>
     /// Did you pay $1,500 or more in wages in a calendar quarter? (Employees path)
     /// (Visible when HasEmployeesOutsideWisconsin = No)
     /// </summary>
     public bool? PaidWagesOver1500Employees { get; set; }
+    /// <summary>
+    /// Wage entry grid
+    /// </summary>
+    public List<YearQuartersPaidWages> Wages { get; set; } = new();
+    /// <summary>
+    /// do you expect to pay x wages in y weeks in a calendar quarter
+    /// </summary>
+    public bool? ExpectToPayWagesInAQuarter { get; set; }
+    /// <summary>
+    /// when?
+    /// </summary>
+    public string WhenExpectToPayWagesInAQuarter { get; set; } = String.Empty;
 
-    /// <summary>
-    /// Did you pay $1,500 or more in wages or FUTA taxes in a calendar quarter? (Taxes path)
-    /// (Visible when HasFutaLiabilityInOtherStates = No)
-    /// </summary>
-    [RequiredIfVisibleAttribute("HasFutaLiabilityInOtherStates", false, ErrorMessage = "Wages/Taxes in a calendar quarter is required")]
-    public bool? PaidWagesOrTaxesOver1500 { get; set; }
-    //[RequiredIfVisibleAttribute("PaidWagesOver1500Employees", true, ErrorMessage = "Quarter and Year is required")]
-    //[RegularExpression(@"^$|^[1-4]\/\d{4}$", ErrorMessage = "Format must be q/yyyy")]
-    //public string? FirstWageQuarterYearEmployees { get; set; }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// Visible only when PaidWagesOrTaxesOver1500 = Yes
-    [RequiredIfVisibleAttribute("PaidWagesOrTaxesOver1500", true, ErrorMessage = "Quarter and Year is required.")]
-    [RegularExpression(@"^$|^[1-4]\/\d{4}$", ErrorMessage = "Quarter and Year must be in the format q/yyyy")]
-    public string? QuarterYearFirstPaidTaxes { get; set; }
+
     /// <summary>
     /// Did you have at least one employee for any part of a day in 20 different weeks?
     /// (Visible when PaidWagesOrTaxesOver1500 = No)
     /// </summary>
     public bool? HasEmployeeIn20Weeks { get; set; }
-
     /// <summary>
     /// Date the 20th week ended (must be Saturday)
     /// (Visible when HasEmployeeIn20Weeks = Yes) 
@@ -74,63 +98,15 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     [RequiredIfVisibleAttribute("HasEmployeeIn20Weeks", true, ErrorMessage = "The date is not valid. Must be the week ending date of the 20th week. Format example: mm/dd/yyyy.")]
     [SaturdayOnly(ErrorMessage = "The date is not valid. Must be the week ending date of the 20th week. Format example: mm/dd/yyyy.")]
     public DateTime? Week20EndDate { get; set; }
-
     /// <summary>
-    /// HasHasFutaLiabilityInOtherStatesOutsideWisconsin
-    /// </summary>
-    public bool? HasFutaLiabilityInOtherStatesOutsideWisconsin { get; set; }
-    /// <summary>
-    /// FinancialInstitution
-    /// </summary>
-    public AddressModel FinancialInstitution { get; set; } = new();
-    /// <summary>
-    /// 
-    /// </summary>
-    public bool? ExpectToPayWagesInAQuarter { get; set; }
-    /// <summary>
-    /// 
+    /// do you expect to have x employees in 20 weeks in a calendar year
     /// </summary>
     public bool? ExpectToHaveWagesInAQuarter { get; set; }
     /// <summary>
-    /// 
+    /// when
     /// </summary>
-    private string _whenExpectToHaveWagesInAQuarter = String.Empty;
-    /// <summary>
-    /// 
-    /// </summary>
-    public string WhenExpectToHaveWagesInAQuarter
-    {
-        get => _whenExpectToHaveWagesInAQuarter;
-        set => _whenExpectToHaveWagesInAQuarter = ParseLegacyWagesString(value);
-    }
+    public string WhenExpectToHaveWagesInAQuarter { get; set; } = String.Empty;
 
-    private string _whenExpectToPayWagesInAQuarter = String.Empty;
-    /// <summary>
-    /// 
-    /// </summary>
-    public string WhenExpectToPayWagesInAQuarter
-    {
-        get => _whenExpectToPayWagesInAQuarter;
-        set => _whenExpectToPayWagesInAQuarter = ParseLegacyWagesString(value);
-    }
-
-    private static string ParseLegacyWagesString(string value)
-    {
-        return value switch
-        {
-            "Within 30 days" => "1",
-            "30 to 90 days" => "2",
-            "6 months" => "3",
-            "One year" => "4",
-            "More than a year" => "5",
-            _ => value
-        };
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public List<YearQuartersPaidWages> Wages { get; set; } = new();
 
     /// <inheritdoc/>
     public List<SurveyResponse> GetSurveyResponses()
@@ -164,39 +140,49 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_FUTA_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStates.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStates.Value) });
             }
 
-            // duplicate question?
-            //if (PaidWagesOrTaxesOver1500.HasValue) //6.11 // have paid wi wages
-            //{
-            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_PAID_WI_WGE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOrTaxesOver1500.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOrTaxesOver1500.Value) });
+            if (PaidWagesOver1500Employees.HasValue) //6.12 // have paid over 1k in a quarter in a year in wi
+            {
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_PD_1K_FLG,
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOver1500Employees.Value),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOver1500Employees.Value)
+                });
 
-            //    if (PaidWagesOrTaxesOver1500.Value && PaidWagesOrTaxesOver1500.HasValue) //6.12 // have paid over 1k in a quarter in a year in wi
-            //    {
-            //        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_PD_1K_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOrTaxesOver1500.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOrTaxesOver1500.Value) });
-            //    }
-            //}
+                if (!PaidWagesOver1500Employees.Value && ExpectToPayWagesInAQuarter.HasValue) //6.14) // expect to pay 1k in a quarter
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPT_PY_1K_FLG,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesInAQuarter.Value),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesInAQuarter.Value)
+                    });
+
+                    if (ExpectToPayWagesInAQuarter.Value
+                        && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
+                        && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.15) // when expect to pay 1k in a quarter
+                    {
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPT_PY_1K_WHN_TXT,
+                            _response = WhenExpectToPayWagesInAQuarter,
+                            _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                        });
+                    }
+                }
+            }
 
             if (ExpectToPayWagesPerformWI.HasValue) //6.13) // expect to pay wisconsin wages
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPCT_WI_WGE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesPerformWI.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesPerformWI.Value) });
             }
-
-            if (ExpectToPayWagesInAQuarter.HasValue) //6.14) // expect to pay 1k in a quarter
-            {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPT_PY_1K_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesInAQuarter.Value) });
-
-                if (ExpectToPayWagesInAQuarter.Value && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)) //6.15) // when expect to pay 1k in a quarter
-                {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPT_PY_1K_WHN_TXT, _response = WhenExpectToPayWagesInAQuarter });
-                }
-            }
         }
 
         if (BusinessCategory == Models.BusinessCategory.Agricultural)
         {
-            if (HasEmployeesOutsideWisconsin.HasValue && HasEmployeesOutsideWisconsin.Value
-                && HasFutaLiabilityInOtherStatesOutsideWisconsin.HasValue)
+            if (HasFutaLiabilityInOtherStates.HasValue) //6.20 // has futa liability in other states
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AG_FTA_LBTY_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStatesOutsideWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStatesOutsideWisconsin.Value) });
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AG_FTA_LBTY_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStates.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStates.Value) });
             }
 
             if (PayWagesPerformWI.HasValue) //6.21) // have futa has paid ag wages in wisconsin
@@ -261,10 +247,6 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CMCL_PD_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOver1500Employees.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOver1500Employees.Value) });
             }
-            else if (PaidWagesOrTaxesOver1500.HasValue) // commercial employer has paid 1500 in quarter (taxes path)
-            {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CMCL_PD_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOrTaxesOver1500.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOrTaxesOver1500.Value) });
-            }
 
             if (HasEmployeeIn20Weeks.HasValue) //6.32) // commercial employer had at least one employee during 20 different weeks in year
             {
@@ -289,17 +271,27 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             if (!string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
                 && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.36) // future period when commercial employer expects to pay at least 1500 in quarter in year
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_1IN20_WHN_TXT, _response = WhenExpectToPayWagesInAQuarter, _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_1IN20_WHN_TXT,
+                    _response = WhenExpectToPayWagesInAQuarter,
+                    _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                });
             }
             else if (!string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)
                 && Enum.TryParse<FuturePayPeriod>(WhenExpectToHaveWagesInAQuarter, out var whenExpectToHaveWagesInAQuarterValue))
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_1IN20_WHN_TXT, _response = WhenExpectToHaveWagesInAQuarter, _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_1IN20_WHN_TXT,
+                    _response = WhenExpectToHaveWagesInAQuarter,
+                    _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName()
+                });
             }
         }
 
         if (BusinessCategory.HasValue
-            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other or Models.BusinessCategory.NonProfit)
+            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             if (HasEmployeeIn20Weeks.HasValue) //6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             {
@@ -315,9 +307,16 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.NP_XPCT_4_IN_20_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToHaveWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToHaveWagesInAQuarter.Value) });
 
-                if (ExpectToHaveWagesInAQuarter.Value && !string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)) //6.43) // future period when employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
+                if (ExpectToHaveWagesInAQuarter.Value
+                    && !string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)
+                    && Enum.TryParse<FuturePayPeriod>(WhenExpectToHaveWagesInAQuarter, out var whenExpectToHaveWagesInAQuarterValue)) //6.43) // future period when employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.NP_XPCT_4_IN_20_WHN_TXT, _response = WhenExpectToHaveWagesInAQuarter });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.NP_XPCT_4_IN_20_WHN_TXT,
+                        _response = WhenExpectToHaveWagesInAQuarter,
+                        _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName()
+                    });
                 }
             }
         }
@@ -460,42 +459,39 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 HasFutaLiabilityInOtherStates = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasFutaLiabilityOutsideWisconsin.ReplyText);
             }
 
-            // duplicate questions?
-            //if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PAID_WI_WGE_FLG, out var hasPaidWagesInWisconsin)) // 6.11
-            //{
-            //    PaidWagesOrTaxesOver1500 = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasPaidWagesInWisconsin.ReplyText);
-
-            //    if (PaidWagesOrTaxesOver1500.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PD_1K_FLG, out var hasPaid1kWagesInWisconsin)) // 6.12
-            //    {
-            //        PaidWagesOrTaxesOver1500 = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasPaid1kWagesInWisconsin.ReplyText);
-            //    }
-            //}
-
             // (6.13) // expect to pay wisconsin wages
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PAID_WI_WGE_FLG, out var hasWisconsinWages))
             {
                 ExpectToPayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasWisconsinWages.ReplyText);
             }
 
-            // (6.14) // expect to pay 1k in a quarter
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_XPT_PY_1K_FLG, out var expectToPay1000InQuarter))
+            // (5.12) // have paid 1k in a quarter
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PD_1K_FLG, out var paid1kFlagValue))
             {
-                ExpectToPayWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToPay1000InQuarter.ReplyText);
+                PaidWagesOver1500Employees = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(paid1kFlagValue.ReplyText);
 
-                // (6.15) // when expect to pay 1k in a quarter
-                if (ExpectToPayWagesInAQuarter.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_XPT_PY_1K_WHN_TXT, out var whenExpectToPay1kInQuarter))
+                // (6.14) // expect to pay 1k in a quarter
+                if (!PaidWagesOver1500Employees.Value
+                    && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_XPT_PY_1K_FLG, out var expectToPay1000InQuarter))
                 {
-                    WhenExpectToPayWagesInAQuarter = whenExpectToPay1kInQuarter.ReplyText;
+                    ExpectToPayWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToPay1000InQuarter.ReplyText);
+
+                    // (6.15) // when expect to pay 1k in a quarter
+                    if (ExpectToPayWagesInAQuarter.Value
+                        && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_XPT_PY_1K_WHN_TXT, out var whenExpectToPay1kInQuarter))
+                    {
+                        WhenExpectToPayWagesInAQuarter = whenExpectToPay1kInQuarter.ReplyText;
+                    }
                 }
             }
         }
 
         if (BusinessCategory == Models.BusinessCategory.Agricultural)
         {
-            // (HasFutaLiabilityInOtherStatesOutsideWisconsin.HasValue)
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AG_FTA_LBTY_FLG, out var hasFutaLiabilityInStatesOutsideWisconsin2))
+            // (6.20) // has ag futa liability
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AG_FTA_LBTY_FLG, out var hasFutaLiabilityFlagValue))
             {
-                HasFutaLiabilityInOtherStatesOutsideWisconsin = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasFutaLiabilityInStatesOutsideWisconsin2.ReplyText);
+                HasFutaLiabilityInOtherStates = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasFutaLiabilityFlagValue.ReplyText);
             }
 
             // (6.21) // has paid futa ag wages in wisconsin
@@ -510,7 +506,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 ExpectToPayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToPayFutaWagesInWisconsin.ReplyText);
 
                 // (6.23) // when expect future futa ag wages in wisconsin
-                if (ExpectToPayWagesPerformWI.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, out var whenExpectFutreFutaAgWagesInWisconsin))
+                if (ExpectToPayWagesPerformWI.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var whenExpectFutreFutaAgWagesInWisconsin))
                 {
                     WhenExpectToPayWagesInAQuarter = whenExpectFutreFutaAgWagesInWisconsin.ReplyText;
                 }
@@ -544,13 +540,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.28) // ag expect to have at least 10 employees for 20 weeks in year
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_10_IN_20_FLG, out var expectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_PY_20K_FLG, out var expectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
             {
                 ExpectToHaveWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToHaveAtLeast10AgEmployeesFor20WeeksInYear.ReplyText);
             }
 
             // (6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AX_20K_10IN20_WHN_TXT, out var whenExpectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var whenExpectToHaveAtLeast10AgEmployeesFor20WeeksInYear))
             {
                 if (ExpectToPayWagesInAQuarter.HasValue && ExpectToPayWagesInAQuarter.Value)
                 {
@@ -565,23 +561,10 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory == Models.BusinessCategory.Commercial)
         {
-            // commercial employer with futa payroll outside wisconsin
-            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CFTA_LBTY_FLG, out var commercialEmployerHasFutaPayrollOutsideWisconsin))
-            {
-                HasFutaLiabilityInOtherStatesOutsideWisconsin = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasFutaPayrollOutsideWisconsin.ReplyText);
-            }
-
             // commercial employer has paid 1500 in quarter
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_PD_1500_FLG, out var commercialEmployerHasPaid1500InQuarter))
             {
-                if (HasFutaLiabilityInOtherStates == false)
-                {
-                    PaidWagesOrTaxesOver1500 = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
-                }
-                else
-                {
-                    PaidWagesOver1500Employees = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
-                }
+                PaidWagesOver1500Employees = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHasPaid1500InQuarter.ReplyText);
             }
 
             // (6.32) // commercial employer had at least one employee during 20 different weeks in year
@@ -592,7 +575,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
                 // (6.33) // date of end of 20th week of having one employee for 20 different weeks in year
                 if (HasEmployeeIn20Weeks.Value
-                    && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_1_IN_20_WK20_END_DT, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYear)
+                    && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.AG_10_IN_20_WK20_END_DT, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYear)
                     && DateTime.TryParse(when20thWeekWithOneCommercialEmployeeFor20WeeksInYear.ReplyText, out var when20thWeekWithOneCommercialEmployeeFor20WeeksInYearValue))
                 {
                     Week20EndDate = when20thWeekWithOneCommercialEmployeeFor20WeeksInYearValue;
@@ -625,7 +608,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit_Other or Models.BusinessCategory.NonProfit)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))
@@ -643,7 +626,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.42) // non profit employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
-            if ((BusinessCategory == Models.BusinessCategory.NonProfit_501c3 || BusinessCategory == Models.BusinessCategory.NonProfit_Other || BusinessCategory == Models.BusinessCategory.NonProfit)
+            if ((BusinessCategory == Models.BusinessCategory.NonProfit_501c3 || BusinessCategory == Models.BusinessCategory.NonProfit_Other)
                 && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_XPCT_4_IN_20_FLG, out var nonProfitExpects4EmployeesForSameDayIn20WeeksInYear))
             {
                 ExpectToHaveWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(nonProfitExpects4EmployeesForSameDayIn20WeeksInYear.ReplyText);
@@ -803,36 +786,18 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (!string.IsNullOrWhiteSpace(FinancialInstitution.AddressLine1))
         {
-            addresses.Add(Tuple.Create(RegistrationAddressCode.DFI_Received, FinancialInstitution));
+            FinancialInstitutionaddress.Name = FinancialInstitution.Name;
+            FinancialInstitutionaddress.Country = FinancialInstitution.Country;
+            FinancialInstitutionaddress.AddressLine1 = FinancialInstitution.AddressLine1;
+            FinancialInstitutionaddress.AddressLine2 = FinancialInstitution.AddressLine2;
+            FinancialInstitutionaddress.AddressLine3 = FinancialInstitution.AddressLine3;
+            FinancialInstitutionaddress.City = FinancialInstitution.City;
+            FinancialInstitutionaddress.State = FinancialInstitution.State;
+            FinancialInstitutionaddress.Zip = FinancialInstitution.Zip;
+            addresses.Add(Tuple.Create(RegistrationAddressCode.DFI_Received, FinancialInstitutionaddress));
         }
         return addresses;
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    public string AFL_XPCT_PY_WI_WGS_WHN_TXT { get; set; } = String.Empty;
-    /// <summary>
-    /// 
-    /// </summary>
-    public SubjectivityModel() { }
-    /// <summary>
-    /// Have you paid agricultural wages for work performed in Wisconsin?
-    /// (Visible when HasFutaLiabilityInOtherStates = Yes)
-    /// </summary>
-    public bool? PayWagesPerformWI { get; set; }
-    /// <summary>
-    /// Do you expect to pay agricultural wages for work in Wisconsin
-    /// </summary>
-    [RequiredIfVisibleAttribute("ExpectToPayWagesPerformWI", false, ErrorMessage = "When to pay wages for work in Wisconsin?")]
-    public bool? ExpectToPayWagesPerformWI { get; set; }
-    /// <summary>
-    /// NoFutaAggWages
-    /// </summary>
-    public bool? AX_10_IN_20_FLG { get; set; }
-    /// <summary>
-    /// NoFutaAggWages
-    /// </summary>
-    public bool? EmployePayagriculturalWages20k { get; set; }
 
     /// <inheritdoc/>
     public void LoadSurveyAddresses(RegistrationAddressProxy[] addresses)
@@ -840,7 +805,17 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         // fight need to load financial institution address
         if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
         {
-            FinancialInstitution = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(financialInstitutionAddress);
+            FinancialInstitutionaddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(financialInstitutionAddress);
+        }
+    }
+
+    /// <inheritdoc/>
+    public void PutAddressSKs(RegistrationAddressProxy[] addresses)
+    {
+        if (FinancialInstitution != null
+            && IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
+        {
+            FinancialInstitution.RegistrationAddressSk = financialInstitutionAddress.EmployerRegistrationAddressSK;
         }
     }
 }

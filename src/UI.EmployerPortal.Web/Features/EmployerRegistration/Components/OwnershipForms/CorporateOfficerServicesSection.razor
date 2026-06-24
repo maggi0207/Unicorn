@@ -1,0 +1,230 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+
+<div class="corporate-officer-services-section">
+    <p>
+        You indicated that your business has not paid employees and does not expect to pay employees.
+    </p>
+    <p>
+        Our experience indicates that the officers of corporations and members of LLCs taxed as
+        corporations are often unfamiliar with the Wisconsin Unemployment Insurance law as it
+        applies to wages of corporate officers. Members of LLCs that are taxed as corporations are
+        treated as corporate officers.
+    </p>
+
+    <ul class="info-list">
+        <li>
+            A corporate officer who provides any services to the corporation is an employee of that
+            corporation.
+        </li>
+        <li>
+            Paid corporate officers must be included in any employee count for reporting under this
+            statute, even though they may be controlling stockholders, or their salaries may be on
+            an accrual basis.
+        </li>
+        <li>
+            A corporate officer who receives any &ldquo;wages&rdquo; during the year is considered to be in
+            employment in each week of the year in which the corporation was active. Wages include
+            salary, draw, accrual and any advantage received from the corporation.
+        </li>
+        <li>
+            If a corporate officer performs services for a subchapter S corporation, wages also
+            include distributions to officers who perform services, and if there are no other wages,
+            the value of the services they perform.
+        </li>
+    </ul>
+
+    <p>
+        If the officers have received any compensation, that compensation must be included as wages
+        on your registration. Those wages must be reported even if you expect to apply for a
+        corporate officer exclusion to exclude officer wages from the payment of state Unemployment
+        Insurance taxes.
+    </p>
+
+    <!-- Officers Perform Services Question -->
+    <div id="officers-perform-services-group"
+         class="@(_showAllErrors && _invalidFields.Contains("OfficersPerformServices") ? "master-text-field--error" : "")">
+        <p id="officers-perform-services-group-label"><strong>Do corporate officers perform services or plan to perform services in Wisconsin?</strong></p>        
+        @if (_showAllErrors && _invalidFields.Contains("OfficersPerformServices"))
+        {   
+            <ValidationError ErrorMessage="Please select an option" />
+        }
+        <RadioGroup TValue="bool?"
+                    LabelledById="officers-perform-services-group-label"
+                    Value="Model.OfficersPerformServices"
+                    ValueChanged="OnOfficersPerformServicesChanged"
+                    ValueExpression="() => Model.OfficersPerformServices"
+                    CSS="@(_showAllErrors && _invalidFields.Contains("OfficersPerformServices") ? "invalid" : "valid")"
+                    Options="@YesNoRadioOptions" />
+    </div>
+    <br />
+    <!-- Conditional fields when Yes is selected -->
+    @if (Model.OfficersPerformServices == true)
+    {
+        <div class="officer-services-details">
+            <!-- Approximate Pay Date -->
+            <p id="approximate-pay-date-hint">If the officers have not been paid yet, please give us the approximate date they will be paid.</p>
+            <ValidatedDateInput Id="approximate-pay-date"
+                                Label="Approximate date"
+                                Value="@(Model.ApproximatePayDate?.ToDateTime(TimeOnly.MinValue))"
+                                ValueChanged="OnApproximatePayDateChanged"
+                                Min="@DateTime.Today.AddDays(1)"
+                                Width="410"
+                                HintId="approximate-pay-date-hint"
+                                HasError="@(_invalidFields.Contains("ApproximatePayDate"))"
+                                ErrorMessage="@_fieldErrors.GetValueOrDefault("ApproximatePayDate")"
+                                OnBlur="@(() => ValidateSection())"
+                                Visible="_showAllErrors"/>
+            
+            <!-- No Pay Explanation -->
+            <ValidatedTextArea Id="no-pay-explanation"
+                               Label="If you do not expect the officers to be paid, please explain:"
+                               Value="@(Model.NoPayExplanation)"
+                               ValueChanged="OnNoPayExplanationChanged"
+                               Rows="3"
+                               HasError="@(_invalidFields.Contains("NoPayExplanation"))"
+                               ErrorMessage="@_fieldErrors.GetValueOrDefault("NoPayExplanation")"
+                               OnKeyUp="@(() => ValidateSection())"
+                               OnBlur="@(() => ValidateSection())"
+                               HintId="no-pay-explanation"
+                               Visible="_showAllErrors" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public CorporateOfficerServicesModel Model { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<CorporateOfficerServicesModel> OnDataChanged { get; set; }
+
+    [Parameter]
+    public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
+
+    private static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions =
+    [
+        new RadioOption<bool?> { Value = true, Label = "Yes" },
+        new RadioOption<bool?> { Value = false, Label = "No" }
+    ];
+
+    private HashSet<string> _invalidFields = [];
+    private Dictionary<string, string> _fieldErrors = [];
+    private List<ValidationItem> _validationItems = [];
+    private bool _showAllErrors;
+    private EditContext _editContext = default!;
+    private CorporateOfficerServicesModel? _previousModel;
+
+    // protected override void OnInitialized()
+    // {
+    //     RegisterValidate?.Invoke(() =>
+    //     {
+    //         _showAllErrors = true;
+    //         return ValidateSection();
+    //     });
+    // }
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(Model, _previousModel))
+        {
+            _previousModel = Model;
+            _editContext = new EditContext(Model);
+            _showAllErrors = false;
+            _invalidFields.Clear();
+            _fieldErrors.Clear();
+            _validationItems.Clear();
+        }
+        RegisterValidate?.Invoke(() =>
+        {
+            _showAllErrors = true;
+            return ValidateSection();
+        });
+    }
+
+    private void OnOfficersPerformServicesChanged(bool? value)
+    {
+        Model.OfficersPerformServices = value;
+
+        // Reset child fields when toggled to No
+        if (value != true)
+        {
+            Model.ApproximatePayDate = null;
+            Model.NoPayExplanation = string.Empty;
+        }
+
+        NotifyDataChanged();
+    }
+
+    private void OnApproximatePayDateChanged(DateTime? value)
+    {
+        Model.ApproximatePayDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDataChanged();
+    }
+
+    private void OnNoPayExplanationChanged(string value)
+    {
+        Model.NoPayExplanation = value;
+        NotifyDataChanged();
+    }
+
+    /// <summary>
+    /// Validates the section and returns validation items for the parent to aggregate.
+    /// </summary>
+    public List<ValidationItem> ValidateSection()
+    {
+        _invalidFields.Clear();
+        _fieldErrors.Clear();
+        _validationItems.Clear();
+
+        if (Model.OfficersPerformServices is null)
+        {
+            _invalidFields.Add("OfficersPerformServices");
+            _validationItems.Add(new ValidationItem(
+                "Please select whether corporate officers perform services in Wisconsin",
+                "officers-perform-services-group"));
+        }
+
+        if (Model.OfficersPerformServices == true)
+        {
+            var hasDate = Model.ApproximatePayDate.HasValue;
+            var hasExplaination = !string.IsNullOrWhiteSpace(Model.NoPayExplanation);
+
+            if (!hasDate && !hasExplaination)
+            {
+                _invalidFields.Add("ApproximatePayDate");
+                _fieldErrors["ApproximatePayDate"] = "Please provide an approximate pay date or no-pay explaination";
+
+                _invalidFields.Add("NoPayExplanation");
+                _fieldErrors["NoPayExplanation"] = "Please provide an approximate no-pay explaination or pay date";
+
+                _validationItems.Add(new ValidationItem(
+                    "Please provide an approximate pay date or an explaination if officer will not be paid",
+                    "approximate-pay-date"));
+            }
+            else if (hasDate && Model.ApproximatePayDate!.Value <= DateOnly.FromDateTime(DateTime.Today))
+            {
+                _invalidFields.Add("ApproximatePayDate");
+                _fieldErrors["ApproximatePayDate"] = "Approximate pay date must be a future date.";
+                _validationItems.Add(new ValidationItem(
+                    "Approximate pay date must be a future date.",
+                    "approximate-pay-date"));
+            }
+        }
+
+        StateHasChanged();
+        return _validationItems;
+    }
+
+    private void NotifyDataChanged()
+    {
+        if (_showAllErrors)
+        {
+            ValidateSection();
+        }
+
+        _ = OnDataChanged.InvokeAsync(Model);
+    }
+}

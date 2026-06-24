@@ -1,0 +1,438 @@
+@using System.ComponentModel.DataAnnotations
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+<div class="member-based-section">
+    @if (Config.RequiresState)
+    {
+        <StateSelect Id="registration-state"
+                     Label="@Config.StateLabel"
+                     Value="@RegistrationState"
+                     ValueChanged="StateChanged"
+                     HasError="@FieldErrors.ContainsKey("RegistrationState")"
+                     ErrorMessage="Registration State is required"
+                     CssClass="form-select-medium"
+                     Visible="_showAllErrors"
+                     OnBlur="@(() => ValidateForm())" />
+    }
+
+    <!-- Owner Information Section -->
+    <div class="owner-info-section">
+        <h2 class="section-subtitle">@Config.Header</h2>
+
+        @for (int i = 0; i < Members.Count; i++)
+        {
+            var index = i;
+            var member = Members[index];
+
+            <div class="member-card">
+                <h3 class="member-title">@member.Role</h3>
+
+                <div class="member-fields">
+                    <!-- First Name -->
+                    <ValidatedInput Id="@($"first-name-{index}")"
+                                    Label="First Name"
+                                    Value="@member.FirstName"
+                                    ValueChanged="@(v => member.FirstName = v)"
+                                    MaxLength="64"
+                                    Width="106"
+                                    HasError="@FieldErrors.ContainsKey($"Member{index}_FirstName")"
+                                    ErrorMessage="First Name is required"
+                                    Visible="_showAllErrors"
+                                    OnKeyUp="@(() => ValidateForm())"
+                                    OnBlur="@(() => ValidateForm())" />
+
+                    <!-- Middle Initial -->
+                    <ValidatedInput Id="@($"middle-initial-{index}")"
+                                    Label="Middle Initial"
+                                    Value="@member.MiddleInitial"
+                                    ValueChanged="@(v => member.MiddleInitial = v)"
+                                    MaxLength="1"
+                                    Width="114" />
+
+                    <!-- Last Name -->
+                    <ValidatedInput Id="@($"last-name-{index}")"
+                                    Label="Last Name"
+                                    Value="@member.LastName"
+                                    ValueChanged="@(v => member.LastName = v)"  
+                                    MaxLength="64"
+                                    Width="103"
+                                    HasError="@FieldErrors.ContainsKey($"Member{index}_LastName")"
+                                    ErrorMessage="Last Name is required"
+                                    Visible="_showAllErrors"
+                                    OnKeyUp="@(() => ValidateForm())"
+                                    OnBlur="@(() => ValidateForm())" />
+
+                    <SSNInput Id="@($"ssn-{index}")"
+                              Label="SSN"
+                              Value="@member.SSN"
+                              ValueChanged="@((string value) => OnSSNChanged(index, value))"
+                              IsFocused="@member.IsSSNFocused"
+                              IsFocusedChanged="@((bool focused) => OnSSNFocusChanged(index, focused))"
+                              IsRequired="true"
+                              Width="175"
+                              HasError="@FieldErrors.ContainsKey($"Member{index}_SSN")"
+                              ErrorMessage="@FieldErrors.GetValueOrDefault($"Member{index}_SSN")"
+                              Visible="_showAllErrors"
+                              OnKeyUp="@(() => ValidateForm())"
+                              OnBlur="@(() => ValidateForm())" />
+
+                    <!-- Ownership Percentage -->
+                    <ValidatedInput Id="@($"ownership-percentage-{index}")"
+                                    Label="Ownership (%)"
+                                    InputType="number"
+                                    Value="@(member.OwnershipPercentage?.ToString())"
+                                    ValueChanged="@(v => member.OwnershipPercentage = decimal.TryParse(v, out var n) ? n : null)"
+                                    Min="0"
+                                    Max="100"
+                                    NoDecimals="true"
+                                    MaxLength="3"
+                                    Width="130"
+                                    HasError="@FieldErrors.ContainsKey($"Member{index}_OwnershipPercentage")"
+                                    ErrorMessage="@FieldErrors.GetValueOrDefault($"Member{index}_OwnershipPercentage")"
+                                    Visible="_showAllErrors"
+                                    OnKeyUp="@(() => ValidateForm())"
+                                    OnBlur="@(() => ValidateForm())" />
+                </div>
+            </div>
+        }
+
+        <br/>
+        <div id="more-than-five-group" class="@(_showAllErrors && InvalidFields.Contains("MoreThanFive") ? "master-text-field--error" : "")">
+            <p  id="more-than-five-group-label">More than five?</p>
+            
+            @if (_showAllErrors && InvalidFields.Contains("MoreThanFive"))
+            {
+                <ValidationError ErrorMessage="Please select an option" />
+            }
+            <RadioGroup TValue="bool?"
+                        LabelledById="more-than-five-group-label"
+                        Value="MoreThanFive"
+                        ValueChanged="OnMoreThanFiveChanged"
+                        ValueExpression="@(() => MoreThanFive)"
+                        Options="@YesNoRadioOptions"
+                        CSS="@(_showAllErrors && InvalidFields.Contains("MoreThanFive") ? "invalid" : "valid")"/>            
+        </div>
+        <br />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public OwnershipFormConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<MemberBasedFormData> OnDataChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<List<ValidationItem>> OnValidationChanged { get; set; }
+
+    [Parameter]
+    public object? SavedData { get; set; }
+
+    [Parameter]
+    public OwnershipSessionData ContinueData { get; set; } = default!;
+
+    [Parameter]
+    public Action<Func<List<string>>>? RegisterValidate { get; set; }
+
+    private string RegistrationState { get; set; } = string.Empty;    
+    private bool? MoreThanFive { get; set; } = false;
+    private List<OwnerMember> Members { get; set; } = [];
+    private List<string> ValidationErrors { get; set; } = [];
+    private List<ValidationItem> _validationItems { get; set; } = [];
+    private HashSet<string> InvalidFields { get; set; } = [];
+    private Dictionary<string, string> FieldErrors { get; set; } = [];
+    private bool _dataRestored;
+    private bool _showAllErrors;
+    
+    protected override void OnInitialized()
+    {
+        InitializeMembers();
+        RestoreFromContinueData();
+        RegisterValidate?.Invoke(() => { _showAllErrors = true; ValidateForm(); return ValidationErrors; });
+    }
+
+    private void RestoreFromContinueData()
+    {
+        if (_dataRestored || ContinueData == null)
+        {
+            return;
+        }
+
+        try
+        {
+            RegistrationState = ContinueData.RegistrationState ?? string.Empty;
+            MoreThanFive = ContinueData.MoreThanFive;
+
+            if (ContinueData.Members is { Count: > 0 })
+            {
+                Members.Clear();
+                foreach (var savedMember in ContinueData.Members)
+                {
+                    Members.Add(new OwnerMember
+                    {
+                        Role = savedMember.Role,
+                        FirstName = savedMember.FirstName,
+                        MiddleInitial = savedMember.MiddleInitial,
+                        LastName = savedMember.LastName,
+                        SSN = savedMember.SSN,
+                        OwnershipPercentage = savedMember.OwnershipPercentage
+                    });
+                }
+            }
+
+            _dataRestored = true;
+        }
+        catch
+        {
+            // Failed to restore, continue with defaults
+        }
+    }
+
+    private void InitializeMembers()
+    {
+        if (Members.Count > 0)
+        {
+            return;
+        }
+
+        Members.Clear();
+        for (var i = 1; i <= Config.MaxEntries; i++)
+        {
+            Members.Add(new OwnerMember { Role = $"{Config.MemberLabel} {i}" });
+        }
+    }
+
+    private void StateChanged(string value)
+    {
+        RegistrationState = value;
+        ValidateForm();
+    }
+
+    private void OnSSNChanged(int index, string value)
+    {
+        if (index >= 0 && index < Members.Count)
+        {
+            Members[index].SSN = value;
+            ValidateForm();
+        }
+    }
+
+    private void OnSSNFocusChanged(int index, bool focused)
+    {
+        if (index >= 0 && index < Members.Count)
+        {
+            Members[index].IsSSNFocused = focused;
+        }
+    }
+
+    private void OnMoreThanFiveChanged(bool? value)
+    {
+        MoreThanFive = value;
+        ValidateForm();
+    }
+
+    private static string GetElementId(string fieldKey)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(
+            fieldKey, @"^Member(\d+)_(\w+)$"
+        );
+
+        if (match.Success)
+        {
+            var idx = match.Groups[1].Value;
+            return match.Groups[2].Value switch
+            {
+                "FirstName" => $"first-name-{idx}",
+                "LastName" => $"last-name-{idx}",
+                "SSN" => $"ssn-{idx}",
+                "OwnershipPercentage" => $"ownership-percentage-{idx}",
+                _ => string.Empty
+            };
+        }
+
+        return fieldKey switch
+        {
+            "RegistrationState" => "registration-state",
+            "MoreThanFive" => "more-than-five-group",
+            _ => string.Empty
+        };
+    }
+
+    private void AddFieldError(string fieldKey, string message)
+    {
+        var elementId = GetElementId(fieldKey);
+        _validationItems.Add(new ValidationItem(message, elementId));
+        ValidationErrors.Add(message);
+        InvalidFields.Add(fieldKey);
+        FieldErrors[fieldKey] = message;
+    }
+
+    private void ValidateForm()
+    {
+        ValidationErrors.Clear();
+        _validationItems.Clear();
+        InvalidFields.Clear();
+        FieldErrors.Clear();
+
+        // Validate Registration State if required
+        if (Config.RequiresState && string.IsNullOrWhiteSpace(RegistrationState))
+        {
+            AddFieldError("RegistrationState", $"{Config.StateLabel} is required");
+        }
+
+        // Validate each member — use member.Role directly as the label
+        for (var i = 0; i < Members.Count; i++)
+        {
+            var member = Members[i];
+
+            var hasAnyValue = !string.IsNullOrWhiteSpace(member.FirstName) ||
+                             !string.IsNullOrWhiteSpace(member.MiddleInitial) ||
+                             !string.IsNullOrWhiteSpace(member.LastName) ||
+                             !string.IsNullOrWhiteSpace(member.SSN) ||
+                             member.OwnershipPercentage.HasValue;
+
+            if (i == 0 || hasAnyValue)
+            {
+                if (string.IsNullOrWhiteSpace(member.FirstName))
+                {
+                    AddFieldError($"Member{i}_FirstName", $"{member.Role} First Name is required");
+                }
+                else if (member.FirstName.Length > 64)
+                {
+                    AddFieldError($"Member{i}_FirstName", $"{member.Role} First Name must not exceed 64 characters");
+                }
+
+                if (string.IsNullOrWhiteSpace(member.LastName))
+                {
+                    AddFieldError($"Member{i}_LastName", $"{member.Role} Last Name is required");
+                }
+                else if (member.LastName.Length > 64)
+                {
+                    AddFieldError($"Member{i}_LastName", $"{member.Role} Last Name must not exceed 64 characters");
+                }
+
+                if (!string.IsNullOrWhiteSpace(member.SSN))
+                {
+                    var ssnResult = SSNInput.ValidateSSN(member.SSN, member.Role);
+                    if (ssnResult != null && !ssnResult.IsValid)
+                    {
+                        AddFieldError($"Member{i}_SSN", ssnResult.ErrorMessage);
+                    }
+                }
+                else
+                {
+                    AddFieldError($"Member{i}_SSN", $"{member.Role} SSN is required");
+                }
+
+                // Ownership Percentage: 0 – 100.00, max 2 decimal places
+                if (member.OwnershipPercentage.HasValue)
+                {
+                    if (member.OwnershipPercentage < 0 || member.OwnershipPercentage > 100)
+                    {
+                        AddFieldError($"Member{i}_OwnershipPercentage", $"{member.Role} Ownership Percentage must be between 0 and 100.00");
+                    }
+                    else if (decimal.Round(member.OwnershipPercentage.Value, 2) != member.OwnershipPercentage.Value)
+                    {
+                        AddFieldError($"Member{i}_OwnershipPercentage", $"{member.Role} Ownership Percentage must not exceed 2 decimal places");
+                    }
+                }
+            }
+        }
+
+        // Total must equal exactly 100.00 — use Math.Round to avoid floating-point drift
+        var totalPercentage = Members
+            .Where(m => m.OwnershipPercentage.HasValue)
+            .Sum(m => m.OwnershipPercentage!.Value);
+
+        if (totalPercentage > 0 && Math.Round(totalPercentage, 2) > 100)
+        {
+            var msg = "Total Ownership Percentage must not exceed 100";
+            var firstIdx = Members.FindIndex(m => m.OwnershipPercentage.HasValue);
+            var elementId = firstIdx >= 0 ? $"ownership-percentage-{firstIdx}" : string.Empty;
+            _validationItems.Add(new ValidationItem(msg, elementId));
+            ValidationErrors.Add(msg);
+            for (var i = 0; i < Members.Count; i++)
+            {
+                if (Members[i].OwnershipPercentage.HasValue)
+                {
+                    InvalidFields.Add($"Member{i}_OwnershipPercentage");
+                    FieldErrors.TryAdd($"Member{i}_OwnershipPercentage", msg);
+                }
+            }
+        }
+
+        // Check for duplicate SSNs
+        var ssnList = Members.Select(m => (string?)m.SSN).ToList();
+        var duplicateErrors = SSNInput.FindDuplicateSSNs(ssnList, i => Members[i].Role);
+
+        if (duplicateErrors != null && duplicateErrors.Count > 0)
+        {
+            var ssnGroups = Members
+                .Select((m, idx) => new { SSN = m.SSN, Index = idx })
+                .Where(x => !string.IsNullOrWhiteSpace(x.SSN))
+                .GroupBy(x => new string(x.SSN!.Where(char.IsDigit).ToArray()))
+                .Where(g => g.Count() > 1);
+
+            foreach (var group in ssnGroups)
+            {
+                var dupMsg = $"Duplicate SSN found for: {string.Join(", ", group.Select(x => Members[x.Index].Role))}";
+                var firstItem = group.First();
+                var elementId = $"ssn-{firstItem.Index}";
+                _validationItems.Add(new ValidationItem(dupMsg, elementId));
+                ValidationErrors.Add(dupMsg);
+                foreach (var item in group)
+                {
+                    InvalidFields.Add($"Member{item.Index}_SSN");
+                    FieldErrors.TryAdd($"Member{item.Index}_SSN", dupMsg);
+                }
+            }
+        }
+
+        // Validate "More than five?" selection
+        if (MoreThanFive == null)
+        {
+            _validationItems.Add(new ValidationItem("More than five? selection is required", "more-than-five-group"));
+            ValidationErrors.Add("More than five? selection is required");
+            InvalidFields.Add("MoreThanFive");
+        }
+
+        _ = OnValidationChanged.InvokeAsync(_validationItems);
+        NotifyDataChanged();
+        StateHasChanged();
+    }
+
+    private void NotifyDataChanged()
+    {
+        var formData = new MemberBasedFormData
+        {
+            RegistrationState = RegistrationState,
+            Members = Members.Select(m => new OwnerMember
+            {
+                Role = m.Role,
+                FirstName = m.FirstName,
+                MiddleInitial = m.MiddleInitial,
+                LastName = m.LastName,
+                SSN = m.SSN,
+                OwnershipPercentage = m.OwnershipPercentage
+            }).ToList(),
+            MoreThanFive = MoreThanFive
+        };
+
+        _ = OnDataChanged.InvokeAsync(formData);
+    }
+
+    private string GetFieldCssClass(string fieldName)
+    {
+        return InvalidFields.Contains(fieldName) ? "input-validation-error" : string.Empty;
+    }
+
+    public static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions = new[]
+    {
+      new RadioOption<bool?> {Value =true, Label = "Yes"},
+      new RadioOption<bool?> {Value =false, Label = "No"}
+    };
+
+}

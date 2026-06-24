@@ -70,6 +70,7 @@
                     <FieldError For="@(() => Model.IsDifferentAddress)"
                                 Visible="@formSubmitted" />
                     <RadioGroup TValue="bool?"
+                                LabelledById="IsDifferentAddress"
                                 Value="Model.IsDifferentAddress"
                                 ValueChanged="OnAddressChoiceChanged"
                                 ValueExpression="() => Model.IsDifferentAddress"
@@ -84,8 +85,7 @@
                     <span>Business Contact Address</span>
                 </div>
 
-                <AddressField Legend="Business Contact Address"
-                              Address="Model.ContactAddress"
+                <AddressField Address="Model.ContactAddress" Legend="Business Contact Address"
                               Visible="@IsAddressVisible(Model.ContactAddress)" />
             }
         </EditForm>
@@ -192,7 +192,6 @@
             var redirected = await AddressCoordinator.ValidateAndRedirectAsync(
                 [("Business Contact Address", Model.ContactAddress)],
                 editStep: 4,
-                postCorrectionStep: 5,
                 onBeforeNavigate: () => RegistrationState.ContactInfo = Model);
 
             if (!redirected)
@@ -314,7 +313,8 @@
                     ValidationErrors.Add(result.ErrorMessage ?? "");
                     ValidationFieldIds.Add(memberName);
                 }
-                else{
+                else
+                {
                     ValidationErrors.Remove(result.ErrorMessage ?? "");
                     ValidationFieldIds.Remove(memberName);
                 }

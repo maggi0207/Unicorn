@@ -1,5 +1,4 @@
 using UI.EmployerPortal.Razor.SharedComponents.Model;
-
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 /// <summary>

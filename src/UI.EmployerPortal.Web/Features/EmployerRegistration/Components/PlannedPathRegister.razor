@@ -1,0 +1,24 @@
+@if (_allEmployerRegisterAccount == null)
+{
+    <p><em>Loading...</em></p>
+}   else
+    {
+      
+            @foreach (var item in _allEmployerRegisterAccount)
+            {
+             @if(!string.IsNullOrEmpty(item.UIAccountNumber)){
+                <li style="list-style-type: none;font-weight:bold;font-size:20px;text-align:center">
+                    Wisconsin Unemployment Insurance Account Number: <br />
+                </li>                  
+                   <li style="list-style-type: none;font-weight:bold;font-size:25px;text-align:center; color:#003663">
+                       @item.UIAccountNumber
+                </li>                
+                <li style="list-style-type: none;font-weight:bold;font-size:20px;text-align:center">
+                    Registration Number:<br />
+                </li>
+                <li style="list-style-type: none;font-weight:bold;font-size:25px;text-align:center;color:#003663">
+                @item.SuitesAccountNumber</li>
+            }
+            }
+
+    }

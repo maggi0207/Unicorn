@@ -217,18 +217,15 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 4px;
-    opacity: 0.7;
-}
-
-.ui-radio-locked-option input[type="radio"]:disabled {
-    accent-color: #555555;
-    cursor: not-allowed;
+    background-color: white;
+    color: rgba(122, 122, 122, 0.4);
 }
 
 .ui-radio-locked-label {
     font-family: Verdana, sans-serif;
     font-size: 16px;
-    color: #555555;
+    background-color: white;
+    color: rgba(122, 122, 122, 0.4);
     cursor: not-allowed;
 }
 

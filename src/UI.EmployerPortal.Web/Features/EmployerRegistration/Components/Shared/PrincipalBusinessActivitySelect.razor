@@ -1,0 +1,124 @@
+@using System.Linq.Expressions
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="form-group master-text-field-full @(ShowError ? "master-text-field--error" : "")"
+    @onfocusout="HandleBlur">
+    <label for="@Id" class="form-label @(ShowError ? "master-label--error" : "")">
+        @Label
+    </label>
+    <InputSelect id="@Id"
+                 class="@GetCssClass()"
+                 @bind-Value="Value"
+                 @bind-Value:after="OnValueChanged"
+                 aria-label="@Label"
+                 aria-invalid="@HasError"
+                 aria-required="@IsRequired"
+                 aria-describedby="@AriaDescribedBy"
+                 disabled="@Disabled">
+        <option value="@PrincipalBusinessActivityType.None">-- Select Principal Business Activity --</option>
+        @foreach (var activity in GetAllActivities())
+        {
+            <option value="@activity">@activity.GetDisplayName()</option>
+        }
+    </InputSelect>
+
+    @if (ShowError && !string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <ValidationError ErrorMessage="@ErrorMessage" ErrorId="@ErrorId" />
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [Parameter] public string Id { get; set; } = "principal-activity";
+    [Parameter] public string Label { get; set; } = "Principal Business Activity";
+    [Parameter] public PrincipalBusinessActivityType Value { get; set; } = PrincipalBusinessActivityType.None;
+    [Parameter] public EventCallback<PrincipalBusinessActivityType> ValueChanged { get; set; }
+    [Parameter] public Expression<Func<PrincipalBusinessActivityType>>? ValueExpression { get; set; }
+    [Parameter] public bool IsRequired { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public string CssClass { get; set; } = string.Empty;
+
+    /// <summary>When true, applies error styling to the select element.</summary>
+    [Parameter] public bool HasError { get; set; } = false;
+
+    /// <summary>Error message displayed below the select when HasError is true.</summary>
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    /// <summary>Visible the input error when true.</summary>
+    [Parameter] public bool Visible { get; set; }
+
+    /// <summary> Hint Id</summary>
+    [Parameter] public string? HintId { get; set; }
+
+    private bool Touched;
+
+    private bool ShowError => (Touched || Visible) && HasError;
+
+    private string ErrorId => $"{Id}-error";
+
+    private string? AriaDescribedBy
+    {
+        get
+        {
+            var ids = new List<string>();
+            if (!string.IsNullOrWhiteSpace(HintId))
+            {
+                ids.Add(HintId!);
+            }
+            if (ShowError && !string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                ids.Add(ErrorId);
+            }
+            return ids.Count > 0 ? string.Join(" ", ids) : null;
+        }
+    }
+
+    private void HandleBlur()
+    {
+        Touched = true;
+    }
+
+    private async Task OnValueChanged()
+    {
+        Touched = true;
+        await ValueChanged.InvokeAsync(Value);
+
+        if (EditContext != null && ValueExpression != null)
+        {
+            var field = FieldIdentifier.Create(ValueExpression);
+            EditContext.NotifyFieldChanged(field);
+        }
+    }
+
+    private IEnumerable<PrincipalBusinessActivityType> GetAllActivities()
+    {
+        return Enum.GetValues<PrincipalBusinessActivityType>()
+            .Where(a => a != PrincipalBusinessActivityType.None)
+            .OrderBy(a => a.GetDisplayName());
+    }
+
+    private string GetCssClass()
+    {
+        var cssClass = $"form-control {CssClass}";
+
+        if (ShowError)
+        {
+            cssClass += " master-input--error";
+        }
+        else if (EditContext != null && ValueExpression != null)
+        {
+            var fieldIdentifier = FieldIdentifier.Create(ValueExpression);
+            if (EditContext.GetValidationMessages(fieldIdentifier).Any())
+                cssClass += " invalid";
+            else if (EditContext.IsModified(fieldIdentifier))
+                cssClass += " valid";
+        }
+
+        return cssClass.Trim();
+    }
+}

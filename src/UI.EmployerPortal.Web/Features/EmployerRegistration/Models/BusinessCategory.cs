@@ -1,26 +1,51 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 /// <summary>
-/// Represents the business category selected by the employer during the
-/// Unemployment Insurance Subjectivity step of registration.
+/// Business Category enumeration
 /// </summary>
 public enum BusinessCategory
 {
-    /// <summary>No category has been selected yet.</summary>
+    /// <summary>
+    /// None
+    /// </summary>
+    [Display(Name = "Unknown")]
     Unknown = 0,
 
-    /// <summary>A standard for-profit commercial business.</summary>
-    Commercial,
+    /// <summary>
+    /// 
+    /// </summary>
+    [Display(Name = "Agricultural (Farming)")]
+    Agricultural = 1,
 
-    /// <summary>Domestic household employer (e.g. in a private home).</summary>
-    Domestic,
+    /// <summary>
+    /// 
+    /// </summary>
+    [Display(Name = "Non-Profit")]
+    NonProfit = 2,
 
-    /// <summary>Agricultural or farming operation.</summary>
-    Agricultural,
+    /// <summary>
+    /// 
+    /// </summary>
+    [Display(Name = "Domestic (in a private home)")]
+    Domestic = 3,
 
-    /// <summary>Non-profit organization with a 501(c)(3) ruling from the IRS.</summary>
-    NonProfit_501c3,
+    /// <summary>
+    ///
+    /// </summary>
+    [Display(Name = "Commercial")]
+    Commercial = 4,
 
-    /// <summary>Non-profit organization without a 501(c)(3) ruling.</summary>
-    NonProfit_Other,
+    /// <summary>
+    /// 
+    /// </summary>
+    [Display(Name = "Non-Prtofit with 501(c)(3) Ruling from IRS")]
+    NonProfit_501c3 = 5,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Display(Name = "Non-Profit (other)")]
+    NonProfit_Other = 6,
 }

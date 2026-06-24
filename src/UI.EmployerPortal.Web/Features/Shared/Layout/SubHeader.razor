@@ -1,0 +1,234 @@
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Landing
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using UI.EmployerPortal.Web.Features.Shared.Layout.Components
+@inject ILayoutOrchestator LayoutOrchestator
+@inject ILandingOrchestrator LandingOrchestrator
+@inject ISessionManager SessionManager
+@inject IEmployerAccountService EmployerAccountService
+@inject NavigationManager NavigationManager
+
+<div class="nav-bar">
+    @if (ShowPortalHome)
+    {
+        <div class="nav-item">
+            <a href="" class="portal-border @(IsPortalHome ? "active" : null)" @onclick="OnPortalHomeclicked" @onclick:preventDefault="true">
+                <img src="@Assets["icons/home.svg"]" alt="Home" class="home-icon"/> <strong class="portal-lnk-title" >Portal Home</strong>
+            </a>
+        </div>
+    }
+    @if (ShowDashboardLink)
+    {
+        <div class="nav-item border-space">
+            <a class="portal-border @(IsEmployerDashboard ? "active" : null)" href="" @onclick="OnEmployerDashboardclicked" @onclick:preventDefault="true">
+                <img src="@Assets["icons/dashboard.svg"]" alt="Employer Dashboard" class="home-icon" /> <strong class="employer-lnk-title" >Employer Dashboard</strong>
+            </a>
+        </div>
+    }
+    <div class="d-flex ms-auto">
+        @if (ShowDropdown)
+        {
+            <BoldDropdown TItem="EmployerAccount"
+                          Items="_allEmployerAccounts"
+                          FirstLabel="ea => FormatUIAccountNo(ea.UIAccountNo)"
+                          SecondLabel="ea => ea.LegalName"
+                          Placeholder="@selectedText"
+                          DefaultOptionLabel="@defaultDropdownText"
+                          Value = "@_selectedEmployerAccount"
+                          OnChangeText="OnItemSelectedAsync">
+            </BoldDropdown>
+        }
+
+        @if (ShowRegistrationLinks)
+        {
+            <a href="" @onclick="@(() => OnHeaderLinkClicked("NewAccount"))" @onclick:preventDefault="true" class="nav-link me-3"><strong>Apply for a New UI Account</strong></a>
+            <a href="" @onclick="@(() => OnHeaderLinkClicked("UpdateRegistration"))" @onclick:preventDefault="true" class="nav-link me-3"><strong>Update Existing Registration</strong></a>
+            <a href="" @onclick="@(() => OnHeaderLinkClicked("GetAccountAccess"))" @onclick:preventDefault="true" class="nav-link me-3"><strong>Get Account Access </strong></a>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool showEmployerNavigation { get; set; } = false;
+
+    [Parameter]
+    public bool IsLandingPage { get; set; } = false;
+
+    [Parameter]
+    public bool IsDashboardPage { get; set; } = false;
+
+    public bool isGuestAccount { get; set; } = true;
+
+    /// <summary>
+    /// Show registration links: always on landing page, or on dashboard where guest with no accounts.
+    /// </summary>
+    private bool ShowRegistrationLinks => IsLandingPage || (IsDashboardPage && isGuestAccount && _allEmployerAccounts.Count == 0);
+
+    /// <summary>
+    /// Show the employer dropdown: when employer navigation is active and notshowing registration links.
+    /// </summary>
+    private bool ShowDropdown => showEmployerNavigation && !ShowRegistrationLinks;
+
+    /// <summary>
+    /// Show Portal Home: hidden only for guest with no accounts.
+    /// </summary>
+    private bool ShowPortalHome => !(isGuestAccount && _allEmployerAccounts.Count == 0);
+
+    /// <summary>
+    /// Show Employer dashboard link: when employer navigation is active, or on dashboard pages.
+    /// </summary>
+    private bool ShowDashboardLink => (showEmployerNavigation || IsDashboardPage) && !IsLandingPage;
+
+    private List<EmployerAccount> _allEmployerAccounts = [];
+
+    private string selectedText = string.Empty;
+
+    private string defaultDropdownText = "Guest Access Dashboard";
+
+    private string selectedEmployerAccountNo { get; set; } = default!;
+
+    private bool _isSelectedTextSet { get; set; } = false;
+
+    private EmployerAccount? _selectedEmployerAccount = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isGuestAccount = await LayoutOrchestator.IsGuestAccountAsync();
+            _allEmployerAccounts = await EmployerAccountService.GetEmployerAccounts() ?? [];
+            _allEmployerAccounts = _allEmployerAccounts.OrderBy(x => x.UIAccountNo).ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            if (showEmployerNavigation && !_isSelectedTextSet)
+            {
+                //Clear session for selected value if url is guest-dashboard
+                if (GetUrlPath().Equals("guest-dashboard"))
+                {
+                    await LandingOrchestrator.RemoveSelectedAccountAsync();
+                    await SessionManager.ClearAsync<SessionSelectedEmployerAccount>();
+                }
+
+                var selectedAccountValue = await SessionManager.GetAsync<SessionSelectedEmployerAccount>();
+                selectedText = selectedAccountValue != null
+                    ? FormatPlaceholderText(selectedAccountValue.SelectedEmployerAccountValue)
+                    : defaultDropdownText;
+                    var selectedAccount = await SessionManager.GetAsync<SelectedEmployerAccount>();
+                   _selectedEmployerAccount = selectedAccount?.EmployerAccount;
+                _isSelectedTextSet = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private static string FormatUIAccountNo(string accountNo)
+    {
+        var digits = accountNo.Replace("-", "");
+        return digits.Length == 10 ? $"{digits[..6]}-{digits[6..9]}-{digits[9..]}" : accountNo;
+    }
+
+
+    private bool IsPortalHome
+    {
+        get
+        {
+            var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+            var path = relativePath.Split('?')[0].TrimEnd('/');
+            return path == "";
+        }
+    }
+
+    private bool IsEmployerDashboard
+    {
+        get
+        {
+            var path = GetUrlPath();
+            return (path.Equals("employer-dashboard", StringComparison.OrdinalIgnoreCase) ||
+                      path.Equals("guest-dashboard", StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    private async Task OnItemSelectedAsync(string? selectedEmployer)
+    {
+        if (!string.IsNullOrEmpty(selectedEmployer))
+        {
+            var selectedEmployerAccountNo = selectedEmployer.Split(' ')[0].Replace("-", "");
+            var employerAccount = _allEmployerAccounts.FirstOrDefault(x => x.UIAccountNo == selectedEmployerAccountNo);
+            if (employerAccount != null)
+            {
+                var selectedEmployerAccount = employerAccount.UIAccountNo.PadRight(employerAccount.UIAccountNo.Length + 4) + employerAccount.LegalName;
+                await SessionManager.SetAsync(new SelectedEmployerAccount { EmployerAccount = employerAccount });
+                await SessionManager.SetAsync(new SessionSelectedEmployerAccount { SelectedEmployerAccountValue = selectedEmployerAccount });
+                NavigationManager.NavigateTo(NavigationManager.Uri, true);
+            }
+        }
+        else
+        {
+            await LandingOrchestrator.RemoveSelectedAccountAsync();
+            await SessionManager.ClearAsync<SessionSelectedEmployerAccount>();
+            selectedText = defaultDropdownText;
+            NavigationManager.NavigateTo("guest-dashboard", true);
+        }
+    }
+
+    private static string FormatPlaceholderText(string sessionValue)
+    {
+        var spaceIndex = sessionValue.IndexOf(' ');
+        if (spaceIndex < 0) return FormatUIAccountNo(sessionValue);
+        return FormatUIAccountNo(sessionValue[..spaceIndex]) + sessionValue[spaceIndex..];
+    }
+
+    private string GetUrlPath()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+
+        if (relativePath.Contains("#"))
+        {
+            relativePath = relativePath.Split('#')[0];
+        }
+
+        return relativePath.Split('?')[0].TrimEnd('/');
+    }
+
+    private async Task OnPortalHomeclicked()
+    {
+        _isSelectedTextSet = false;
+        NavigationManager.NavigateTo("landing-page", true);
+    }
+
+    private async Task OnEmployerDashboardclicked()
+    {
+        if (await SessionManager.IsGuestAccountAsync())
+        {
+            NavigationManager.NavigateTo("guest-dashboard", true);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("employer-dashboard", true);
+        }
+        _isSelectedTextSet = false;
+    }
+
+    private async Task OnHeaderLinkClicked(string linkClicked)
+    {
+        _isSelectedTextSet = false;
+        switch (linkClicked)
+        {
+            case "NewAccount":
+                NavigationManager.NavigateTo("employer-registration");
+                break;
+            case "UpdateRegistration":
+                NavigationManager.NavigateTo("employer-registration");
+                break;
+            case "GetAccountAccess":
+                NavigationManager.NavigateTo("Pages/AccessAccount");
+                break;
+        }
+    }
+}

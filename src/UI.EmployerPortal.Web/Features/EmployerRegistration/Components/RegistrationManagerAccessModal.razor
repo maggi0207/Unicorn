@@ -1,0 +1,63 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop" role="presentation">
+        <div class="modal-content" role="dialog" aria-modal="true"
+        aria-labelledby="reg-success-modal-title" aria-describedby="reg-success-modal-body"
+             @onclick:stopPropagation="true"
+        @onkeydown="HandleKeyDown"
+        tabindex="-1"
+        @ref="_modalRef">
+            <div class="modal-header">
+                <h3 id="reg-success-modal-title" class="modal-title">Access Successfully Granted</h3>
+                <button type="button" class="modal-close" @onclick="Close" aria-label="Close Access Information Dialog">x</button>
+            </div>
+
+            <div id="reg-success-modal-body" class="modal-body">
+                <p class="modal-text">
+                    You now have access to view and update all information and perform all functions as the manager of this UI account.
+                </p>
+                <p class="modal-text">
+                    If you need to grant access to others, go to the UI Account Users page.
+                </p>
+            </div>
+            <div class="modal-footer">
+          
+                <Button Text="OK"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="Close" />
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private ElementReference _modalRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //Move focus into modal on open so screen readers announce it immediately
+        if (IsOpen && firstRender)
+        {
+            await _modalRef.FocusAsync();
+        }
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+    private Task HandleBackdropClick() => Close();
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        //Escape key dismissal
+        if (e.Key =="Escape")
+
+        {
+            await Close();
+        }    }
+}

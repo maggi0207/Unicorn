@@ -1,0 +1,275 @@
+@page "/employer-registration/SuccessRegistration"
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject ISessionManager SessionManager
+@rendermode InteractiveServer
+@using System.Threading.Tasks
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
+
+@using System.Globalization
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Web.Features.Shared.Session
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Generated.ServiceClients.PortalCorrespondenceService
+@using UI.EmployerPortal.Web.Features.Landing
+
+
+<div class="page_wrapper">
+    <div class="registration-complete-container">
+        @if (showBanner)
+        {
+            <div>
+                <NotificationBanner Message="Initial Determination letter will be mailed to your main business mailing address." NotificationType=NotificationType.Confirmation></NotificationBanner>
+            </div>
+        }
+        @if (isLoading)
+        {
+            <div>
+                
+
+                <div class="transparent-sucess-content">
+                    <div class="success-header">
+                        <img src="icons/check_circle_green.svg" width="30" />
+                        <h1 class="success-title">You Have Successfully Completed the Employer Registration</h1>
+                    </div>
+
+                    <div class="account-info">
+                        <p class="account-text">
+                            Your account number is on the
+                            <a class="determination-link" @onclick="DownloadPdf">Initial Determination(ID)</a>
+                            <img src="icons/check_circle_blue.svg" width="30" />
+                        </p>
+                    </div>
+                </div>
+                <LoadingSpinner Message="Loading..." />
+             </div>
+            <br />
+            <div class="mail-a-copy">
+                <a class="determination-link" @onclick="ShowNotification">Mail a copy of the ID to the main business mailing address</a>
+            </div>
+        }
+        else
+        {
+
+            @if (showIdLetterErrorBanner)
+            {
+                <div class="row nb-alert" aria-label="The system couldn't load the Initial Determination letter, but your account is now open. You can view the Initial Determination letter in UI Documents when it is available." b-7npt0yvdkt=""><div class="col text-start" b-7npt0yvdkt=""><!--!-->
+                        <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/alert-notification.svg" class="sort-icon" alt="Alert">
+                        <span class="nb-text">
+                            <strong class="mb-2 me-2">The system couldn't load the Initial Determination letter, but your account is now open.</strong>
+                            <br />
+                            You can view the Initial Determination letter in UI Documents when it is available.
+                        </span>
+                    </div>
+                </div>
+                <br />
+            }
+
+            <div class="success-header">
+                <img src="icons/check_circle_green.svg" width="30" />
+                <h1 class="success-title">You Have Successfully Completed the Employer Registration</h1>
+            </div>
+
+            <div class="account-info">
+                <p class="account-text">
+                    Your account number is on the
+                    <a class="determination-link" @onclick="DownloadPdf">Initial Determination(ID)</a>
+                    <img src="icons/check_circle_blue.svg" width="30" />
+                </p>
+            </div>
+
+            <br />
+
+            <div class="mail-a-copy">
+                <a class="determination-link" @onclick="ShowNotification">Mail a copy of the ID to the main business mailing address</a>
+            </div>
+
+            <br />
+
+            @if (missingQuarters != null && missingQuarters.Any())
+            {
+                <div class="whats-next-container">
+                    <h2 class="whats-next-title">What's Next?</h2>
+                    <p class="whats-next-text">
+                        You are required to file Tax and Wage Reports for :
+                    </p>
+                    <ul class="whats-next-table">
+                        @foreach (var q in missingQuarters)
+                        {
+                            <li>@q</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="action-buttons">
+                <Button Text="GO TO DASHBOARD"
+                        Variant="Button.ButtonVariant.Primary"
+                        Size="Button.ButtonSize.Medium"
+                        OnClick="GoToDashboard" />
+
+                <Button Text="REGISTER ANOTHER EMPLOYER"
+                        Variant="Button.ButtonVariant.Secondary"
+                        Size="Button.ButtonSize.Medium"
+                        OnClick="RegisterAnotherEmployer" />
+            </div>
+        }
+    </div>
+    <RegistrationManagerAccessModal IsOpen="@_isModalOpen"
+                               OnClose="HandleModalClose" />
+</div>
+@code {
+
+    [Parameter]
+    public  int employerSK { get; set; }
+    [Parameter]
+    public int? generationSK { get; set; }
+
+    [Inject]
+    private IEmployerAccountService EmployerAccountService { get; set; } = default!;
+    [Inject]
+    private IEmployerRegistrationServices EmployerRegistrationServices { get; set; } = default!;
+    [Inject]
+    private ILandingOrchestrator LandingOrchestrator { get; set; } = default!;
+    [Inject]
+    private EmployerRegistrationModelStore EmployerRegistrationModelStore { get; set; } = default!;
+
+    [Inject]
+    private ISessionManager sessionManger { get; set; } = default!;
+    public List<string> missingQuarters = new();
+    public bool showBanner = false;
+    private bool isLoading = false;
+    private bool _isModalOpen = false;
+
+    private bool showIdLetterErrorBanner = false;
+
+    //WCF call to bring list of all pending quarters to file Tax and Wage Reports.
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        // Show Modal on page load
+        _isModalOpen = true;
+
+        var sessionEmployerRegistrationInfo = await sessionManger.GetAsync<SessionEmployerRegistrationInfo>();
+        var employerSK = sessionEmployerRegistrationInfo?.EmployerSk ?? 0;
+        //WCF call to get Missing Quarters to file Tax and wage reports.
+        var missingInfo = await EmployerAccountService.GetMissingQuartersInfo(employerSK);
+
+        //Replacing " " with "/" as per business requirement.
+        missingQuarters = missingInfo.Select(x => x.Replace(" ", "/")).ToList();
+
+    }
+
+    private void HandleModalClose()
+    {
+        _isModalOpen = false;    
+    }
+
+
+    private async Task GoToDashboard()
+    {
+        var sessionEmployerRegistrationInfo = await sessionManger.GetAsync<SessionEmployerRegistrationInfo>();
+        var employerSK = sessionEmployerRegistrationInfo?.EmployerSk ?? 0;
+
+        var employerAccountValue = await EmployerAccountService.GetRegisterEmployerAccount(employerSK);
+
+        if (employerAccountValue == null) return;
+
+        var registerEmployerAccountValue = employerAccountValue.UIAccountNo.PadRight(employerAccountValue.UIAccountNo.Length + 4) + employerAccountValue.LegalName;
+
+        await LandingOrchestrator.SelectAccountAsync(employerAccountValue);
+
+        await SessionManager.SetAsync(new SessionSelectedEmployerAccount
+        { SelectedEmployerAccountValue = registerEmployerAccountValue });
+
+        NavigationManager.NavigateTo("employer-dashboard", true);
+    }
+
+    private void RegisterAnotherEmployer()
+    {
+        NavigationManager.NavigateTo("employer-registration");
+    }
+
+    public async Task ShowNotification()
+    {
+        await EmployerRegistrationModelStore.MailId();
+
+        showBanner = true;
+    }
+
+    public async Task DownloadPdf()
+    {
+        isLoading = true;
+        showIdLetterErrorBanner = false;
+        //StateHasChanged();
+        try
+        {
+            var deadline = DateTime.UtcNow.AddSeconds(45);
+            var pollInterval = TimeSpan.FromSeconds(5);
+            var sessionEmployerRegistrationInfo = await sessionManger.GetAsync<SessionEmployerRegistrationInfo>();
+
+            while (DateTime.UtcNow < deadline)
+            {
+                try
+                {
+                    var request = new PortalCorrespondenceIDRequest()
+                    {
+                        EmployerSK = sessionEmployerRegistrationInfo?.EmployerSk ?? 0,
+                        GenerationSK = sessionEmployerRegistrationInfo?.EmployerGenerationSk ?? 0
+
+                    };
+                    var result = await EmployerRegistrationServices.GeneratePDFIDForRegistration(request);
+                    string pdfFilePath = result.PDFFilePath;
+
+                    if (!string.IsNullOrEmpty(pdfFilePath) && File.Exists(pdfFilePath))
+                    {
+                        // string fileName = Path.GetFileName(pdfFilePath);
+                        // await using var fileStream = File.OpenRead(pdfFilePath);
+                        // using var streamRef = new DotNetStreamReference(stream: fileStream);
+                        // await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+
+                        await using var fileStream = File.OpenRead(pdfFilePath);
+                        using var streamRef = new DotNetStreamReference(stream: fileStream);
+                        await JS.InvokeVoidAsync("openPdfInNewTab", streamRef);
+                        return;
+                    }
+
+                }
+                catch
+                {
+                    // Service call failed — continue retrying
+                }
+
+                var remaining = deadline - DateTime.UtcNow;
+                var delay = remaining < pollInterval ? remaining : pollInterval;
+                if (delay > TimeSpan.Zero)
+                    await Task.Delay(delay);
+            }
+            // 45 seconds elapsed, PDF still not available
+            showIdLetterErrorBanner = true;
+            
+            // var empRegServices = await EmployerRegistrationServices.GeneratePDFIDForRegistration(request);
+            // string pdfFilePath = empRegServices.PDFFilePath;
+
+            // pdfFilePath = "\\\\dwdafs3\\vol3\\dev\\UI\\Data\\SUITES\\Correspondence\\Web\\20260306\\PKT024_104524_e0e334f5-a938-4b48-a72f-2f8b829c02e9.pdf";
+
+           
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+
+    }
+
+}

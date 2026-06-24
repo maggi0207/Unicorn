@@ -1,0 +1,116 @@
+/* ── Page wrapper ───────────────────────────────────────────────── */
+.page-content {
+    width: 100%;
+    padding-top: 20px;
+    /*max-width: 1138px;*/ /*add this back if needed*/
+    /*margin: 0 auto;*/
+}
+
+.notification-container {
+    width: 684px;
+    justify-self: center;
+    padding-bottom: 1em;
+}
+
+/* ── Page title  e.g. "Verification" ───────────────────────────── */
+.page-title {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: xx-large;
+    color: black;
+    font-style: normal;
+    /*margin-bottom: 0.25rem;*/
+}
+
+/* ── Sub-header row  (Reporting Quarter / Due Date / Effective Date)
+   Spec: width 990, height 80, gap 8, border-bottom 1px           */
+.page-subheader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-gray-light);
+    margin-bottom: 1rem;
+    font-family: Verdana;
+    font-size: medium;
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* ── Body text
+   Spec: Verdana, weight 400, 16px, line-height 160%              */
+.body-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+}
+
+
+/* ── Note text
+   Spec: Verdana, weight 700 bold, 16px, line-height 160%         */
+.note-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+}
+
+/*Override wizard container to push it below header*/
+::deep .wizard-container {
+    margin-top: 20px !important;
+    padding: 1rem 0 !important;
+    width: auto;
+}
+
+/* Wizard Content Area */
+::deep .wizard-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*Override wizard container to push it below header*/
+::deep .wizard-navigation {
+    display: flex;
+    width: 684px;
+    max-width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*Seaparator line between stepper and content */
+::deep .css-line {
+    margin-top:32px !important;
+    padding: 1rem ;
+    left: 0;
+    width: 100%;
+    height: 0;
+    border-top: 1px solid #ADADAD;
+    transform: translateZ(0);
+}
+::deep .wide-content .wizard-content{
+    width:750px;
+    max-width:100%;
+    margin:0 auto;
+}
+::deep .wide-content .wizard-navigation {
+    width: 750px;
+    max-width: 100%;
+    margin: 0 auto;
+}

@@ -129,9 +129,7 @@
                                 Value="SubjectivityModel.HasAppliedFor501c3Status"
                                 ValueChanged="OnHasAppliedFor501c3StatusChange"
                                 ValueExpression="() => SubjectivityModel.HasAppliedFor501c3Status"
-                                Options="@YesNoRadioOptions" />
-                    <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
-                                Visible="_formSubmitted" />
+                                Options="@YesNoRadioOptions" />                  
                  </div>
             }
 
@@ -139,13 +137,13 @@
                 <span>Financial Institution for Business Checking Account</span>
             </div>
 
-            <AddressField Address="SubjectivityModel.FinancialInstitution"
+            <FinancialInstitutionAddr Address="SubjectivityModel.FinancialInstitution"
                           ShowName="true"
                           Legend="Financial Institution for Business Checking Account"
-                          Visible="@_showAddressErrors" />
+                         Visible="@_showAddressErrors"/>
 
             <div class="ui-radio-section">
-                <p class="ui-text"><strong>Note: </strong>@GetNoteText()<a href=@GetPermittedExclusionsUrl() class="link-underline-primary">Permitted Exclusions</a></p>
+                <p class="ui-text"><strong>Note: </strong>@GetNoteText()<a href=@GetPermittedExclusionsUrl() class="link-underline-primary">Permitted Exclusions</a>.</p>
             </div>
             @if (Section0Visible)
             {
@@ -203,8 +201,8 @@
                 {
                     <div id="section_4" class="ui-radio-section">
                         <p id="wages-question-label" class="ui-text">@GetWagesQuestion()</p>
-                        <FieldError For="@(() => SubjectivityModel.PaidWagesOver1500Employees)"
-                                    Visible="_formSubmitted" />
+                          <FieldError For="@(() => SubjectivityModel.PaidWagesOver1500Employees)"
+                                Visible="_formSubmitted" />
                         <RadioGroup TValue="bool?"
                                     LabelledById="wages-question-label"
                                     Value="SubjectivityModel.PaidWagesOver1500Employees"
@@ -280,12 +278,51 @@
                                 }
 
                             </table>
+                    <FieldError For="@(() => SubjectivityModel.Wages)"
+                                Visible="_formSubmitted" />
                         }
                         <br />
                     }
+            @* end quarter wages question *@
+            @* quarter employees question *@
+            @if (Section9Visible)
+            {
+                <div id="section_9" class="ui-radio-section">
+                    <p id="EmployeeIn20Weeks" class="ui-text">@EmployeeIn20Weeks()</p>
+                    <FieldError For="@(() => SubjectivityModel.HasEmployeeIn20Weeks)"
+                                Visible="_formSubmitted" />
+                    <RadioGroup TValue="bool?"
+                                LabelledById="EmployeeIn20Weeks"
+                                Value="SubjectivityModel.HasEmployeeIn20Weeks"
+                                ValueChanged="OnHasEmployeeIn20WeeksChange"
+                                ValueExpression="() => SubjectivityModel.HasEmployeeIn20Weeks"
+                                Options="@YesNoRadioOptions" />
+                    
+                </div>
+            }
+            @* quarter employees question yes (20th week end date) *@
+            @if (Section10Visible)
+            {
+                <div id="section_10" class="form-row row ui-radio-section">
+                    <div class="form-group col-md-6">
+                        <label class="form-label" for="Week20EndDate">
+                            Date 20th Week Ended
+                        </label>
+                        <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
+                                    Visible="_formSubmitted" />
+                        <InputDate id="Week20EndDate"
+                                   @bind-Value="SubjectivityModel.Week20EndDate"
+                                   class="form-control"
+                                   min="@TwentiethWeekMinSaturday().ToString("yyyy-MM-dd")"
+                                   step="7"
+                                   DisplayName="Date 20th Week Ended"
+                                   @bind-Value:format="MM/dd/yyyy" />
+                    </div>
+                </div>
+            }
                 @* end quarter wages yes *@
                 @* quarter wages no (do you expect to pay wages in a calendar quarter) *@
-                    @if (Section13Visible)
+            @if (Section13Visible)
                     {
                         <div id="section_13" class="ui-radio-section">
                             <p id="ExpectToPayWagesQuestion-label" class="ui-text">@GetExpectToPayWagesQuestion()</p>
@@ -316,46 +353,10 @@
                         }
                     @* end expect to pay wages in a calendar quater yes*@
                 @* end quarter wages no *@
-            @* end quarter wages question *@
-            @* quarter employees question *@
-                @if (Section9Visible)
-                {
-                    <div id="section_9" class="ui-radio-section">
-                        <p id="EmployeeIn20Weeks" class="ui-text">@EmployeeIn20Weeks()</p>
-                        <FieldError For="@(() => SubjectivityModel.HasEmployeeIn20Weeks)"
-                                    Visible="_formSubmitted" />
-                        <RadioGroup TValue="bool?"
-                                    LabelledById="EmployeeIn20Weeks"
-                                    Value="SubjectivityModel.HasEmployeeIn20Weeks"
-                                    ValueChanged="OnHasEmployeeIn20WeeksChange"
-                                    ValueExpression="() => SubjectivityModel.HasEmployeeIn20Weeks"
-                                    Options="@YesNoRadioOptions" />
-                    
-                    </div>
-                }
-                @* quarter employees question yes (20th week end date) *@
-                    @if (Section10Visible)
-                    {
-                        <div id="section_10" class="form-row row ui-radio-section">
-                            <div class="form-group col-md-6">
-                                <label class="form-label" for="Week20EndDate">
-                                    Date 20th Week Ended
-                                </label>
-                                <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
-                                            Visible="_formSubmitted" />
-                                <InputDate id="Week20EndDate"
-                                           @bind-Value="SubjectivityModel.Week20EndDate"
-                                           class="form-control"
-                                           min="@TwentiethWeekMinSaturday().ToString("yyyy-MM-dd")"
-                                           step="7"
-                                           DisplayName="Date 20th Week Ended"
-                                           @bind-Value:format="MM/dd/yyyy" />
-                            </div>
-                        </div>
-                    }
+          
                 @* end quater employees question yes *@
                 @* quarter employees question no (expect future quarter employees) *@
-                    @if (Section18Visible)
+            @if (Section18Visible)
                     {
                         <div id="section_18" class="ui-radio-section">
                             <p id="ExpectToHaveWagesQuestion-label" class="ui-text">@GetExpectToHaveWagesQuestion()</p>

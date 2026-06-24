@@ -1,0 +1,50 @@
+
+.nav-bar {
+    width: 100%;
+    min-height: 66px;
+    background-color: var(--color-header-nav);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    color: var(--color-white);
+    margin-bottom: 20px;
+    flex-wrap:wrap;
+}
+
+.nav-link:focus,
+.nav-link:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.portal-border {
+    color: white;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+    display: inline-flex;
+    text-decoration: none;
+    gap: 6px;
+    align-items: center;
+}
+
+    .border-space {
+        padding: 0 24px;
+    }
+
+    .home-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+.portal-lnk-title {
+    font: 20px verdana;
+    font-weight: bold;
+}
+
+.employer-lnk-title {
+    font: 20px verdana;
+    font-weight: bold;
+
+}

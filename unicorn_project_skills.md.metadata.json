@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_OTHER",
+  "summary": "Created a skill file containing the project context, WCF generation quirks, and repository limitations for the Unicorn project. This file can be reused in future chats to give the agent immediate context.",
+  "updatedAt": "2026-06-12T04:16:58.186129500Z"
+}

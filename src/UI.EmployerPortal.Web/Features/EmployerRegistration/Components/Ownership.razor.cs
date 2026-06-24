@@ -26,7 +26,6 @@ public partial class Ownership
     [Parameter]
     public OwnershipSessionData Model { get; set; } = default!;
 
-    private OwnershipType SelectedOwnershipType { get; set; } = OwnershipType.None;
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
     //private bool _shouldValidate = false;
@@ -222,7 +221,8 @@ public partial class Ownership
                 StateLabel = "Incorporation State",
                 RequiresForeignCountry = true,
                 InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the principal officers.",
-                PredefinedRoles = ["President", "Vice President", "Secretary", "Treasurer"]
+                PredefinedRoles = ["President", "Vice President", "Secretary", "Treasurer"],
+                Header = "Principal Officer Information"
             }
         },
         {
@@ -235,7 +235,8 @@ public partial class Ownership
                 StateLabel = "Registration State",
                 RequiresState = true,
                 MaxEntries = 5,
-                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the members. If there are more than five members, list the five with the highest ownership percentages."
+                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the members. If there are more than five members, list the five with the highest ownership percentages.",
+                Header = "Member Information"
             }
         },
         {
@@ -248,7 +249,9 @@ public partial class Ownership
                 StateLabel = "Registration State",
                 RequiresState = true,
                 MaxEntries = 5,
-                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the members. If there are more than five members, list the five with the highest ownership percentages."
+                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the members. If there are more than five members, list the five with the highest ownership percentages.",
+                Header = "Member Information"
+
             }
         },
         {
@@ -261,7 +264,8 @@ public partial class Ownership
                 StateLabel = "Registration State",
                 RequiresState = true,
                 MaxEntries = 5,
-                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages."
+                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages.",
+                Header = "Partner Information"
             }
         },
         {
@@ -274,7 +278,8 @@ public partial class Ownership
                 StateLabel = "Registration State",
                 RequiresState = true,
                 MaxEntries = 5,
-                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages."
+                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages.",
+                Header = ""
             }
         },
         {
@@ -287,7 +292,8 @@ public partial class Ownership
                 StateLabel = "Registration State",
                 RequiresState = false,
                 MaxEntries = 5,
-                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages."
+                InstructionText = "Enter the names, Social Security Numbers, and ownership percentages of the partners. If there are more than five partners, list the five with the highest ownership percentages.",
+                Header = "Partner Information"
             }
         },
         {
@@ -296,7 +302,9 @@ public partial class Ownership
             {
                 OwnershipTypeValue = "sole-proprietorship",
                 TypeDisplayName = "Sole Proprietorship (not LLC or Corporation)",
-                MaxEntries = 1
+                MaxEntries = 1,
+                MemberLabel = "Sole Proprietor",
+                Header = ""
             }
         },
         {
@@ -305,7 +313,9 @@ public partial class Ownership
             {
                 OwnershipTypeValue = "individual",
                 TypeDisplayName = "Individual",
-                MaxEntries = 1
+                MaxEntries = 1,
+                MemberLabel = "Individual",
+                Header = ""
             }
         },
         {

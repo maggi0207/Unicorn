@@ -1,0 +1,269 @@
+@page "/manage-account/account-users"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Services
+@using UI.EmployerPortal.Web.Features.Landing.Components
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
+
+<PageTitle>Account Users</PageTitle>
+
+<div class="page-content" @onclick="CloseRoleDropdown">
+    
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading account users..." />
+    }
+    else if (_hasError)
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages='new List<string> { "Unable to load the account users." }' />
+    }
+    else if (!_isCurrentUserManager)
+    {
+        <div>
+            <NotificationBanner NotificationType="NotificationType.Alert"
+            Title="Access Denied"
+            Message="You account currently does not have access to view this page. Please contact your account manager for further assistance.">
+            </NotificationBanner>
+        </div>        
+    }
+    else
+    {
+        <h1 class="page-title fw-bold">Account Users</h1>
+
+        @if (!string.IsNullOrWhiteSpace(_flashMessage))
+        {
+            <div class="flash-banner-wrapper">
+                <NotificationBanner @key="_flashKey"
+                                    NotificationType="NotificationType.Confirmation"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Title="@_flashTitle"
+                                    Message="@_flashMessage"
+                                    DismissButton="true" />
+            </div>
+        }
+        <div class="top-actions">
+            <button class="btn generate-key-btn fw-bold" @onclick="NavigateToGenerateKey">GENERATE USER KEY</button>
+        </div>
+
+        <div class="user-list-section">
+            <div class="user-list-header">
+
+                <h2 class="user-list-title fw-bold">User List</h2>
+            <div class="filter-controls">
+                @* Role filter — styled like FilterDropdown *@
+                <div class="role-dropdown-container" @onclick:stopPropagation="true">
+                    <div class="role-dropdown-wrapper">
+                        <span class="role-dropdown-label">Role</span>
+                        <button type="button"
+                                class="role-dropdown-trigger"
+                                @onclick="ToggleRoleDropdown"
+                                @onclick:stopPropagation="true"
+                                @onclick:preventDefault="true"
+                                aria-expanded="@_roleDropdownOpen"
+                                aria-haspopup="listbox"
+                                aria-label="Filter by role">
+                            <span class="role-dropdown-value @(_selectedRoles.Count > 0 ? "hasSelection" : "")">@RoleDisplayText</span>
+                            <span class="role-dropdown-arrow @(_roleDropdownOpen ? "open" : "")" aria-hidden="true">
+                                <img src="@Assets["icons/dropdown-arrow.svg"]" alt="" />
+                            </span>
+                        </button>
+
+                        @if (_roleDropdownOpen)
+                        {
+                            <div class="role-dropdown-menu" role="listbox" aria-label="Role options" @onclick:stopPropagation="true">
+                                <div class="role-dropdown-options" role="group" aria-label="Filter options">
+                                    @foreach (var role in AvailableRoles)
+                                    {
+                                        <label class="role-dropdown-option">
+                                            <input type="checkbox"
+                                                   checked="@_selectedRoles.Contains(role)"
+                                                   @onchange="e => HandleRoleChange(role, (bool)(e.Value ?? false))"
+                                                   aria-label="@role" />
+                                            <span>@role</span>
+                                        </label>
+                                    }
+                                </div>
+                                <div class="role-dropdown-actions">
+                                    <button type="button" class="role-dropdown-btn-reset" @onclick="ResetRoleFilter" aria-label="Reset role filter">
+                                        RESET
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @* Search box — styled like TableFilterBar search-input *@
+                <div class="search-wrapper">
+                    <label for="user-search" class="visually-hidden">Search by first name or last name</label>
+                    <input type="text"
+                           id="user-search"
+                           class="search-input"
+                           style="--icon-bg: url('@Assets["icons/searchIconBlack.svg"]')"
+                           placeholder="Search"
+                           value="@_searchText"
+                           @oninput="HandleSearchInput"
+                           aria-label="Search by first name or last name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="results-row">
+            <p class="results-count fw-normal fs-sm" aria-live="polite">@_resultsText</p>
+            @if (_selectedRoles.Count > 0)
+            {
+                <div class="filter-chips" role="list" aria-label="Active filters">
+                    @foreach (var role in _selectedRoles.ToList())
+                    {
+                        <FilterChip Text="@role"
+                                    Role="listitem"
+                                    OnRemove="() => RemoveRoleFilter(role)" />
+                    }
+                </div>
+                <ClearFiltersButton OnClick="ResetRoleFilter" />
+            }
+        </div>
+
+            <div class="table-container">
+                <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Account users">
+                    <caption class="visually-hidden">List of account users with role and access information</caption>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("lastName"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "lastName"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("lastName")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Last Name</span>
+                                    @GetSortIcon("lastName")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("firstName"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "firstName"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("firstName")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">First Name</span>
+                                    @GetSortIcon("firstName")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("role"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "role"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("role")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Role</span>
+                                    @GetSortIcon("role")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("createdBy"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "createdBy"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("createdBy")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Created By</span>
+                                    @GetSortIcon("createdBy")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("accessGranted"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "accessGranted"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("accessGranted")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Access Granted</span>
+                                    @GetSortIcon("accessGranted")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell"
+                                @onclick="@(() => Sort("accessKey"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "accessKey"))"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("accessKey")">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Access Key</span>
+                                    @GetSortIcon("accessKey")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell actions-cell">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Actions</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in PagedUsers)
+                        {
+                            <tr class="data-row">
+                                <td class="fw-normal fs-md">@user.LastName</td>
+                                <td class="fw-normal fs-md">@user.FirstName</td>
+                                <td class="fw-normal fs-md">@user.Role</td>
+                                <td class="fw-normal fs-md">@user.CreatedBy</td>
+                                <td class="fw-normal fs-md">@user.AccessGranted?.ToString("MM/dd/yy")</td>
+                                <td class="fw-normal fs-md">@user.AccessKeyMasked</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        @if (user.Role == "Worker")
+                                        {
+                                            <button class="btn btn-sm p-1 action-btn" title="Edit user" @onclick="() => HandleEditClick(user)">
+                                                <img src="@Assets["icons/edit-pen.svg"]" alt="Edit" class="action-icon" />
+                                            </button>
+                                        }
+                                        <button class="btn btn-sm p-1 action-btn" title="Delete user" @onclick="() => HandleDeleteClick(user)">
+                                            <img src="@Assets["icons/trash.svg"]" alt="Delete" class="action-icon" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @if (FilteredUsers.Count > _pageSize)
+                {
+                    <div class="d-flex justify-content-end">
+                        <div class="pagination-container fw-normal fs-md">
+                            <div class="rows-per-page">
+                                <label for="page-size-select" class="me-2">Rows per page</label>
+                                <select id="page-size-select" class="form-select form-select-sm page-size-select" @onchange="HandlePageSizeChanged">
+                                    <option value="10" selected="@(_pageSize == 10)">10</option>
+                                    <option value="25" selected="@(_pageSize == 25)">25</option>
+                                    <option value="50" selected="@(_pageSize == 50)">50</option>
+                                </select>
+                            </div>
+                            <div class="d-flex align-items-center">
+                               <span class="page-info">@PaginationStart-@PaginationEnd of @FilteredUsers.Count</span>
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="FirstPage" title="First">
+                                    <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="First" />
+                                </button>
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="PreviousPage" title="Previous">
+                                    <img src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" alt="Previous" />
+                                </button>
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="NextPage" title="Next">
+                                    <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" alt="Next" />
+                                </button>
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="LastPage" title="Last">
+                                    <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" alt="Last" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<RemoveUserModal IsOpen="_showRemoveModal"
+                 IsBusy="_isRemoving"
+                 ErrorMessage="@_removeError"
+                 UserDisplayName="@($"{_userToRemove?.FirstName} {_userToRemove?.LastName}".Trim())"
+                 OnCancel="CloseRemoveModal"
+                 OnConfirm="ConfirmRemoveAsync" />

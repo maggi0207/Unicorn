@@ -1,0 +1,67 @@
+@page "/manage-account/account-users/generate-key"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+<PageTitle>Generate User Key</PageTitle>
+
+<div class="gen-key-page">
+
+    <h1 class="gen-key-title">Generate User Key</h1>
+    <p class="gen-key-subtitle">Select an access key type.</p>
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="gen-key-error-wrapper">
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages='new List<string> { _errorMessage }' />
+        </div>
+    }
+
+    @* ── Worker card ── *@
+    <div class="gen-key-card @(_selectedKeyType == "worker" ? "gen-key-card-selected" : "")"
+         role="button"
+         tabindex="0"
+         aria-pressed="@(_selectedKeyType == "worker")"
+         @onclick="@(() => SelectKeyType("worker"))"
+         @onkeydown="@(e => HandleCardKeyDown(e, "worker"))">
+        <div class="gen-key-card-body">
+            <div class="gen-key-card-title">Worker Access Key</div>
+            <p class="gen-key-card-text">Workers will only have access to selected permissions.</p>
+        </div>
+    </div>
+
+    @* ── Manager card ── *@
+    <div class="gen-key-card @(_selectedKeyType == "manager" ? "gen-key-card-selected" : "")"
+         role="button"
+         tabindex="0"
+         aria-pressed="@(_selectedKeyType == "manager")"
+         @onclick="@(() => SelectKeyType("manager"))"
+         @onkeydown="@(e => HandleCardKeyDown(e, "manager"))">
+        <div class="gen-key-card-body">
+            <div class="gen-key-card-title">Manager Access Key</div>
+            <p class="gen-key-card-text">In addition to all worker permissions, managers will be able to:</p>
+            <ul class="gen-key-card-list">
+                <li>Remove and edit user access.</li>
+                <li>Generate access keys for other managers and workers.</li>
+                <li>Establish employer service provider relationships.</li>
+            </ul>
+            <p class="gen-key-card-text gen-key-card-emphasis">
+                Users in the manager role will have full access to all functions of the Employer Portal.
+            </p>
+        </div>
+    </div>
+
+    @* ── Footer ── *@
+    <div class="gen-key-footer">
+        <Button Text="BACK"
+                Variant="Button.ButtonVariant.Secondary"
+                OnClick="HandleBack"
+                Disabled="_isWorking" />
+        <Button Text="CONTINUE"
+                Variant="Button.ButtonVariant.Primary"
+                OnClick="HandleContinueAsync"
+                Disabled="_isWorking" />
+    </div>
+
+</div>

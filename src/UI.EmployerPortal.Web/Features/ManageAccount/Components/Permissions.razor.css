@@ -1,0 +1,145 @@
+/* ── Permissions wrapper ──────────────────────────────────────────────────── */
+.permissions-wrapper {
+    border-radius: 4px;
+    padding: 4px 0;
+}
+
+.permissions-label {
+    color: #003663;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    border-bottom: 2px solid #003663;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+
+/* ── Outer wrapper (error border) ────────────────────────────────────────── */
+.permissions-checkboxes-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.permissions-checkboxes-error {
+    border: 1px solid #d32f2f;
+    border-radius: 4px;
+    padding: 12px;
+    background-color: #ffe8e8;
+}
+
+/* ── Generic row container (checkbox + sub-text underneath) ──────────────── */
+.permissions-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.permissions-top-select-all {
+    padding-bottom: 8px;
+}
+
+.permissions-child-row {
+    padding-left: 24px;
+}
+
+.permissions-child-row .permissions-subtext{
+    margin-left: 24px;
+}
+
+/* ── Checkbox row (label with input) ─────────────────────────────────────── */
+.permissions-check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    color: #000;
+}
+
+.permissions-check-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: #003663;
+}
+
+.permissions-label-bold {
+    font-weight: 700;
+}
+
+/* ── Sub-text under each checkbox ────────────────────────────────────────── */
+.permissions-subtext {
+    margin: 0 0 0 24px;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.permissions-indeterminate {
+    accent-color: #003663;
+}
+
+/* ── Section (grouped card with collapsible header) ──────────────────────── */
+.permissions-section {
+    background-color: #f1f3f5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.permissions-section-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: none;
+    padding: 14px 20px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.permissions-section-header:hover {
+    background-color: #e6e9ec;
+}
+
+.permissions-section-header:focus {
+    outline: 2px solid #258cfb;
+    outline-offset: -2px;
+}
+
+.permissions-section-title {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #000;
+}
+
+.permissions-section-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(180deg);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.permissions-section-chevron--expanded {
+    transform: rotate(0deg);
+}
+
+.permissions-section-body {
+    padding: 0 20px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.permissions-section-divider {
+    border: none;
+    border-top: 1px solid #000000;
+    margin: 4px 0;
+}

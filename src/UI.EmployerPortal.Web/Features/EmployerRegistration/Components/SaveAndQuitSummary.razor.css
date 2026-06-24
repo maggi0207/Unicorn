@@ -1,0 +1,74 @@
+.vf-page-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.vf-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.vf-page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+.vf-page-subtitle {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.6px;
+    color: #000000;
+    margin: 0;
+}
+
+.vf-page-subheader {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 115.99999999999999%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #000000;
+}
+
+.registration-number-container {
+    font-family: Verdana;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h6 {
+        font-weight: 700 !important;
+    }
+
+    span {
+        font-weight: 900 !important;
+        font-size: 22px;
+        color: var(--color-header-nav);
+    }
+}
+
+.action-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: 0.75em;
+}
+
+.action-container ::deep > button:first-of-type {
+    margin-right: auto;
+}

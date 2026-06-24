@@ -1,0 +1,61 @@
+@page "/manage-account/account-users/generate-key/permissions"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
+
+<PageTitle>Generate Worker Access Key</PageTitle>
+
+<div class="gen-key-perms-page">
+
+    <h1 class="gen-key-perms-title">Generate Worker Access Key</h1>
+    <p class="gen-key-perms-subtitle">Workers will only have the permissions you select below.</p>
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading permissions..." />
+    }
+    else if (_loadError)
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages='new List<string> { "Unable to load the permissions." }' />
+    }
+    else
+    {
+        @if (_validationErrors.Count > 0)
+        {
+            <div class="gen-key-perms-error-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_validationErrors" />
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <div class="gen-key-perms-error-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages='new List<string> { _errorMessage }' />
+            </div>
+        }
+
+        <div class="gen-key-perms-body">
+            <Permissions @ref="_tree"
+                         Groups="_groups"
+                         ShowError="_showPermissionValidationError"
+                         OnSelectionChanged="HandleSelectionChanged" />
+        </div>
+
+        <div class="gen-key-perms-footer">
+            <Button Text="BACK"
+                    Variant="Button.ButtonVariant.Secondary"
+                    OnClick="HandleBack"
+                    Disabled="_isWorking" />
+            <Button Text="GENERATE KEY"
+                    Variant="Button.ButtonVariant.Primary"
+                    OnClick="HandleGenerateKeyAsync"
+                    Disabled="_isWorking" />
+        </div>
+    }
+
+</div>

@@ -1,0 +1,43 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+
+@if (IsOpen)
+{
+    <div class="no-perm-backdrop">
+        <div class="no-perm-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="no-perm-title">
+
+            @* ── Header ── *@
+            <div class="no-perm-header">
+                <h3 id="no-perm-title" class="no-perm-title">
+                    <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
+                    No Permissions Selected
+                </h3>
+                <button type="button" class="no-perm-close" @onclick="HandleCancel" aria-label="Close">&#x2715;</button>
+            </div>
+
+            @* ── Body ── *@
+            <div class="no-perm-body">
+                <p class="no-perm-text">
+                    All permissions have been removed from this user. If you continue, you are removing
+                    this user&rsquo;s access to the account. If you want to reinstate this user&rsquo;s access at a later
+                    date, you will need to generate a new worker access key.
+                </p>
+                <p class="no-perm-text">
+                    If you do not want to remove access for this user, select the &ldquo;Cancel&rdquo; button and
+                    correct the permissions.
+                </p>
+            </div>
+
+            @* ── Footer ── *@
+            <div class="no-perm-footer">
+                <Button Text="CANCEL"
+                        Variant="Button.ButtonVariant.Secondary"
+                        ShowBorder="false"
+                        OnClick="HandleCancel" />
+                <Button Text="CONTINUE"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="HandleContinue" />
+            </div>
+
+        </div>
+    </div>
+}

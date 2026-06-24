@@ -1,9 +1,184 @@
-/* Acknowledgement checkbox */
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+/*Page Content*/
+.bi-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
 .form-check-input[type="checkbox"] {
     width: 18px;
     height: 18px;
     accent-color: #003663;
     cursor: pointer;
     flex-shrink: 0;
+    border: 2px solid #7A7A7A;
     box-shadow: none;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.6px;
+    color: #000000;
+    margin: 0;
+}
+
+.page_wrapper ::deep .radio-option {
+    width: auto;
+}
+
+.no-employee-section {
+    width: 684px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+
+.validation-space{
+    min-height:22px;
+    display:block;
+}
+
+.field-wrapper{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+.no-employee-radio {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.no-employee-reason-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 684px;
+}
+
+.peo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+.peo-name{
+    width:330px;
+}
+.peo-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    width: 684px;
+}
+
+.peo-ui{
+    width:240px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    height:56px;
+}
+
+.peo-fein {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.or-text {
+    width:27px;
+    text-align:center;
+    font-weight:700;
+    font-size:16px;
+    line-height:56px;
+}
+
+.peo-date{
+    width:330px;
+}
+
+.fiscal-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.fiscal-row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+}
+
+.fiscal-half {
+    width: 330px;
+}
+
+.fiscal-full {
+    width: 684px;
+}
+
+.provide-reason {
+    width: 684px;
+}
+
+@media (max-width: 768px) {
+    .bi-page-content {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .bi-fields-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+   .no-employee-section,.no-employee-radio,.fiscal-full{
+       width:100%
+   }
+
+   .peo-row{
+       flex-direction:column;
+       align-items:stretch;
+   }
+
+   .peo-ui,.peo-fein,.peo-date,.peo-name,.fiscal-half{
+       width:100%;
+   }
+   .or-text{
+       margin: 8px 0;
+   }
+   .fiscal-row{
+       flex-direction:column;
+   }
 }

@@ -3,31 +3,46 @@ using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 /// <summary>
-/// Provides operations for building and validating the quarterly wage entry table
-/// shown during the Unemployment Insurance Subjectivity step.
+/// From a starting date, calculates all the quarters until the current date
 /// </summary>
 public interface IYearQuarterPaidWagesService
 {
     /// <summary>
-    /// Builds the list of <see cref="WageEntryModel"/> rows covering every calendar year
-    /// from the year of <paramref name="dateFirstPaidWages"/> through the current year.
-    /// Quarters that precede <paramref name="dateFirstPaidWages"/> are disabled.
+    /// Sets and Last Date for the range of the results.  
     /// </summary>
-    /// <param name="dateFirstPaidWages">The date on which the employer first paid wages, or <c>null</c> to use the current date.</param>
-    /// <returns>One <see cref="WageEntryModel"/> per calendar year.</returns>
-    List<WageEntryModel> GetYearsAndQuartersPaidWages(DateTime? dateFirstPaidWages);
+    DateTime EndDate { get; set; }
 
     /// <summary>
-    /// Updates internal state in response to a change in the employer's FUTA liability answer.
+    /// If there is a FUTA liability then a value greater than zero is required
     /// </summary>
-    /// <param name="hasFederalTaxLiability"><c>true</c> if the employer has a FUTA liability outside Wisconsin.</param>
-    void Update(bool hasFederalTaxLiability);
+    bool WageEntryRequired { get; set; }
 
     /// <summary>
-    /// Returns <c>true</c> when the entered wages satisfy the minimum quarterly threshold
-    /// required for the given <paramref name="businessCategory"/>.
+    /// 
     /// </summary>
-    /// <param name="businessCategory">The employer's business category.</param>
-    /// <param name="wages">The list of quarterly wage rows entered by the employer.</param>
-    bool PaidWagesMeetsQuarterlyMinimum(BusinessCategory businessCategory, List<WageEntryModel> wages);
+    /// <param name="required"></param>
+    void Update(bool required);
+
+    /// <summary>
+    /// Returns a list by year of each quarter and wether or not the wage information is needed for each quarter
+    /// </summary>
+    /// <param name="dateFirstPaidWages"></param>
+    /// <returns></returns>
+    List<YearQuartersPaidWages> GetYearsAndQuartersPaidWages(DateTime? dateFirstPaidWages);
+
+    /// <summary>
+    /// Determines if the wages entered for any quarter meed the minimum amount for the Business Category.
+    /// </summary>
+    /// <param name="businessCategory"></param>
+    /// <param name="paidWages"></param>
+    /// <returns></returns>
+    bool PaidWagesMeetsQuarterlyMinimum(BusinessCategory businessCategory, IEnumerable<YearQuartersPaidWages> paidWages);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="businessCategory"></param>
+    /// <param name="paidWages"></param>
+    /// <returns></returns>
+    QuarterYear GetQuarterYearWagesPaid(BusinessCategory businessCategory, IEnumerable<YearQuartersPaidWages> paidWages);
 }

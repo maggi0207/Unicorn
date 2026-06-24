@@ -1,0 +1,75 @@
+.account-header {
+    width: 100%; 
+    min-height: 152px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 10px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+}
+
+.account-name {
+    color: var(--color-text);
+    padding: var(--spacing-sm) 0;
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.account-details {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--color-text);
+}
+
+.account-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.detail-item {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.account-no,
+.balance-due {
+    width: auto;
+}
+
+    .account-no .detail-label,
+    .account-no .detail-value,
+    .balance-due .detail-label,
+    .balance-due .detail-value {
+        width: auto;
+}
+
+/* Tablet styles */
+@media (max-width: 1023px) {
+    .account-header {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 575px) {
+    .account-header {
+        padding: var(--spacing-sm);
+}
+
+    .account-name {
+        font-size: var(--font-size-lg);
+}
+
+    .account-info {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+}
+
+    .detail-item {
+        flex-wrap: wrap;
+    }
+}

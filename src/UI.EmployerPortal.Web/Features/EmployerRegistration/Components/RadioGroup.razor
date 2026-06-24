@@ -1,0 +1,45 @@
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+@using System.Linq.Expressions;
+
+@typeparam TValue
+<div role="radiogroup" aria-labelledby="@LabelledById" aria-describedby="@AriaDescribedBy" aria-required="@(IsRequired? "true" : "false")">
+<InputRadioGroup TValue="TValue"
+                 id="@Id"
+                 Value="Value"
+                 ValueChanged="ValueChanged"
+                 ValueExpression="ValueExpression"
+                 class="radio-group">
+                 
+    @foreach (var option in Options)
+    {
+        <label class="radio-option">
+            <InputRadio TValue="TValue" Value="option.Value" class="@($"radio-control {CSS}")" />
+            <span class="radio-label" >@option.Label</span>
+        </label>
+    }
+</InputRadioGroup>
+</div>
+    @code {
+    [Parameter, EditorRequired]
+    public TValue Value { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback<TValue?> ValueChanged { get; set; }
+    [Parameter]
+    public Expression<Func<TValue>>? ValueExpression { get; set; }
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RadioOption<TValue>> Options { get; set; } = [];
+    [Parameter] public string CSS { get; set; } = "";
+    [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString();
+    [Parameter] public string? LabelledById { get; set; } = "";
+    [Parameter] public string? ErrorId { get; set; } = "";
+    [Parameter] public bool IsRequired { get; set; } = false;
+    private string? AriaDescribedBy
+    {
+        get
+        {
+            return !string.IsNullOrWhiteSpace(ErrorId) ? ErrorId : null;
+        }
+    }
+}
+
+

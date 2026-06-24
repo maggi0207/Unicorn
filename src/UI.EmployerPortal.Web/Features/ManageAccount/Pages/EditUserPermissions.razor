@@ -1,0 +1,116 @@
+@page "/manage-account/account-users/{WebUserSecuritySK:int}/edit"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
+
+<PageTitle>Edit Permissions</PageTitle>
+
+<div class="edit-perms-page">
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading permissions..." />
+    }
+    else if (_loadError || _user == null)
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages='new List<string> { "Unable to load the user permissions." }' />
+    }
+    else
+    {
+        @if (_validationErrors.Count > 0)
+        {
+            <div class="edit-perms-error-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_validationErrors" />
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(_saveError))
+        {
+            <div class="edit-perms-error-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages='new List<string> { _saveError }' />
+            </div>
+        }
+
+        @* ── Header ── *@
+        <h1 class="edit-perms-title">Edit Permissions for @_user.FirstName @_user.LastName</h1>
+        <div class="edit-perms-subheader">
+            <span class="edit-perms-meta"><strong>Role:</strong> @_user.Role</span>
+            <span class="edit-perms-meta"><strong>Created by:</strong> @_user.CreatedBy</span>
+            <span class="edit-perms-meta"><strong>Access Granted:</strong> @_user.AccessGranted?.ToString("MM/dd/yy")</span>
+        </div>
+
+        @if (IsRemoveMode)
+        {
+            @* ── Remove-user / Manager view (no checkboxes) ── *@
+            <div class="edit-perms-body">
+                <div class="edit-perms-permissions-label">Permissions</div>
+                @if (_user.Role == "Manager")
+                {
+                    <p class="edit-perms-text">
+                        This user is a manager. Managers are granted all permissions for the account. You
+                        cannot remove permissions from managers.
+                    </p>
+                    <p class="edit-perms-text">
+                        You can revoke this user&rsquo;s access to the account by clicking &ldquo;Remove User.&rdquo;
+                    </p>
+                }
+                else
+                {
+                    <p class="edit-perms-text">
+                        You are about to remove @_user.FirstName @_user.LastName&rsquo;s access to the account.
+                    </p>
+                    <p class="edit-perms-text">
+                        Click &ldquo;Remove User&rdquo; to revoke this user&rsquo;s access, or &ldquo;Cancel&rdquo; to go back.
+                    </p>
+                }
+            </div>
+
+            @* ── Remove-user footer ── *@
+            <div class="edit-perms-footer edit-perms-footer-manager">
+                <Button Text="REMOVE USER"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="OpenRemoveModal" />
+                <Button Text="CANCEL"
+                        Variant="Button.ButtonVariant.Primary"
+                        OnClick="HandleBack" />
+            </div>
+        }
+        else
+        {
+            @* ── Worker body (Permissions tree) ── *@
+            <div class="edit-perms-body">
+                <Permissions @ref="_tree"
+                             Groups="_groups"
+                             OnSelectionChanged="HandleSelectionChanged" />
+            </div>
+
+            @* ── Worker footer ── *@
+            <div class="edit-perms-footer">
+                <Button Text="BACK"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="HandleBack"
+                        Disabled="_isSaving" />
+                <Button Text="SAVE"
+                        Variant="Button.ButtonVariant.Primary"
+                        OnClick="HandleSaveAsync"
+                        Disabled="_isSaving" />
+            </div>
+        }
+    }
+</div>
+
+<NoPermissionsSelectedModal IsOpen="_showNoPermModal"
+                            OnCancel="CloseNoPermModal"
+                            OnContinue="ContinueFromNoPermModal" />
+
+<RemoveUserModal IsOpen="_showRemoveModal"
+                 IsBusy="_isRemoving"
+                 ErrorMessage="@_removeError"
+                 UserDisplayName="@($"{_user?.FirstName} {_user?.LastName}".Trim())"
+                 OnCancel="CloseRemoveModal"
+                 OnConfirm="ConfirmRemoveAsync" />

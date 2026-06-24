@@ -1,0 +1,180 @@
+<div class="frame">
+    <div class="frame-inner">
+        <div class="frame-fileupload">
+            <div class="file-upload-row">
+                @switch (State)
+                {
+                    case Models.FileUploadState.Default:
+                        <span>File Upload</span>
+                        break;
+                    case Models.FileUploadState.Uploading:
+                        <span>File is in process of getting uploaded</span>
+                        break;
+                    case Models.FileUploadState.Successful:
+                    case Models.FileUploadState.ErrorsMustFix:
+                        <span>Successful File Uploaded</span>
+                        break;
+                }
+            </div>
+            <div class="upload-content">
+                <div class="upload-row">
+                    <div class="upload-cell-left">
+                        <div class="upload-content-left-title">
+                            <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                            <strong>@Title</strong>
+                        </div>
+                        <p class="upload-content-left-filetypes">
+                            Acceptable file types:
+                            @(AcceptableTypes.Count > 0
+                            ? string.Join(",", AcceptableTypes.Select(t => t.Value).Distinct())
+                            : "Any file format" )
+                        </p>
+                        @if (ViewDetailsurl != "#")
+                        {
+                            <a href="@ViewDetailsurl" target="_blank" class="view-details-link">View Details</a>
+                        }
+                    </div>
+
+                    <div class="upload-cell-right">
+                        @switch (State)
+                        {
+                            case Models.FileUploadState.Default:
+                                <div id="@_dropZoneId" class="drop-zone" @onclick="OpenFileDialog">
+                                    <img src="@Assets["icons/cloud_upload.svg"]" alt="" class="cloud-icon" />
+                                    <div class="drag-drop">
+                                        <span>Drag and drop your file, or&nbsp;<span class="browse-link">browse</span></span>
+                                        <span>The file must be 20MB or smaller</span>
+                                    </div>
+                                </div>
+                                break;
+                            case Models.FileUploadState.Uploading:
+                                <div class="file-info">
+                                    <img src="@Assets["icons/file_copy.svg"]" alt="" class="file-icon" />
+                                    <span class="file-name">@DisplayFileName</span>
+                                </div>
+                                <div class="progress-row">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width:@(ProgressPercent)%" />
+                                    </div>
+                                    <button class="cancel-btn" @onclick="CancelUpload">
+                                        <img src="@Assets["icons/close_small.svg"]" alt="" class="svg-icon" />Cancel
+                                    </button>
+                                </div>
+                                break;
+                            case Models.FileUploadState.Successful:
+                            case Models.FileUploadState.ErrorsMustFix:
+                                <div class="file-info">
+                                    <img src="@Assets["icons/file_copy.svg"]" alt="" class="file-icon" />
+                                    <span class="file-name">@DisplayFileName</span>
+                                </div>
+                                <div class="btn-row">
+                                    <button class="btn btn-reupload" @onclick="ReUpload">
+                                        <img src="@Assets["icons/cloud_upload_small.svg"]" alt="" class="svg-icon" />ReUpload
+                                    </button>
+                                    <button class="btn btn-download" disabled="@(!HasFileOnDisk)" @onclick="DownloadFile">
+                                        <img src="@Assets["icons/cloud_download.svg"]" alt="" class="svg-icon" />Download
+                                    </button>
+                                    <button class="btn btn-remove" @onclick="RemoveFile">
+                                        <img src="@Assets["icons/delete.svg"]" alt="" class="svg-icon" />Remove
+                                    </button>
+                                </div>
+                                @if (State == Models.FileUploadState.Successful && !HasBlockingErrors && !HasWarnings && ValidationMessages.Count == 0)
+                                {
+                                    <div class="success-banner">
+                                        <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="18" height="18" />
+                                        <span>Successful Upload</span>
+                                    </div>
+                                }
+                                break;
+                        }
+                    </div>
+                </div>
+                @*Hidden input file - always in DOM so reupload can trigger it *@
+                <InputFile @ref="_inputFiles"
+                           id="@_inPutId"
+                           OnChange="@HandleFileSelected" multiple="@AllowMultiple" hidden />
+
+                @if (ValidationMessages.Count > 0)
+                {
+                    <div class="upload-row">
+                        <div class="upload-cell-left">
+                            <div class="error-panel @(HasBlockingErrors ? "error-panel--blocking" : "error-panel--warning")">
+                                <div class="error-title-row">
+                                    <strong class="error-title">File Errors</strong>
+                                </div>
+                                <div class="error-list-container">
+                                    <ul class="error-list">
+                                        @foreach (var msg in ValidationMessages.Take(10))
+                                        {
+                                            <li class="@(msg.IsError ? "error-item" : "warning-item")">@msg.Message</li>
+                                            @* <li class="@(msg.IsError ? "error-item" : "warning-item")">@((MarkupString)msg.Message)</li> *@
+                                        }
+                                    </ul>
+                                </div>
+
+                                @if (ValidationMessages.Count > 10)
+                                {
+                                    <button type="button" class="see-more-btn" @onclick="() => _isDrawerOpen = true">
+                                        SEE MORE &gt;
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="upload-cell-right upload-cell-right--transparent">
+                            @if (HasBlockingErrors)
+                            {
+                                <div class="error-banner error-banner--error">
+                                    <strong>File Contains Errors:</strong> Correct the errors before proceeding.
+                                </div>
+                            }
+                            else if (HasWarnings)
+                            {
+                                <div class="error-banner error-banner--warning">
+                                    <strong>File Has Warnings:</strong> you may still proceed without fixing them.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (ValidationMessage == "empty_file")
+                {
+                    <div class="internal-validation-message">
+                        <p class="validation-text">You have attempted to upload and empty file. Please check and try again.</p>
+                    </div>
+                }
+                else if(ValidationMessage == "multiple_files")
+                {
+                    <div class="internal-validation-message">
+                        <p class="validation-text">You can only upload one file at a time. Please select a single file and try again.</p>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="internal-validation-message">
+                        <p class="validation-text">The file format is invalid. Acceptable file formats are: </p>
+                        <ul class="validation-format-list">
+                            @foreach (var format in AcceptableTypes.Select(t => t.Value).Distinct())
+                            {
+                                <li>@format</li>
+                            }
+                        </ul>
+                        @if (ViewDetailsurl != "#")
+                        {
+                            <p class="validation-text">
+                                More information about acceptable file formats can be found at
+                                <a href="@ViewDetailsurl" target="_blank" class="validation-link">View Details</a>
+                            </p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<FileErrorDrawer IsOpen="@_isDrawerOpen"
+                 HasBlockingErrors="@HasBlockingErrors"
+                 Messages="@ValidationMessages"
+                 OnClose="() => _isDrawerOpen = false" />

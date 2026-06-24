@@ -1,0 +1,153 @@
+<div class="guest-dashboard-main">
+    <div class="view-toggle" role="group" aria-label="View options">
+        @if (!_isListView)
+        {
+            <button class="toggle-btn fw-bold fs-md @(_isListView ? "active" : "")"
+            @onclick="() => SetView(true)">
+              Switch To List View
+            </button>
+        }
+        else
+        {
+            <button class="toggle-btn fw-bold fs-md @(!_isListView ? "active" : "")"
+            @onclick="() => SetView(false)">
+               Switch To Grid View 
+            </button>
+        }
+
+    </div>
+
+    <div class="@(_isListView ? "list-view" : "grid-view")">
+        <!-- eForms -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("eforms"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/eforms.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">eForms</h3>
+            </div>
+            <p class="card-description">View and respond to digital eForms sent by the WI Unemployment Insurance Division.</p>
+        </a>
+
+        <!-- Secure Messages -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("secure-messages"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/secure-messages.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">Secure Messages</h3>
+            </div>
+            <p class="card-description">View and respond to secure messages sent by the WI Unemployment Insurance Division.</p>
+        </a>
+
+        <!-- Quarterly Tax & Wage Reporting -->
+        <a class="guest-dashboard-card" href="" @onclick="@(() => NavigateHere("quarterly-tax/missing-reports"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/quarterly-tax.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">Quarterly Tax & Wage Reporting</h3>
+            </div>
+            <p class="guest-card-description">File and view quarterly tax and wage reports.</p>
+            <ul class="card-list">
+                <li>File quarterly tax and wage reports</li>
+                <li>View and print previously filed reports</li>
+                <li>File quarterly tax and wage report adjustments</li>
+                <li>Elect first quarter deferral of taxes</li>
+            </ul>
+        </a>
+
+        <!-- Billing & Payments -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("quarterly-tax/billing-payments"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/billing-payments.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">Billing & Payments</h3>
+            </div>
+            <div class="card-body">
+                <p class="card-description">View and manage billing and payment details.</p>
+                <div class="card-info">
+                    <span class="info-label fw-bold">Balance Due:</span>
+                    <span class="info-value">$0.00</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- UI Documents -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("ui-documents"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/ui-documents.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">UI Documents</h3>
+            </div>
+            <p class="card-description">View documents and notices sent by the WI Unemployment Insurance Division.</p>
+        </a>
+
+        <!-- Appeals -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("appeals"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/appeals.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">Appeals</h3>
+            </div>
+            <div class="card-body">
+                <div class="card-body-left">
+                    <p class="card-description">File an appeal for Tax and Benefits determinations.</p>
+                    <ul class="card-list">
+                        <li>File an appeal</li>
+                        <li>Upload hearing documentation</li>
+                        <li>Update hearing contact information</li>
+                    </ul>
+                </div>
+                <div class="card-info-group">
+                    <div class="card-info">
+                        <span class="info-label fw-bold">Pending Appeals:</span>
+                        <span class="info-value">0</span>
+                    </div>
+                    <div class="card-info">
+                        <span class="info-label fw-bold">Scheduled Appeals:</span>
+                        <span class="info-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <!-- View & Manage Account -->
+        <a class="guest-dashboard-card hide-card" href="" @onclick="@(() => NavigateHere("manage-account"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/manage-account.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">View & Manage Account</h3>
+            </div>
+            <p class="card-description">View and manage account details.</p>
+            <ul class="card-list">
+                <li>View and edit employer account information</li>
+                <li>Request account access</li>
+                <li>Manage worker access</li>
+                <li>Employer registration</li>
+                <li>Manage Employer Service Providers</li>
+            </ul>
+        </a>
+
+        <!-- Other Functions -->
+        <a class="guest-dashboard-card" href="" @onclick="@(() => NavigateHere("other-functions"))" @onclick:preventDefault="true">
+            <div class="card-header">
+                <span class="card-icon">
+                    <img src="@Assets["images/dashboard/other-functions.svg"]" alt="" width="24" height="24" />
+                </span>
+                <h3 class="card-title fw-bold fs-title">Other Functions</h3>
+            </div>
+            <p class="card-description">Access additional Employer Portal functions.</p>
+            <ul class="card-list">
+                <li>Download benefit charges or taxable reserve fund transactions</li>
+                <li>Request 940C recertification</li>
+                <li>Manage email subscriptions</li>
+                <li>Upload audit files</li>
+            </ul>
+        </a>
+    </div>
+</div>

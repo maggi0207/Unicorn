@@ -1,0 +1,428 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+
+<div class="qsf-section">
+    <p>
+        <strong>
+            Payments for services performed in Wisconsin must be reported under the Wisconsin
+            Unemployment Insurance Account of the Actual Employer
+        </strong>
+    </p>
+    <p>
+        According to your registration the Qualified Settlement Fund has paid wages or will pay wages
+        for work performed in Wisconsin. . If the wages you have paid or plan to pay were not for work
+        performed in Wisconsin, then they should not be reported to Wisconsin for unemployment insurance
+        . We do not set up Qualified Settlement Funds as employers because the settlement fund itself
+        has no employment in Wisconsin. If the settlement fund is making payments to individuals with
+        respect to services those individuals performed in Wisconsin, those payments would be considered
+        covered wages reportable by the employer they worked for.
+    </p>
+
+    <!-- Officers Perform Services Question -->
+    <div id="payments-for-services-group"
+         class="@(_showAllErrors && _invalidFields.Contains("PaymentsForServices") ? "master-text-field--error" : "")">
+        <p id="payments-for-services-group-label"><strong>Were the payments for services?</strong></p>
+        @if (_showAllErrors && _invalidFields.Contains("PaymentsForServices"))
+        {
+            <ValidationError ErrorMessage="Please select an option" />
+        }
+        <RadioGroup TValue="bool?"
+            LabelledById="payments-for-services-group-label"
+                    Value="Model.PaymentsForServices"
+                    ValueChanged="OnPaymentsForServicesChanged"
+                    ValueExpression="() => Model.PaymentsForServices"
+                    CSS="@(_showAllErrors && _invalidFields.Contains("PaymentsForServices") ? "invalid" : "valid")"
+                    Options="@YesNoRadioOptions" />
+    </div>
+    
+    <!-- "Yes" branch: Entity details + address -->
+    @if (Model.PaymentsForServices == true)
+    {
+        <br />
+        <div class="qsf-entity-details">
+            <!-- Approximate Pay Date -->
+            <p id="qsf-entity-legal-name-hint">Please provide the following information about the entity that received the services:</p>
+
+            <div class="form-row">
+                <ValidatedInput Id="qsf-entity-legal-name"
+                                Label="Legal Name"
+                                Value="@Model.EntityLegalName"
+                                ValueChanged="OnEntityLegalNameChanged"
+                                HasError="@(_invalidFields.Contains("EntityLegalName"))"
+                                ErrorMessage="@_fieldErrors.GetValueOrDefault("EntityLegalName")"
+                                Visible="@_showAllErrors"
+                                HintId="qsf-entity-legal-name-hint"
+                                OnBlur="@(() => ValidateSection())"
+                                OnKeyUp="@(() => ValidateSection())"
+                                Width="330" />
+            </div>
+            
+            <div class="qsf-id-row form-row">
+                    <ValidatedInput Id="qsf-federal-id"
+                                    Label="Federal ID Number"
+                                    Value="@Model.FederalIdNumber"
+                                    ValueChanged="OnFederalIdChanged"
+                                    HasError="@(_invalidFields.Contains("FederalIdNumber"))"
+                                    ErrorMessage="@_fieldErrors.GetValueOrDefault("FederalIdNumber")"
+                                    Visible="@_showAllErrors"
+                                    MaxLength="10"
+                                    HintId="qsf-federal-id-hint"
+                                    OnBlur="@(() => ValidateSection())"
+                                    OnKeyUp="@(() => ValidateSection())"
+                                    Width="330" />
+
+                    <ValidatedInput Id="qsf-wi-ui-account"
+                                    Label="Wisconsin UI Account number (Optional)"
+                                    Value="@Model.WisconsinUiAccountNumber"
+                                    ValueChanged="OnWiUiAccountChanged"
+                                    HasError="false"
+                                    Width="330" />
+            </div>
+
+            <p id="qsf-address-line1-hint"><strong>Wisconsin address where services were performed:</strong></p>
+
+            <div class="qsf-address-row form-row">
+                <ValidatedInput Id="qsf-address-line1"
+                                Label="Address Line 1"
+                                Value="@Model.ServiceAddress.AddressLine1"
+                                ValueChanged="OnAddressLine1Changed"
+                                HasError="@(_invalidFields.Contains("AddressLine1"))"
+                                ErrorMessage="@_fieldErrors.GetValueOrDefault("AddressLine1")"
+                                Visible="@_showAllErrors"
+                                HintId="qsf-address-line1-hint"
+                                OnBlur="@(() => ValidateSection())"
+                                OnKeyUp="@(() => ValidateSection())"
+                                Width="330" />
+
+                <ValidatedInput Id="qsf-address-line2"
+                                Label="Address Line 2 (Optional)"
+                                Value="@Model.ServiceAddress.AddressLine2"
+                                ValueChanged="OnAddressLine2Changed"
+                                HasError="false"
+                                Width="330" />
+            </div>
+
+            <div class="qsf-address-row form-row">
+                <ValidatedInput Id="qsf-city"
+                                Label="City"
+                                Value="@Model.ServiceAddress.City"
+                                ValueChanged="OnCityChanged"
+                                HasError="@(_invalidFields.Contains("City"))"
+                                ErrorMessage="@_fieldErrors.GetValueOrDefault("City")"
+                                Visible="@_showAllErrors"
+                                OnBlur="@(() => ValidateSection())"
+                                OnKeyUp="@(() => ValidateSection())"
+                                Width="330" />
+
+                <StateSelect Id="qsf-state"
+                             Label="State"
+                             Value="@Model.ServiceAddress.State"
+                             ValueChanged="OnStateChanged"
+                             HasError="@(_invalidFields.Contains("State"))"
+                             ErrorMessage="@_fieldErrors.GetValueOrDefault("State")"
+                             CssClass="master-input "
+                             OnBlur="@(() => ValidateSection())"
+                             Visible="_showAllErrors" />
+            </div>
+            <div class="bi-zip-row">
+                <div class="bi-zip-field">
+                    <ValidatedInput Id="qsf-zip-code"
+                                    Label="Zip Code"
+                                    Value="@Model.ServiceAddress.ZipCode"
+                                    ValueChanged="OnZipCodeChanged"
+                                    HasError="@(_invalidFields.Contains("ZipCode"))"
+                                    ErrorMessage="@_fieldErrors.GetValueOrDefault("ZipCode")"
+                                    Visible="@_showAllErrors"
+                                    MaxLength="5"
+                                    OnBlur="@(() => ValidateSection())"
+                                    OnKeyUp="@(() => ValidateSection())"
+                                    Width="130" />
+                </div>
+                <span class="bi-zip-dash">—</span>
+                <div class="bi-ext-field">
+                    <ValidatedInput Id="qsf-zip-ext"
+                                    Label="Ext. (Optional)"
+                                    Value="@Model.ServiceAddress.ZipExtension"
+                                    ValueChanged="OnZipExtChanged"
+                                    HasError="false"
+                                    MaxLength="4"
+                                    Width="130" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- No : Reason for payments -->
+    @if (Model.PaymentsForServices == false)
+    {
+        <br/>
+        <div class="qsf-no-services">
+            <ValidatedTextArea Id="qsf-payment-reason"
+                               Label="Provide reason for payments below"
+                               Value="@(Model.PaymentReason)"
+                               ValueChanged="OnPaymentReasonChanged"
+                               HasError="@(_invalidFields.Contains("PaymentReason"))"
+                               ErrorMessage="@_fieldErrors.GetValueOrDefault("PaymentReason")"
+                               Visible="@_showAllErrors"
+                               OnBlur="@(() => ValidateSection())"
+                               OnKeyUp="@(() => ValidateSection())"
+                               Rows="3" />
+        </div>
+    }
+
+    <!-- File Upload -->
+    <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">             
+        <FileUpload Title="Court approved settlement agreement" Model="@typeof( object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
+    </div>
+
+    <!-- Will provide documentation later checkbox -->
+    <div id="qsf-provide-later-group"
+         class="form-check @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">
+        <CheckboxInput Id="qsf-provide-later"
+                       Label="I will provide documentation later."
+                       Value="@Model.WillProvideDocumentationLater"
+                       ValueChanged="OnProvideLaterChanged"
+                       HasError="@(_showAllErrors && _invalidFields.Contains("SettlementAgreement"))"
+                       ErrorMessage="Please upload Settlement Agreement or indicate you will provide it later"
+                       Visible="@_showAllErrors"
+                       CSS="@(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "invalid" : "valid")" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public QualifiedSettlementFundModel Model { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<QualifiedSettlementFundModel> OnDataChanged { get; set; }
+
+    [Parameter]
+    public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
+
+    private static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions =
+    [
+        new RadioOption<bool?> { Value = true, Label = "Yes" },
+        new RadioOption<bool?> { Value = false, Label = "No" }
+    ];
+
+    private HashSet<string> _invalidFields = [];
+    private Dictionary<string, string> _fieldErrors = [];
+    private List<ValidationItem> _validationItems = [];
+    private bool _showAllErrors;
+
+    private EditContext _editContext = default!;
+    private QualifiedSettlementFundModel? _previousModel;
+
+    protected override void OnParametersSet()
+    {
+        if(!ReferenceEquals(Model, _previousModel))
+        {
+            _previousModel = Model;
+            _editContext = new EditContext(Model);
+            _showAllErrors = false;
+            _invalidFields.Clear();
+            _fieldErrors.Clear();
+            _validationItems.Clear();
+        }
+        RegisterValidate?.Invoke(() =>
+        {
+            _showAllErrors = true;
+            return ValidateSection();
+        });
+    }
+
+    // -- Radio change --
+    private void OnPaymentsForServicesChanged(bool? value)
+    {
+        _showAllErrors = false;
+        _invalidFields.Clear();
+        _fieldErrors.Clear();
+        _validationItems.Clear();
+
+        Model.PaymentsForServices = value;
+        if (value == true)
+        {
+            // Clear 'No' branch data
+            Model.PaymentReason = null;
+        }
+        else if (value == false)
+        {
+            // Clear 'Yes' branch data
+            Model.EntityLegalName = null;
+            Model.FederalIdNumber = null;
+            Model.WisconsinUiAccountNumber = null;
+            Model.ServiceAddress = new();
+        }
+        NotifyDataChanged();
+    }
+
+    // --- 'Yes' branch handlers ---
+    private void OnEntityLegalNameChanged(string value) { Model.EntityLegalName = value; NotifyDataChanged(); }
+    private void OnFederalIdChanged(string value) { Model.FederalIdNumber = value; NotifyDataChanged(); }
+    private void OnWiUiAccountChanged(string value) { Model.WisconsinUiAccountNumber = value; NotifyDataChanged(); }
+    private void OnAddressLine1Changed(string value) { Model.ServiceAddress.AddressLine1 = value; NotifyDataChanged(); }
+    private void OnAddressLine2Changed(string value) { Model.ServiceAddress.AddressLine2 = value; NotifyDataChanged(); }
+    private void OnCityChanged(string value) { Model.ServiceAddress.City = value; NotifyDataChanged(); }
+    private void OnStateChanged(string value) { Model.ServiceAddress.State = value; NotifyDataChanged(); }
+    private void OnZipCodeChanged(string value) { Model.ServiceAddress.ZipCode = value; NotifyDataChanged(); }
+    private void OnZipExtChanged(string value) { Model.ServiceAddress.ZipExtension = value; NotifyDataChanged(); }
+
+    // --- 'No' branch handlers ---
+    private void OnPaymentReasonChanged(string value) { Model.PaymentReason = value; NotifyDataChanged(); }
+
+    private void OnProvideLaterChanged(bool value)
+    {
+        Model.WillProvideDocumentationLater = value;
+        if(value)
+        {
+            Model.FilePath = null;
+            if(_invalidFields.Contains("SettlementAgreement"))
+            {
+                _invalidFields.Remove("SettlementAgreement");
+                _fieldErrors.Remove("SettlementAgreement");
+            }
+        }
+        NotifyDataChanged();
+    }
+
+    // -- File upload ---
+    private Task ReceiveFilePath(string uploadedFilePath)
+    {
+        Model.FilePath = uploadedFilePath;
+        if (!string.IsNullOrEmpty(Model.FilePath))
+        {
+            if(_invalidFields.Contains("SettlementAgreement"))
+            {
+                _invalidFields.Remove("SettlementAgreement");
+                _fieldErrors.Remove("SettlementAgreement");
+            }
+            Model.WillProvideDocumentationLater = false;
+        }
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Validates the section and returns validation items for the parent to aggregate.
+    /// </summary>
+    public List<ValidationItem> ValidateSection()
+    {
+        _invalidFields.Clear();
+        _fieldErrors.Clear();
+        _validationItems.Clear();
+
+        // Must answer Yes or No
+        if (Model.PaymentsForServices is null)
+        {
+            _invalidFields.Add("PaymentsForServices");
+            _fieldErrors["PaymentsForServices"] = "Please select whether the payments were for services";
+            _validationItems.Add(new ValidationItem(                                        
+                "Please select whether the payments were for services",        
+                "payments-for-services-group"));
+        }
+                                                                     
+        // "Yes" branch validations
+        if (Model.PaymentsForServices == true)
+        {
+            if (string.IsNullOrWhiteSpace(Model.EntityLegalName))
+            {
+                _invalidFields.Add("EntityLegalName");
+                _fieldErrors["EntityLegalName"] = "Legal name is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the legal name of the entity that received the services",
+                    "qsf-entity-legal-name"));
+            }
+
+            if (string.IsNullOrWhiteSpace(Model.FederalIdNumber))
+            {
+                _invalidFields.Add("FederalIdNumber");
+                _fieldErrors["FederalIdNumber"] = "Federal Id Number is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the Federal Id Number",
+                    "qsf-federal-id"));
+            }
+
+            //Address validations
+            if (string.IsNullOrWhiteSpace(Model.ServiceAddress.AddressLine1))
+            {
+                _invalidFields.Add("AddressLine1");
+                _fieldErrors["AddressLine1"] = "Address Line 1 is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the Address Line 1",
+                    "qsf-address-line1"));
+            }
+
+            if (string.IsNullOrWhiteSpace(Model.ServiceAddress.City))
+            {
+                _invalidFields.Add("City");
+                _fieldErrors["City"] = "City is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the city",
+                    "qsf-city"));
+            }
+
+            if (string.IsNullOrWhiteSpace(Model.ServiceAddress.State))
+            {
+                _invalidFields.Add("State");
+                _fieldErrors["State"] = "State is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the State",
+                    "qsf-state"));
+            }
+
+            if (string.IsNullOrWhiteSpace(Model.ServiceAddress.ZipCode))
+            {
+                _invalidFields.Add("ZipCode");
+                _fieldErrors["ZipCode"] = "Zip Code is required";
+                _validationItems.Add(new ValidationItem(
+                    "Please enter the zip code",
+                    "qsf-zip-code"));
+            }
+            else if (Model.ServiceAddress.ZipCode.Length != 5 || !Model.ServiceAddress.ZipCode.All(char.IsDigit))
+            {
+                _invalidFields.Add("ZipCode");
+                _fieldErrors["ZipCode"] = "Zip Code must be 5 digits";
+                _validationItems.Add(new ValidationItem(
+                    "Zip Code must be 5 digits",
+                    "qsf-zip-code"));
+            }
+        }
+
+        // "No" branch validations
+        if(Model.PaymentsForServices == false)
+        {
+            if (string.IsNullOrWhiteSpace(Model.PaymentReason))
+            {
+                _invalidFields.Add("PaymentReason");
+                _fieldErrors["PaymentReason"] = "Please provide a reason for payments";
+                _validationItems.Add(new ValidationItem(
+                    "Please provide a reason for payments",
+                    "qsf-payment-reason"));
+            }
+        }
+
+        // File uload validation
+        if(!Model.WillProvideDocumentationLater && string.IsNullOrEmpty(Model.FilePath))
+        {
+            _invalidFields.Add("SettlementAgreement");
+            _fieldErrors["SettlementAgreement"] = "Please upload Settlement Agreement or indicate you will provide it later";
+                _validationItems.Add(new ValidationItem(
+                    "Please upload Settlement Agreement or indicate you will provide it later",
+                    "qsf-provide-later-group"));
+        }
+
+        StateHasChanged();
+        return _validationItems;
+    }
+
+    private void NotifyDataChanged()
+    {
+        if (_showAllErrors)
+        {
+            ValidateSection();
+        }
+        _ = OnDataChanged.InvokeAsync(Model);
+    }
+}

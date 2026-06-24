@@ -1,0 +1,127 @@
+
+.account-header {
+    width: 100%;
+    min-height: 152px;
+    margin: 0 auto;
+    padding: 2rem 0px 0px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 10px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+}
+
+.account-details {
+    width: 100%;
+    max-width: 920px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--color-text);
+}
+
+.account-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    padding-left:15rem;
+}
+
+.detail-item {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.account-no,
+.balance-due {
+    width: auto;
+}
+
+    .account-no .detail-label,
+    .account-no .detail-value,
+    .balance-due .detail-label,
+    .balance-due .detail-value {
+        width: auto;
+    }
+
+/* Tablet styles */
+@media (max-width: 1023px) {
+    .account-header {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 575px) {
+    .account-header {
+        padding: var(--spacing-sm);
+    }
+
+    .account-name {
+        font-size: var(--font-size-lg);
+    }
+
+    .account-info {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .detail-item {
+        flex-wrap: wrap;
+    }
+}
+
+
+
+/* ── Section bar ─────────────────────────────────────────────────────────── */
+.gak-section-bar {
+    color: var(--color-header-nav);
+    font-family: var(--font-primary);
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    padding: 10px 0px 0px;
+    border-bottom:solid 0.5px;
+}
+
+
+
+/* ── Body ────────────────────────────────────────────────────────────────── */
+.gak-body {
+    padding: 20px 24px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-left: 15rem;
+    margin-right:30rem;
+}
+.gak-main-body {
+    padding: 20px 24px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+
+.gak-description {
+    margin: 0;
+    font-family: var(--font-primary);
+    font-size: 16px;
+    color: var(--color-text);
+}
+
+::deep .master-text-field {
+    max-width: 80%;
+}
+
+::deep .nb-alert,::deep .nb-confirmation {
+    max-width: 80%
+}
+
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.gak-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6rem 24px 0px 0px;
+}      
+
+

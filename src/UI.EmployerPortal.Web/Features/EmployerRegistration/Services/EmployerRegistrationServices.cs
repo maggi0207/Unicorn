@@ -5,12 +5,13 @@ using UI.EmployerPortal.Generated.ServiceClients.PortalCorrespondenceService;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
+using PortalContinueRegistrationResponse = UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService.PortalContinueRegistrationResponse;
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 
 internal interface IEmployerRegistrationServices
 {
-    Task<List<RegisterEmployer>> GetRegisterEmployer();
+    Task<List<RegisterEmployer>> GetRegisterEmployer(int surveyResponseSk);
 
     Task<PortalContinueRegistrationResponse> ContinueRegistration(
         string fein,
@@ -42,7 +43,7 @@ internal class EmployerRegistrationServices : IEmployerRegistrationServices
         _employerRegistrationService = portalRegistrationService;
         _portalCorrespondenceService = portalCorrespondenceService;
     }
-    public async Task<List<RegisterEmployer>> GetRegisterEmployer()
+    public async Task<List<RegisterEmployer>> GetRegisterEmployer(int surveyResponseSk)
     {
         var associatedregemp = new ConcurrentBag<RegisterEmployer>();
         var registeredemployee = await _retryPolicy.ExecuteAsync(() =>
@@ -51,7 +52,7 @@ internal class EmployerRegistrationServices : IEmployerRegistrationServices
                 new RequestForEmployerRegistration()
                 {
                     SecureUserSK = _userAccountService.GetUserSKClaim(),
-                    SurveyResponseSK = _userAccountService.GetUserSKClaim()
+                    SurveyResponseSK = surveyResponseSk
                 });
         });
 

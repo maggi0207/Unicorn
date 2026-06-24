@@ -1,5 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Components.Forms;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
@@ -25,10 +26,17 @@ public partial class BusinessActivity : ComponentBase
     private Dictionary<string, string> FieldErrors { get; set; } = [];
     private HashSet<string> TouchedFields { get; set; } = [];
 
+
+    /// <summary>Tracks whether the form has been submitted at least once.</summary>
+    private bool _formSubmitted = false;
+
+    /// <summary>Tracks which fields have been interacted with so errors show on blur.</summary>
+
+    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+
     [Inject]
     private NavigationManager Navigation { get; set; } = default!;
-
-    [Inject] private ProtectedSessionStorage SessionStorage { get; set; } = default!;
 
     [Inject] private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
 
@@ -64,67 +72,23 @@ public partial class BusinessActivity : ComponentBase
         }
     }
 
+    private EditContext _editContext = default!;
+    private bool _hasValidationErrors = false;
+
     /// <summary>
     /// Initialize fields on startup
     /// </summary>
     /// <returns></returns>
     protected override async void OnInitialized()
     {
-        await ClearStoredData();
-    }
-
-    /// <summary>
-    /// Load saved form data from session storage
-    /// </summary>
-    private async Task LoadFromSession()
-    {
-        try
+        _editContext = new EditContext(Model);
+        _editContext.OnFieldChanged += (_, e) =>
         {
-            var result = await SessionStorage.GetAsync<BusinessActivitySessionData>("BusinessActivityData");
-            if (result.Success && result.Value != null)
-            {
-                var savedData = result.Value;
-                Model.DateBusinessStarted = savedData.DateBusinessStarted;
-                Model.DateFirstPaidEmployeesInWI = savedData.DateFirstPaidEmployeesInWI;
-                Model.DateFirstPaidWagesInWI = savedData.DateFirstPaidWagesInWI;
-                Model.PrincipalBusinessActivity = savedData.PrincipalBusinessActivity;
-                Model.PrimaryBusinessActivityDescription = savedData.PrimaryBusinessActivityDescription;
-                Model.SameAsPrimaryBusinessActivity = savedData.SameAsPrimaryBusinessActivity;
-                Model.WisconsinSpecificBusinessActivity = savedData.WisconsinSpecificBusinessActivity;
-
-                CheckConstructionWarning();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading from session: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Save form data to session storage
-    /// </summary>
-    private async Task SaveToSession()
-    {
-        try
-        {
-            var sessionData = new BusinessActivitySessionData
-            {
-                DateBusinessStarted = Model.DateBusinessStarted,
-                DateFirstPaidEmployeesInWI = Model.DateFirstPaidEmployeesInWI,
-                DateFirstPaidWagesInWI = Model.DateFirstPaidWagesInWI,
-                PrincipalBusinessActivity = Model.PrincipalBusinessActivity,
-                PrimaryBusinessActivityDescription = Model.PrimaryBusinessActivityDescription,
-                SameAsPrimaryBusinessActivity = Model.SameAsPrimaryBusinessActivity,
-                WisconsinSpecificBusinessActivity = Model.WisconsinSpecificBusinessActivity
-            };
-
-            await SessionStorage.SetAsync("BusinessActivityData", sessionData);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving to session: {ex.Message}");
-        }
+            _touchedFields.Add(e.FieldIdentifier);
+            _hasValidationErrors = _editContext.GetValidationMessages().Any();
+            StateHasChanged();
+        };
+        CheckConstructionWarning();
     }
 
     /// <summary>
@@ -135,8 +99,40 @@ public partial class BusinessActivity : ComponentBase
         Model.PrimaryBusinessActivityDescription = string.Empty;
         Model.WisconsinSpecificBusinessActivity = string.Empty;
 
+        Model.SuppliesTemporaryWorkers = null;
+        Model.ProvidesEmployeeLeasing = null;
+        Model.EmployerServiceExplanation = string.Empty;
+
+        Model.EmployeeType = string.Empty;
+        Model.EmployeeCount = string.Empty;
+        Model.ServicesDescription = string.Empty;
+
         InvokeAsync(StateHasChanged);
         CheckConstructionWarning();
+        ValidateForm();
+    }
+
+    private void OnTempWorkersChanged(bool? value)
+    {
+        Model.SuppliesTemporaryWorkers = value;
+
+        if (value == true || Model.ProvidesEmployeeLeasing == true)
+        {
+            Model.EmployerServiceExplanation = string.Empty;
+        }
+        OnFieldChanged("SuppliesTemporaryWorkers");
+        ValidateForm();
+    }
+
+    private void OnEmployeeLeasingChanged(bool? value)
+    {
+        Model.ProvidesEmployeeLeasing = value;
+
+        if (value == true || Model.SuppliesTemporaryWorkers == true)
+        {
+            Model.EmployerServiceExplanation = string.Empty;
+        }
+        OnFieldChanged("ProvidesEmployeeLeasing");
         ValidateForm();
     }
 
@@ -147,6 +143,15 @@ public partial class BusinessActivity : ComponentBase
     {
         _showConstructionWarning = Model.PrincipalBusinessActivity.IsConstructionRelated();
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions = new[]
+    {
+      new RadioOption<bool?> {Value =true, Label = "Yes"},
+      new RadioOption<bool?> {Value =false, Label = "No"}
+    };
 
     /// <summary>
     /// IsFieldTouched
@@ -169,7 +174,13 @@ public partial class BusinessActivity : ComponentBase
                 "DateFirstPaidWagesInWI",
                 "PrincipalBusinessActivity",
                 "PrimaryBusinessActivityDescription",
-                "WisconsinSpecificBusinessActivity"
+                "WisconsinSpecificBusinessActivity",
+                "SuppliesTemporaryWorkers",
+                "ProvidesEmployeeLeasing",
+                "EmployerServiceExplanantion",
+                "EmployeeType",
+                "ServicesDescription",
+                "EmployeeCount",
             ];
     }
     /// <summary>
@@ -182,10 +193,18 @@ public partial class BusinessActivity : ComponentBase
         ValidateForm();
     }
 
-    private void OnFieldBlur(string fieldKey)
+    private void OnFieldBlur(Expression<Func<object?>> fieldExpression)
+
     {
-        TouchedFields.Remove(fieldKey);
+        var fieldIdentifier = FieldIdentifier.Create(fieldExpression);
+        _touchedFields.Add(fieldIdentifier);
+
         ValidateForm();
+        StateHasChanged();
+    }
+    private bool IsVisible(Expression<Func<string?>> @for)
+    {
+        return _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(@for));
     }
 
     private static string GetElementId(string fieldKey)
@@ -198,6 +217,13 @@ public partial class BusinessActivity : ComponentBase
             "PrincipalBusinessActivity" => "principal-activity",
             "PrimaryBusinessActivityDescription" => "primaryDescription",
             "WisconsinSpecificBusinessActivity" => "wiDescription",
+            "SuppliesTemporaryWorkers" => "tempWorkers",
+            "ProvidesEmployeeLeasing" => "employeeLeasing",
+            "EmployerServiceExplanantion" => "employeeExplanation",
+            "EmployeeType" => "employeeType",
+            "EmployeeCount" => "employeeCount",
+            "ServicesDescription" => "servicesDescription",
+
             _ => string.Empty
         };
     }
@@ -226,7 +252,7 @@ public partial class BusinessActivity : ComponentBase
             // Date Business Started
             if (!Model.DateBusinessStarted.HasValue)
             {
-                AddFieldError("DateBusinessStarted", "Date business started or acquired is required");
+                AddFieldError("DateBusinessStarted", "Date business started is not valid. Format example: mm/dd/yyyy");
             }
             else if (IsFutureDate(Model.DateBusinessStarted.Value))
             {
@@ -236,7 +262,7 @@ public partial class BusinessActivity : ComponentBase
             // Date First Paid Employees In WI
             if (!Model.DateFirstPaidEmployeesInWI.HasValue)
             {
-                AddFieldError("DateFirstPaidEmployeesInWI", "Date you first had paid employees in WI is required");
+                AddFieldError("DateFirstPaidEmployeesInWI", "Date you first had employees working in Wisconsin is not valid. Format example: mm/dd/yyyy");
             }
             else if (IsFutureDate(Model.DateFirstPaidEmployeesInWI.Value))
             {
@@ -246,7 +272,7 @@ public partial class BusinessActivity : ComponentBase
             // Date First Paid Wages In WI
             if (!Model.DateFirstPaidWagesInWI.HasValue)
             {
-                AddFieldError("DateFirstPaidWagesInWI", "Date first paid wages for work performed in WI is required");
+                AddFieldError("DateFirstPaidWagesInWI", "Date you first paid wages for work performed in Wisconsin is not valid. Format example: mm/dd/yyyy");
             }
             else
             {
@@ -271,7 +297,7 @@ public partial class BusinessActivity : ComponentBase
                     && Model.DateFirstPaidEmployeesInWI.HasValue
                     && wagesDate < Model.DateFirstPaidEmployeesInWI.Value.Date)
                 {
-                    AddFieldError("DateFirstPaidWagesInWI", "Date you first paid wages for work performed in Wisconsin must be on or after the date you first had paid employees working in Wisconsin");
+                    AddFieldError("DateFirstPaidWagesInWI", "Date you first paid wages for work performed in Wisconsin must be on or after the date you first had employees working in Wisconsin.");
                 }
             }
         }
@@ -284,6 +310,38 @@ public partial class BusinessActivity : ComponentBase
         if (string.IsNullOrWhiteSpace(Model.PrimaryBusinessActivityDescription))
         {
             AddFieldError("PrimaryBusinessActivityDescription", "Primary Business Activity Description is required");
+        }
+
+        if (Model.PrincipalBusinessActivity == PrincipalBusinessActivityType.EmployerServices)
+        {
+            if (!Model.SuppliesTemporaryWorkers.HasValue)
+            {
+                AddFieldError("SuppliesTemporaryWorkers", "The question must be answered to continue");
+            }
+            if (!Model.ProvidesEmployeeLeasing.HasValue)
+            {
+                AddFieldError("ProvidesEmployeeLeasing", "The question must be answered to continue");
+            }
+            if (Model.SuppliesTemporaryWorkers == false && Model.ProvidesEmployeeLeasing == false && string.IsNullOrWhiteSpace(Model.EmployerServiceExplanation))
+            {
+                AddFieldError("EmployerServiceExplanantion", "Explanation is required");
+            }
+        }
+
+        if (Model.PrincipalBusinessActivity == PrincipalBusinessActivityType.EmployerServicesPayrollService)
+        {
+            if (string.IsNullOrWhiteSpace(Model.EmployeeType))
+            {
+                AddFieldError("EmployeeType", "The question must be answered to continue");
+            }
+            if (string.IsNullOrWhiteSpace(Model.EmployeeCount))
+            {
+                AddFieldError("EmployeeCount", "You must enter the number of employees performing services in Wisconsin");
+            }
+            if (string.IsNullOrWhiteSpace(Model.ServicesDescription))
+            {
+                AddFieldError("ServicesDescription", "The question must be answered to continue");
+            }
         }
 
         // Auto-copy primary description if checkbox is checked
@@ -312,28 +370,30 @@ public partial class BusinessActivity : ComponentBase
         }
 
         _showValidationSummary = false;
-        await SaveToSession();
         await InvokeAsync(StateHasChanged);
         return true;
-    }
-
-    /// <summary>
-    /// Clear business activity data from session (call after successful submission)
-    /// </summary>
-    public async Task ClearStoredData()
-    {
-        try
-        {
-            await SessionStorage.DeleteAsync("BusinessActivityData");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error clearing storage: {ex.Message}");
-        }
     }
 
     private static bool IsFutureDate(DateTime date)
     {
         return date.Date > DateTime.Today;
     }
+
+    private void HandleContinue()
+    {
+        _formSubmitted = true;
+        _hasValidationErrors = false;
+        StateHasChanged();
+    }
+
+    /// <summary>Called by EditForm when top-level validation fails.</summary>
+
+    private void OnInvalid()
+    {
+        _formSubmitted = true;
+        _hasValidationErrors = true;
+        StateHasChanged();
+    }
+
+
 }

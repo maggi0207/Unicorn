@@ -38,7 +38,6 @@ public class AddressValidationCoordinator
     /// </summary>
     /// <param name="addresses">Pairs of display label and address model to validate.</param>
     /// <param name="editStep">Wizard step to return to when the user clicks EDIT ADDRESS.</param>
-    /// <param name="postCorrectionStep">Wizard step to advance to after all corrections are resolved.</param>
     /// <param name="onBeforeNavigate">
     /// Optional callback invoked just before navigation — use it to save model state into
     /// <see cref="RegistrationStateService"/> so the component can restore it on return.
@@ -46,22 +45,22 @@ public class AddressValidationCoordinator
     public async Task<bool> ValidateAndRedirectAsync(
         IEnumerable<(string Label, AddressModel Address)> addresses,
         int editStep,
-        int postCorrectionStep,
         Action? onBeforeNavigate = null)
     {
         var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(_validator, addresses);
 
         if (!corrections.Any())
+        {
             return true;
+        }
 
         onBeforeNavigate?.Invoke();
 
         _state.AddressCorrections = corrections;
         _state.CorrectionIndex = 0;
         _state.EditStep = editStep;
-        _state.PostCorrectionStep = postCorrectionStep;
 
-        _nav.NavigateTo("/employer-registration/address-correction");
+        _nav.NavigateTo("employer-registration/address-correction");
         return false;
     }
 }

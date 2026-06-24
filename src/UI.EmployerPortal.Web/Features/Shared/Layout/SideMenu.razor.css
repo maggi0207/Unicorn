@@ -1,0 +1,220 @@
+.side-menu {
+    width: 354px;
+    background-color: var(--color-white);
+    box-shadow: var(--shadow-menu);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    flex-shrink: 0;
+}
+
+    .side-menu.minimized {
+        width: 56px;
+    }
+/* Tablet styles */
+@media (max-width: 1023px) {
+    .side-menu {
+        width: 280px;
+    }
+
+        .side-menu.minimized {
+            width: 56px;
+        }
+}
+/* Mobile styles */
+@media (max-width: 575px) {
+    .side-menu {
+        width: 220px;
+    }
+
+        .side-menu.minimized {
+            width: 48px;
+        }
+}
+
+.menu-toggle {
+    width: 100%;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-gray-medium);
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.side-menu.minimized .menu-toggle {
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.menu-toggle-text {
+    flex: 1;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-header-nav);
+}
+
+.menu-list,
+.submenu-list {
+    list-style: none;
+    padding-left: 0px;
+}
+
+.side-menu li::marker {
+    content: '';
+}
+
+.menu-item-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+    .menu-item-container .menu-item {
+        flex: 1;
+    }
+
+.menu-item {
+    width: 100%;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-gray-medium);
+    cursor: pointer;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: var(--color-header-nav);
+}
+
+.side-menu.minimized .menu-item {
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.menu-item:hover {
+    background-color: var(--color-gray-lighter);
+}
+
+.menu-item.highlighted {
+    height: 84px;
+    background-color: var(--color-header-nav);
+    color: var(--color-white);
+}
+
+    .menu-item.highlighted:hover {
+        background-color: var(--color-header-nav);
+    }
+
+    .menu-item.highlighted .menu-text {
+        color: var(--color-white);
+    }
+
+.menu-icon {
+    flex-shrink: 0;
+}
+
+.menu-item.highlighted .menu-icon {
+    filter: brightness(0) invert(1);
+}
+
+.menu-text {
+    flex: 1;
+    line-height: 160%;
+    color: var(--color-header-nav);
+}
+
+.submenu-arrow {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+    .submenu-arrow.rotated {
+        transform: rotate(180deg);
+    }
+
+.submenu-toggle {
+    flex-shrink: 0;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    
+    color: inherit;
+}
+
+    .submenu-toggle:focus {
+        outline: 2px solid var(--color-blue-focus);
+        outline-offset: -2px;
+    }
+
+.menu-item.highlighted ~ .submenu-toggle {
+    background-color: var(--color-header-nav);
+    height: 84px;
+}
+
+.submenu-item {
+    width: 100%;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 48px;
+    border-bottom: 1px solid var(--color-gray-medium);
+    cursor: pointer;
+    box-sizing: border-box;
+    background-color: var(--color-gray-lighter);
+    text-decoration: none;
+    color: var(--color-header-nav);
+}
+
+    .submenu-item:hover {
+        background-color: var(--color-gray-light);
+    }
+
+    .submenu-item.selected {
+        padding-left: 44px;
+        background-color: var(--color-blue-highlight);
+        border-left: 4px solid var(--color-header-nav);
+    }
+
+.submenu-text {
+    line-height: var(--line-height-relaxed);
+    color: var(--color-header-nav);
+}
+
+.menu-toggle:focus-visible,
+.menu-item:focus-visible,
+.submenu-item:focus-visible,
+.submenu-toggle:focus-visible {
+    outline: 2px solid var(--color-blue-focus);
+    outline-offset: -2px;
+}
+
+.menu-toggle:focus:not(:focus-visible),
+.menu-item:focus:not(:focus-visible),
+.submenu-item:focus:not(:focus-visible),
+.submenu-toggle:focus:not(:focus-visible) {
+    outline: none;
+}
+
+button.menu-toggle,
+button.menu-item,
+a.menu-item,
+button.submenu-item,
+a.submenu-item {
+    border: none;
+    background: none;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}

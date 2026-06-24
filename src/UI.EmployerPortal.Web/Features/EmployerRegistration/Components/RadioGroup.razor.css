@@ -1,0 +1,41 @@
+
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    height: 30px;
+    width: 600px;
+    cursor: pointer;
+}
+
+.radio-control {
+    width: 30px;
+    height: 30px;
+    opacity: 1;
+    top: 3px;
+    left: 3px;
+    background: #7A7A7A;
+    color: black;
+}
+
+.radio-label {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: 16px;
+    line-height: var(--line-height-relaxed);
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color:var(--color-black);
+}
+/* Optional polish */
+.radio-option:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+}

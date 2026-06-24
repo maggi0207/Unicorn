@@ -1,0 +1,208 @@
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+
+<div class="sole-proprietorship-section">
+    <div class="owner-info-section">
+        <h2 class="section-subtitle">@Config.Header</h2>
+
+        <div class="member-card">
+            <h3 class="member-title">@Config.MemberLabel</h3>
+
+            <div class="member-fields">
+                <ValidatedInput Id="first-name"
+                                Label="First Name"
+                                Value="@Owner.FirstName"
+                                ValueChanged="@(v => Owner.FirstName = v)"
+                                MaxLength="64"
+                                Width="140"
+                                HasError="@FieldErrors.ContainsKey("FirstName")"
+                                ErrorMessage="First Name is required"
+                                Visible="_showAllErrors"
+                                OnKeyUp="@(() => ValidateForm())"
+                                OnBlur="@(() => ValidateForm())" />
+
+                <ValidatedInput Id="middle-initial"
+                                Label="Middle Initial"
+                                Value="@Owner.MiddleInitial"
+                                ValueChanged="@(v => Owner.MiddleInitial = v)"
+                                MaxLength="1"
+                                Width="150" />
+
+                <ValidatedInput Id="last-name"
+                                Label="Last Name"
+                                Value="@Owner.LastName"
+                                ValueChanged="@(v => Owner.LastName = v)"
+                                MaxLength="64"
+                                Width="140"
+                                HasError="@FieldErrors.ContainsKey("LastName")"
+                                ErrorMessage="Last Name is required"
+                                Visible="_showAllErrors"
+                                OnKeyUp="@(() => ValidateForm())"
+                                OnBlur="@(() => ValidateForm())" />
+
+                <SSNInput Id="owner-ssn"
+                          Label="SSN"
+                          Value="@Owner.SSN"
+                          ValueChanged="@((string value) => OnSSNChanged(value))"
+                          IsFocused="@Owner.IsSSNFocused"
+                          IsFocusedChanged="@((bool focused) => Owner.IsSSNFocused = focused)"
+                          IsRequired="true"
+                          Width="190"
+                          HasError="@FieldErrors.ContainsKey("SSN")"
+                          ErrorMessage="@FieldErrors.GetValueOrDefault("SSN")"
+                          Visible="_showAllErrors"
+                          OnKeyUp="@(() => ValidateForm())"
+                          OnBlur="@(() => ValidateForm())" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public OwnershipFormConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<OwnerMember> OnDataChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<List<ValidationItem>> OnValidationChanged { get; set; }
+
+    [Parameter]
+    public object? SavedData { get; set; }
+
+    [Parameter]
+    public OwnershipSessionData ContinueData { get; set; } = default!;
+
+    [Parameter]
+    public Action<Func<List<string>>>? RegisterValidate { get; set; }
+
+    private OwnerMember Owner { get; set; } = new();
+    private List<string> ValidationErrors { get; set; } = [];
+    private List<ValidationItem> _validationItems { get; set; } = [];
+    private HashSet<string> InvalidFields { get; set; } = [];
+    private Dictionary<string, string> FieldErrors { get; set; } = [];
+    private bool _showAllErrors;
+    private bool _dataRestored;
+
+    protected override void OnInitialized()
+    {
+        Owner = new OwnerMember();
+        RestoreFromContinueData();
+        RegisterValidate?.Invoke(() => { _showAllErrors = true; ValidateForm(); return ValidationErrors; });
+    }
+
+    private void RestoreFromContinueData()
+    {
+        if (_dataRestored || ContinueData == null)
+            return;
+
+        try
+        {
+            if (ContinueData.Owner != null)
+            {
+                Owner = new OwnerMember
+                {
+                    Role = ContinueData.Owner.Role,
+                    FirstName = ContinueData.Owner.FirstName,
+                    MiddleInitial = ContinueData.Owner.MiddleInitial,
+                    LastName = ContinueData.Owner.LastName,
+                    SSN = ContinueData.Owner.SSN,
+                    OwnershipPercentage = ContinueData.Owner.OwnershipPercentage
+                };
+                _dataRestored = true;
+            }
+        }
+        catch
+        {
+            // Failed to restore, continue with defaults
+        }
+    }
+
+    private void OnSSNChanged(string value)
+    {
+        Owner.SSN = value;
+        ValidateForm();
+    }
+
+    private static string GetElementId(string fieldKey)
+    {
+        return fieldKey switch
+        {
+            "FirstName" => $"first-name",
+            "LastName" => $"last-name",
+            "SSN" => $"owner-ssn",
+            "OwnershipPercentage" => $"ownership-percentage",
+            _ => string.Empty
+        };
+    }
+
+    private void AddFieldError(string fieldKey, string message)
+    {
+        ValidationErrors.Add(message);
+        _validationItems.Add(new ValidationItem(message, GetElementId(fieldKey)));
+        InvalidFields.Add(fieldKey);
+        FieldErrors[fieldKey] = message;
+    }
+
+    private void ValidateForm()
+    {
+        ValidationErrors.Clear();
+        _validationItems.Clear();
+        InvalidFields.Clear();
+        FieldErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(Owner.FirstName))
+        {
+            AddFieldError("FirstName", "First Name is required");
+        }
+        else if (Owner.FirstName.Length > 64)
+        {
+            AddFieldError("FirstName", "First Name must not exceed 64 characters");
+        }
+
+        if (string.IsNullOrWhiteSpace(Owner.LastName))
+        {
+            AddFieldError("LastName", "Last Name is required");
+        }
+        else if (Owner.LastName.Length > 64)
+        {
+            AddFieldError("LastName", "Last Name must not exceed 64 characters");
+        }
+
+        if (!string.IsNullOrWhiteSpace(Owner.SSN))
+        {
+            var ssnResult = SSNInput.ValidateSSN(Owner.SSN, "SSN");
+            if (ssnResult != null && !ssnResult.IsValid)
+            {
+                AddFieldError("SSN", ssnResult.ErrorMessage);
+            }
+        }
+        else
+        {
+            AddFieldError($"SSN", $"{Owner.SSN} SSN is required");
+        }
+
+        if (Owner.OwnershipPercentage.HasValue)
+        {
+            if (Owner.OwnershipPercentage < 0 || Owner.OwnershipPercentage > 100)
+            {
+                AddFieldError("OwnershipPercentage", "Ownership Percentage must be between 0 and 100.00");
+            }
+            else if (decimal.Round(Owner.OwnershipPercentage.Value, 2) != Owner.OwnershipPercentage.Value)
+            {
+                AddFieldError("OwnershipPercentage", "Ownership Percentage must not exceed 2 decimal places");
+            }
+        }
+
+        _ = OnValidationChanged.InvokeAsync(_validationItems);
+        NotifyDataChanged();
+        StateHasChanged();
+    }
+
+    private void NotifyDataChanged() => _ = OnDataChanged.InvokeAsync(Owner);
+
+    private string GetFieldCssClass(string fieldName) =>
+        InvalidFields.Contains(fieldName) ? "input-validation-error" : string.Empty;
+}

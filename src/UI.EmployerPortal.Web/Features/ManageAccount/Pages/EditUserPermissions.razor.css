@@ -1,0 +1,79 @@
+/* ── Page layout ──────────────────────────────────────────────────────────── */
+.edit-perms-page {
+    width: 100%;
+    /*max-width: 1392px;*/
+    padding: var(--spacing-lg);
+}
+
+/* ── Error wrapper ───────────────────────────────────────────────────────── */
+.edit-perms-error-wrapper {
+    margin-bottom: 16px;
+}
+
+/* ── Title ────────────────────────────────────────────────────────────────── */
+.edit-perms-title {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 120%;
+    color: #000;
+    margin: 0 0 8px 0;
+}
+
+.edit-perms-subheader {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    color: #000;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ADADAD;
+    margin-bottom: 24px;
+}
+
+.edit-perms-meta strong {
+    font-weight: 700;
+    margin-right: 4px;
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────── */
+.edit-perms-body {
+    /*max-width: 600px;*/
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.edit-perms-permissions-label {
+    color: #003663;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    border-bottom: 2px solid #003663;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+
+.edit-perms-text {
+    margin: 0 0 12px 0;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #000;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.edit-perms-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    /*max-width: 600px;*/
+    margin: 32px auto 0 auto;
+    padding: 0 24px;
+}
+
+.edit-perms-footer-manager {
+    justify-content: space-between;
+}
+

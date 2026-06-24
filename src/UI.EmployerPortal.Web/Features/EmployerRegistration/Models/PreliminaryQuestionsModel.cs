@@ -211,6 +211,16 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     }
 
     /// <inheritdoc/>
+    public void PutAddressSKs(RegistrationAddressProxy[] addresses)
+    {
+        if (AcquiredBusinessAddress != null
+            && IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.Acquired_Business, out var acquiredBusinessAddress))
+        {
+            AcquiredBusinessAddress.RegistrationAddressSk = acquiredBusinessAddress.EmployerRegistrationAddressSK;
+        }
+    }
+
+    /// <inheritdoc/>
     public List<SurveyContact> GetSurveyContacts()
     {
         return new();
@@ -576,7 +586,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
         //if (IsNonProfitOrg.HasValue)
         //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NON_PRFT_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsNonProfitOrg.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsNonProfitOrg.Value) });
+        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NON_PRFT_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(IsNonProfitOrg.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsNonProfitOrg.Value) });
         //}
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_NON_PRFT_FLG, out var is501c3)) // 1.17
         {
@@ -648,7 +658,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
         //if (AcquiredExistingBusiness.HasValue)
         //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(AcquiredExistingBusiness.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(AcquiredExistingBusiness.Value) });
+        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(AcquiredExistingBusiness.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(AcquiredExistingBusiness.Value) });
         //}
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_BUS_FLG, out var acquiredExistingBusiness))
         {
@@ -656,7 +666,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
             //if (visibilityQ2_1 && KnowAcquiredBusinessAccountNumber.HasValue)
             //{
-            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_ACCT_NUM_KNWN, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(KnowAcquiredBusinessAccountNumber.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(KnowAcquiredBusinessAccountNumber.Value) });
+            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_ACCT_NUM_KNWN, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(KnowAcquiredBusinessAccountNumber.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(KnowAcquiredBusinessAccountNumber.Value) });
             //}
             if (AcquiredExistingBusiness.Value
                 && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_ACCT_NUM_KNWN, out var knowAcquiredBusinessAccountNumber))
@@ -686,7 +696,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
             //if (visibilityQ3 && HavePaidEmployeesForWorkInWisconsin.HasValue)
             //{
-            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PAID_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HavePaidEmployeesForWorkInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HavePaidEmployeesForWorkInWisconsin.Value) });
+            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PAID_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(HavePaidEmployeesForWorkInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HavePaidEmployeesForWorkInWisconsin.Value) });
             //}
             else if (!AcquiredExistingBusiness.Value
                 && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PAID_EE_FLG, out var paidEeFlag))
@@ -695,7 +705,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                 //if (visibilityQ3_1 && HaveEmployeesCurrentlyWorkingInWisconsin.HasValue)
                 //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.STILL_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HaveEmployeesCurrentlyWorkingInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HaveEmployeesCurrentlyWorkingInWisconsin.Value) });
+                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.STILL_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(HaveEmployeesCurrentlyWorkingInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HaveEmployeesCurrentlyWorkingInWisconsin.Value) });
                 //}
                 if (HavePaidEmployeesForWorkInWisconsin.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.STILL_EE_FLG, out var haveEmployeesCurrentlyWorkingInWisconsin))
@@ -709,7 +719,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     //    responses.Add(new SurveyResponse()
                     //    {
                     //        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ACCURATE_INFO,
-                    //        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(InformationIsAccurate),
+                    //        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(InformationIsAccurate),
                     //        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(InformationIsAccurate)
                     //    });
                     //}
@@ -859,7 +869,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                 //if (visibilityQ3_2 && ExpectFuturePayroll.HasValue)
                 //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectFuturePayroll.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectFuturePayroll.Value) });
+                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(ExpectFuturePayroll.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectFuturePayroll.Value) });
                 //}
                 else if (!HavePaidEmployeesForWorkInWisconsin.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_FLG, out var expectFuturePayroll))
@@ -871,23 +881,10 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ExpectedFuturePayrollPeriod.Value.ToString() });
                     //}
                     if (ExpectFuturePayroll.Value
-                        && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_TIME, out var expectFuturePayrollPeriod))
+                        && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_TIME, out var expectFuturePayrollPeriod)
+                        && Enum.TryParse<FuturePayPeriod>(expectFuturePayrollPeriod.ReplyText, out var expectFuturePayrollPeriodValue))
                     {
-                        if (Enum.TryParse<FuturePayPeriod>(expectFuturePayrollPeriod.ReplyText, out var expectFuturePayrollPeriodValue))
-                        {
-                            ExpectedFuturePayrollPeriod = expectFuturePayrollPeriodValue;
-                        }
-                        else
-                        {
-                            switch (expectFuturePayrollPeriod.ReplyText)
-                            {
-                                case "Within 30 days": ExpectedFuturePayrollPeriod = FuturePayPeriod.WithinThirtyDays; break;
-                                case "30 to 90 days": ExpectedFuturePayrollPeriod = FuturePayPeriod.ThirtyToNinetyDays; break;
-                                case "6 months": ExpectedFuturePayrollPeriod = FuturePayPeriod.SixMonths; break;
-                                case "One year": ExpectedFuturePayrollPeriod = FuturePayPeriod.OneYear; break;
-                                case "More than a year": ExpectedFuturePayrollPeriod = FuturePayPeriod.MoreThanOneYear; break;
-                            }
-                        }
+                        ExpectedFuturePayrollPeriod = expectFuturePayrollPeriodValue;
                     }
                 }
             }

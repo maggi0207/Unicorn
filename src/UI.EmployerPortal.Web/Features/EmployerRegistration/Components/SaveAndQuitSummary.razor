@@ -1,0 +1,119 @@
+@page "/employer-registration/summary"
+
+@using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+
+@inject NavigationManager Nav;
+
+<PageTitle>Question Summary</PageTitle>
+
+<div class="vf-page-wrapper">
+    <div class="vf-page-content">
+        <h1 class="vf-page-title">Question Summary</h1>
+
+        <h3 class="vf-page-subheader">The following registration questions have been saved on our system.</h3>
+
+        <span class="vf-page-subtitle">Please retain the following registration number to finish your registration at a later time.</span>
+
+        <div class="registration-number-container">
+            <h6>Registration Number:</h6>
+            <span>@ModelStore.EmployerRegistrationModel.SurveyNumber</span>
+        </div>
+
+        <SurveyQuestionResponses
+            Questions="@Questions"
+            SurveyResponses="@Responses"
+            Contacts="@Contacts"
+            Addresses="@Addresses"
+            ShowEditSection="true"
+            CurrentStep="CurrentStep"/>
+
+        <div class="action-container">
+            <Button
+                Variant="Button.ButtonVariant.Secondary"
+                OnClick="@OnRegisterAnother">
+                REGISTER ANOTHER EMPLOYER
+            </Button>
+            <Button
+                Variant="Button.ButtonVariant.Secondary"
+                ShowBorder="false"
+                OnClick="@OnExit">
+                EXIT
+            </Button>
+            <Button
+                OnClick="@OnContinue">
+                CONTINUE >
+            </Button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
+
+    [Inject]
+    private IEmployerRegistrationService _employerRegistrationService { get; set; } = default!;
+
+    [Parameter]
+    public int CurrentStep { get; set; } = 1;
+
+    [Parameter]
+    public EventCallback ContinueRegistration { get; set; }
+
+    private List<EmployerRegistrationQuestionDataProxy> Questions { get; set; } = new();
+
+    private List<SurveyResponse> Responses { get; set; } = new();
+
+    private List<SurveyContact> Contacts { get; set; } = new();
+
+    private List<Tuple<RegistrationAddressCode, AddressModel>> Addresses { get; set; } = new();
+
+    protected override void OnInitialized()
+    {   
+        base.OnInitialized();
+        LoadResponses();
+        _ = LoadEmployerRegistrationQuestions();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        LoadResponses();
+    }
+
+    public void LoadResponses()
+    {
+        Responses = new();
+        Responses = ModelStore.GetResponses();
+        Contacts = ModelStore.GetContacts();
+        Addresses = ModelStore.GetAddresses();
+        
+    }
+
+    private async Task LoadEmployerRegistrationQuestions()
+    {
+        try
+        {
+            Questions = (await _employerRegistrationService.LoadAllEmployerRegistrationQuestionsAsync()).Questions.ToList();
+            StateHasChanged();
+        }
+        catch {}
+    }
+
+    private void OnRegisterAnother()
+    {
+        Nav.NavigateTo("employer-registration");
+    }
+
+    private void OnExit()
+    {
+        Nav.NavigateTo(Nav.BaseUri);
+    }
+
+    private async Task OnContinue()
+    {
+        _ = ContinueRegistration.InvokeAsync();
+    }
+}

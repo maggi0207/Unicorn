@@ -1,0 +1,138 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using static UI.EmployerPortal.Web.Features.EmployerRegistration.Components.PreliminaryQuestions
+
+<div class="gov-frame">
+    <p>
+        <strong>
+            <p class="gov-frame-h1"><strong>Government Employer Documentation</strong></p>
+        </strong>
+    </p>
+    <p>Based on the information provided, you have advised that this entity is a unit of government. </p>
+    <p>
+        Governmental employers are required to provide the Department with a copy of the document that
+        approved the creation of the government unit. Examples of such a document are a
+        Statute or Resolution or Minutes from a board meeting.
+        Please submit a copy of the document that approved the creation of this entity.
+    </p>
+    <!-- File Upload -->
+    <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument") ? "master-text-field--error" : "")">
+        <FileUpload Title="File upload" SelFileType="FileType.GOV" Model="Model" OnFileUpload="@ReceiveFilePath"></FileUpload>
+    </div>
+
+    <!-- Will provide documentation later checkbox -->
+    <div id="qsf-provide-later-group"
+         class="form-check @(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument") ? "master-text-field--error" : "")">
+        <CheckboxInput Id="qsf-provide-later"
+                       Label="I will provide documentation later."
+                       Value="@Model.NoHasFile"
+                       ValueChanged="OnProvideLaterChanged"
+                       HasError="@(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument"))"
+                       ErrorMessage="Please upload government agency creation documents or indicate you will provide documentation later"
+                       Visible="@_showAllErrors"
+                       CSS="@(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument") ? "invalid" : "valid")" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public OwnershipAgency Model { get; set; } = new();
+    [Parameter]
+    public EventCallback<OwnershipAgency> OnDataChanged { get; set; }
+    [Parameter]
+    public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
+    private HashSet<string> _invalidFields = [];
+    private Dictionary<string, string> _fieldErrors = [];
+    private List<ValidationItem> _validationItems = [];
+    private bool _showAllErrors; 
+    private EditContext _editContext = default!;
+    private OwnershipAgency? _previousModel;
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(Model, _previousModel))
+        {
+            _previousModel = Model;
+            _editContext = new EditContext(Model);
+            _showAllErrors = false;
+            _invalidFields.Clear();
+            _fieldErrors.Clear();
+            _validationItems.Clear();
+        }
+        RegisterValidate?.Invoke(() =>
+        {
+            _showAllErrors = true;
+            return ValidateSection();
+        });
+    }
+
+    private void OnProvideLaterChanged(bool value)
+    {
+        Model.NoHasFile = value;
+        if (value)
+        {
+
+            if (_invalidFields.Contains("OwnershipEmpDocument"))
+            {
+                _invalidFields.Remove("OwnershipEmpDocument");
+                _fieldErrors.Remove("OwnershipEmpDocument");
+            }
+        }
+        NotifyDataChanged();
+    }
+
+    // -- File upload ---
+    private Task ReceiveFilePath(string uploadedFilePath)
+    {
+        Model.Filepath = uploadedFilePath;
+
+        if (!string.IsNullOrEmpty(Model.Filepath))
+        {
+            if (_invalidFields.Contains("OwnershipEmpDocument"))
+            {
+                _invalidFields.Remove("OwnershipEmpDocument");
+                _fieldErrors.Remove("OwnershipEmpDocument");
+            }
+
+            Model.HasFile = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Validates the section and returns validation items for the parent to aggregate.
+    /// </summary>
+    public List<ValidationItem> ValidateSection()
+    {
+        _invalidFields.Clear();
+        _fieldErrors.Clear();
+        _validationItems.Clear();
+
+        // File uload validation
+        if (!Model.NoHasFile && string.IsNullOrEmpty(Model.Filepath))
+        {
+            _invalidFields.Add("OwnershipEmpDocument");
+            _fieldErrors["OwnershipEmpDocument"] = "Please upload government agency creation documents or indicate you will provide documentation later";
+            _validationItems.Add(new ValidationItem(
+                "Please upload government agency creation documents or indicate you will provide documentation later",
+                "qsf-provide-later-group"));
+        }
+
+        StateHasChanged();
+        return _validationItems;
+    }
+
+    private void NotifyDataChanged()
+    {
+        if (_showAllErrors)
+        {
+            ValidateSection();
+        }       
+        _ = OnDataChanged.InvokeAsync(Model);
+    }
+
+}

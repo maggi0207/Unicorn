@@ -1,0 +1,48 @@
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@if (IsOpen)
+{
+    <div class="drawer-overlay" @onclick="Close">
+        <div class="drawer-panel" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-label="File Errors">
+            <div class="drawer-header">
+                <h3 class="drawer-title">File Errors</h3>
+                <button type="button" class="drawer-close" @onclick="Close" aria-label="Close">
+                    &times;
+                </button>
+            </div>
+            <div class="drawer-body">
+                @if (HasBlockingErrors)
+                {
+                    <p class="drawer-summary">
+                        File contains errors. Please fix
+                        the errors and upload the file again.
+                    </p>
+                }
+                else
+                {
+                    <p class="drawer-summary">
+                        File contains warnings. You may still proceed,
+                        but review the items below.
+                    </p>
+                }
+
+                <ol class="drawer-error-list">
+                    @foreach (var msg in Messages)
+                    {
+                        <li class="@(msg.IsError ? "drawer-error-item" : "drawer-warning-item")">
+                            @((MarkupString)msg.Message)
+                        </li>
+                    }
+                </ol>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool HasBlockingErrors { get; set; }
+    [Parameter] public List<FileValidationMessage> Messages { get; set; } = new();
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private Task Close() => OnClose.InvokeAsync();
+}

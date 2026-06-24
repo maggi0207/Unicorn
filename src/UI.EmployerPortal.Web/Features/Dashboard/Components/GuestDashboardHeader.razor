@@ -1,0 +1,19 @@
+<header class="page-header-container">
+    <div class="page-header">
+        <div class="page-header-left">
+            <div>
+              @*   <span class="fs-xl fw-bold">Guest Access Dashboard</span>
+                <br />Access the Employer Portal without a UI account *@
+
+                <h2 class="fs-xl fw-bold">Guest Access Dashboard</h2>
+                Access the Employer Portal without a UI account
+            </div>
+            @if (_showUserInformation)
+            {
+                <div class="page-header-right">
+                    <span class="fs-title fw-bold"><strong>Hello @GetAuthenticatedUserInformation()</strong></span><br />Welcome to your UI Employer Portal
+                </div>
+            }
+        </div>
+    </div>
+</header>

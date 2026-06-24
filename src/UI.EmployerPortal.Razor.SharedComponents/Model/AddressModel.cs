@@ -10,6 +10,12 @@ namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 public class AddressModel
 {
     /// <summary>
+    /// Existing employer-registration address identifier, used to update a previously saved address
+    /// instead of creating a duplicate entry when the user saves and quits.
+    /// </summary>
+    public int RegistrationAddressSk { get; set; }
+
+    /// <summary>
     /// Optional Name field.  Only required if 'IsNameVisible' is true.
     /// </summary>
     [RequiredIfNameVisible("IsNameVisible", ErrorMessage = "Name Required")]

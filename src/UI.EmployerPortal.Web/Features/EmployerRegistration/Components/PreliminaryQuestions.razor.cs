@@ -696,16 +696,33 @@ public partial class PreliminaryQuestions
                         string.IsNullOrWhiteSpace(Model.PEOUIAccountNumber) &&
                         string.IsNullOrWhiteSpace(Model.PEOFEIN))
                     {
-                        _messageStore.Add(
-                            _editContext.Field(nameof(Model.PEOUIAccountNumber)),
-                            "Enter PEO UI Account Number or PEO FEIN");
+                        _messageStore.Add(_editContext.Field(nameof(Model.PEOUIAccountNumber)), "UI Account Number of the PEO or FEIN of the PEO is required");
+                        _messageStore.Add(_editContext.Field(nameof(Model.PEOFEIN)), "UI Account Number of the PEO or FEIN of the PEO is required");
                     }
-                    if (!string.IsNullOrWhiteSpace(Model.PEOUIAccountNumber) &&
-                       !Regex.IsMatch(Model.PEOUIAccountNumber, _uiAccountNumberRegex))
+                    else if (IsVisible(() => Model.PEOUIAccountNumber))
                     {
-                        _messageStore.Add(
-                            _editContext.Field(nameof(Model.PEOUIAccountNumber)),
-                            "PEO UI Account Number must match the given format");
+                        if (!string.IsNullOrWhiteSpace(Model.PEOUIAccountNumber) &&
+                           !Regex.IsMatch(Model.PEOUIAccountNumber, _uiAccountNumberRegex))
+                        {
+                            _messageStore.Add(
+                                _editContext.Field(nameof(Model.PEOUIAccountNumber)),
+                                "PEO UI Account Number must match the given format");
+                        }
+
+                        // PEO FEIN
+                        else if (!string.IsNullOrWhiteSpace(Model.PEOFEIN))
+                        {
+                            var feinResult = FEINField.ValidateFEIN(Model.PEOFEIN);
+                            if (!feinResult.IsValid
+                                && string.IsNullOrWhiteSpace(Model.PEOFEIN))
+                            {
+                                _messageStore.Add(_editContext.Field(nameof(Model.PEOFEIN)), "UI Account Number of the PEO or FEIN of the PEO is required");
+                            }
+                            else if (!feinResult.IsValid)
+                            {
+                                _messageStore.Add(_editContext.Field(nameof(Model.PEOFEIN)), feinResult.ErrorMessage);
+                            }
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(_leasingStartDateRaw) && !Model.LeasingStartDate.HasValue)
                     {

@@ -1,0 +1,8 @@
+.tag-version {
+    text-align: right;
+    margin: .25em 1em;
+    padding: 0;
+    background-color: var(--color-white);
+    color: var(--color-gray-dark);
+    font-size: var(--font-size-sm);
+}

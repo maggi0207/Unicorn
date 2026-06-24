@@ -1,0 +1,16 @@
+<div class="account-header">
+    <div class="account-details fs-xl">
+        <div class="account-info">
+            <span class="detail-item account-name">
+                <span class="detail-label fw-bold">@(EmployerAccount?.LegalName ?? "-")</span>
+           </span>
+            
+        </div>
+    </div>
+    <div class="account-details fs-sm">
+        <div class="account-info">
+            <span class="detail-item account-no"><span class="detail-label fw-bold">UI Account No:</span><span class="detail-value fw-normal">@(EmployerAccount != null ? Helper.AccountHelper.FormatUIAccountNo(EmployerAccount.UIAccountNo) : "-")</span></span>
+            <span class="detail-item balance-due"><span class="detail-label fw-bold">Balance Due:</span><span class="detail-value fw-normal">@(EmployerAccount?.BalanceDue.ToString("C") ?? "-")</span></span>
+        </div>
+    </div>
+</div>

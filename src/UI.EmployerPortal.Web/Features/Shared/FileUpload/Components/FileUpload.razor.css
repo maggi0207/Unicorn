@@ -1,0 +1,238 @@
+.frame {
+    display: flex;
+    flex-direction: row;
+    width: 1138px;
+    padding: 24px 0;
+    box-sizing: border-box;
+}
+.frame-inner {
+    display: flex;
+    flex-direction: column;
+    width: 1090px;
+    gap: 32px;
+    box-sizing: border-box;
+}
+.frame-fileupload {
+    display: flex;
+    flex-direction: column;
+    width: 1090px;
+    height: 221px;
+}
+.file-upload-row {
+    width: 1090px;
+    height: auto;
+    font-family: Verdana;
+    font-size:22px;
+    font-weight:700;
+    line-height:123%;
+}
+.upload-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 670px;
+    height: 182px;
+    padding:16px;
+    background-color:#f3f3f3;
+    border-radius:4px;
+    box-sizing:border-box;
+}
+.upload-content-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 324px;
+    height: 79px;
+    padding-right: 16px;
+    gap: 8px;
+    box-sizing: border-box;
+}
+.upload-content-right {
+    display: flex;
+    flex-direction: column;
+    width: 404px;
+    height: 150px;
+    gap: 8px;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    justify-content: flex-end;
+    align-items: center;
+}
+.upload-content-left-title {
+    display: flex;
+    flex-direction: row;
+    width: 303px;
+    height: 29px;
+    height:auto;
+    gap: 8px;
+ }
+.upload-content-left-filetypes {
+    display: flex;
+    flex-direction: row;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 24px;
+    letter-spacing: 0%;
+    margin: 0;
+    justify-content: flex-end;
+    width: 308px;
+    height: 49px;
+}
+.browse-link{
+    color:#007bff;
+    text-decoration:underline;
+    cursor:pointer;
+}
+.drag-drop {   
+    display: flex;
+    flex-direction: row;
+    font-family: Verdana;
+    font-size: 16px;
+    font-style: normal;
+    line-height: 160%;
+    letter-spacing: 0%;
+    margin: 0;
+    text-align:center;
+
+}
+.cloud-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.frame-fileuploading {
+    display: flex;
+    flex-direction: column;
+    width: 1090px;
+    height: 260px;
+}
+
+.frame-fileupload.active {
+    opacity:1;
+    height:260px;
+    overflow:visible;
+}
+.frame-fileupload.inactive {
+    opacity: o;
+    height: 0px;
+    overflow: hidden;
+}
+.file-copy{
+    width:287px;
+    height:80px;
+    gap:8px;
+}
+
+::deep input[type=file]{
+    width:100%;
+    padding:20px;
+}
+.progress{    
+    height:0.5rem;
+    overflow:hidden;
+    border-radius:4px;
+    margin-top:0.25rem;
+    background-color:#e5e7eb;
+    border-radius:9999px;
+    overflow:hidden;
+    flex:1;
+}
+
+.progress-inner{
+    width:0;
+    height:100%;
+    transition:width 0.2s ease;
+    background-color:#2563eb;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    color: #C82838;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    gap: 6px;
+    font-family: Verdana;
+    font-size: 14px;
+    font-weight: 700;
+    white-space:nowrap;
+}
+.uploading-content-right {
+    display: flex;
+    flex-direction: column;
+    width: 404px;
+    height: 141px;
+    gap: 8px;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    justify-content: flex-end;
+    align-items: center;
+}
+.progress-content {
+    width: 112px;
+    height: 29px;
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    color: #C82838;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    gap: 6px;
+    font-family: Verdana;
+    font-size: 14px;
+    font-weight: 700;
+}
+.btn {
+    display: inline-fles;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor:pointer;
+    transition: all 02s ease;
+}
+.btn-reupload {
+    color: #0D6EFD;
+  
+}
+.btn-download {
+    color: #0D6EFD;
+}
+.btn-remove {
+   color: #C82838;
+}
+.file-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.svg-icon {
+    width: 16px;
+    height: 16px;
+}
+.errors{
+    width:404px;
+    height:66px;
+}
+.btn-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:nowrap;    
+}
+.upload-content-right-button {
+    width:303px;
+    height:auto;
+    overflow:hidden;
+}

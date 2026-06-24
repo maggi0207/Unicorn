@@ -1,0 +1,87 @@
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.JSInterop;
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Landing.Pages;
+@inject IJSRuntime JS;
+
+@inherits LayoutComponentBase
+
+<a href="javascript:void(0)"
+       @onkeydown="@HandleKeyDown"
+       @onkeydown:preventDefault="true"
+       @onclick="@HandleClick"
+       @onclick:preventDefault="true"
+       class="skip-link">
+    Skip to main content
+</a>
+
+<div class="page @(IsLandingPage ? "page--landing" : "")">
+
+    @if (ShowTopHeader)
+    {
+        <TopHeader showTopHeader="@_isAuthenticated"></TopHeader>
+    }
+    @if (ShowSubHeader)
+    {
+        <SubHeader showEmployerNavigation="@ShowEmployerNavigation"
+                   IsLandingPage="@IsLandingPage"
+                   IsDashboardPage="@IsDashboardPage"></SubHeader>
+    }
+    <div class="main-content-wrapper">
+        @if (ShowSideMenu)
+        {
+            <SideMenu />
+        }
+
+        <main id="main-content" class="@(ShowSideMenu ? "with-menu" : "")" tabindex="-1">
+            <article class="content">
+                <AuthorizeView>
+                    <Authorized>
+                        @*  <div style="text-align: right; width: 100%;">
+                            <a href="@_logoutUrl">Logout</a>
+                        </div> *@
+                        @Body
+                    </Authorized>
+                    <NotAuthorized>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </article>
+        </main>
+    </div>
+
+    <Footer />
+    <TagVersion />
+</div>
+
+<div id="blazor-error-ui" data-nosnippet role="alert">
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <button type="button" class="dismiss" aria-label="Dismiss error">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@code
+{
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if(e.Key == "Tab" && !e.ShiftKey)
+        {
+            await TriggerFocus();
+
+        }
+    }
+
+    private async Task HandleClick()
+    {
+        await TriggerFocus();
+    }
+
+    private async Task TriggerFocus()
+    {
+        await JS.InvokeVoidAsync("focusFirstInputInWrapper", "main-content");
+    }
+
+}

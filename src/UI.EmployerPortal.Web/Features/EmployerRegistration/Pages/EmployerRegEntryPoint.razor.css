@@ -1,0 +1,75 @@
+
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+.empreg-page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    color: #000000;
+    font: var(--font-primary);
+    font-size: var(--font-size-md);
+    gap: var(--spacing-lg);
+}
+    .empreg-page-content h1 {
+        font-size: 32px;
+        text-align: center;
+        font-weight: var(--font-weight-normal);
+        line-height: 116%;
+        letter-spacing: 0%;
+        text-align: center;
+    }
+
+    .empreg-page-content h4 {
+        font-family: Verdana;
+        font-weight: var(--font-weight-bold);
+        font-size: 22px;
+        line-height: 123%;
+        letter-spacing: 0%;
+        text-align: center;
+    }
+
+/* Error container - horizontal layout with icon and text */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 2px 0;
+}
+
+/* Error icon (14x14) */
+.field-error__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+
+/* Error message text */
+.field-error__text {
+    font-family: Verdana, Geneva, sans-serif; /* Primary font */
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #C82838;
+}
+
+@media (max-width: 575px) {
+    .empreg-page-content {
+        padding: var(--spacing-sm);
+        align-items: flex-start;
+    }
+
+        .empreg-page-content h2 {
+            font-size: var(--font-size-lg);
+        }
+}

@@ -1,0 +1,20 @@
+@if (showTopHeader)
+{
+    <header class="TopHeader">
+        <div class="icon-layout">
+            <button class="icon-btn" type="button" aria-label="Notifications">
+                <img src="@Assets["icons/alertIcon.svg"]" alt="" class="IconSize" />
+            </button>
+            <button class="icon-btn" type="button" aria-label="Profile">
+                <img src="@Assets["icons/personIcon.svg"]" alt="" class="IconSize" />
+            </button>
+        </div>
+    </header>
+}
+
+@code {
+
+    [Parameter]
+    public bool showTopHeader { get; set; } = true;
+
+}

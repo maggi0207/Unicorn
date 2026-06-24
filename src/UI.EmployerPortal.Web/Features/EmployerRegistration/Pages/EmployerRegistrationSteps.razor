@@ -9,14 +9,6 @@
 @inject RegistrationStateService RegistrationState
 
 <div class="page-content">
-    <div class="notification-container">
-        <NotificationBanner MessageStyle="MessageStyle.MultiLine"
-                            NotificationType="NotificationType.Warning"
-                            DismissButton="true"
-                            Title="Submission Errors"
-                            Messages="@_errorMessages"
-                            Visible="@_errorMessages.Any()" />
-    </div>
     @if (!_saveAndQuit)
     {
         <Wizard Steps="@_wizardSteps"
@@ -24,11 +16,30 @@
                 ShowCancelButton="false"
                 OnBackClick="HandleBackClick"
                 OnActionClick="HandleActionClick"
+                ActionButtonDisabled="@_processing"
                 OnSaveAndQuitClick="HandleSaveAndQuit"
                 AutoNavigateOnAction="false"
                 AutoNavigateOnBack="false"
                 CssClass="@(_currentStep == 5 ? "wide-content" : "")"
                 DisableBackOnFirstStep="false">
+
+            <PageBlockingLoadingSpinner Message="Working..." IsLoading="@_processing" />
+            <div class="notification-container">
+                <NotificationBanner MessageStyle="MessageStyle.MultiLine"
+                                    NotificationType="NotificationType.Warning"
+                                    DismissButton="true"
+                                    Title="Submission Errors"
+                                    Messages="@_errorMessages"
+                                    Visible="@_errorMessages.Any()" />
+
+                <NotificationBanner MessageStyle="MessageStyle.MultiLine"
+                                    NotificationType="NotificationType.Warning"
+                                    DismissButton="true"
+                                    Title="Submission Errors"
+                                    Messages="@ValidationErrorMessages"
+                                    MessageFieldDataIds="@ValidationErrorDataLinks"
+                                    Visible="@_validationErrors.Any()" />
+            </div>
 
             @if (_currentStep == 1)
             {
@@ -58,7 +69,8 @@
             }
             @if (_currentStep == 6)
             {
-                <UISubjectivity @ref="_uiSubjectivityRef" />
+                <UISubjectivity @ref="_uiSubjectivityRef"
+                                SubjectivityModel="@ModelStore.EmployerRegistrationModel.SubjectivityModel"/>
             }
             else if (_currentStep == 7)
             {
@@ -72,8 +84,11 @@
     }
     else
     {
-        <SaveAndQuitSummary
+        <SaveAndQuitSummary @ref="_saveAndQuitRef"
             CurrentStep="@_currentStep"
             ContinueRegistration="HandleContinueRegistration"/>
     }
 </div>
+
+
+

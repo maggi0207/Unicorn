@@ -1,0 +1,110 @@
+/* ── Page layout ──────────────────────────────────────────────────────────── */
+.generated-key-page {
+    width: 100%;
+    max-width: 900px;
+    padding: var(--spacing-lg);
+}
+
+/* ── Title ────────────────────────────────────────────────────────────────── */
+.generated-key-title {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 120%;
+    color: #000;
+    margin: 0 0 16px 0;
+    border-bottom: 1px solid #ADADAD;
+    padding-bottom: 12px;
+}
+
+/* ── Copied banner wrapper ───────────────────────────────────────────────── */
+.generated-key-banner-wrapper {
+    margin-bottom: 16px;
+}
+
+/* ── Key label + row ─────────────────────────────────────────────────────── */
+.generated-key-label {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #000;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.generated-key-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.generated-key-box {
+    flex: 1;
+    border: 1px solid #ADADAD;
+    border-radius: 4px;
+    padding: 12px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    color: #003663;
+    background: #fff;
+    outline: none;
+}
+
+/* ── Copy button ─────────────────────────────────────────────────────────── */
+.generated-key-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #003663;
+    padding: 10px 20px;
+    border: 1px solid #003663;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+
+.generated-key-copy-btn:hover {
+    background: #f0f4f8;
+}
+
+.generated-key-copy-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Share section ───────────────────────────────────────────────────────── */
+.generated-key-share-title {
+    color: #003663;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    border-bottom: 2px solid #003663;
+    padding-bottom: 4px;
+    margin: 24px 0 12px 0;
+}
+
+.generated-key-text {
+    margin: 0 0 12px 0;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #000;
+}
+
+.generated-key-emphasis {
+    font-weight: 700;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.generated-key-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+}

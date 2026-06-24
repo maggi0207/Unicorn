@@ -1,0 +1,88 @@
+<nav class="side-menu @(_isMinimized ? "minimized" : "")" role="navigation" aria-label="Main navigation">
+    <!-- Hide/Expand Menu Toggle -->
+    <button type="button" class="menu-toggle"
+            @onclick="ToggleMenu"
+            aria-expanded="@(!_isMinimized)"
+            aria-label="@(_isMinimized ? "Expand menu" : "Hide menu")">
+        @if (_isMinimized)
+        {
+            <img src="@Assets["images/menu/expand-menu.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+        }
+        else
+        {
+            <span class="menu-toggle-text fw-bold">Hide Menu</span>
+            <img src="@Assets["images/menu/hide-menu.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+        }
+    </button>
+
+    @* Lists give screen readers structural context: a top-level menu list with
+       nested submenu lists makes the parent/child relationship programmatic. *@
+    <ul class="menu-list">
+        @foreach (var item in _menuItems)
+        {
+            @if (item.IsVisible)
+            {
+                var isExpanded = _expandedMenus.Contains(item.Id);
+                var isActive = IsMenuActive(item);
+
+                <li class="menu-item-container">
+                    @if (item.HasSubmenu)
+                    {
+                        @if (_isMinimized)
+                        {
+                            <a href="@(item.MinimizedUrl ?? item.Url)"
+                                   class="menu-item @(isActive ? "highlighted" : "")"
+                                   aria-current="@(isActive ? "true" : null)"
+                                   aria-label="@item.Title">
+                                <img src="@Assets[@item.Icon]" alt="" width="24" height="24" class="menu-icon" aria-hidden="true" />
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="menu-item @(isActive ? "highlighted" : "")"
+                                    @onclick="() => OnMenuClick(item)"
+                                    aria-expanded="@(isExpanded ? "true" : "false")"
+                                    aria-current="@(isActive ? "true" : null)">
+                                <img src="@Assets[@item.Icon]" alt="" width="24" height="24" class="menu-icon" aria-hidden="true" />
+                                <span class="menu-text fw-bold fs-md">@item.Title</span>
+                                <img src="@Assets[isActive ? "images/menu/submenu-arrow-white.svg" : "images/menu/submenu-arrow.svg"]"
+                                     alt="" width="24" height="24" class="submenu-arrow @(isExpanded ? "rotated" : "")" aria-hidden="true" />
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <a href="@item.Url"
+                               class="menu-item @(isActive ? "highlighted" : "")"
+                               aria-current="@(isActive ? "page" : null)"
+                               aria-label="@(_isMinimized ? item.Title : null)">
+                            <img src="@Assets[@item.Icon]" alt="" width="24" height="24" class="menu-icon" aria-hidden="true" />
+                            @if (!_isMinimized)
+                            {
+                                <span class="menu-text fw-bold fs-md">@item.Title</span>
+                            }
+                        </a>
+                    }
+
+                    @if (!_isMinimized && item.HasSubmenu && isExpanded)
+                    {
+                        <ul class="submenu-list" aria-label="@($"{item.Title} submenu")">
+                            @foreach (var submenu in item.Submenus)
+                            {
+                                var isSubmenuActive = IsSubmenuActive(submenu);
+                                <li>
+                                    <a href="@submenu.Url"
+                                           class="submenu-item @(isSubmenuActive ? "selected" : "")"
+                                           aria-current="@(isSubmenuActive ? "page" : null)">
+                                        <span class="submenu-text fw-bold fs-md">@submenu.Title</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </li>
+            }
+        }
+    </ul>
+</nav>

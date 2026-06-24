@@ -50,13 +50,11 @@ internal class UploadServices : IUploadServices
                     SurveyResponseSK = surveyResponsesk,
                     CommonClientSK = null,
                     UploadDate = DateTime.Now,
-
-                                          
                 });
         });
-        if (loadfile == null || loadfile.EmployerSK == 0 || loadfile.WebUserFileUploadSK == 0)
+        if (loadfile == null || loadfile.WebUserFileUploadSK == 0)
         {
-            if (loadfile != null)
+            if (loadfile != null && loadfile.RuleViolations != null)
             {
 
                 await Parallel.ForEachAsync(
@@ -77,7 +75,7 @@ internal class UploadServices : IUploadServices
             {
                 EmployerSK = loadfile.EmployerSK.ToString(),
                 WebUserFileUploadSK = loadfile.WebUserFileUploadSK.ToString(),
-                SurveyNumber = loadfile.SurveyNumber.ToString()
+                SurveyNumber = loadfile.SurveyNumber?.ToString() ?? string.Empty
             });
         }
 

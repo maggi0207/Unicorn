@@ -1,0 +1,44 @@
+@typeparam TItem
+
+<div class="bd-wrapper" @onfocusout="OnFocusOut" tabindex="-1">
+
+    <div class="bd-selected" @onclick="Toggle">
+        <span class="bd-selected-text" title="@(_selectedItem != null ? GetFullLabel(_selectedItem) : "")">
+            @if (_selectedItem == null)
+            {
+                <span class="bd-placeholder">@Placeholder</span>
+            }
+            else
+            {
+                @((MarkupString)GetTruncatedLabel(_selectedItem))
+            }
+        </span>
+        <span class="bd-arrow">&#9660;</span>
+    </div>
+
+    @if (_isOpen)
+    {
+        <ul class="bd-list">
+
+            @if (!string.IsNullOrEmpty(DefaultOptionLabel))
+            {
+                <li class="bd-item bd-default-option @(_selectedItem == null ? "bd-active" : "")"
+                    @onmousedown="SelectDefault">
+                    <b>@DefaultOptionLabel</b>
+                </li>
+            }
+
+            @foreach (var item in Items)
+            {
+                <li class="bd-item @(EqualityComparer<TItem>.Default.Equals(item, _selectedItem) ? "bd-active" : "")"
+                    @onmousedown="() => Select(item)"
+                    title="@GetFullLabel(item)">
+                    @((MarkupString)GetTruncatedLabel(item))
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+
+

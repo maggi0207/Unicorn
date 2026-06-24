@@ -1,0 +1,14 @@
+@using UI.EmployerPortal.Web.Features.Shared.Layout.Components
+<HelpResourcesPanel IsOpen="_showHelpPanel" OnClose="@(() => _showHelpPanel = false)" />
+
+<footer class="site-footer">
+    <button class="help-btn fw-bold fs-md" @onclick="@(() => _showHelpPanel = true)"
+            aria-haspopup="dialog" aria-expanded="@_showHelpPanel">
+        <img src="@Assets["images/help-info.svg"]" alt="Help" width="16" height="16" />
+        <span>HELP &amp; RESOURCES</span>
+    </button>
+</footer>
+
+@code {
+    private bool _showHelpPanel = false;
+}

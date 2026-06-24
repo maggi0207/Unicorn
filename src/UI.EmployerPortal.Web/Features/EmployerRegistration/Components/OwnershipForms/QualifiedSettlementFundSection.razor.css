@@ -1,0 +1,42 @@
+.qsf-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 684px;
+}
+
+.qsf-entity-details,
+.qsf-no-services {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-row{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+}
+
+/* Zip + Extension row */
+.bi-zip-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    flex-direction: row;
+}
+
+.bi-zip-dash {
+    align-self:flex-start;
+    margin-top: 28px;
+    font-size: 1rem;
+    line-height: 38px;
+}
+
+.bi-zip-field, .bi-ext-field {
+    display: flex;
+    flex-direction: column;
+}
+

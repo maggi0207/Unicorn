@@ -1,0 +1,99 @@
+@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+
+<div class="permissions-wrapper">
+
+    <div class="permissions-label">Permissions</div>
+
+    <div class="permissions-checkboxes-wrapper @(ShowError ? "permissions-checkboxes-error" : "")">
+
+        @* ── Top-level Select All ── *@
+        <div class="permissions-row permissions-top-select-all">
+            <label class="permissions-check-row">
+                <input type="checkbox"
+                       checked="@IsAllSelected"
+                       @onchange="HandleSelectAll" />
+                <span class="permissions-label-bold">Select All</span>
+            </label>
+            <p class="permissions-subtext">Checking the Select All box grants access to all permissions.</p>
+        </div>
+
+        @* ── Group sections ── *@
+        @foreach (var group in Groups)
+        {
+            <div class="permissions-section">
+
+                @* Section header: group name + collapse chevron *@
+                <button type="button"
+                        class="permissions-section-header"
+                        @onclick="@(() => ToggleGroup(group.WebControlSK))"
+                        aria-expanded="@(IsExpanded(group.WebControlSK) ? "true" : "false")">
+                    <span class="permissions-section-title">@group.Name</span>
+                    <span class="permissions-section-chevron @(IsExpanded(group.WebControlSK) ? "permissions-section-chevron--expanded" : "")">
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L7 7L13 1" stroke="#003663" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                </button>
+
+                @if (IsExpanded(group.WebControlSK))
+                {
+                    <div class="permissions-section-body">
+
+                        @if (group.HasSelectAll)
+                        {
+                            @* Select All [Group] *@
+                            <div class="permissions-row">
+                                <label class="permissions-check-row permissions-check-parent">
+                                    <input type="checkbox"
+                                           checked="@group.IsSelected"
+                                           @onchange="e => HandleGroupChange(group, (bool)(e.Value ?? false))"
+                                           class="@(group.IsIndeterminate ? "permissions-indeterminate" : "")" />
+                                    <span class="permissions-label-bold">Select All @group.Name</span>
+                                </label>
+                                @if (!string.IsNullOrWhiteSpace(group.SubText))
+                                {
+                                    <p class="permissions-subtext">@group.SubText</p>
+                                }
+                            </div>
+
+                            <hr class="permissions-section-divider" />
+
+                            @* Child items *@
+                            @foreach (var item in group.Items)
+                            {
+                                <div class="permissions-row permissions-child-row">
+                                    <label class="permissions-check-row">
+                                        <input type="checkbox"
+                                               checked="@item.IsSelected"
+                                               @onchange="e => HandleItemChange(group, item, (bool)(e.Value ?? false))" />
+                                        <span class="permissions-label-bold">@item.Name</span>
+                                    </label>
+                                    @if (!string.IsNullOrWhiteSpace(item.SubText))
+                                    {
+                                        <p class="permissions-subtext">@item.SubText</p>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            @* No-child parent — single "Select [Group]" row *@
+                            <div class="permissions-row">
+                                <label class="permissions-check-row">
+                                    <input type="checkbox"
+                                           checked="@group.IsSelected"
+                                           @onchange="e => HandleNoChildParentChange(group, (bool)(e.Value ?? false))" />
+                                    <span class="permissions-label-bold">Select @group.Name</span>
+                                </label>
+                                @if (!string.IsNullOrWhiteSpace(group.SubText))
+                                {
+                                    <p class="permissions-subtext">@group.SubText</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

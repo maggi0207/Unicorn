@@ -1,0 +1,285 @@
+@page "/employer-registration"
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components.Forms;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.FluentUI.AspNetCore.Components
+@using System.ServiceModel
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using System.Linq.Expressions
+@using System.ComponentModel.DataAnnotations;
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+
+@inject EmployerRegistrationInfo RegistrationInfo;
+@inject IEmployerRegistrationServices EmployerRegistrationService;
+@inject NavigationManager Nav;
+@inject IConfiguration Configuration;
+
+<PageTitle>New Employer Registration</PageTitle>
+
+<div class="page_wrapper">
+    <div class="empreg-page-content">
+        <h1 class="page-title">New Employer Registration</h1>
+
+        <h4 class="question">Do you have a registration number?</h4>
+
+        <EditForm EditContext="@editContext" OnValidSubmit="GoNext" OnInvalidSubmit="OnInvalid" FormName="EmployerRegistrationEntryPoint">
+            <DataAnnotationsValidator />
+            <!-- Top Error Banner - shows only when the form has validation errors -->
+            @if (formSubmitted && editContext?.GetValidationMessages().Any() == true)
+            {
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    Title="Missing information"
+                                    Message="Please correct the errors below">
+                </NotificationBanner>
+            }
+            @if (!string.IsNullOrEmpty(_errorMessage) && _formIsValid)
+            {
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    Title="Verification Unsuccessful"
+                                    Message="Please correct the errors below">
+                </NotificationBanner>
+            }
+
+            <p>
+                <strong>
+                    Prospective employers should begin by registering with Unemployment Insurance.
+                    You may complete a partial application during the registration process and continue at a later date.
+                </strong>
+            </p>
+
+            <p id="registration-number-label">
+                Do you have a registration number?
+            </p>
+
+            <!-- Inline Error for Radio Selection -->
+            <div id="registration-number-error">
+
+                <FieldError For="@(() => RegistrationInfo.HasRegistrationNumber)"
+                            Visible="formSubmitted" />
+            </div>
+            <!-- RadioGroup for Registration Question -->
+            <RadioGroup TValue="bool?"
+                        LabelledById="registration-number-label"
+                        ErrorId="registration-number-error"
+                        Value="RegistrationInfo.HasRegistrationNumber"
+                        ValueChanged="OnInputChange"
+                        ValueExpression="() => RegistrationInfo.HasRegistrationNumber"
+                        Options="@HasRegistrationNumberOptions" />
+            <br />
+
+            @if (RegistrationInfo.HasRegistrationNumber == true)
+            {
+                <!-- Registration number input with validation binding -->
+                <OutlinedTextField Label="Registration Number"
+                                   @bind-Value="RegistrationInfo.RegistrationNumber"
+                                   InputMode="numeric"
+                                   MaxLength="8"
+                                   For="() => RegistrationInfo.RegistrationNumber"
+                                   Visible="formSubmitted" />
+                <br />
+
+                <!-- FEIN input with validation binding -->
+                <FEINField Label="Federal Employer Identification Number (FEIN)"
+                           @bind-Value="RegistrationInfo.FEIN"
+                           For="() => RegistrationInfo.FEIN"
+                           Visible="formSubmitted" />
+
+
+                @* Service error from WCF call*@
+                @if (!string.IsNullOrEmpty(_errorMessage) && _formIsValid)
+                {
+                    <div class="field-error" role="alert" aria-label="Validation error">
+                        <!-- Error message icon -->
+                        <span class="field-error__icon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="8" fill="#D32F2F" />
+                                <text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text>
+                            </svg>
+                        </span>
+
+                        <!-- Error message text -->
+                        <span class="field-error__text">
+                            @_errorMessage
+                        </span>
+                    </div>
+                }
+
+                <br />
+            }
+            <p>
+                <span class=fw-bold>Note:</span> Your UI account number is not a registration number. If you do not have or cannot locate a previously assigned registration number, answer no to this question.
+            </p>
+            <ButtonBar ShowBack="true"
+                       ShowContinue="true"
+                       ShowCancel="false"
+                       ShowSaveAndQuit="false"
+                       OnBack="GoBack"
+                       ContinueText="NEXT">
+            </ButtonBar>
+        </EditForm>
+
+    </div>
+</div>
+@code {
+
+    [Inject]
+    private ISessionManager SessionManager { get; set; } = default!;
+
+    private RegistrationModel model = new();
+    private EditContext editContext = default!;
+    private bool _formIsValid = false;
+    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+    private string? _technicalDifficulties;
+    private readonly string _generalError = "There was an error, please try again.";
+
+    //Track whether the form has been submitted
+    private bool formSubmitted = false;
+
+    public static readonly IReadOnlyList<RadioOption<bool?>> HasRegistrationNumberOptions = new[]
+    {
+      new RadioOption<bool?> {Value =true, Label = "Yes"},
+      new RadioOption<bool?> {Value =false, Label = "No"}
+    };
+
+    private void GoBack()
+    {
+        //Nav.NavigateTo(Nav.BaseUri);
+        var baseUri = new Uri(Nav.BaseUri);
+        var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/'));
+        Nav.NavigateTo(pathBase);
+    }
+
+
+    private async Task GoNext()
+    {
+        formSubmitted = true;
+        _errorMessage = string.Empty;
+
+        //If No - skip validation and navigate directly
+        if (RegistrationInfo.HasRegistrationNumber == false)
+        {
+            Nav.NavigateTo("employer-registration/employer-registration-welcome");
+            return;
+        }
+
+        //If Yes - validate , then call WCF
+        _formIsValid = editContext.Validate();
+
+        if (!_formIsValid) return;
+        await CallContinueRegistration();
+    }
+
+    public class RegistrationModel
+    {
+        public bool? HasRegistrationNumber { get; set; } = null;
+    }
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(RegistrationInfo);
+        //Clears WCF error
+        _errorMessage = string.Empty;
+
+        _technicalDifficulties = Configuration.GetValue<string>("Messages:TechnicalDifficulties") ?? "There was an error.";
+
+        //Track validation state as user interacts
+        editContext.OnFieldChanged += (_, __) =>
+        {
+            StateHasChanged();
+        };
+    }
+
+    private void OnInvalid()
+    {
+        //Set flag to show errors only after submission attempt
+        formSubmitted = true;
+        //Clears WCF error
+        _errorMessage = string.Empty;
+        //Forces UI to refresh and show validation messages
+        StateHasChanged();
+    }
+
+    private async Task OnInputChange(bool? value)
+    {
+        RegistrationInfo.HasRegistrationNumber = value;
+
+        //Reset Submit intent
+        formSubmitted = false;
+
+        //Clears WCF error
+        _errorMessage = string.Empty;
+
+        await InvokeAsync(() =>
+        {
+
+            //Clear Validation messages
+            var store = new ValidationMessageStore(editContext);
+            store.Clear();
+
+            editContext.NotifyValidationStateChanged();
+
+        });
+    }
+
+
+    private string? _errorMessage;
+    private bool IsVisible<T>(Expression<Func<T>> For) => formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+
+
+    /// <summary>
+    /// Handles Next - calls ContinueRegistration WCF Service
+    /// </summary>
+    ///
+    protected async Task CallContinueRegistration()
+    {
+        try
+        {
+            var response = await EmployerRegistrationService.ContinueRegistration(fein: RegistrationInfo.FEIN ?? string.Empty,
+                surveyNumberText: RegistrationInfo.RegistrationNumber ?? string.Empty);
+
+            if (response?.SurveyResponseSK != null)
+            {
+                //Save survey response key to your model
+                RegistrationInfo.SurveyResponseSK = response.SurveyResponseSK;
+
+                Console.WriteLine(RegistrationInfo.SurveyResponseSK);
+                var continueEmployerRegistration = new ContinueEmployerRegistrationModel()
+                {
+                    SurveyNumber = response.SurveyNumber,
+                    FEIN = RegistrationInfo.FEIN ?? string.Empty
+                };
+
+                await SessionManager.SetAsync(continueEmployerRegistration);
+
+                Nav.NavigateTo("employer-registration/employer-registration-welcome");
+            }
+            else
+            {
+                _errorMessage = "The registration number and the FEIN entered was not found";
+                editContext.NotifyValidationStateChanged();
+                StateHasChanged();
+            }
+        }
+        catch (CommunicationException)
+        {
+            _errorMessage = _technicalDifficulties ?? "There was an API communication error.";
+        }
+        catch
+        {
+            _errorMessage = _generalError;
+        }
+    }
+
+    private List<YearQuartersPaidWages> GetYearAndQuartersPaidWages()
+    {
+        throw new NotImplementedException();
+    }
+
+}

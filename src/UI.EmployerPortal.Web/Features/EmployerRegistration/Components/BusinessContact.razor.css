@@ -39,19 +39,18 @@
     border-bottom: 1px solid #003663;
     padding-bottom: 6px;
     margin-top: 8px;
-    margin-bottom: 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.bi-section-header span {
-    font-family: Verdana, sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 28.8px;
-    color: #003663;
-}
+    .bi-section-header span {
+        font-family: Verdana, sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 28.8px;
+        color: #003663;
+    }
 
 ::deep form {
     display: flex;
@@ -88,13 +87,13 @@
     font-size: 16px;
     font-weight: 400;
     color: #000000;
-    margin: 0;
+    margin-bottom: 16px;
 }
 
 .bc-radio-group {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0px 16px;
 }
 
 .bc-radio-label {
@@ -109,26 +108,26 @@
     user-select: none;
 }
 
-.bc-radio-label input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #003663;
-    border-radius: 50%;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.15s ease;
-}
+    .bc-radio-label input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #003663;
+        border-radius: 50%;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.15s ease;
+    }
 
-.bc-radio-label input[type="radio"]:checked {
-    background: radial-gradient(circle, #003663 45%, transparent 45%);
-}
+        .bc-radio-label input[type="radio"]:checked {
+            background: radial-gradient(circle, #003663 45%, transparent 45%);
+        }
 
-.bc-radio-label input[type="radio"]:focus-visible {
-    outline: 2px solid #003663;
-    outline-offset: 2px;
-}
+        .bc-radio-label input[type="radio"]:focus-visible {
+            outline: 2px solid #003663;
+            outline-offset: 2px;
+        }
 
 .bc-radio-error {
     font-family: Verdana, sans-serif;

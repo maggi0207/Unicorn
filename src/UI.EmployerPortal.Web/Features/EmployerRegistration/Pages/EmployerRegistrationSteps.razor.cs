@@ -4,6 +4,9 @@ using global::UI.EmployerPortal.Razor.SharedComponents.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
+using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
+using static UI.EmployerPortal.Web.Features.EmployerRegistration.EmployerRegistrationModelStore;
 
 
 /// <summary>
@@ -11,8 +14,6 @@ using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 /// </summary>
 public partial class EmployerRegistrationSteps
 {
-
-
     /* [Inject]
      private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;*/
 
@@ -25,10 +26,15 @@ public partial class EmployerRegistrationSteps
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = default!;
 
+    [Inject]
+    private ISessionManager SessionManager { get; set; } = default!;
 
     private int _currentStep = 1;
     private bool _saveAndQuit = false;
+    private bool _processing = false;
     private readonly List<string> _errorMessages = new();
+    private readonly List<EmployerRegistrationValidationError> _validationErrors = new();
+
 
     private PreliminaryQuestions? _preliminaryQuestionsRef;
     private Ownership? _ownershipRef;
@@ -37,7 +43,24 @@ public partial class EmployerRegistrationSteps
     private BusinessActivity? _businessActivityRef;
     private UISubjectivity? _uiSubjectivityRef;
     private Verification? _verificationRef;
+    private SaveAndQuitSummary? _saveAndQuitRef;
 
+    private static readonly Dictionary<ValidationErrorType, string> ErrorTypeStrings = new()
+    {
+        { ValidationErrorType.Response, "response" },
+        { ValidationErrorType.Address, "address" },
+        { ValidationErrorType.Contact, "contact" },
+    };
+
+    private List<string> ValidationErrorMessages => _validationErrors.Select(ve =>
+    {
+        return string.Join("\n", ve.ValidationErrors);
+    }).ToList();
+
+    private List<string> ValidationErrorDataLinks => _validationErrors.Select(ve =>
+    {
+        return $"{ErrorTypeStrings[ve.ErrorType]}:{ve.ItemId}";
+    }).ToList();
 
     private readonly List<WizardStep> _wizardSteps = new()
     {
@@ -53,12 +76,28 @@ public partial class EmployerRegistrationSteps
     /// ── Single source of truth for the page ───────────────────────────────────
 
     /// <summary>Restores the current step from state (e.g., after returning from the Address Correction page).</summary>
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (RegistrationState.CurrentStep > 0)
         {
             _currentStep = RegistrationState.CurrentStep;
             RegistrationState.CurrentStep = 0;
+            if (RegistrationState.ContinueActionClick)
+            {
+                await FinishHandleActionClick();
+            }
+        }
+        else
+        {
+            ModelStore.ClearModel();
+        }
+
+        var continueEmployerRegistration = await SessionManager.GetAsync<ContinueEmployerRegistrationModel>();
+
+        if (continueEmployerRegistration != null)
+        {
+            await SessionManager.ClearAsync<ContinueEmployerRegistrationModel>();
+            await ModelStore.ContinueSurvey(continueEmployerRegistration.SurveyNumber, continueEmployerRegistration.FEIN.Replace("-", string.Empty));
         }
     }
 
@@ -70,36 +109,84 @@ public partial class EmployerRegistrationSteps
 
     private async Task HandleActionClick()
     {
+        _processing = true;
         _errorMessages.Clear();
+        _validationErrors.Clear();
         var isValid = await Validate();
 
         if (!isValid)
         {
+            _processing = false;
             return;
+        }
+
+        await FinishHandleActionClick();
+        await ModelStore.Loadfile(_currentStep - 1);
+
+    }
+
+    private async Task FinishHandleActionClick()
+    {
+        _processing = true;
+        if (_currentStep < _wizardSteps.Count)
+        {
+            var (registationViolations, ruleViolations) = await ModelStore.SaveStep(_currentStep);
+
+            if (registationViolations != null)
+            {
+                _validationErrors.AddRange(registationViolations);
+                _processing = false;
+                return;
+            }
+
+            if (ruleViolations != null)
+            {
+                _errorMessages.AddRange(ruleViolations);
+                _processing = false;
+                return;
+            }
         }
 
         if (_currentStep == _wizardSteps.Count)
         {
             await HandleSubmit();
+            _verificationRef?.LoadResponses();
+            _processing = false;
             return;
         }
-        _currentStep++;
+
+        if (_currentStep == 5 && await ModelStore.SkipSubjectivity())
+        {
+            _currentStep += 2;
+        }
+        else
+        {
+            _currentStep++;
+        }
+        _processing = false;
     }
 
     private async Task HandleSaveAndQuit()
     {
-        try
+        _processing = true;
+        if (_currentStep == 1 && !(_preliminaryQuestionsRef?.ValidateFEINOnly() ?? false))
         {
-            await ModelStore.SavePartial(_currentStep);
-        }
-        catch
-        {
-            _errorMessages.Add("There was an error while saving.");
+            _processing = false;
             return;
         }
-        finally
+
+        var errors = await ModelStore.SavePartial(_currentStep);
+        if (errors.Any())
         {
+            _errorMessages.AddRange(errors);
+            _processing = false;
+            return;
+        }
+        else
+        {
+            _saveAndQuitRef?.LoadResponses();
             _saveAndQuit = true;
+            _processing = false;
         }
     }
 
@@ -111,6 +198,10 @@ public partial class EmployerRegistrationSteps
             Nav.NavigateTo("employer-registration/employer-registration-welcome");
         }
 
+        else if (_currentStep == 7 && await ModelStore.SkipSubjectivity())
+        {
+            _currentStep -= 2;
+        }
         else
         {
             _currentStep--;
@@ -119,19 +210,11 @@ public partial class EmployerRegistrationSteps
 
     private async Task HandleSubmit()
     {
-        try
+        // WCF Service calls to save and register
+        var validationErrors = await ModelStore.CompleteRegistration();
+        if (validationErrors.Any())
         {
-            // WCF Service calls to save and register
-            var validationErrors = await ModelStore.Save();
-            if (validationErrors.Any())
-            {
-                _errorMessages.AddRange(validationErrors);
-                return;
-            }
-        }
-        catch
-        {
-            _errorMessages.Add("There was an error while submitting.");
+            _errorMessages.AddRange(validationErrors);
             return;
         }
     }
@@ -180,6 +263,7 @@ public partial class EmployerRegistrationSteps
         {
             //Delegate validation to Ownership component
             isValid = await (_uiSubjectivityRef?.Validate() ?? Task.FromResult(false));
+
         }
 
         else
@@ -192,3 +276,4 @@ public partial class EmployerRegistrationSteps
         return isValid;
     }
 }
+

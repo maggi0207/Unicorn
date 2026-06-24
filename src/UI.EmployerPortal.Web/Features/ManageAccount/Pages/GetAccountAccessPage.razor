@@ -1,0 +1,82 @@
+@page "/Pages/AccessAccount"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<PageTitle>Get Account Access</PageTitle>
+<div class="gak-page-container">
+        @* ── Header ── *@
+    <div class="account-header">
+        <div class="account-details fs-xl">
+            <div class="account-info">
+                <span class="detail-item account-name">
+                    <span class="detail-label">Get Account Access</span>
+                </span>
+            </div>
+        </div>
+        <div class="account-details fs-sm">
+            <div class="account-info">
+              <span class="detail-value fw-normal">Access the employer portal.</span>
+            </div>
+        </div>
+    </div>
+    <div class="gak-body">
+        @* ── Section bar ── *@
+        <div class="gak-section-bar">Enter Access Key</div>
+
+        @* ── EditForm wraps body + footer so submit button is inside the form ── *@
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="gak-main-body">
+                <p class="gak-description">Enter your access key and the associated employer account number.</p>
+                 @if (_successMessage != null) {
+                        <NotificationBanner NotificationType="NotificationType.Confirmation" 
+                                            Message="@_successMessage" > </NotificationBanner>
+                 }
+                @if (_serviceError != null) {
+
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    Message="@_serviceError">
+                </NotificationBanner>
+                }
+
+                <OutlinedTextField Label="Access Key"
+                                   Id="gak-key"
+                                   @bind-Value="_form.AccessKey"
+                                   For="@(() => _form.AccessKey)"
+                                   Placeholder="Enter Access Key"
+                                   Disabled="@_isLoading"
+                                   Required="true" />
+
+                <OutlinedTextField Label="Employer Account Number"
+                                   Id="gak-account"
+                                   @bind-Value="_form.EmployerAccountNumber"
+                                   For="@(() => _form.EmployerAccountNumber)"
+                                   Placeholder="Enter Account Number"
+                                   Mask="000000-000-0"
+                                   InputMode="numeric"
+                                   Disabled="@_isLoading"
+                                   Required="true" />
+            </div>
+
+            @* ── Footer ── *@
+            <div class="gak-footer">
+            <Button Variant="ButtonVariant.Secondary"
+                    Disabled="@_isLoading"
+                    Onclick="HandleBack">
+                <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                BACK
+            </Button>
+
+                <Button Type="submit"
+                        Disabled="@_isLoading">
+                    @if (_isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    }
+                    SUBMIT ACCESS KEY
+                </Button>
+            </div>
+        </EditForm>
+    </div>
+</div>

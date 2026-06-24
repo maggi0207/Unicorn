@@ -340,7 +340,7 @@
                     {
                         <div class="peo-container">
                             <div class="field-wrapper peo-name">
-                                <OutlinedTextField Label="PEO Name"
+                                <OutlinedTextField Label="Name of the PEO"
                                                    Id="PEOName"
                                                    @bind-Value="Model.PEOName"
                                                    For="() => Model.PEOName"
@@ -349,7 +349,7 @@
                             <br />
                             <div class="peo-row">
                                 <div class="peo-ui">
-                                    <OutlinedTextField Label="PEO UI Account Number"
+                                    <OutlinedTextField Label="UI Account Number of the PEO"
                                                        @bind-Value="Model.PEOUIAccountNumber"
                                                        InputMode="numeric"
                                                        Id="PEOUIAccountNumber"
@@ -362,21 +362,18 @@
                                 <span class="or-text">OR</span>
 
                                 <div class="peo-fein">
-                                    <FEINField Label="PEO FEIN"
-                                               Id="PEO FEIN"
+                                    <FEINField Label="FEIN of the PEO"
+                                               Id="PEOFEIN"
                                                @bind-Value="Model.PEOFEIN"
                                                For="() => Model.PEOFEIN"
                                                Placeholder="99-9999999"
-                                               Visible="@IsVisible(()=>Model.PEOFEIN)" />
-                                    <div class="validation-space">
-                                        <FieldError For="@(() => Model.PEOFEIN)"
-                                                    Visible="@_formSubmitted" />
-                                    </div>
+                                               Visible="@IsVisible(()=>Model.PEOFEIN)"
+                                               OnBlur="@(() => _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.PEOFEIN))))" />
                                 </div>
                             </div>
                             <br />
                             <div class="field-wrapper peo-date">
-                                <OutlinedTextField Label="Date leasing agreement started"
+                                <OutlinedTextField Label="Start Date of Employee Leasing Agreement"
                                                    Id="LeasingStartDate"
                                                    Type="date"
                                                    min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
@@ -431,7 +428,7 @@
                     @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.Other)
                     {
                         <div class="field-wrapper provide-reason">
-                            <OutlinedTextField Label="Provide reason"
+                            <OutlinedTextField Label="Please Explain"
                                                Id="OtherReason"
                                                @bind-Value="Model.OtherReason"
                                                For="() => Model.OtherReason"

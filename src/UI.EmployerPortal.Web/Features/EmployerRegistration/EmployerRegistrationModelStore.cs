@@ -30,7 +30,9 @@ internal class EmployerRegistrationModelStore
     private string? _uploadedFilePathRullingDoc;
     private string? _uploadedFilePathIrs;
     private string? _uploadedFilePathArticle;
+
     private bool _skipSubjectivity = false;
+    private bool _notLiable = false;
     private readonly ISessionManager _sessionManager;
 
     public EmployerRegistrationModel EmployerRegistrationModel { get; set; } = new();
@@ -70,21 +72,24 @@ internal class EmployerRegistrationModelStore
 
     public async Task<bool> SkipSubjectivity()
     {
-        var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
-
-        if (hasSurveyResponseSk)
+        if (_skipSubjectivity)
         {
-            var match = await _employerRegistrationService.HasPartialMatchAsync(surveyResponseSkValue);
+            var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
 
-            if (!match.Value)
+            if (hasSurveyResponseSk)
             {
-                match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSkValue);
-            }
+                var match = await _employerRegistrationService.HasPartialMatchAsync(surveyResponseSkValue);
 
-            return _skipSubjectivity && match.Value;
+                if (!match.Value)
+                {
+                    match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSkValue);
+                }
+
+                return match.Value;
+            }
         }
 
-        return false;
+        return _notLiable;
     }
 
     /// <summary>
@@ -130,11 +135,7 @@ internal class EmployerRegistrationModelStore
                     };
 
 
-                    Console.WriteLine($"[EmployerRegistrationDebug] CompleteRegistration start: SurveyResponseSK={surveyResponseSk}, SecureUserSK={secureUserSkClaim}, Match={match.Value}");
-
                     var registerResponse = await _employerRegistrationService.RegisterEmployerAsync(registerRequest);
-
-                    Console.WriteLine($"[EmployerRegistrationDebug] CompleteRegistration result: SurveyResponseSK={surveyResponseSk}, EmployerSK={registerResponse.EmployerSK}, CorrespondenceGenerationSK={registerResponse.CorrespondenceGenerationSK}, RuleViolations={string.Join(" | ", registerResponse.RuleViolations.Select(rv => rv.RuleViolation))}");
 
                     if (registerResponse.RuleViolations.Any())
                     {
@@ -243,11 +244,7 @@ internal class EmployerRegistrationModelStore
                 SurveyNumberText = surveyNumber ?? string.Empty
             };
 
-            Console.WriteLine($"[EmployerRegistrationDebug] ContinueSurvey request: FEIN={fein}, SurveyNumber={surveyNumber}, SecureUserSK={secureUserSKClaim}");
-
             var contiueRegistrationResponse = await _employerRegistrationService.ContinueRegistrationAsync(continueRegistrationRequest);
-
-            Console.WriteLine($"[EmployerRegistrationDebug] ContinueSurvey response: SurveyResponseSK={contiueRegistrationResponse.SurveyResponseSK}, Responses={contiueRegistrationResponse.Responses?.Length ?? 0}, Addresses={contiueRegistrationResponse.Addresses?.Length ?? 0}, Contacts={contiueRegistrationResponse.Contacts?.Length ?? 0}");
 
             if (!contiueRegistrationResponse.SurveyResponseSK.HasValue)
             {
@@ -407,6 +404,35 @@ internal class EmployerRegistrationModelStore
         }
     }
 
+    public async Task<Tuple<List<EmployerRegistrationValidationError>?, List<string>?>> PutSurveyAddressSKs(IEmployerRegistrationModelSection model)
+    {
+        try
+        {
+            var secureUserSkClaim = _userAccountService.GetUserSKClaim();
+            var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
+
+            if (hasSurveyResponseSk)
+            {
+                var addressResponse = await _employerRegistrationService.GetPortalRegistrationAddressesAsync(new PortalRegistrationAddressRequest
+                {
+                    SurveyResponseSK = surveyResponseSkValue
+                });
+
+                model.PutAddressSKs(addressResponse.Addresses);
+            }
+
+            return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) null);
+        }
+        catch (CommunicationException)
+        {
+            return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) new List<string>() { _technicalDifficulties });
+        }
+        catch
+        {
+            return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) new List<string>() { _generalError });
+        }
+    }
+
     private async Task<Tuple<List<EmployerRegistrationValidationError>?, List<string>?>> SaveResponsesToWcfService(
         List<PortalQuestionResponseItem>? responses,
         bool suppressRegistrationViolations = false)
@@ -442,10 +468,27 @@ internal class EmployerRegistrationModelStore
                     {
                         _skipSubjectivity = true;
                     }
-                    else
+                    return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) null);
+                }
+                else
+                {
+                    _skipSubjectivity = false;
+                }
+                if (saveResponseResult.RegistrationViolations.Any()
+                    && saveResponseResult.RegistrationViolations.All(rv =>
                     {
-                        return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) null);
+                        return rv.NotLiableRegistrationFlag ?? false;
+                    }))
+                {
+                    if (!_notLiable)
+                    {
+                        _notLiable = true;
                     }
+                    return Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) null);
+                }
+                else
+                {
+                    _notLiable = false;
                 }
 
                 // violations with Ids
@@ -591,6 +634,13 @@ internal class EmployerRegistrationModelStore
             {
                 return addressViolations;
             }
+
+            var putAddressSkViolations = await PutSurveyAddressSKs(model);
+
+            if (putAddressSkViolations.Item1 != null || addressViolations.Item2 != null)
+            {
+                return putAddressSkViolations;
+            }
         }
 
         var contacts = model.GetSurveyContacts();
@@ -707,5 +757,13 @@ internal class EmployerRegistrationModelStore
         return stateAbbreviation != null
             ? StateProvinceAbbreviationToCode.TryGetValue(stateAbbreviation, out var code) ? code : 0
             : 0;
+    }
+
+    public static string GetStateProviceCodeFromAbbreviation(int code)
+    {
+        return StateProvinceAbbreviationToCode.FirstOrDefault(v =>
+        {
+            return v.Value == code;
+        }).Key;
     }
 }

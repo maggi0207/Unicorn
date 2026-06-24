@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
@@ -19,18 +20,21 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     /// Legal business name as registered with the state.
     /// </summary>
     [Required(ErrorMessage = "Legal Name is required")]
+    [MaxLength(64, ErrorMessage = "Legal Name cannot exceed 64 characters")]
     public string? LegalName { get; set; }
 
     /// <summary>
     /// Trade name or DBA (optional).
     /// </summary>
+    [MaxLength(64, ErrorMessage = "Trade Name cannot exceed 64 characters")]
     public string? TradeName { get; set; }
 
     /// <summary>
     /// Business contact email address.
     /// </summary>
     [Required(ErrorMessage = "Email Address is required")]
-    [EmailAddress(ErrorMessage = "Please enter a valid email address")]
+    [EmailAddress(ErrorMessage = "Email Address is not in a valid format")]
+    [MaxLength(255, ErrorMessage = "Email Address cannot exceed 255 characters")]
     public string? Email { get; set; }
 
     #endregion
@@ -62,6 +66,9 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     }
 
     /// <inheritdoc/>
+    public void LoadSurveyContacts(RegistrationIndividualProxy[] contacts) { }
+
+    /// <inheritdoc/>
     public List<Tuple<RegistrationAddressCode, AddressModel>> GetSurveyAddresses()
     {
         var addresses = new List<Tuple<RegistrationAddressCode, AddressModel>>();
@@ -83,6 +90,47 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     }
 
     /// <inheritdoc/>
+    public void LoadSurveyAddresses(RegistrationAddressProxy[] addresses)
+    {
+        if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.Main_Business_Mailing, out var mainBusinessMailing))
+        {
+            MailingAddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(mainBusinessMailing);
+        }
+
+        if (IEmployerRegistrationModelSection.FindAddressesHelper(addresses, RegistrationAddressCode.Physical_Location, out var physicalLocations))
+        {
+            PhysicalLocations = physicalLocations.Select(IEmployerRegistrationModelSection.ConvertAddressResponseToModel).ToList();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void PutAddressSKs(RegistrationAddressProxy[] addresses)
+    {
+        if (MailingAddress != null
+            && IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.Main_Business_Mailing, out var mainBusinessMailing))
+        {
+            MailingAddress.RegistrationAddressSk = mainBusinessMailing.EmployerRegistrationAddressSK;
+        }
+
+        if (PhysicalLocations != null
+            && IEmployerRegistrationModelSection.FindAddressesHelper(addresses, RegistrationAddressCode.Physical_Location, out var physicalLocations))
+        {
+            foreach (var location in PhysicalLocations)
+            {
+                var match = physicalLocations.FirstOrDefault(l =>
+                {
+                    return string.Equals(l.LineTwoAddress, location.AddressLine1, StringComparison.OrdinalIgnoreCase);
+                });
+
+                if (match != null)
+                {
+                    location.RegistrationAddressSk = match.EmployerRegistrationAddressSK;
+                }
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public List<SurveyResponse> GetSurveyResponses()
     {
         var responses = new List<SurveyResponse>();
@@ -97,12 +145,32 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.TRD_NAM, _response = TradeName });
         }
 
-        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EMAIL_NOTIFY, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(true) });
+        // responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EMAIL_NOTIFY, _response = "Yes" });
+
         if (!string.IsNullOrWhiteSpace(Email))
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
         }
 
         return responses;
+    }
+
+    /// <inheritdoc/>
+    public void LoadSurveyResponses(SurveyResponseItemProxy[] responses)
+    {
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_LGL_NAM, out var businessLegalName))
+        {
+            LegalName = businessLegalName.ReplyText;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.TRD_NAM, out var tradeName))
+        {
+            TradeName = tradeName.ReplyText;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_EMAIL_ADR, out var emailAddress))
+        {
+            Email = emailAddress.ReplyText;
+        }
     }
 }

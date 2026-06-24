@@ -1,0 +1,33 @@
+
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+
+<PageTitle>Employer Registration - Ownership</PageTitle>
+
+<div class="employer-registration-page">
+    <Ownership OnBackClicked="HandleBack"
+               OnSaveAndQuitClicked="HandleSaveAndQuit"
+               OnContinueClicked="HandleContinue" />
+</div>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private void HandleBack()
+    {
+        // Navigate to previous step
+        Console.WriteLine("Back clicked");
+    }
+
+    private void HandleSaveAndQuit()
+    {
+        // Save form and return to dashboard
+        NavigationManager.NavigateTo("/employer-dashboard");
+    }
+
+    private void HandleContinue()
+    {
+        // Validate and move to next step
+        Console.WriteLine("Continue clicked");
+    }
+}

@@ -1,0 +1,233 @@
+.page_wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.registration-complete-container {
+    max-width: 684px;
+    height: 877px;
+    vertical-align: middle;
+    font-family: Verdana;
+    padding-top: 50px
+}
+
+.success-header {
+    max-width: 684px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    gap: regular;
+    margin-bottom: 40px;
+}
+
+.success-title {
+    color: #1A8922;
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.15;
+    vertical-align: middle;
+}
+
+/*Account Info*/
+.account-info {
+    max-width: 684px;
+    height: 26px;
+    gap: 4px;
+
+    .account-text {
+        font-family: Verdana;
+        font-weight: 400;
+        font-style: Regular;
+        font-size: 16px;
+        leading-trim: NONE;
+        line-height: 160%;
+        letter-spacing: 0%;
+        text-align: center;
+    }
+
+    .determination-link {
+        color: #0066cc;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+        .determination-link:hover {
+            color: #0052a3;
+        }
+
+    .checkmark-small {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background-color: #0066cc;
+        color: white;
+        border-radius: 50%;
+        font-size: 14px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+}
+
+/*Mail a copy label*/
+.mail-a-copy {
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+    text-align: center;
+    text-decoration: underline;
+    text-decoration-style: solid;
+    text-decoration-offset: 0%;
+    text-decoration-thickness: 0%;
+    width: 479;
+    height: 26;
+    angle: 0 deg;
+    opacity: 1;
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+/*What's Next*/
+.whats-next-container {
+    width: 684;
+    height: 179;
+    gap: 8px;
+    angle: 0 deg;
+    opacity: 1;
+
+
+    .whats-next-title {
+        font-family: Verdana;
+        font-weight: 700;
+        font-style: Bold;
+        font-size: 16px;
+        leading-trim: NONE;
+        line-height: 160%;
+        letter-spacing: 0%;
+    }
+
+    .whats-next-text {
+        font-weight: 400;
+        font-style: Regular;
+        font-size: 16px;
+        leading-trim: NONE;
+        line-height: 160%;
+        letter-spacing: 0%;
+    }
+
+    .whats-next-table {
+        width: 684;
+        height: 78;
+        justify-content: space-between;
+        angle: 0 deg;
+        opacity: 1;
+        padding-left: 18px;
+        list-style: disc;
+        display: grid;
+        grid-template-columns: repeat(6,max-content);
+        column-gap: 32px;
+        row-gap: 10px;
+    }
+
+        .whats-next-table li {
+            white-space: nowrap;
+            font-weight: 400;
+            font-style: Regular;
+        }
+}
+
+
+
+/*ACTION BUTTONS */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 50px;
+    align-items: center;
+}
+
+.transparent-sucess-content{
+
+}
+
+.nb-alert {
+    background-color: #ffe8e8;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 1px solid #C82838;
+    border-bottom: 1px solid #C82838;
+    border-left: 5px solid #C82838;
+    border-right: 1px solid #C82838;
+    border-color: #C82838;
+    box-shadow: 0px 4px 5px 0px #00000024;
+}
+
+.nb-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: black;
+    padding: 10px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .success-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .success-title {
+        font-size: 28px;
+    }
+
+    .account-text,
+    .checkbox-text,
+    .next-steps-text {
+        font-size: 16px;
+    }
+
+    .next-steps-title {
+        font-size: 22px;
+    }
+
+    .btn {
+        min-width: 100%;
+        font-size: 16px;
+        padding: 16px 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .registration-complete-container {
+        padding: 20px 15px;
+    }
+
+    .success-title {
+        font-size: 24px;
+    }
+
+    .checkmark-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 28px;
+    }
+
+    .btn {
+        padding: 14px 30px;
+        font-size: 14px;
+    }
+}

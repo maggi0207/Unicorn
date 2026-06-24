@@ -19,6 +19,6 @@ public static class AddressHelper
         && CompareField(a.Zip, b.Zip)
         && CompareField(a.Extension, b.Extension);
 
-    private static bool CompareField(string val1, string val2)
+    private static bool CompareField(string? val1, string? val2)
         => string.Equals(val1?.Trim() ?? string.Empty, val2?.Trim() ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 }

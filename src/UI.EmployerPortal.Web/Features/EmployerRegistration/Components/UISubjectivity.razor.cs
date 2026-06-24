@@ -15,11 +15,11 @@ public partial class UISubjectivity
     private IYearQuarterPaidWagesService PaidWagesService { get; set; } = default!;
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
-
     private bool _formSubmitted = false;
     private bool _showAddressErrors = false;
     private bool _insufficientQuarterlyWageEntered = false;
     private bool _wageCheckflag = false;
+    private bool _wageFirstQ1Checkflag = false;
     private int DecimalPlaces { get; set; } = 2;
     private DateTime? _dateFirstPaidWages;
     private EditContext _subjectivityContext = default!;
@@ -130,12 +130,10 @@ public partial class UISubjectivity
     {
         _dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI;
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
-        // SubjectivityModel = new SubjectivityModel() { Wages = wages };
-        if (SubjectivityModel.BusinessCategory == null)
+        if (SubjectivityModel.Wages.Count == 0)
         {
             SubjectivityModel.Wages = wages;
         }
-
         _subjectivityContext = new EditContext(SubjectivityModel);
         _messageStore = new ValidationMessageStore(_subjectivityContext);
         var isNonProfitFromStep1 = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.IsNonProfitOrg == true;
@@ -150,11 +148,12 @@ public partial class UISubjectivity
             BusinessCategoryScenario.LockedAgricultural => BusinessCategory.Agricultural,
             BusinessCategoryScenario.LockedDomestic => BusinessCategory.Domestic,
             BusinessCategoryScenario.LockedCommercial => BusinessCategory.Commercial,
-            BusinessCategoryScenario.FreeChoice => BusinessCategory.Commercial,
+            BusinessCategoryScenario.FreeChoice => SubjectivityModel.BusinessCategory != null ? SubjectivityModel.BusinessCategory : BusinessCategory.Commercial,
             _ => BusinessCategory.Commercial,
         };
         if (SubjectivityModel.BusinessCategory != null && SubjectivityModel.BusinessCategory != lockedCategory)
         {
+
             //reset the fields
             SubjectivityModel.HasEmployeesOutsideWisconsin501 = null;
             SubjectivityModel.HasEmployeesOutsideWisconsin = null;
@@ -162,7 +161,6 @@ public partial class UISubjectivity
             SubjectivityModel.PaidWagesOver1500Employees = null;
             //Wages
             SubjectivityModel.HasEmployeeIn20Weeks = null;
-            SubjectivityModel.Employee20WeeksFourOrMore = null;
             SubjectivityModel.Week20EndDate = null;
             SubjectivityModel.ExpectToPayWagesInAQuarter = null;
             SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
@@ -175,7 +173,6 @@ public partial class UISubjectivity
             ResetField(() => SubjectivityModel.HasEmployeesOutsideWisconsin);
             ResetField(() => SubjectivityModel.HasFutaLiabilityInOtherStates);
             ResetField(() => SubjectivityModel.PaidWagesOver1500Employees);
-            ResetField(() => SubjectivityModel.Employee20WeeksFourOrMore);
             ResetField(() => SubjectivityModel.Week20EndDate);
             ResetField(() => SubjectivityModel.ExpectToPayWagesInAQuarter);
             ResetField(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter);
@@ -184,9 +181,8 @@ public partial class UISubjectivity
             ResetField(() => SubjectivityModel.PayWagesPerformWI);
             ResetField(() => SubjectivityModel.ExpectToPayWagesPerformWI);
         }
-
         SubjectivityModel.BusinessCategory = lockedCategory;
-        BusinessCategory = lockedCategory;
+        BusinessCategory = (BusinessCategory) lockedCategory;
         _subjectivityContext.OnFieldChanged += (_, f) =>
         {
             _touchedFields.Add(f.FieldIdentifier);
@@ -200,6 +196,26 @@ public partial class UISubjectivity
         };
 
     }
+
+    private DateTime TwentiethWeekMinSaturday()
+    {
+        var dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI ?? DateTime.Today;
+        var dateFirstPaidWagesPlusTwentyWeeks = dateFirstPaidWages.AddDays(7 * 19);
+        var dateFirstPaidWagesPlusTwentyWeeksNextSaturday = dateFirstPaidWagesPlusTwentyWeeks.AddDays((int) DayOfWeek.Saturday - (int) dateFirstPaidWagesPlusTwentyWeeks.DayOfWeek);
+        if (dateFirstPaidWages.Year == dateFirstPaidWagesPlusTwentyWeeksNextSaturday.Year)
+        {
+            return dateFirstPaidWagesPlusTwentyWeeksNextSaturday;
+        }
+        else
+        {
+            var twentyWeeksIntoNewYear = new DateTime(dateFirstPaidWagesPlusTwentyWeeks.Year, 1, 1).AddDays(7 * 19);
+            var twentyWeeksIntoNewYearNextSaturday = twentyWeeksIntoNewYear.AddDays((int) DayOfWeek.Saturday - (int) twentyWeeksIntoNewYear.DayOfWeek);
+            return dateFirstPaidWagesPlusTwentyWeeksNextSaturday > twentyWeeksIntoNewYearNextSaturday
+                ? dateFirstPaidWagesPlusTwentyWeeksNextSaturday
+                : twentyWeeksIntoNewYearNextSaturday;
+        }
+    }
+
     /// <summary>
     /// Determines the business category scenario for Step 6 based on Step 1 (non-profit answer)
     /// and Step 5 (principal business activity selection).
@@ -280,7 +296,7 @@ public partial class UISubjectivity
             BusinessCategory.Commercial => commercial,
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => commercial,
+            BusinessCategory.NonProfit_501c3 => nonProfit,
             BusinessCategory.NonProfit_Other => nonProfit,
             _ => commercial
         };
@@ -297,7 +313,7 @@ public partial class UISubjectivity
             BusinessCategory.Commercial => commercial,
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => string.Empty,
+            BusinessCategory.NonProfit_501c3 => nonProfit,
             BusinessCategory.NonProfit_Other => nonProfit,
             _ => String.Empty
         };
@@ -306,30 +322,31 @@ public partial class UISubjectivity
     {
         var commercial = "Do you expect to have at least 1 full- or part-time employee working for you in 20 different calendar weeks in a calendar year?";
         //var domestic = "Do you expect to pay $1,000 or more in cash wages in a calendar quarter?";
-        var nonProfit_501c3 = "Do you expect to have at least 4 full- or part-time employees working for you on the same day in 20 different calendar weeks in a calendar year?";
+        var nonProfit = "Do you expect to have at least 4 full- or part-time employees working for you on the same day in 20 different calendar weeks in a calendar year?";
         var agricultural = "Do you expect to have at least 10 full- or part-time agricultural employees working for you on the same day in 20 different calendar weeks in a calendar year?";
         return BusinessCategory switch
         {
             BusinessCategory.Commercial => commercial,
             BusinessCategory.Domestic => string.Empty,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => nonProfit_501c3,
-            BusinessCategory.NonProfit_Other => string.Empty,
-            _ => String.Empty
+            BusinessCategory.NonProfit_501c3 => nonProfit,
+            BusinessCategory.NonProfit_Other => nonProfit,
+            _ => string.Empty
         };
     }
     private string EmployeeIn20Weeks()
     {
         var commercial = "Have you had at least one full- or part-time employee working for you in 20 different calendar weeks in a calendar year?";
         var agricultural = "Have you had at least 10 full- or part-time agricultural employees working for you on the same day in 20 different calendar weeks in a calendar year?";
+        var nonProfit = "Have you had at least 4 full- or part-time employees working for you in Wisconsin on the same day in 20 different calendar weeks in a calendar year?";
         return BusinessCategory switch
         {
             BusinessCategory.Commercial => commercial,
-            BusinessCategory.Domestic => String.Empty,
+            BusinessCategory.Domestic => string.Empty,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => commercial,
-            BusinessCategory.NonProfit_Other => String.Empty,
-            _ => String.Empty
+            BusinessCategory.NonProfit_501c3 => nonProfit,
+            BusinessCategory.NonProfit_Other => nonProfit,
+            _ => string.Empty
         };
     }
     private string PaidWagesPerformWI()
@@ -338,12 +355,12 @@ public partial class UISubjectivity
         var domestic = "Have you paid domestic wages for work performed in Wisconsin?";
         return BusinessCategory switch
         {
-            BusinessCategory.Commercial => String.Empty,
+            BusinessCategory.Commercial => string.Empty,
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => String.Empty,
-            BusinessCategory.NonProfit_Other => String.Empty,
-            _ => String.Empty
+            BusinessCategory.NonProfit_501c3 => string.Empty,
+            BusinessCategory.NonProfit_Other => string.Empty,
+            _ => string.Empty
         };
     }
     private string ExpectPayWagesPerformWI()
@@ -352,34 +369,27 @@ public partial class UISubjectivity
         var domestic = " Do you expect to pay domestic wages for work performed in Wisconsin?";
         return BusinessCategory switch
         {
-            BusinessCategory.Commercial => String.Empty,
+            BusinessCategory.Commercial => string.Empty,
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => String.Empty,
-            BusinessCategory.NonProfit_Other => String.Empty,
-            _ => String.Empty
+            BusinessCategory.NonProfit_501c3 => string.Empty,
+            BusinessCategory.NonProfit_Other => string.Empty,
+            _ => string.Empty
         };
     }
 
     private async Task OnExpectToPayWagesInAQuarterChange(bool? value)
     {
         SubjectivityModel.ExpectToPayWagesInAQuarter = value;
-        // CHANGED**
-        if (value == false)
-        {
-            SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
-            ResetField(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter);
-        }
+        SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
+        SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.ExpectToPayWagesInAQuarter)));
     }
     private async Task OnExpectToHaveWagesInAQuarterChange(bool? value)
     {
         SubjectivityModel.ExpectToHaveWagesInAQuarter = value;
-        if (value == false)
-        {
-            SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
-            ResetField(() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter);
-        }
+        SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.ExpectToHaveWagesInAQuarter)));
     }
 
@@ -388,26 +398,15 @@ public partial class UISubjectivity
 
     {
         SubjectivityModel.HasEmployeesOutsideWisconsin = value;
-        // CHANGED: clear dependent fields when branch changes**
-        if (value == false)
-        {
-            SubjectivityModel.HasFutaLiabilityInOtherStates = null;
-            SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
-            SubjectivityModel.QuarterYearFirstPaidTaxes = null;
-        }
-        else if (value == true)
-        {
-            SubjectivityModel.PaidWagesOver1500Employees = null;
-            //SubjectivityModel.FirstWageQuarterYearEmployees = null;
-            SubjectivityModel.HasEmployeeIn20Weeks = null;
-            SubjectivityModel.Week20EndDate = null;
-            SubjectivityModel.ExpectToPayWagesInAQuarter = null;
-            SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
-            SubjectivityModel.AX_10_IN_20_FLG = null;
-            SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
-            SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
-            ResetField(() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter);
-        }
+        SubjectivityModel.HasFutaLiabilityInOtherStates = null;
+        SubjectivityModel.PaidWagesOver1500Employees = null;
+        SubjectivityModel.HasEmployeeIn20Weeks = null;
+        SubjectivityModel.Week20EndDate = null;
+        SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+        SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
+        SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
+
         ResetField(() => SubjectivityModel.HasEmployeesOutsideWisconsin);
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.HasEmployeesOutsideWisconsin)));
 
@@ -423,30 +422,13 @@ public partial class UISubjectivity
     {
         SubjectivityModel.HasFutaLiabilityInOtherStates = value;
         PaidWagesService.Update(value ?? false);
-        // CHANGED: clear dependent fields**
-        if (value == true)
-        {
-            SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
-            ResetField(() => SubjectivityModel.PaidWagesOrTaxesOver1500);
-            SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
-            SubjectivityModel.ExpectToPayWagesInAQuarter = null;
-            SubjectivityModel.PaidWagesOver1500Employees = null;
-            ResetField(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter);
-            ResetField(() => SubjectivityModel.ExpectToPayWagesInAQuarter);
-            ResetField(() => SubjectivityModel.PaidWagesOver1500Employees);
-            // SubjectivityModel.Wages.Clear();               
-
-        }
-        else
-        {
-            SubjectivityModel.PayWagesPerformWI = null;
-            SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT = string.Empty;
-            SubjectivityModel.ExpectToPayWagesPerformWI = null;
-            ResetField(() => SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT);
-            ResetField(() => SubjectivityModel.PayWagesPerformWI);
-            ResetField(() => SubjectivityModel.ExpectToPayWagesPerformWI);
-        }
-
+        SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+        SubjectivityModel.PaidWagesOver1500Employees = null;
+        SubjectivityModel.HasEmployeeIn20Weeks = null;
+        SubjectivityModel.PayWagesPerformWI = null;
+        SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT = string.Empty;
+        SubjectivityModel.ExpectToPayWagesPerformWI = null;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.HasEmployeesOutsideWisconsin501)));
     }
 
@@ -471,60 +453,38 @@ public partial class UISubjectivity
             ResetField(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter);
             ResetField(() => SubjectivityModel.ExpectToPayWagesInAQuarter);
         }
+        //0601
+        SubjectivityModel.HasEmployeeIn20Weeks = null;
+        SubjectivityModel.Week20EndDate = null;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.PaidWagesOver1500Employees)));
+
     }
 
     private async Task OnHasEmployeeIn20WeeksChange(bool? value)
     {
         SubjectivityModel.HasEmployeeIn20Weeks = value;
-        // CHANGED**
-        if (value == false)
+        SubjectivityModel.Week20EndDate = null;
+        //0610
+        SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+        SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
+        if (SubjectivityModel.BusinessCategory == BusinessCategory.NonProfit_501c3)
         {
-            SubjectivityModel.Week20EndDate = null;
-            ResetField(() => SubjectivityModel.Week20EndDate);
+            SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
+            SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
         }
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.HasEmployeeIn20Weeks)));
     }
 
-    private async Task OnEmployee20WeeksFourOrMoreChange(bool? value)
-    {
-        SubjectivityModel.Employee20WeeksFourOrMore = value;
-        if (value != true)
-        {
-            SubjectivityModel.Week20EndDate = null;
-            ResetField(() => SubjectivityModel.Week20EndDate);
-        }
-        else
-        {
-            SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
-            SubjectivityModel.WhenExpectToHaveWagesInAQuarter = string.Empty;
-            ResetField(() => SubjectivityModel.ExpectToHaveWagesInAQuarter);
-            ResetField(() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter);
-        }
-
-        _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.Employee20WeeksFourOrMore)));
-    }
     private async Task OnHasPayWagesPerformWI(bool? value)
     {
-
         SubjectivityModel.PayWagesPerformWI = value;
-        if (value == true)
-        {
-            SubjectivityModel.ExpectToPayWagesPerformWI = null;
-            ResetField(() => SubjectivityModel.ExpectToPayWagesPerformWI);
-        }
+        SubjectivityModel.ExpectToPayWagesPerformWI = null;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.PayWagesPerformWI)));
     }
     private async Task OnExpectToPayWagesPerformWI(bool? value)
     {
-
         SubjectivityModel.ExpectToPayWagesPerformWI = value;
-        if (value != true)
-        {
-            SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT = string.Empty;
-            ResetField(() => SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT);
-        }
-
+        SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT = string.Empty;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.ExpectToPayWagesPerformWI)));
     }
     private async Task OnBusinessCatagoryChanged(BusinessCategory? value)
@@ -540,9 +500,6 @@ public partial class UISubjectivity
         SubjectivityModel.HasEmployeesOutsideWisconsin = null;
         SubjectivityModel.HasFutaLiabilityInOtherStates = null;
         SubjectivityModel.PaidWagesOver1500Employees = null;
-        SubjectivityModel.PaidWagesOrTaxesOver1500 = null;
-        //SubjectivityModel.FirstWageQuarterYearEmployees = null;
-        SubjectivityModel.QuarterYearFirstPaidTaxes = null;
         SubjectivityModel.HasEmployeeIn20Weeks = null;
         SubjectivityModel.Week20EndDate = null;
         SubjectivityModel.ExpectToPayWagesInAQuarter = null;
@@ -613,9 +570,18 @@ public partial class UISubjectivity
         _messageStore.Clear();
         ValidationErrors.Clear();
         ValidationFieldIds.Clear();
-        _insufficientQuarterlyWageEntered = Section5Visible && !(PaidWagesService.PaidWagesMeetsQuarterlyMinimum(BusinessCategory, SubjectivityModel.Wages));
+        _insufficientQuarterlyWageEntered = false;
         _wageCheckflag = Section5Visible && ValidateWages(SubjectivityModel.Wages);
-        _showAddressErrors = true;
+        if (!_wageCheckflag)
+        {
+            _wageFirstQ1Checkflag = Section5Visible && ValidateQ1Wages(SubjectivityModel.Wages);
+        }
+        if (!_wageCheckflag && !_wageFirstQ1Checkflag)
+        {
+            _insufficientQuarterlyWageEntered = Section5Visible && !(PaidWagesService.PaidWagesMeetsQuarterlyMinimum(BusinessCategory, SubjectivityModel.Wages));
+
+        }
+        _showAddressErrors = false;
         // Block navigation when the user must correct their Step 1 answer before proceeding.
         // 501(c)(3) sub-tree validation
         if (IsVisible(() => SubjectivityModel.HasEmployeesOutsideWisconsin501) && Section0Visible)
@@ -650,14 +616,6 @@ public partial class UISubjectivity
                 _messageStore.Add(field, "Federal Unemployment Tax (FUTA) liability is required");
             }
         }
-        if (IsVisible(() => SubjectivityModel.PaidWagesOver1500Employees) && Section4Visible)
-        {
-            var field = _subjectivityContext.Field(nameof(SubjectivityModel.PaidWagesOver1500Employees));
-            if (!SubjectivityModel.PaidWagesOver1500Employees.HasValue)
-            {
-                _messageStore.Add(field, "Wages in a calendar quarter is required");
-            }
-        }
         if (IsVisible(() => SubjectivityModel.HasEmployeeIn20Weeks) && Section9Visible)
         {
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.HasEmployeeIn20Weeks));
@@ -666,20 +624,19 @@ public partial class UISubjectivity
                 _messageStore.Add(field, "Select if you had employees");
             }
         }
-        if (IsVisible(() => SubjectivityModel.Employee20WeeksFourOrMore) && Section11Visible)
-        {
-            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Employee20WeeksFourOrMore));
-            if (!SubjectivityModel.Employee20WeeksFourOrMore.HasValue)
-            {
-                _messageStore.Add(field, "Select if you have had employees working for you in Wisconsin for 20 different calendar weeks");
-            }
-        }
         if (IsVisible(() => SubjectivityModel.Week20EndDate) && Section10Visible)
         {
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.Week20EndDate));
             if (!SubjectivityModel.Week20EndDate.HasValue)
             {
-                _messageStore.Add(field, "Enter Week End Date?");
+                _messageStore.Add(field, "Enter Week End Date");
+            }
+            else
+            {
+                if (SubjectivityModel.Week20EndDate.Value < TwentiethWeekMinSaturday())
+                {
+                    _messageStore.Add(field, "Date must be at least 20 weeks after the date you first had employees working in WI or the start of the year");
+                }
             }
         }
         if (IsVisible(() => SubjectivityModel.ExpectToHaveWagesInAQuarter) && Section18Visible)
@@ -740,15 +697,28 @@ public partial class UISubjectivity
                 _messageStore.Add(field, "Select When to pay wages");
             }
         }
-        if (_insufficientQuarterlyWageEntered)
+        if (IsVisible(() => SubjectivityModel.PaidWagesOver1500Employees) && Section4Visible)
         {
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.PaidWagesOver1500Employees));
+            if (!SubjectivityModel.PaidWagesOver1500Employees.HasValue)
+            {
+                _messageStore.Add(field, "Wages in a calendar quarter is required");
+            }
+        }
+        if (_insufficientQuarterlyWageEntered)
+        {
+            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Wages));
             _messageStore.Add(field, "Insufficient quarterly wages reported");
         }
         if (_wageCheckflag)
         {
-            var field = _subjectivityContext.Field(nameof(SubjectivityModel.PaidWagesOver1500Employees));
-            _messageStore.Add(field, "Wages Can not be blank Or First Paid Quater Wage must be greater than Zero.");
+            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Wages));
+            _messageStore.Add(field, "Quarterly wage values are required");
+        }
+        if (_wageFirstQ1Checkflag)
+        {
+            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Wages));
+            _messageStore.Add(field, "Quarter wages were first paid can’t be zero");
         }
         //Bind Notification Banner
         var properties = SubjectivityModel.GetType().GetProperties();
@@ -787,12 +757,25 @@ public partial class UISubjectivity
                                                  (!o.Q3Disabled && o.Q3Wages == null) ||
                                                  (!o.Q4Disabled && o.Q4Wages == null);
             });
-            var yearOne = orderedWages[0];
-            //if (yearOne.Q1Wages.HasValue && yearOne.Q1Wages.Value <= 0 && yearOne.Q1Disabled ==false)
-            //{
-            //    _wageCheckflag = true;
-            //}
+        }
+        return _wageCheckflag;
+    }
+    /// <summary>
+    /// 
+    /// </summary>   
+    /// <param name="paidWages"></param>
+    /// <returns></returns>
+    public bool ValidateQ1Wages(IEnumerable<YearQuartersPaidWages> paidWages)
+    {
+        _wageFirstQ1Checkflag = false;
+        var orderedWages = paidWages.OrderBy(w =>
+        {
+            return w.Year;
+        }).ToList();
 
+        if (orderedWages != null && orderedWages.Count > 0)
+        {
+            var yearOne = orderedWages[0];
             var yearonecheck = new[]
               {
                     (Disabled:yearOne.Q1Disabled,wage:yearOne.Q1Wages),
@@ -807,7 +790,7 @@ public partial class UISubjectivity
                 {
                     if (o.wage.HasValue && o.wage <= 0)
                     {
-                        _wageCheckflag = true;
+                        _wageFirstQ1Checkflag = true;
                     }
                     break;//First Quarter Check
                 }
@@ -815,7 +798,7 @@ public partial class UISubjectivity
             }
 #pragma warning restore IDE0042 // Deconstruct variable declaration
         }
-        return _wageCheckflag;
+        return _wageFirstQ1Checkflag;
     }
     /// <summary>
     /// Returns the disclaimer paragraph shown above the quarterly wages table.
@@ -868,28 +851,27 @@ public partial class UISubjectivity
             && BusinessCategory != BusinessCategory.NonProfit_501c3
             && BusinessCategory != BusinessCategory.Unknown;
     }
-    //Visibulity Defined
+    private bool Section0Visible => BusinessCategory == BusinessCategory.NonProfit_501c3;
     private bool Section3Visible => BusinessCategory != BusinessCategory.NonProfit_501c3;
-    private bool Section10Visible => SubjectivityModel.HasEmployeeIn20Weeks ?? false || SubjectivityModel.Employee20WeeksFourOrMore == true;
-    private bool Section6Visible => BusinessCategory != BusinessCategory.NonProfit_501c3 && SubjectivityModel.HasEmployeesOutsideWisconsin == true;
+    private bool Section6Visible => SubjectivityModel.HasEmployeesOutsideWisconsin == true && BusinessCategory != BusinessCategory.NonProfit_501c3;
     private bool Section15Visible => SubjectivityModel.HasFutaLiabilityInOtherStates == true && (BusinessCategory == BusinessCategory.Agricultural || BusinessCategory == BusinessCategory.Domestic);
     private bool Section16Visible => SubjectivityModel.PayWagesPerformWI == false;
     private bool Section17Visible => SubjectivityModel.ExpectToPayWagesPerformWI == true;
-    private bool Section14Visible => SubjectivityModel.ExpectToPayWagesInAQuarter == true;
+    // paid employees over x in calendar quarter
+    private bool Section4Visible => true && (SubjectivityModel.HasEmployeesOutsideWisconsin == false || SubjectivityModel.HasFutaLiabilityInOtherStates == false);
+    // 4 yes, wage entry 
     private bool Section5Visible => SubjectivityModel.PaidWagesOver1500Employees == true;
-    private bool Section13Visible => BusinessCategory != BusinessCategory.NonProfit_501c3 && SubjectivityModel.PaidWagesOver1500Employees == false;
-    private bool Section9Visible => SubjectivityModel.PaidWagesOver1500Employees.HasValue && (BusinessCategory == BusinessCategory.Commercial || BusinessCategory == BusinessCategory.Agricultural);
-
-
-    //Non Profit with 501c3
-    private bool Section0Visible => BusinessCategory == BusinessCategory.NonProfit_501c3;
-    private bool Section11Visible => BusinessCategory == BusinessCategory.NonProfit_501c3;
-    private bool Section18Visible => (SubjectivityModel.Employee20WeeksFourOrMore == false || SubjectivityModel.ExpectToPayWagesInAQuarter == false) && BusinessCategory != BusinessCategory.Domestic;
-    private bool Section19Visible => SubjectivityModel.ExpectToHaveWagesInAQuarter == true;
-
-    //Domestic
-
-
-    private bool Section4Visible => (SubjectivityModel.HasFutaLiabilityInOtherStates == false || SubjectivityModel.HasEmployeesOutsideWisconsin == false) && BusinessCategory != BusinessCategory.NonProfit_501c3;
-
+    // 4 no, do you expect to pay wages in a calendar quarter
+    private bool Section13Visible => (SubjectivityModel.HasEmployeeIn20Weeks == false && BusinessCategory != BusinessCategory.NonProfit_501c3 && SubjectivityModel.PaidWagesOver1500Employees == false) || (BusinessCategory == BusinessCategory.Domestic && SubjectivityModel.PaidWagesOver1500Employees == false);
+    // 13 yes, when?
+    private bool Section14Visible => SubjectivityModel.ExpectToPayWagesInAQuarter == true;
+    // had x employees in y weeks in year
+    private bool Section9Visible => (Section4Visible || Section0Visible) && BusinessCategory != BusinessCategory.Domestic;
+    //(SubjectivityModel.BusinessCategory == BusinessCategory.NonProfit_501c3 || SubjectivityModel.PaidWagesOver1500Employees.HasValue || Section4Visible) && BusinessCategory != BusinessCategory.Domestic;
+    // 9 yes, yth week
+    private bool Section10Visible => Section9Visible && SubjectivityModel.HasEmployeeIn20Weeks.HasValue && SubjectivityModel.HasEmployeeIn20Weeks.Value;
+    // 9 no, expect x employees in y weeks in year
+    private bool Section18Visible => (Section13Visible && SubjectivityModel.ExpectToPayWagesInAQuarter == false && BusinessCategory != BusinessCategory.Domestic) || (SubjectivityModel.BusinessCategory == BusinessCategory.NonProfit_501c3 && SubjectivityModel.HasEmployeeIn20Weeks == false);
+    // 10 yes, when?
+    private bool Section19Visible => Section18Visible && SubjectivityModel.ExpectToHaveWagesInAQuarter == true;
 }

@@ -1,0 +1,107 @@
+@page "/employer-registration/employer-registration-welcome"
+@inject NavigationManager Nav
+@using UI.EmployerPortal.Razor.SharedComponents.Accordion
+@using UI.EmployerPortal.Razor.SharedComponents.Accordion.Accordion
+
+<PageTitle>Welcome - Employer Registration</PageTitle>
+
+<div class="page_wrapper">
+    <div class="welcome-page-content">
+
+        <h1 class="welcome-title">Let's get started</h1>
+
+        <p class="welcome-note">
+            <strong>Note:</strong> Personal information you provide may be used for secondary purposes
+            [Privacy Law, s. 15.04(1)(m), Wisconsin Statutes]
+        </p>
+
+        <Accordion Title="What you need to complete the application" InitiallyExpanded="true">
+            <ol class="welcome-list">
+                <li>
+                    Before you file, you will need a Federal Employer Identification Number
+                    (FEIN). If you are not required to have one, you will need a Taxpayer
+                    Identification Number. If you do not have a federal identification
+                    number, contact the IRS to obtain one at
+                    <a href="https://www.irs.gov" target="_blank" rel="noopener noreferrer">https://www.irs.gov</a>
+                </li>
+                <li>
+                    Name and phone number of a contact person, the correct and complete legal name of
+                    the business, the names and social security numbers of all owners, and basic
+                    information about payroll and business functions.
+                </li>
+                <li>
+                    Applicable documentation. Some items will instruct you to submit additional
+                    documentation to our department (examples are federal 501(c)(3) ruling, or a federal
+                    notice of acceptance of an LLC electing to be taxed as a corporation).
+                </li>
+            </ol>
+        </Accordion>
+
+        <Accordion Title="Helpful information" InitiallyExpanded="true">
+            <ul class="welcome-list">
+                <li>
+                    Review the Employer Handbook to find additional information, including the types
+                    of employment that are excluded for UI tax purposes
+                    <a href="https://dwd.wisconsin.gov/ui201/" target="_blank" rel="noopener noreferrer">https://dwd.wisconsin.gov/ui201/</a>.
+                </li>
+                <li>
+                    If you do not have or plan to have covered employees working in Wisconsin, you
+                    are not required to submit a registration for the business. The department will
+                    send you a request for any specific information that is needed.
+                </li>
+                <li>
+                    To determine if your worker is an Employee or an Independent Contractor, use
+                    the <a href="https://dwd.wisconsin.gov/worker-classification" target="_blank" rel="noopener noreferrer">Department of Workforce Development's Worker Classification</a> page to
+                    review steps to classify a worker. Failure to properly classify workers as
+                    employees will result in the assessment of back taxes, interest, and civil
+                    penalties and may result in criminal penalties.
+                </li>
+            </ul>
+        </Accordion>
+
+        <div class="welcome-button-row">
+            <div class="welcome-button-row-left">
+                <button type="button"
+                        class="btn btn--secondary"
+                        @onclick="GoBack">
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                        <path d="M7 1L1 6.5L7 12"
+                              stroke="#003663"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                    BACK
+                </button>
+            </div>
+
+            <div class="welcome-button-row-right">
+                <button type="button"
+                        class="btn btn--primary"
+                        @onclick="ProceedToRegistration">
+                    PROCEED TO REGISTRATION
+                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+                        <path d="M1 1L7 6.5L1 12"
+                              stroke="white"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private void GoBack()
+    {
+        Nav.NavigateTo("employer-registration");
+    }
+
+    private void ProceedToRegistration()
+    {
+        Nav.NavigateTo("employer-registration/steps");
+    }
+}

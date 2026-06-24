@@ -1,0 +1,108 @@
+@using UI.EmployerPortal.Web.Features.Dashboard
+
+@if (IsOpen)
+{
+    <div class="drawer-overlay help-overlay" @onclick="HandleOverlayClick" aria-hidden="true"></div>
+    <aside class="help-resources-drawer" role="dialog" aria-modal="true"
+           aria-labelledby="help-drawer-title" @ref="_drawerRef">
+        <div class="help-drawer-header">
+            <div class="help-drawer-title-section">
+                <img src="@Assets["images/help-info.svg"]" alt="" aria-hidden="true" class="help-drawer-icon" />
+                <h2 id="help-drawer-title" class="help-drawer-title">Help &amp; Resources</h2>
+            </div>
+            <button type="button" class="help-drawer-cancel" @onclick="Close"
+                    aria-label="Close Help and Resources panel">
+                 <span class="cancel-icon" aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="help-drawer-content">
+            <div class="help-main-links">
+                <ul class="help-links-list" role="list">
+                    <li>
+                        <a href="/secure-messages" class="help-link-item" @onclick="NavigateToSecureMessaging">
+                            Secure Messaging
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://dwd.wisconsin.gov/ui201/phone201.htm"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item">
+                            Contact Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://dwd.wisconsin.gov/uitax/faqs/"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item">
+                            Frequently Asked Questions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/audit-file-upload" class="help-link-item">
+                            Audit File Upload
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://dwd.wisconsin.gov/uitax/employerportal"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item">
+                            Employer Portal Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="help-external-section">
+                <p class="help-external-heading">External Resources</p>
+                <p class="help-external-subtitle">
+                    See additional information from outside this portal.
+
+                    A new browser tab will open.
+                </p>
+                <ul class="help-links-list" role="list">
+                    <li>
+                        <a href="https://dwd.wisconsin.gov/ui201/"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item help-link-external">
+                            Employer Handbook
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://docs.legis.wisconsin.gov/statutes/statutes/108"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item help-link-external">
+                            WI UI Law: Chapter 108
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://dwd.wisconsin.gov/uitax/"
+                               target="_blank" rel="noopener noreferrer" class="help-link-item help-link-external">
+                            DWD UI Employer Home Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    private ElementReference _drawerRef;
+
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private async Task Close() => await OnClose.InvokeAsync();
+    private async Task HandleOverlayClick() => await Close();
+
+    private async Task NavigateToSecureMessaging()
+    {
+        var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+        await Close();
+        if (employer is not null)
+        {
+            NavigationManager.NavigateTo("secure-messages");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("");
+        }
+    }
+}

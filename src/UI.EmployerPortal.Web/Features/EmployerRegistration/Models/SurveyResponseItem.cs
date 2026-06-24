@@ -179,5 +179,6 @@ public enum SurveyResponseItem
     PRTL_YR_FOUR_Q3_WAGES = 3318,
     PRTL_YR_FOUR_Q4_WAGES = 3319
 
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

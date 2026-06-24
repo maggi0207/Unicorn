@@ -26,12 +26,18 @@ public static class AddressCorrectionHelper
         {
             var result = await validator.ValidateAsync(address);
 
-            var needsCorrection = !result.IsValid
-                || (result.CorrectedAddress is not null
-                    && !AddressHelper.AddressesAreEqual(address, result.CorrectedAddress));
+            var needsCorrection =
+                !result.IsValid
+                || (result.CorrectedAddress is not null &&
+                    !AddressHelper.AddressesAreEqual(address, result.CorrectedAddress));
+
+            var isCapitalizationOrZipExtensionChangeOnly =
+                result.CorrectedAddress is not null && AddressHelper.OnlyCapitolizationOrZipExtensionDiffers(address, result.CorrectedAddress);
 
             if (needsCorrection)
-                corrections.Add(new AddressCorrectionItem(label, address, result.CorrectedAddress, result.ErrorMessage));
+            {
+                corrections.Add(new AddressCorrectionItem(label, address, result.CorrectedAddress, result.ErrorMessage, isCapitalizationOrZipExtensionChangeOnly));
+            }
         }
 
         return corrections;

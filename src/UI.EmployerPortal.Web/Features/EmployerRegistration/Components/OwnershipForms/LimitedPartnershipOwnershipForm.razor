@@ -1,0 +1,235 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+
+<div class="limited-partnership-section">
+
+    <div class="general-partner-section">
+        <h2 class="section-subtitle">@Config.Header</h2>
+
+        <div class="member-card">
+            <h3 class="member-title">General Partner</h3>
+
+            <div class="member-fields">
+                <ValidatedInput Id="first-name"
+                                Label="First Name"
+                                Value="@GeneralPartner.FirstName"
+                                ValueChanged="@(v => GeneralPartner.FirstName = v)"
+                                MaxLength="64"
+                                Width="106"
+                                HasError="@FieldErrors.ContainsKey("GeneralPartner_FirstName")"
+                                ErrorMessage="First Name is required"
+                                Visible="_showAllErrors"
+                                OnKeyUp="@(() => ValidateForm())"
+                                OnBlur="@(() => ValidateForm())" />
+
+                <ValidatedInput Id="middle-initial"
+                                Label="Middle Initial"
+                                Value="@GeneralPartner.MiddleInitial"
+                                ValueChanged="@(v => GeneralPartner.MiddleInitial = v)"
+                                MaxLength="1"
+                                Width="114" />
+
+                <ValidatedInput Id="last-name"
+                                Label="Last Name"
+                                Value="@GeneralPartner.LastName"
+                                ValueChanged="@(v => GeneralPartner.LastName = v)"
+                                MaxLength="64"
+                                Width="103"
+                                HasError="@FieldErrors.ContainsKey("GeneralPartner_LastName")"
+                                ErrorMessage="Last Name is required"
+                                Visible="_showAllErrors"
+                                OnKeyUp="@(() => ValidateForm())"
+                                OnBlur="@(() => ValidateForm())" />
+
+                <SSNInput Id="general-partner-ssn"
+                          Label="SSN"
+                          Value="@GeneralPartner.SSN"
+                          ValueChanged="@((string value) => OnSSNChanged(value))"
+                          IsFocused="@GeneralPartner.IsSSNFocused"
+                          IsFocusedChanged="@((bool focused) => GeneralPartner.IsSSNFocused = focused)"
+                          IsRequired="true"
+                          Width="175"
+                          HasError="@FieldErrors.ContainsKey("GeneralPartner_SSN")"
+                          ErrorMessage="@FieldErrors.GetValueOrDefault("GeneralPartner_SSN")"
+                          Visible="_showAllErrors"
+                          OnKeyUp="@(() => ValidateForm())"
+                          OnBlur="@(() => ValidateForm())" />
+            </div>
+        </div>
+    </div>
+    <br/>
+    <!-- Limited Partnership Name -->
+    <ValidatedInput Id="partnership-name"
+                    Label="Limited Partnership Name"
+                    Value="@LimitedPartnershipName"
+                    ValueChanged="@(v => LimitedPartnershipName = v)"
+                    HasError="@FieldErrors.ContainsKey("LimitedPartnershipName")"
+                    ErrorMessage="@FieldErrors.GetValueOrDefault("LimitedPartnershipName")"
+                    Visible="_showAllErrors"
+                    OnKeyUp="@(() => ValidateForm())"
+                    OnBlur="@(() => ValidateForm())" />
+</div>
+
+@code {
+    [Parameter]
+    public OwnershipFormConfig Config { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<LimitedPartnershipFormData> OnDataChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<List<ValidationItem>> OnValidationChanged { get; set; }
+
+    [Parameter]
+    public object? SavedData { get; set; }
+
+    [Parameter]
+    public OwnershipSessionData ContinueData { get; set; } = default!;
+
+    [Parameter]
+    public Action<Func<List<string>>>? RegisterValidate { get; set; }
+
+    private string RegistrationState { get; set; } = string.Empty;
+    private string LimitedPartnershipName { get; set; } = string.Empty;
+    private OwnerMember GeneralPartner { get; set; } = new() { Role = "General Partner" };
+    private List<string> ValidationErrors { get; set; } = [];
+    private List<ValidationItem> _validationItems { get; set; } = [];
+    private HashSet<string> InvalidFields { get; set; } = [];
+    private Dictionary<string, string> FieldErrors { get; set; } = [];
+    private bool _dataRestored;
+    private bool _showAllErrors;
+
+    protected override void OnInitialized()
+    {
+        GeneralPartner = new OwnerMember { Role = "General Partner" };
+        RestoreFromContinueData();
+        RegisterValidate?.Invoke(() => { _showAllErrors = true; ValidateForm(); return ValidationErrors; });
+    }
+
+    private void RestoreFromContinueData()
+    {
+        if (_dataRestored || ContinueData == null)
+            return;
+
+        try
+        {
+            RegistrationState = ContinueData.RegistrationState ?? string.Empty;
+            LimitedPartnershipName = ContinueData.LimitedPartnershipName ?? string.Empty;
+
+            if (ContinueData.GeneralPartner != null)
+                GeneralPartner = new OwnerMember
+                {
+                    Role = "General Partner",
+                    FirstName = ContinueData.GeneralPartner.FirstName,
+                    MiddleInitial = ContinueData.GeneralPartner.MiddleInitial,
+                    LastName = ContinueData.GeneralPartner.LastName,
+                    SSN = ContinueData.GeneralPartner.SSN
+                };
+
+            _dataRestored = true;
+        }
+        catch
+        {
+            // Failed to restore, continue with defaults
+        }
+    }
+
+    private void StateChanged(string value)
+    {
+        RegistrationState = value;
+        ValidateForm();
+    }
+
+    private void OnSSNChanged(string value)
+    {
+        GeneralPartner.SSN = value;
+        ValidateForm();
+    }
+
+    private static string GetElementId(string fieldKey)
+    {
+        return fieldKey switch
+        {
+            "RegistrationState" => $"registration-state",
+            "LimitedPartnershipName" => $"partnership-name",
+            "GeneralPartner_SSN" => $"general-partner-ssn",
+            "GeneralPartner_FirstName" => $"first-name",
+            "GeneralPartner_LastName" => $"last-name",
+            _ => string.Empty
+        };
+    }
+
+    private void AddFieldError(string fieldKey, string message)
+    {
+        _validationItems.Add(new ValidationItem(message, GetElementId(fieldKey)));
+        ValidationErrors.Add(message);
+        InvalidFields.Add(fieldKey);
+        FieldErrors[fieldKey] = message;
+    }
+
+    private void ValidateForm()
+    {
+        ValidationErrors.Clear();
+        _validationItems.Clear();
+        InvalidFields.Clear();
+        FieldErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(LimitedPartnershipName))
+        {
+            AddFieldError("LimitedPartnershipName", "Limited Partnership Name is required");
+        }
+        else if (LimitedPartnershipName.Length > 128)
+        {
+            AddFieldError("LimitedPartnershipName", "Limited Partnership Name must not exceed 128 characters");
+        }
+
+        if (string.IsNullOrWhiteSpace(GeneralPartner.FirstName))
+        {
+            AddFieldError("GeneralPartner_FirstName", $"{GeneralPartner.Role} First Name is required");
+        }
+        else if (GeneralPartner.FirstName.Length > 64)
+        {
+            AddFieldError("GeneralPartner_FirstName", $"{GeneralPartner.Role} First Name must not exceed 64 characters");
+        }
+
+        if (string.IsNullOrWhiteSpace(GeneralPartner.LastName))
+        {
+            AddFieldError("GeneralPartner_LastName", $"{GeneralPartner.Role} Last Name is required");
+        }
+        else if (GeneralPartner.LastName.Length > 64)
+        {
+            AddFieldError("GeneralPartner_LastName", $"{GeneralPartner.Role} Last Name must not exceed 64 characters");
+        }
+
+        if (!string.IsNullOrWhiteSpace(GeneralPartner.SSN))
+        {
+            var ssnResult = SSNInput.ValidateSSN(GeneralPartner.SSN, GeneralPartner.Role);
+            if (ssnResult != null && !ssnResult.IsValid)
+            {
+                AddFieldError("GeneralPartner_SSN", ssnResult.ErrorMessage);
+            }
+        }
+        else
+        {
+            AddFieldError($"GeneralPartner_SSN", $"{GeneralPartner.SSN} SSN is required");
+        }
+
+        _ = OnValidationChanged.InvokeAsync(_validationItems);
+        NotifyDataChanged();
+        StateHasChanged();
+    }
+
+    private void NotifyDataChanged()
+    {
+        _ = OnDataChanged.InvokeAsync(new LimitedPartnershipFormData
+        {
+            RegistrationState = RegistrationState,
+            LimitedPartnershipName = LimitedPartnershipName,
+            GeneralPartner = GeneralPartner
+        });
+    }
+
+    private string GetFieldCssClass(string fieldName) =>
+        InvalidFields.Contains(fieldName) ? "input-validation-error" : string.Empty;
+}

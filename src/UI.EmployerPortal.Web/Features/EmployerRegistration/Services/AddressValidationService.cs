@@ -1,6 +1,6 @@
 using System.ServiceModel;
-using GeneratedClient = UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using GeneratedClient = UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
@@ -11,12 +11,14 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 public class AddressValidationService : IAddressValidationWrapper
 {
     private readonly GeneratedClient.IAddressValidationService _client;
-    private readonly ILogger<AddressValidationService> _logger;
 
-    public AddressValidationService(GeneratedClient.IAddressValidationService client, ILogger<AddressValidationService> logger)
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="client"></param>
+    public AddressValidationService(GeneratedClient.IAddressValidationService client)
     {
         _client = client;
-        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -25,11 +27,11 @@ public class AddressValidationService : IAddressValidationWrapper
         var request = new GeneratedClient.AddressProxy
         {
             AddressRequestType = GeneratedClient.AddressRequestTypeEnum.Employer,
-            LineOneAddress = address.AddressLine1 ?? string.Empty,
+            LineOneAddress = address.AddressLine1,
             LineTwoAddress = address.AddressLine2 ?? string.Empty,
-            CityName = address.City ?? string.Empty,
-            StateCode = address.State ?? string.Empty,
-            ZipCode = address.Zip ?? string.Empty,
+            CityName = address.City,
+            StateCode = address.State,
+            ZipCode = address.Zip,
             ZipCodeExtension = address.Extension ?? string.Empty,
             // Service requires ISO country code ("US"), not the display name ("United States")
             CountryCode = ToCountryCode(address.Country)
@@ -93,12 +95,12 @@ public class AddressValidationService : IAddressValidationWrapper
     /// </summary>
     private static string ToCountryCode(string? country)
     {
-        switch (country)
+        return country switch
         {
-            case "United States": return "US";
-            case "Canada": return "CA";
-            case "Mexico": return "MX";
-            default: return "US";
-        }
+            "United States" => "US",
+            "Canada" => "CA",
+            "Mexico" => "MX",
+            _ => "US",
+        };
     }
 }

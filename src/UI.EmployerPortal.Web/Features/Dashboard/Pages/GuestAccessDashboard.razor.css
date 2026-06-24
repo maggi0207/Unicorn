@@ -1,0 +1,12 @@
+.guest-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+@media (max-width: 575px) {
+    .guest-dashboard-container {
+        gap: var(--spacing-md);
+    }
+}

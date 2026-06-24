@@ -1,0 +1,70 @@
+.vf-accordion-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.vf-accordion-answer {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.vf-accordion-section {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.vf-page-subheader {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 115.99999999999999%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #000000;
+}
+
+.accordion {
+    --bs-accordion-active-bg: #F3F3F3;
+    --bs-accordion-active-color: black;
+    --bs-accordion-btn-focus-box-shadow: none;
+}
+
+.accordion-item {
+    border-radius: 3px;
+}
+
+.accordion-body {
+    background-color: #F3F3F3;
+}
+
+.edit-section {
+    position: relative;
+    margin-bottom: -2.6em;
+}
+
+.vf-accordion-subsection {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    color: #003663;
+}
+
+.vf-edit-button {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.vf-edit-button-img {
+    width: 50px;
+    height: auto;
+}

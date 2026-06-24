@@ -1,0 +1,380 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Popups
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+
+<div class="llc-documentation-section">
+    <h2 class="section-subtitle">Required Documentation</h2>
+    <p>
+        You indicated that your limited liability company (LLC) has elected to be taxed as a
+        corporation for federal tax purposes.
+        <strong>You must submit a copy of the Notice of Acceptance</strong> issued to you by the
+        IRS, or other
+        <a href="#" class="info-link" @onclick="OpenModal" @onclick:preventDefault>acceptable supporting documentation.</a>
+    </p>
+    <!-- Has Documentation Question -->
+    <div id="has-documentation-group"
+         class="@(_showAllErrors && _invalidFields.Contains("HasRequiredDocumentation") ? "master-text-field--error" : "")">
+        <p id="has-documentation-group-label">Do you have the required documentation available to upload?</p>
+        @if (_showAllErrors && _invalidFields.Contains("HasRequiredDocumentation"))
+        {
+            <ValidationError ErrorMessage="Please select an option" />
+        }
+        <RadioGroup TValue="bool?"
+            LabelledById="has-documentation-group-label"
+                    Value="Model.HasRequiredDocumentation"
+                    ValueChanged="OnHasDocumentationChanged"
+                    ValueExpression="() => Model.HasRequiredDocumentation"
+                    Options="@YesNoRadioOptions"
+                    CSS="@(_showAllErrors && _invalidFields.Contains("HasRequiredDocumentation") ? "invalid" : "valid")" />
+    </div>
+    <!-- File Upload when Yes -->
+    @if (Model.HasRequiredDocumentation == true)
+    {
+        <div id="file-upload-group" class="file-upload-section">
+            <FileUpload Title="Notice of Acceptance issued to you by the IRS" Model="@typeof( object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
+            @if (_showAllErrors && _invalidFields.Contains("WillSupplyDocumentationLater"))
+            {
+                <ValidationError ErrorMessage="Please You must upload the required document or indicate you will supply it at a later date" />
+            }
+            <div class="form-check">
+                <label class="form-check-label fw-bold" for="chk-supply-docs-later">
+                    <input type="checkbox"
+                           id="chk-supply-docs-later"
+                           class="form-check-input"
+                           @bind="Model.WillSupplyDocumentationLater"
+                           @bind:after="OnWillSupplyDocumentationLaterChanged" />
+                    I will supply required documentation at a later date.
+                </label>
+            </div>
+        </div>
+    }  
+    <!-- Reason and Acknowledge when No -->
+    @if (Model.HasRequiredDocumentation == false)
+    {
+        <div class="no-documentation-section">
+            <br />
+            <div id="no-doc-reason-group"
+                 class="@(_showAllErrors && _invalidFields.Contains("NoDocReason") ? "master-text-field--error" : "")">
+                <p id="no-doc-reason-group-label">What is the reason the documentation cannot be submitted at this time?</p>
+
+                @if (_showAllErrors && _invalidFields.Contains("NoDocReason"))
+                {
+                    <ValidationError ErrorMessage="Please select a reason" />
+                }
+                <RadioGroup TValue="NoDocReason?"
+                    LabelledById="no-doc-reason-group-label"
+                            Value="Model.NoDocumentationReason"
+                            ValueChanged="OnNoDocReasonChanged"
+                            ValueExpression="() => Model.NoDocumentationReason"
+                            Options="@NoDocReasonOptions"
+                            CSS="@(_showAllErrors && _invalidFields.Contains("NoDocReason") ? "invalid" : "valid")" />
+                <br/>
+                @if (Model.NoDocumentationReason == NoDocReason.HaventApplied)
+                {
+                    <p id="planned-submission-date-hint">When do you plan to submit your application to the IRS?</p>
+                    <ValidatedDateInput Id="planned-submission-date"
+                                        Label="Planned Submission Date"
+                                        Value="@(Model.PlannedSubmissionDate?.ToDateTime(TimeOnly.MinValue))"
+                                        ValueChanged="OnPlannedSubmissionDateChanged"
+                                        Min="@DateTime.Today.AddDays(1)"
+                                        Width="330"
+                                        HintId="planned-submission-date-hint"
+                                        HasError="@(_invalidFields.Contains("PlannedSubmissionDate"))"
+                                        ErrorMessage="@_fieldErrors.GetValueOrDefault("PlannedSubmissionDate")"
+                                        OnBlur="@(() => ValidateSection())"
+                                        Visible="_showAllErrors" />
+                }
+
+                @if (Model.NoDocumentationReason == NoDocReason.AppliedNoDecision)
+                {
+                    <p Id="application-submitted-date-hint">What date was the application submitted to the IRS?</p>
+                    <ValidatedDateInput Id="application-submitted-date"
+                                        Label="Application Submitted Date"
+                                        Value="@(Model.ApplicationSubmittedDate?.ToDateTime(TimeOnly.MinValue))"
+                                        ValueChanged="OnApplicationSubmittedDateChanged"
+                                        Max="@DateTime.Today"
+                                        Width="330"
+                                        HintId="application-submitted-date-hint"
+                                        HasError="@(_invalidFields.Contains("ApplicationSubmittedDate"))"
+                                        ErrorMessage="@_fieldErrors.GetValueOrDefault("ApplicationSubmittedDate")"
+                                        OnBlur="@(() => ValidateSection())"
+                                        Visible="_showAllErrors" />
+                }
+            </div>
+            <div id="acknowledge-group"
+                 class="@(_showAllErrors && _invalidFields.Contains("Acknowledge") ? "master-text-field--error" : "")">
+                @if (_showAllErrors && _invalidFields.Contains("Acknowledge"))
+                {
+                    <ValidationError ErrorMessage="You must acknowledge that you will submit the required documentation" />
+                }
+                <div class="form-check">
+                    <label class="form-check-label fw-bold" for="acknowledge-submit-doc">
+                        <input type="checkbox"
+                               id="acknowledge-submit-doc"
+                               class="form-check-input"
+                               @bind="Model.AcknowledgeSubmitDocumentation"
+                               @bind:after="OnAcknowledgeChanged" />
+                        I acknowledge that I will submit the required documentation
+                    </label>
+                </div>
+            </div>
+            <br />
+            <p class="llc-info-notice">
+                Upon receipt of this information, we will treat your LLC as a corporation for
+                Wisconsin Ul tax purposes as of the effective date stated in your IRS notice.
+                Each member of the LLC will be treated as a corporate officer for tax and benefit
+                purposes. Any compensation received by members performing services for the LLC
+                will be considered wages subject to Ul tax.
+            </p>
+        </div>
+    }
+</div>
+
+<!-- Acceptable Documentation modal -->
+<InfoModal IsVisible="@_showModal"
+           Title="Acceptable Documentation"
+           OnClose="CloseModal">
+    <TitleIcon>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="#1565C0" />
+        </svg>
+    </TitleIcon>
+    <ChildContent>
+        <p>
+            You indicated that your limited liability company (LLC) has elected to be taxed as a
+            corporation for federal tax purposes.
+        </p>
+        <p>
+            Wisconsin Unemployment Insurance law treats a multimember LLC as a partnership and a
+            single member LLC as a sole proprietorship unless the company files proof with the
+            department that the Internal Revenue Service has agreed to treat the LLC as a
+            corporation. Business owners of entities taxed as partnerships or sole
+            proprietorships are excluded from Wisconsin Unemployment Insurance tax law and their
+            earnings should not be reported to this department.
+        </p>
+        <p>
+            You must submit a copy of the <strong>Notice of Acceptance</strong> issued to you by
+            the IRS. We can also accept the following as proof that the IRS has agreed to treat
+            the LLC as a Corporation:
+        </p>
+        <ul>
+            <li>
+                IRS Documentation of accepted e-file of the 1120 or 1120S corporate tax return
+                for any year along with a copy of the first page of the filed tax return.
+            </li>
+            <li>
+                First page of 1120 or 1120S corporate tax returns from the two most recent
+                filing years.
+            </li>
+        </ul>
+    </ChildContent>
+</InfoModal>
+
+@code {
+    private const long MaxFileSizeBytes = 20 * 1024 * 1024; // 20 MB
+    private static readonly string[] AllowedExtensions = [".pdf", ".jpg", ".jpeg", ".heic", ".png"];
+
+    [Parameter]
+    public LlcDocumentationModel Model { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<LlcDocumentationModel> OnDataChanged { get; set; }
+
+    [Parameter]
+    public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
+
+    private static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions =
+    [
+        new RadioOption<bool?> { Value = true, Label = "Yes" },
+        new RadioOption<bool?> { Value = false, Label = "No" }
+    ];
+
+    private static readonly IReadOnlyList<RadioOption<NoDocReason?>> NoDocReasonOptions =
+    [
+        new RadioOption<NoDocReason?> { Value = NoDocReason.HaventApplied, Label = "We haven't applied yet." },
+        new RadioOption<NoDocReason?> { Value = NoDocReason.AppliedNoDecision, Label = "We applied and have not received a decision from the IRS." }
+    ];
+
+    private HashSet<string> _invalidFields = [];
+    private Dictionary<string, string> _fieldErrors = [];
+    private List<ValidationItem> _validationItems = [];
+    private bool _showAllErrors;
+    private bool _showModal;
+    private EditContext _editContext = default!;
+    private LlcDocumentationModel? _previousModel;
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(Model, _previousModel))
+        {
+            _previousModel = Model;
+            _editContext = new EditContext(Model);
+            _showAllErrors = false;
+            _invalidFields.Clear();
+            _fieldErrors.Clear();
+            _validationItems.Clear();
+        }
+        RegisterValidate?.Invoke(() =>
+        {
+            _showAllErrors = true;
+            return ValidateSection();
+        });
+    }
+
+    private void OpenModal() => _showModal = true;
+    private void CloseModal() => _showModal = false;
+
+    private void OnHasDocumentationChanged(bool? value)
+    {
+        Model.HasRequiredDocumentation = value;
+        NotifyDataChanged();
+    }
+
+    // -- "No" branch handlers ---
+    private void OnNoDocReasonChanged(NoDocReason? value)
+    {
+        Model.NoDocumentationReason = value;
+        if (value != NoDocReason.HaventApplied)
+            Model.PlannedSubmissionDate = null;
+        if (value != NoDocReason.AppliedNoDecision)
+            Model.ApplicationSubmittedDate = null;
+        NotifyDataChanged();
+    }
+
+    private void OnPlannedSubmissionDateChanged(DateTime? value)
+    {
+        Model.PlannedSubmissionDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDataChanged();
+    }
+
+    private void OnApplicationSubmittedDateChanged(DateTime? value)
+    {
+        Model.ApplicationSubmittedDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDataChanged();
+    }
+
+    private void OnAcknowledgeChanged()
+    {
+        ValidateSection();
+        NotifyDataChanged();
+    }
+
+    // -- File upload ---
+    private Task ReceiveFilePath(string uploadedFilePath)
+    {
+        Model.FilePath = uploadedFilePath;
+        NotifyDataChanged();
+        return Task.CompletedTask;
+    }
+
+    private void OnWillSupplyDocumentationLaterChanged()
+    {
+        NotifyDataChanged();
+    }
+
+    /// <summary>
+    /// Validates the section and returns validation items for the parent to aggregate.
+    /// </summary>
+    public List<ValidationItem> ValidateSection()
+    {
+        _invalidFields.Clear();
+        _fieldErrors.Clear();
+        _validationItems.Clear();
+
+        if (Model.HasRequiredDocumentation is null)
+        {
+            _invalidFields.Add("HasRequiredDocumentation");
+            _validationItems.Add(new ValidationItem(
+                "Please select whether you have the required documentation",
+                "has-documentation-group"));
+        }
+
+        // "Yes" branch: must upload a file or check WillSupplyDocumentationLater
+        if (Model.HasRequiredDocumentation == true)
+        {
+            if (string.IsNullOrEmpty(Model.FilePath) && !Model.WillSupplyDocumentationLater)
+            {
+                _invalidFields.Add("WillSupplyDocumentationLater");
+                _validationItems.Add(new ValidationItem(
+                    "Please You must upload the required document or indicate you will supply it at a later date",
+                    "file-upload-group"));
+            }
+        }
+
+        // "No" branch validations
+        if (Model.HasRequiredDocumentation == false)
+        {
+            if (Model.NoDocumentationReason is null)
+            {
+                _invalidFields.Add("NoDocReason");
+                _validationItems.Add(new ValidationItem(
+                    "Please select a reason the documentation cannot be submitted",
+                    "no-doc-reason-group"));
+            }
+
+            if (Model.NoDocumentationReason == NoDocReason.HaventApplied)
+            {
+                if (!Model.PlannedSubmissionDate.HasValue)
+                {
+                    _invalidFields.Add("PlannedSubmissionDate");
+                    _fieldErrors["PlannedSubmissionDate"] = "Please enter the date you plan to submit your application";
+                    _validationItems.Add(new ValidationItem(
+                        "Please enter the date you plan to submit your application to the IRS",
+                        "planned-submission-date"));
+                }
+                else if (Model.PlannedSubmissionDate.Value <= DateOnly.FromDateTime(DateTime.Today))
+                {
+                    _invalidFields.Add("PlannedSubmissionDate");
+                    _fieldErrors["PlannedSubmissionDate"] = "Planned submission date must be a future date";
+                    _validationItems.Add(new ValidationItem(
+                        "Planned submission date must be a future date",
+                        "planned-submission-date"));
+                }
+            }
+
+            if (Model.NoDocumentationReason == NoDocReason.AppliedNoDecision)
+            {
+                if (!Model.ApplicationSubmittedDate.HasValue)
+                {
+                    _invalidFields.Add("ApplicationSubmittedDate");
+                    _fieldErrors["ApplicationSubmittedDate"] = "Please enter the date the application was submitted";
+                    _validationItems.Add(new ValidationItem(
+                        "Please enter the date the application was submitted to the IRS",
+                        "application-submitted-date"));
+                }
+                else if (Model.ApplicationSubmittedDate.Value >= DateOnly.FromDateTime(DateTime.Today))
+                {
+                    _invalidFields.Add("ApplicationSubmittedDate");
+                    _fieldErrors["ApplicationSubmittedDate"] = "Application submission date must be a past date";
+                    _validationItems.Add(new ValidationItem(
+                        "Application submitted date must be a past date",
+                        "application-submitted-date"));
+                }
+            }
+
+            if (!Model.AcknowledgeSubmitDocumentation)
+            {
+                _invalidFields.Add("Acknowledge");
+                _validationItems.Add(new ValidationItem(
+                    "You must acknowledge that you will submit the required documentation",
+                    "acknowledge-group"));
+            }
+        }
+
+        StateHasChanged();
+        return _validationItems;
+    }
+
+    private void NotifyDataChanged()
+    {
+        if (_showAllErrors)
+        {
+            ValidateSection();
+        }
+
+        _ = OnDataChanged.InvokeAsync(Model);
+    }
+}
