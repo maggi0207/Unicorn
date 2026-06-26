@@ -85,9 +85,19 @@
 </div>
 
 @code {
+    /// <summary>
+    /// The view model holding the account details bound to the form.
+    /// </summary>
     private AccountDetailsModel _model = new();
+
+    /// <summary>
+    /// Indicates whether the page is currently loading data.
+    /// </summary>
     private bool _isLoading = true;
 
+    /// <summary>
+    /// Options for the FEIN and Legal Name change reason dropdowns.
+    /// </summary>
     private List<SelectOption> _reasonOptions = new()
     {
         new SelectOption { Value = "Correction", Text = "Correction" },
@@ -95,6 +105,9 @@
         new SelectOption { Value = "Other", Text = "Other" }
     };
 
+    /// <summary>
+    /// Initializes the component by fetching the existing account details from the service.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
@@ -102,6 +115,10 @@
         _isLoading = false;
     }
 
+    /// <summary>
+    /// Handles the form submission when all validation passes.
+    /// Saves the updated account details and navigates back to the manage account page.
+    /// </summary>
     private async Task HandleValidSubmit()
     {
         var success = await AccountDetailsService.UpdateAccountDetailsAsync(_model);
@@ -112,6 +129,9 @@
         }
     }
 
+    /// <summary>
+    /// Cancels the update operation and navigates back to the manage account page.
+    /// </summary>
     private void Cancel()
     {
         NavigationManager.NavigateTo("/manage-account");

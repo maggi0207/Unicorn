@@ -3,11 +3,20 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Services;
 
+/// <summary>
+/// Provides a mocked implementation for fetching and updating employer account details.
+/// Connects to backend WCF services when fully integrated.
+/// </summary>
 public class AccountDetailsService : IAccountDetailsService
 {
     // Normally, this service would inject a WCF client proxy to communicate with the backend.
     // Example: private readonly AccountManagementServiceClient _client;
 
+    /// <summary>
+    /// Retrieves the current account details for the employer.
+    /// Simulates a backend WCF call with mock data.
+    /// </summary>
+    /// <returns>A task containing the mock <see cref="AccountDetailsModel"/>.</returns>
     public async Task<AccountDetailsModel> GetAccountDetailsAsync()
     {
         // Simulate an asynchronous call to a WCF service
@@ -23,6 +32,12 @@ public class AccountDetailsService : IAccountDetailsService
         };
     }
 
+    /// <summary>
+    /// Updates the account details for the employer.
+    /// Simulates sending the updated model to the backend WCF service.
+    /// </summary>
+    /// <param name="model">The model containing the updated account information.</param>
+    /// <returns>A task containing a boolean indicating if the save was successful.</returns>
     public async Task<bool> UpdateAccountDetailsAsync(AccountDetailsModel model)
     {
         // Simulate data mapping to the WCF proxy object.
