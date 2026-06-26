@@ -16,11 +16,12 @@
         </div>
         <div class="phone-main-field">
             <OutlinedTextField Label="@Label"
-                               Id="@Id"
+                               Id ="@Id"
                                Value="@Value"
                                ValueChanged="OnInput"
                                For="@For"
                                Type="tel"
+                               InputMode="@(Numeric ? "numeric" : null)"
                                Placeholder="(999-999-9999)"
                                MaxLength="12"
                                Visible="@Visible"
@@ -30,6 +31,7 @@
             <OutlinedTextField Label="Ext."
                                Value="@Extension"
                                ValueChanged="ExtensionChanged"
+                               InputMode="@(Numeric ? "numeric" : null)"
                                MaxLength="6"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -47,6 +49,7 @@ else if (ShowCountryCode)
                                ValueChanged="OnInput"
                                For="@For"
                                Type="tel"
+                               InputMode="@(Numeric ? "numeric" : null)"
                                Placeholder="(999-999-9999)"
                                MaxLength="12"
                                Visible="@Visible"
@@ -56,6 +59,7 @@ else if (ShowCountryCode)
             <OutlinedTextField Label="Ext."
                                Value="@Extension"
                                ValueChanged="ExtensionChanged"
+                               InputMode="@(Numeric ? "numeric" : null)"
                                MaxLength="6"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -70,6 +74,7 @@ else
                        ValueChanged="OnInput"
                        For="@For"
                        Type="tel"
+                       InputMode="@(Numeric ? "numeric" : null)"
                        FormatText="(999-999-9999)"
                        MaxLength="12"
                        Visible="@Visible"
@@ -94,6 +99,9 @@ else
 
     /// <summary>Expression used to identify the field for validation.</summary>
     [Parameter] public Expression<Func<string?>>? For { get; set; }
+
+    ///When true, phone number inptu only accepts digits
+    [Parameter] public bool Numeric { get; set; }
 
     /// <summary>When true, forces field error messages to be visible (e.g. after form submit).</summary>
     [Parameter] public bool Visible { get; set; }
