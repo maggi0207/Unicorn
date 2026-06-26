@@ -59,8 +59,10 @@
 
 .ad-fields-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: 300px 300px;
+    column-gap: 48px;
+    row-gap: 0;
+    width: 648px;
 }
 
 .ad-field {
@@ -71,7 +73,7 @@
 .ad-field-single {
     display: flex;
     flex-direction: column;
-    max-width: calc(50% - 12px);
+    width: 300px;
 }
 
 /* ── Phone helper text ───────────────────────────────────────────────── */
@@ -88,6 +90,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 648px;
     padding-top: 16px;
     margin-top: 8px;
 }
