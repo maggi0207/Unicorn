@@ -1,40 +1,51 @@
 @page "/manage-account/account-details"
 @using UI.EmployerPortal.Web.Features.ManageAccount.Models
-@using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
 @inject NavigationManager NavigationManager
-@inject IAccountDetailsService AccountDetailsService
 
 <PageTitle>Update Account Information</PageTitle>
 
 <div class="account-details-page">
-    <h1 class="page-title">Update Account Information</h1>
+    <h1 class="page-title" aria-label="update-account-information">Update Account Information</h1>
 
     <div class="manage-addresses-link">
-        <a href="manage-account/manage-addresses">Manage Addresses</a>
+        <a href="manage-account/manage-addresses" aria-label="Navigate to Manage Addresses">Manage Addresses</a>
     </div>
 
-    <p class="required-text">All fields are required unless noted.</p>
+    <p class="required-text" aria-label="noted-required-fields">All fields are required unless noted.</p>
 
-    @if (_isLoading)
-    {
-        <p>Loading account details...</p>
-    }
-    else
-    {
-        <EditForm Model="@_model" OnValidSubmit="HandleValidSubmit">
+    @{
+        @* ── Validation Error Summary ── *@
+        @if (_formSubmitted && _validationErrors.Any())
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="_validationErrors"
+                                MessageFieldIds="_validationFieldIds"
+                                DismissButton="false">
+            </NotificationBanner>
+            <br />
+        }
+
+        <EditForm EditContext="@_editContext" FormName="AccountDetails" OnSubmit="HandleSubmit" role="form">
+
             <DataAnnotationsValidator />
 
             @* ── Row 1: FEIN + Reason for FEIN Change ── *@
-            <div class="ad-fields-grid">
-                <div class="ad-field">
+            <div class="ad-fields-grid" aria-label="FEIN details">
+                <div class="ad-field" aria-label="fein">
                     <FEINField Label="FEIN"
+                               Id="FEIN"
                                @bind-Value="_model.FEIN"
-                               For="@(() => _model.FEIN)" />
+                               For="@(() => _model.FEIN)"
+                               Visible="@IsVisible(() => _model.FEIN)" />
                 </div>
-                <div class="ad-field">
+                <div class="ad-field" aria-label="reason-for-fein-change">
                     <OutlinedSelectField Label="Reason for FEIN Change"
+                                         Id="ReasonForFeinChange"
                                          @bind-Value="_model.ReasonForFeinChange"
                                          For="@(() => _model.ReasonForFeinChange)"
                                          Options="@_reasonOptions" />
@@ -42,14 +53,17 @@
             </div>
 
             @* ── Row 2: Legal Name + Reason for Legal Name Change ── *@
-            <div class="ad-fields-grid">
-                <div class="ad-field">
+            <div class="ad-fields-grid" aria-label="Legal name details">
+                <div class="ad-field" aria-label="legal-name">
                     <OutlinedTextField Label="Legal Name"
+                                       Id="LegalName"
                                        @bind-Value="_model.LegalName"
-                                       For="@(() => _model.LegalName)" />
+                                       For="@(() => _model.LegalName)"
+                                       Visible="@IsVisible(() => _model.LegalName)" />
                 </div>
-                <div class="ad-field">
+                <div class="ad-field" aria-label="reason-for-legal-name-change">
                     <OutlinedSelectField Label="Reason for Legal Name Change"
+                                         Id="ReasonForLegalNameChange"
                                          @bind-Value="_model.ReasonForLegalNameChange"
                                          For="@(() => _model.ReasonForLegalNameChange)"
                                          Options="@_reasonOptions" />
@@ -57,37 +71,48 @@
             </div>
 
             @* ── Row 3: Trade Name (single column) ── *@
-            <div class="ad-field-single">
+            <div class="ad-field-single" aria-label="trade-name">
                 <OutlinedTextField Label="Trade Name (optional)"
+                                   Id="TradeName"
                                    @bind-Value="_model.TradeName"
                                    For="@(() => _model.TradeName)" />
             </div>
 
             @* ── Row 4: Phone Number (single column) ── *@
-            <div class="ad-field-single">
+            <div class="ad-field-single" aria-label="phone-number">
                 <PhoneNumberField Label="Phone Number"
+                                  Id="PhoneNumber"
                                   @bind-Value="_model.PhoneNumber"
                                   For="@(() => _model.PhoneNumber)"
-                                  @bind-Extension="_model.Extension" />
-                <span class="phone-helper-text">(999) 999-9999 ext. 99</span>
+                                  @bind-Extension="_model.Extension"
+                                  Visible="@IsVisible(() => _model.PhoneNumber)" />
+                <span class="phone-helper-text" aria-hidden="true">(999) 999-9999 ext. 99</span>
             </div>
 
             @* ── Row 5: Email Address (single column) ── *@
-            <div class="ad-field-single">
+            <div class="ad-field-single" aria-label="email-address">
                 <OutlinedTextField Label="Email Address"
+                                   Id="EmailAddress"
+                                   Type="email"
                                    @bind-Value="_model.EmailAddress"
-                                   For="@(() => _model.EmailAddress)" />
+                                   For="@(() => _model.EmailAddress)"
+                                   Visible="@IsVisible(() => _model.EmailAddress)" />
             </div>
 
             @* ── Buttons ── *@
-            <div class="button-bar-custom">
-                <button type="button" class="btn-cancel" @onclick="Cancel">CANCEL</button>
-                <button type="submit" class="btn-save">SAVE</button>
+            <div class="button-bar-custom" role="group" aria-label="Form actions">
+                <button type="button"
+                        class="btn-cancel"
+                        aria-label="Cancel and return to manage account"
+                        @onclick="Cancel">CANCEL</button>
+                <button type="submit"
+                        class="btn-save"
+                        aria-label="Save account information changes">SAVE</button>
             </div>
 
         </EditForm>
     }
-</div>
+    </div>
 
 @code {
     /// <summary>
@@ -96,9 +121,30 @@
     private AccountDetailsModel _model = new();
 
     /// <summary>
-    /// Indicates whether the page is currently loading data.
+    /// The EditContext used for form validation and field change tracking.
     /// </summary>
-    private bool _isLoading = true;
+    private EditContext _editContext = default!;
+
+
+    /// <summary>
+    /// Tracks whether the form has been submitted, controlling error visibility.
+    /// </summary>
+    private bool _formSubmitted = false;
+
+    /// <summary>
+    /// Tracks which fields the user has interacted with so errors show on field change.
+    /// </summary>
+    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+    /// <summary>
+    /// The list of validation error messages displayed in the NotificationBanner.
+    /// </summary>
+    private List<string> _validationErrors = new();
+
+    /// <summary>
+    /// The list of field IDs corresponding to validation errors, enabling banner-to-field navigation.
+    /// </summary>
+    private List<string> _validationFieldIds = new();
 
     /// <summary>
     /// Options for the FEIN and Legal Name change reason dropdowns.
@@ -111,34 +157,99 @@
     };
 
     /// <summary>
-    /// Initializes the component by fetching the existing account details from the service.
+    /// Initializes the EditContext with mock data and sets up field change tracking.
     /// </summary>
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _isLoading = true;
-        var data = await AccountDetailsService.GetAccountDetailsAsync();
+        _model = new AccountDetailsModel
+        {
+            FEIN = "11-2233445",
+            LegalName = "Goyette & Sons",
+            PhoneNumber = "(608) 266-5793",
+            Extension = "99",
+            EmailAddress = "jsmith@goyetteandsons.com"
+        };
 
-        _model.FEIN = data.FEIN;
-        _model.LegalName = data.LegalName;
-        _model.PhoneNumber = data.PhoneNumber;
-        _model.Extension = data.Extension;
-        _model.EmailAddress = data.EmailAddress;
+        _editContext = new EditContext(_model);
 
-        _isLoading = false;
+        // Track field interactions for progressive error display
+        _editContext.OnFieldChanged += (_, e) =>
+        {
+            _touchedFields.Add(e.FieldIdentifier);
+
+            if (_formSubmitted)
+            {
+                InvokeAsync(() =>
+                {
+                    RefreshValidationSummary();
+                    StateHasChanged();
+                });
+            }
+            else
+            {
+                StateHasChanged();
+            }
+        };
     }
 
     /// <summary>
-    /// Handles the form submission when all validation passes.
-    /// Saves the updated account details and navigates back to the manage account page.
+    /// Handles form submission. Validates the form first; if valid, navigates back.
     /// </summary>
-    private async Task HandleValidSubmit()
+    private void HandleSubmit()
     {
-        var success = await AccountDetailsService.UpdateAccountDetailsAsync(_model);
+        _formSubmitted = true;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
 
-        if (success)
+        var isValid = _editContext.Validate();
+
+        RefreshValidationSummary();
+
+        if (!isValid)
         {
-            NavigationManager.NavigateTo("/manage-account?success=true");
+            StateHasChanged();
+            return;
         }
+
+        NavigationManager.NavigateTo("/manage-account?success=true");
+    }
+
+    /// <summary>
+    /// Refreshes the validation summary by collecting all field errors in UI layout order.
+    /// </summary>
+    private void RefreshValidationSummary()
+    {
+        if (!_formSubmitted) return;
+
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+
+        // Collect errors in UI layout order
+        var fieldOrder = new[]
+        {
+            nameof(_model.FEIN),
+            nameof(_model.LegalName),
+            nameof(_model.PhoneNumber),
+            nameof(_model.EmailAddress)
+        };
+
+        foreach (var fieldName in fieldOrder)
+        {
+            var fi = new FieldIdentifier(_model, fieldName);
+            foreach (var error in _editContext.GetValidationMessages(fi))
+            {
+                _validationErrors.Add(error);
+                _validationFieldIds.Add(fieldName);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns true when a field's errors should be visible (after form submission or user interaction).
+    /// </summary>
+    private bool IsVisible(Expression<Func<string?>> For)
+    {
+        return _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
     }
 
     /// <summary>
