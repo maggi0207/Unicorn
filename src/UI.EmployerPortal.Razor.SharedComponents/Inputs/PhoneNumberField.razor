@@ -22,7 +22,7 @@
                                For="@For"
                                Type="tel"
                                InputMode="@(Numeric ? "numeric" : null)"
-                               Placeholder="(999-999-9999)"
+                               Placeholder="@Placeholder"
                                MaxLength="12"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -32,6 +32,7 @@
                                Value="@Extension"
                                ValueChanged="ExtensionChanged"
                                InputMode="@(Numeric ? "numeric" : null)"
+                               Placeholder="@ExtensionPlaceholder"
                                MaxLength="6"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -50,7 +51,7 @@ else if (ShowCountryCode)
                                For="@For"
                                Type="tel"
                                InputMode="@(Numeric ? "numeric" : null)"
-                               Placeholder="(999-999-9999)"
+                               Placeholder="@Placeholder"
                                MaxLength="12"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -60,6 +61,7 @@ else if (ShowCountryCode)
                                Value="@Extension"
                                ValueChanged="ExtensionChanged"
                                InputMode="@(Numeric ? "numeric" : null)"
+                               Placeholder="@ExtensionPlaceholder"
                                MaxLength="6"
                                Visible="@Visible"
                                Disabled="@Disabled" />
@@ -130,6 +132,12 @@ else
 
     /// <summary>Callback invoked when the country code prefix value changes.</summary>
     [Parameter] public EventCallback<string?> CountryCodeChanged { get; set; }
+
+    /// <summary>Placeholder text for the phone number input. Defaults to "(999-999-9999)".</summary>
+    [Parameter] public string Placeholder { get; set; } = "(999-999-9999)";
+
+    /// <summary>Placeholder text for the extension input. Defaults to null (no placeholder).</summary>
+    [Parameter] public string? ExtensionPlaceholder { get; set; }
 
     /// <summary>Optional phone extension number displayed in the Ext. field.</summary>
     [Parameter] public string? Extension { get; set; }

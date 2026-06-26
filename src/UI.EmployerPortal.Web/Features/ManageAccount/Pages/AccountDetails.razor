@@ -85,8 +85,9 @@
                                   @bind-Value="_model.PhoneNumber"
                                   For="@(() => _model.PhoneNumber)"
                                   @bind-Extension="_model.Extension"
+                                  Placeholder="(999) 999-9999"
+                                  ExtensionPlaceholder="Ext. 99"
                                   Visible="@IsVisible(() => _model.PhoneNumber)" />
-                <span class="phone-helper-text" aria-hidden="true">(999) 999-9999 ext. 99</span>
             </div>
 
             @* ── Row 5: Email Address (single column) ── *@
