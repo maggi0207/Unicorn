@@ -1,6 +1,35 @@
 @page "/manage-account"
+@using Microsoft.AspNetCore.WebUtilities
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@inject NavigationManager NavigationManager
 
 <div class="section-page">
+    @if (_showSuccessMessage)
+    {
+        <div class="mb-4">
+            <NotificationBanner NotificationType="NotificationType.Success"
+                                MessageStyle="MessageStyle.SingleLine"
+                                Messages='new List<string> { "Account information updated successfully." }' />
+        </div>
+    }
+
     <h1 class="section-header fw-bold">View & Manage Account</h1>
     <p class="section-description">You are in the View & Manage Account section.</p>
+    
+    <div class="mt-4">
+        <a href="manage-account/account-details" class="btn btn-primary">Update Account Information</a>
+    </div>
 </div>
+
+@code {
+    private bool _showSuccessMessage;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("success", out var successValue))
+        {
+            _showSuccessMessage = successValue == "true";
+        }
+    }
+}

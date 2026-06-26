@@ -1,0 +1,34 @@
+.account-details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: #ffffff;
+}
+
+.page-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #dcdcdc;
+    color: #000000;
+}
+
+.manage-addresses-link a {
+    color: #0056b3;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.manage-addresses-link a:hover {
+    color: #003d82;
+}
+
+.required-text {
+    font-size: 14px;
+    color: #333333;
+}
+
+.button-footer {
+    max-width: 800px;
+    margin-top: 48px;
+}
