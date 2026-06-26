@@ -28,10 +28,10 @@
             <DataAnnotationsValidator />
 
             <div class="row align-items-start mb-3">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <FEINField Label="FEIN" @bind-Value="_model.FEIN" For="@(() => _model.FEIN)" />
                 </div>
-                <div class="col-md-5 offset-md-1">
+                <div class="col-md-6">
                     <OutlinedSelectField Label="Reason for FEIN Change" 
                                          @bind-Value="_model.ReasonForFeinChange" 
                                          For="@(() => _model.ReasonForFeinChange)"
@@ -40,10 +40,10 @@
             </div>
 
             <div class="row align-items-start mb-3">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <OutlinedTextField Label="Legal Name" @bind-Value="_model.LegalName" For="@(() => _model.LegalName)" />
                 </div>
-                <div class="col-md-5 offset-md-1">
+                <div class="col-md-6">
                     <OutlinedSelectField Label="Reason for Legal Name Change" 
                                          @bind-Value="_model.ReasonForLegalNameChange" 
                                          For="@(() => _model.ReasonForLegalNameChange)"
@@ -52,34 +52,32 @@
             </div>
 
             <div class="row align-items-start mb-3">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <OutlinedTextField Label="Trade Name (optional)" @bind-Value="_model.TradeName" For="@(() => _model.TradeName)" />
                 </div>
             </div>
 
             <div class="row align-items-start mb-3">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <PhoneNumberField Label="Phone Number" 
                                       @bind-Value="_model.PhoneNumber" 
                                       For="@(() => _model.PhoneNumber)" 
-                                      @bind-Extension="_model.Extension" />
+                                      @bind-Extension="_model.Extension"
+                                      ShowCountryCode="true" />
+                    <div class="mt-1" style="font-size: 12px; color: #555;">(999) 999-9999 ext. 99</div>
                 </div>
             </div>
 
             <div class="row align-items-start mb-5">
-                <div class="col-md-5">
+                <div class="col-md-6">
                     <OutlinedTextField Label="Email Address" @bind-Value="_model.EmailAddress" For="@(() => _model.EmailAddress)" />
                 </div>
             </div>
 
-            <ButtonBar ShowBack="true" 
-                       ShowContinue="true" 
-                       ShowCancel="false" 
-                       ShowSaveAndQuit="false" 
-                       BackText="CANCEL" 
-                       ContinueText="SAVE" 
-                       OnBack="Cancel">
-            </ButtonBar>
+            <div class="d-flex justify-content-between mt-5" style="max-width: 800px;">
+                <button type="button" class="btn btn--secondary" @onclick="Cancel" style="width: 130px; font-weight: 700;">CANCEL</button>
+                <button type="submit" class="btn btn--primary" style="width: 130px; font-weight: 700;">SAVE</button>
+            </div>
         </EditForm>
     }
 </div>
@@ -111,7 +109,14 @@
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-        _model = await AccountDetailsService.GetAccountDetailsAsync();
+        var data = await AccountDetailsService.GetAccountDetailsAsync();
+        
+        _model.FEIN = data.FEIN;
+        _model.LegalName = data.LegalName;
+        _model.PhoneNumber = data.PhoneNumber;
+        _model.Extension = data.Extension;
+        _model.EmailAddress = data.EmailAddress;
+        
         _isLoading = false;
     }
 
