@@ -2,7 +2,6 @@
 @using UI.EmployerPortal.Web.Features.ManageAccount.Models
 @using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Razor.SharedComponents.Navigation
 @using Microsoft.AspNetCore.Components.Forms
 @inject NavigationManager NavigationManager
 @inject IAccountDetailsService AccountDetailsService
@@ -10,13 +9,13 @@
 <PageTitle>Update Account Information</PageTitle>
 
 <div class="account-details-page">
-    <h1 class="page-title fw-bold">Update Account Information</h1>
-    
-    <div class="manage-addresses-link mb-3">
-        <a href="manage-account/manage-addresses" class="fw-bold">Manage Addresses</a>
+    <h1 class="page-title">Update Account Information</h1>
+
+    <div class="manage-addresses-link">
+        <a href="manage-account/manage-addresses">Manage Addresses</a>
     </div>
 
-    <p class="required-text mb-4">All fields are required unless noted.</p>
+    <p class="required-text">All fields are required unless noted.</p>
 
     @if (_isLoading)
     {
@@ -27,57 +26,65 @@
         <EditForm Model="@_model" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
 
-            <div class="row align-items-start mb-3">
-                <div class="col-md-6">
-                    <FEINField Label="FEIN" @bind-Value="_model.FEIN" For="@(() => _model.FEIN)" />
+            @* ── Row 1: FEIN + Reason for FEIN Change ── *@
+            <div class="ad-fields-grid">
+                <div class="ad-field">
+                    <FEINField Label="FEIN"
+                               @bind-Value="_model.FEIN"
+                               For="@(() => _model.FEIN)" />
                 </div>
-                <div class="col-md-6">
-                    <OutlinedSelectField Label="Reason for FEIN Change" 
-                                         @bind-Value="_model.ReasonForFeinChange" 
+                <div class="ad-field">
+                    <OutlinedSelectField Label="Reason for FEIN Change"
+                                         @bind-Value="_model.ReasonForFeinChange"
                                          For="@(() => _model.ReasonForFeinChange)"
                                          Options="@_reasonOptions" />
                 </div>
             </div>
 
-            <div class="row align-items-start mb-3">
-                <div class="col-md-6">
-                    <OutlinedTextField Label="Legal Name" @bind-Value="_model.LegalName" For="@(() => _model.LegalName)" />
+            @* ── Row 2: Legal Name + Reason for Legal Name Change ── *@
+            <div class="ad-fields-grid">
+                <div class="ad-field">
+                    <OutlinedTextField Label="Legal Name"
+                                       @bind-Value="_model.LegalName"
+                                       For="@(() => _model.LegalName)" />
                 </div>
-                <div class="col-md-6">
-                    <OutlinedSelectField Label="Reason for Legal Name Change" 
-                                         @bind-Value="_model.ReasonForLegalNameChange" 
+                <div class="ad-field">
+                    <OutlinedSelectField Label="Reason for Legal Name Change"
+                                         @bind-Value="_model.ReasonForLegalNameChange"
                                          For="@(() => _model.ReasonForLegalNameChange)"
                                          Options="@_reasonOptions" />
                 </div>
             </div>
 
-            <div class="row align-items-start mb-3">
-                <div class="col-md-6">
-                    <OutlinedTextField Label="Trade Name (optional)" @bind-Value="_model.TradeName" For="@(() => _model.TradeName)" />
-                </div>
+            @* ── Row 3: Trade Name (single column) ── *@
+            <div class="ad-field-single">
+                <OutlinedTextField Label="Trade Name (optional)"
+                                   @bind-Value="_model.TradeName"
+                                   For="@(() => _model.TradeName)" />
             </div>
 
-            <div class="row align-items-start mb-3">
-                <div class="col-md-6">
-                    <PhoneNumberField Label="Phone Number" 
-                                      @bind-Value="_model.PhoneNumber" 
-                                      For="@(() => _model.PhoneNumber)" 
-                                      @bind-Extension="_model.Extension"
-                                      ShowCountryCode="true" />
-                    <div class="mt-1" style="font-size: 12px; color: #555;">(999) 999-9999 ext. 99</div>
-                </div>
+            @* ── Row 4: Phone Number (single column) ── *@
+            <div class="ad-field-single">
+                <PhoneNumberField Label="Phone Number"
+                                  @bind-Value="_model.PhoneNumber"
+                                  For="@(() => _model.PhoneNumber)"
+                                  @bind-Extension="_model.Extension" />
+                <span class="phone-helper-text">(999) 999-9999 ext. 99</span>
             </div>
 
-            <div class="row align-items-start mb-5">
-                <div class="col-md-6">
-                    <OutlinedTextField Label="Email Address" @bind-Value="_model.EmailAddress" For="@(() => _model.EmailAddress)" />
-                </div>
+            @* ── Row 5: Email Address (single column) ── *@
+            <div class="ad-field-single">
+                <OutlinedTextField Label="Email Address"
+                                   @bind-Value="_model.EmailAddress"
+                                   For="@(() => _model.EmailAddress)" />
             </div>
 
-            <div class="d-flex justify-content-between mt-5" style="max-width: 800px;">
-                <button type="button" class="btn btn--secondary" @onclick="Cancel" style="width: 130px; font-weight: 700;">CANCEL</button>
-                <button type="submit" class="btn btn--primary" style="width: 130px; font-weight: 700;">SAVE</button>
+            @* ── Buttons ── *@
+            <div class="button-bar-custom">
+                <button type="button" class="btn-cancel" @onclick="Cancel">CANCEL</button>
+                <button type="submit" class="btn-save">SAVE</button>
             </div>
+
         </EditForm>
     }
 </div>
@@ -110,13 +117,13 @@
     {
         _isLoading = true;
         var data = await AccountDetailsService.GetAccountDetailsAsync();
-        
+
         _model.FEIN = data.FEIN;
         _model.LegalName = data.LegalName;
         _model.PhoneNumber = data.PhoneNumber;
         _model.Extension = data.Extension;
         _model.EmailAddress = data.EmailAddress;
-        
+
         _isLoading = false;
     }
 
@@ -127,7 +134,7 @@
     private async Task HandleValidSubmit()
     {
         var success = await AccountDetailsService.UpdateAccountDetailsAsync(_model);
-        
+
         if (success)
         {
             NavigationManager.NavigateTo("/manage-account?success=true");
