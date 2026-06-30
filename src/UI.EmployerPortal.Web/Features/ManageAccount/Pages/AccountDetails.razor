@@ -193,11 +193,8 @@
     /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        var sessionState = await SessionManager.GetAsync<SessionSelectedEmployerAccount>();
-        if (int.TryParse(sessionState?.SelectedEmployerAccountValue, out var parsedSK))
-        {
-            _employerSK = parsedSK;
-        }
+        var sessionState = await SessionManager.GetAsync<UI.EmployerPortal.Web.Features.Shared.Accounts.Models.SelectedEmployerAccount>();
+        _employerSK = sessionState?.EmployerAccount?.Id ?? 0;
 
         if (_employerSK > 0)
         {
