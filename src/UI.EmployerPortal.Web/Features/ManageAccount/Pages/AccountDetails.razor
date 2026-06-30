@@ -22,7 +22,14 @@
 
     <p class="required-text" aria-label="noted-required-fields">All fields are required unless noted.</p>
 
-    @{
+    @using UI.EmployerPortal.Razor.SharedComponents
+
+    @if (_editContext == null)
+    {
+        <LoadingSpinner Message="Loading account details..." />
+    }
+    else
+    {
         @* ── Validation Error Summary ── *@
         @if (_formSubmitted && _validationErrors.Any())
         {

@@ -61,8 +61,8 @@ internal class AccountDetailsService : IAccountDetailsService
             LegalName = employer.LegalName ?? string.Empty,
             TradeName = employer.TradeName,
             PhoneNumber = employer.PhoneNumber ?? string.Empty,
-            Extension = employer.PhoneExtension,
-            EmailAddress = employer.EmailAddress ?? string.Empty
+            Extension = string.Empty,
+            EmailAddress = string.Empty
         };
     }
 
