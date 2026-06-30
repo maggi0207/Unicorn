@@ -15,6 +15,7 @@ builder.Services.AddScoped<AddressValidationCoordinator>();
 builder.Services.AddScoped<IYearQuarterPaidWagesService, YearQuarterPaidWagesService>();
 builder.Services.AddScoped<UI.EmployerPortal.Web.Features.ManageAccount.Services.IAccountDetailsService, UI.EmployerPortal.Web.Features.ManageAccount.Services.AccountDetailsService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -14,7 +14,9 @@ public class AccountDetailsModel
     public string FEIN { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the selected reason for changing the FEIN, if applicable.
+    /// Gets or sets the selected FEIN change reason code SK.
+    /// Maps to the CD_SK column of the FEIN Change Reasons lookup table.
+    /// Passed as string to bind to OutlinedSelectField.
     /// </summary>
     public string? ReasonForFeinChange { get; set; }
 
@@ -25,7 +27,9 @@ public class AccountDetailsModel
     public string LegalName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the selected reason for changing the Legal Name, if applicable.
+    /// Gets or sets the selected business name change reason code SK.
+    /// Maps to the CD_SK column of the Business Name Change Reasons lookup table.
+    /// Passed as string to bind to OutlinedSelectField.
     /// </summary>
     public string? ReasonForLegalNameChange { get; set; }
 

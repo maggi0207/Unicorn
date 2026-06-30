@@ -5,6 +5,11 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Linq.Expressions
 @inject NavigationManager NavigationManager
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using UI.EmployerPortal.Web.Features.ManageAccount.Services
+@inject IAccountDetailsService AccountDetailsService
+@inject ISessionManager SessionManager
 
 <PageTitle>Update Account Information</PageTitle>
 
@@ -48,7 +53,7 @@
                                          Id="ReasonForFeinChange"
                                          @bind-Value="_model.ReasonForFeinChange"
                                          For="@(() => _model.ReasonForFeinChange)"
-                                         Options="@_reasonOptions" />
+                                         Options="@_feinReasonOptions" />
                 </div>
             </div>
 
@@ -66,7 +71,7 @@
                                          Id="ReasonForLegalNameChange"
                                          @bind-Value="_model.ReasonForLegalNameChange"
                                          For="@(() => _model.ReasonForLegalNameChange)"
-                                         Options="@_reasonOptions" />
+                                         Options="@_legalNameReasonOptions" />
                 </div>
             </div>
 
@@ -138,6 +143,11 @@
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
 
     /// <summary>
+    /// The currently selected employer SK from the session.
+    /// </summary>
+    private int _employerSK = 0;
+
+    /// <summary>
     /// The list of validation error messages displayed in the NotificationBanner.
     /// </summary>
     private List<string> _validationErrors = new();
@@ -148,28 +158,48 @@
     private List<string> _validationFieldIds = new();
 
     /// <summary>
-    /// Options for the FEIN and Legal Name change reason dropdowns.
+    /// Options for the FEIN change reason dropdown.
     /// </summary>
-    private List<SelectOption> _reasonOptions = new()
+    private List<SelectOption> _feinReasonOptions = new()
     {
-        new SelectOption { Value = "Correction", Text = "Correction" },
-        new SelectOption { Value = "ChangeOfOwnership", Text = "Change of Ownership" },
-        new SelectOption { Value = "Other", Text = "Other" }
+        new SelectOption { Value = "1", Text = "Entry Error" },
+        new SelectOption { Value = "2", Text = "Business Reorganization" },
+        new SelectOption { Value = "3", Text = "Previous Missing FEIN" },
+        new SelectOption { Value = "4", Text = "Audit" },
+        new SelectOption { Value = "5", Text = "Other (additional explanation required)" }
     };
 
     /// <summary>
-    /// Initializes the EditContext with mock data and sets up field change tracking.
+    /// Options for the Legal Name change reason dropdown.
     /// </summary>
-    protected override void OnInitialized()
+    private List<SelectOption> _legalNameReasonOptions = new()
     {
-        _model = new AccountDetailsModel
+        new SelectOption { Value = "1", Text = "Department of Financial Institutions Name Change" },
+        new SelectOption { Value = "2", Text = "Department Error" },
+        new SelectOption { Value = "3", Text = "Employer Information" },
+        new SelectOption { Value = "4", Text = "Audit" },
+        new SelectOption { Value = "5", Text = "Other (additional explanation required)" }
+    };
+
+    /// <summary>
+    /// Initializes the EditContext with data from the backend and sets up field change tracking.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        var sessionState = await SessionManager.GetAsync<SessionSelectedEmployerAccount>();
+        if (int.TryParse(sessionState?.SelectedEmployerAccountValue, out var parsedSK))
         {
-            FEIN = "11-2233445",
-            LegalName = "Goyette & Sons",
-            PhoneNumber = "(608) 266-5793",
-            Extension = "99",
-            EmailAddress = "jsmith@goyetteandsons.com"
-        };
+            _employerSK = parsedSK;
+        }
+
+        if (_employerSK > 0)
+        {
+            _model = await AccountDetailsService.GetAccountDetailsAsync(_employerSK);
+        }
+        else
+        {
+            _model = new AccountDetailsModel();
+        }
 
         _editContext = new EditContext(_model);
 
@@ -194,9 +224,9 @@
     }
 
     /// <summary>
-    /// Handles form submission. Validates the form first; if valid, navigates back.
+    /// Handles form submission. Validates the form first; if valid, saves to backend and navigates back.
     /// </summary>
-    private void HandleSubmit()
+    private async Task HandleSubmit()
     {
         _formSubmitted = true;
         _validationErrors.Clear();
@@ -212,7 +242,17 @@
             return;
         }
 
-        NavigationManager.NavigateTo("/manage-account?success=true");
+        var result = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
+
+        if (result.success)
+        {
+            NavigationManager.NavigateTo("/manage-account?success=true");
+        }
+        else
+        {
+            _validationErrors.Add(result.error);
+            StateHasChanged();
+        }
     }
 
     /// <summary>
