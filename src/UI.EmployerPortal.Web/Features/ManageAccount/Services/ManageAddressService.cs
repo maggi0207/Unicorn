@@ -52,10 +52,15 @@ internal class ManageAddressService : IManageAddressService
             return [];
         }
 
-        return response.StreetAddresses
-            .Where(a => a.IsActive)
-            .Select(MapToRowModel)
-            .ToList();
+        var result = new List<AddressRowModel>();
+        foreach (var address in response.StreetAddresses)
+        {
+            if (address.IsActive)
+            {
+                result.Add(MapToRowModel(address));
+            }
+        }
+        return result;
     }
 
     /// <inheritdoc/>
@@ -81,7 +86,9 @@ internal class ManageAddressService : IManageAddressService
                     CanadianPostalCode = (model.CanadianPostalCode ?? string.Empty).Replace(" ", "")
                 };
                 var canadaResponse = await _retryPolicy.ExecuteAsync(() =>
-                    _accountMaintenanceService.SaveEmployerAddressCanadaAsync(canadaRequest));
+                {
+                    return _accountMaintenanceService.SaveEmployerAddressCanadaAsync(canadaRequest);
+                });
                 saved = canadaResponse?.Value ?? false;
                 break;
 
@@ -97,11 +104,13 @@ internal class ManageAddressService : IManageAddressService
                     LineFourAddress = model.LineFourAddress ?? string.Empty
                 };
                 var intlResponse = await _retryPolicy.ExecuteAsync(() =>
-                    _accountMaintenanceService.SaveEmployerAddressOtherInternationalAsync(intlRequest));
+                {
+                    return _accountMaintenanceService.SaveEmployerAddressOtherInternationalAsync(intlRequest);
+                });
                 saved = intlResponse?.Value ?? false;
                 break;
 
-            default: // United States
+            default:
                 var usRequest = new PortalAddressRequestUnitedStates
                 {
                     EmployerSK = employerSK,
@@ -116,14 +125,18 @@ internal class ManageAddressService : IManageAddressService
                     ZipExtension = model.ZipExtension ?? string.Empty
                 };
                 var usResponse = await _retryPolicy.ExecuteAsync(() =>
-                    _accountMaintenanceService.SaveEmployerAddressUnitedStatesAsync(usRequest));
+                {
+                    return _accountMaintenanceService.SaveEmployerAddressUnitedStatesAsync(usRequest);
+                });
                 saved = usResponse?.Value ?? false;
                 break;
         }
 
-        return saved
-            ? (true, string.Empty)
-            : (false, "Unable to save the address. Please try again.");
+        if (saved)
+        {
+            return (true, string.Empty);
+        }
+        return (false, "Unable to save the address. Please try again.");
     }
 
     /// <inheritdoc/>
@@ -139,12 +152,12 @@ internal class ManageAddressService : IManageAddressService
                 secureUserSK);
         });
 
-        return (response?.Value ?? false)
-            ? (true, string.Empty)
-            : (false, "Unable to delete the address. Please try again.");
+        if (response?.Value ?? false)
+        {
+            return (true, string.Empty);
+        }
+        return (false, "Unable to delete the address. Please try again.");
     }
-
-    // ── Private helpers ─────────────────────────────────────────────────────
 
     private static AddressRowModel MapToRowModel(StreetAddressProxy proxy)
     {
@@ -181,47 +194,104 @@ internal class ManageAddressService : IManageAddressService
 
         if (countryCode == CountryCanada)
         {
-            // e.g. "124 O Street, Ottawa, ON K1A 0A9"
             var parts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(proxy.LineOneAddress)) parts.Add(proxy.LineOneAddress);
-            if (!string.IsNullOrWhiteSpace(proxy.LineTwoAddress)) parts.Add(proxy.LineTwoAddress);
-            if (!string.IsNullOrWhiteSpace(proxy.CityName)) parts.Add(proxy.CityName);
-            var provincePart = string.Join(" ",
-                new[] { proxy.StateCode, proxy.CanadianPostalCode }
-                    .Where(s => !string.IsNullOrWhiteSpace(s)));
-            if (!string.IsNullOrWhiteSpace(provincePart)) parts.Add(provincePart);
+
+            if (!string.IsNullOrWhiteSpace(proxy.LineOneAddress))
+            {
+                parts.Add(proxy.LineOneAddress);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.LineTwoAddress))
+            {
+                parts.Add(proxy.LineTwoAddress);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.CityName))
+            {
+                parts.Add(proxy.CityName);
+            }
+
+            var provincePart = new List<string>();
+            if (!string.IsNullOrWhiteSpace(proxy.StateCode))
+            {
+                provincePart.Add(proxy.StateCode);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.CanadianPostalCode))
+            {
+                provincePart.Add(proxy.CanadianPostalCode);
+            }
+
+            var provinceJoined = string.Join(" ", provincePart);
+            if (!string.IsNullOrWhiteSpace(provinceJoined))
+            {
+                parts.Add(provinceJoined);
+            }
+
             return string.Join(", ", parts);
         }
 
         if (countryCode == CountryOtherIntl)
         {
-            var parts = new[]
+            var parts = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(proxy.LineOneAddress))
             {
-                proxy.LineOneAddress, proxy.LineTwoAddress,
-                proxy.LineThreeInternationalAddress, proxy.LineFourAddress
-            }.Where(s => !string.IsNullOrWhiteSpace(s));
+                parts.Add(proxy.LineOneAddress);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.LineTwoAddress))
+            {
+                parts.Add(proxy.LineTwoAddress);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.LineThreeInternationalAddress))
+            {
+                parts.Add(proxy.LineThreeInternationalAddress);
+            }
+            if (!string.IsNullOrWhiteSpace(proxy.LineFourAddress))
+            {
+                parts.Add(proxy.LineFourAddress);
+            }
+
             return string.Join(", ", parts);
         }
 
-        // United States: "5321 Westminster Pl, Milwaukee, WI 53201-4302"
+        // United States
+        var streetParts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(proxy.LineOneAddress))
         {
-            var streetParts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(proxy.LineOneAddress)) streetParts.Add(proxy.LineOneAddress);
-            if (!string.IsNullOrWhiteSpace(proxy.LineTwoAddress)) streetParts.Add(proxy.LineTwoAddress);
-
-            var cityStatePart = string.Join(" ",
-                new[] { proxy.CityName + ",", proxy.StateCode }
-                    .Where(s => !string.IsNullOrWhiteSpace(s)));
-
-            var zip = proxy.ZipCode;
-            if (!string.IsNullOrWhiteSpace(proxy.ZipExtensionCode))
-                zip += $"-{proxy.ZipExtensionCode}";
-
-            var allParts = streetParts
-                .Concat(new[] { cityStatePart, zip }
-                    .Where(s => !string.IsNullOrWhiteSpace(s)));
-
-            return string.Join(", ", allParts);
+            streetParts.Add(proxy.LineOneAddress);
         }
+        if (!string.IsNullOrWhiteSpace(proxy.LineTwoAddress))
+        {
+            streetParts.Add(proxy.LineTwoAddress);
+        }
+
+        var cityState = new List<string>();
+        if (!string.IsNullOrWhiteSpace(proxy.CityName))
+        {
+            cityState.Add(proxy.CityName + ",");
+        }
+        if (!string.IsNullOrWhiteSpace(proxy.StateCode))
+        {
+            cityState.Add(proxy.StateCode);
+        }
+
+        var cityStatePart = string.Join(" ", cityState);
+
+        var zip = proxy.ZipCode ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(proxy.ZipExtensionCode))
+        {
+            zip += $"-{proxy.ZipExtensionCode}";
+        }
+
+        var allParts = new List<string>(streetParts);
+        if (!string.IsNullOrWhiteSpace(cityStatePart))
+        {
+            allParts.Add(cityStatePart);
+        }
+        if (!string.IsNullOrWhiteSpace(zip))
+        {
+            allParts.Add(zip);
+        }
+
+        return string.Join(", ", allParts);
     }
 }

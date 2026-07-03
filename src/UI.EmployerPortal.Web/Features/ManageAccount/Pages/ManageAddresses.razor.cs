@@ -169,8 +169,17 @@ public partial class ManageAddresses
 
         _countryValue = row.CountryAddressFormatCodeSK.ToString();
         _addressTypeValue = row.AddressTypeCodeSK.ToString();
-        _stateValue = row.StateCodeSK?.ToString() ?? string.Empty;
-        _provinceValue = row.StateCodeSK?.ToString() ?? string.Empty;
+
+        if (row.StateCodeSK.HasValue)
+        {
+            _stateValue = row.StateCodeSK.Value.ToString();
+            _provinceValue = row.StateCodeSK.Value.ToString();
+        }
+        else
+        {
+            _stateValue = string.Empty;
+            _provinceValue = string.Empty;
+        }
         _formErrors = [];
         _formSubmitted = false;
         _editContext = new EditContext(_formModel);
@@ -192,10 +201,41 @@ public partial class ManageAddresses
         _formErrors = [];
 
         // Sync string-bound selects back to the model before validation
-        _formModel.CountryAddressFormatCodeSK = int.TryParse(_countryValue, out var c) ? c : 1;
-        _formModel.AddressTypeCodeSK = int.TryParse(_addressTypeValue, out var at) ? at : 0;
-        _formModel.StateCodeSK = int.TryParse(_stateValue, out var st) ? st : null;
-        _formModel.ProvinceCodeSK = int.TryParse(_provinceValue, out var pr) ? pr : null;
+        if (int.TryParse(_countryValue, out var c))
+        {
+            _formModel.CountryAddressFormatCodeSK = c;
+        }
+        else
+        {
+            _formModel.CountryAddressFormatCodeSK = 1;
+        }
+
+        if (int.TryParse(_addressTypeValue, out var at))
+        {
+            _formModel.AddressTypeCodeSK = at;
+        }
+        else
+        {
+            _formModel.AddressTypeCodeSK = 0;
+        }
+
+        if (int.TryParse(_stateValue, out var st))
+        {
+            _formModel.StateCodeSK = st;
+        }
+        else
+        {
+            _formModel.StateCodeSK = null;
+        }
+
+        if (int.TryParse(_provinceValue, out var pr))
+        {
+            _formModel.ProvinceCodeSK = pr;
+        }
+        else
+        {
+            _formModel.ProvinceCodeSK = null;
+        }
 
         if (!_editContext!.Validate())
         {
@@ -213,13 +253,29 @@ public partial class ManageAddresses
             if (success)
             {
                 _addresses = await ManageAddressService.GetAddressesAsync(_employerSK);
-                _successMessage = _isEditMode ? "Address updated successfully." : "Address added successfully.";
+
+                if (_isEditMode)
+                {
+                    _successMessage = "Address updated successfully.";
+                }
+                else
+                {
+                    _successMessage = "Address added successfully.";
+                }
+
                 _bannerKey = Guid.NewGuid().ToString();
                 _showForm = false;
             }
             else
             {
-                _formErrors = [string.IsNullOrWhiteSpace(error) ? "Unable to save address. Please try again." : error];
+                if (string.IsNullOrWhiteSpace(error))
+                {
+                    _formErrors = ["Unable to save address. Please try again."];
+                }
+                else
+                {
+                    _formErrors = [error];
+                }
             }
         }
         catch
@@ -266,9 +322,14 @@ public partial class ManageAddresses
             }
             else
             {
-                _deleteError = string.IsNullOrWhiteSpace(error)
-                    ? "Unable to delete the address. Please try again."
-                    : error;
+                if (string.IsNullOrWhiteSpace(error))
+                {
+                    _deleteError = "Unable to delete the address. Please try again.";
+                }
+                else
+                {
+                    _deleteError = error;
+                }
             }
         }
         catch
