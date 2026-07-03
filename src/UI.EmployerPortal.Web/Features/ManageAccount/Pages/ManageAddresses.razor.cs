@@ -284,14 +284,20 @@ public partial class ManageAddresses
 
     private void CloseDeleteModal()
     {
-        if (_isDeleting) return;
+        if (_isDeleting)
+        {
+            return;
+        }
         _showDeleteModal = false;
         _deleteError = null;
     }
 
     private async Task ConfirmDeleteAsync()
     {
-        if (_addressToDelete == null) return;
+        if (_addressToDelete == null)
+        {
+            return;
+        }
 
         _isDeleting = true;
         _deleteError = null;
