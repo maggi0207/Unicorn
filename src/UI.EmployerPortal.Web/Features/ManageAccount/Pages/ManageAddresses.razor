@@ -1,0 +1,344 @@
+@page "/manage-account/manage-addresses"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+@using UI.EmployerPortal.Web.Features.ManageAccount.Services
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@inject IManageAddressService ManageAddressService
+@inject ISessionManager SessionManager
+@inject NavigationManager NavigationManager
+
+<PageTitle>Manage Addresses</PageTitle>
+
+<div class="ma-page">
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading addresses..." />
+    }
+    else if (_loadError)
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages='new List<string> { "Unable to load addresses. Please try again." }'
+                            DismissButton="false" />
+    }
+    else
+    {
+        <h1 class="ma-title">Manage Addresses</h1>
+        <p class="ma-subtitle">Add, Edit and Delete business addresses for an account.</p>
+
+        @* ── Success / Error banners ── *@
+        @if (!string.IsNullOrWhiteSpace(_successMessage))
+        {
+            <div class="ma-banner-wrapper">
+                <NotificationBanner @key="_bannerKey"
+                                    NotificationType="NotificationType.Confirmation"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Message="@_successMessage"
+                                    DismissButton="true" />
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <div class="ma-banner-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Message="@_errorMessage"
+                                    DismissButton="false" />
+            </div>
+        }
+
+        @* ── Addresses Table ── *@
+        <div class="ma-table-container">
+            <table class="ma-table" aria-label="Employer addresses">
+                <caption class="visually-hidden">List of employer addresses with address type and actions</caption>
+                <thead>
+                    <tr class="ma-header-row">
+                        <th scope="col" class="ma-th ma-th-type">Address Type</th>
+                        <th scope="col" class="ma-th ma-th-address">Address</th>
+                        <th scope="col" class="ma-th ma-th-action">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in _addresses)
+                    {
+                        <tr class="ma-data-row" @key="row.AddressSK">
+                            <td class="ma-td ma-td-type">@row.AddressType</td>
+                            <td class="ma-td ma-td-address">@row.FormattedAddress</td>
+                            <td class="ma-td ma-td-action">
+                                <div class="ma-action-buttons">
+                                    <button class="ma-icon-btn"
+                                            title="Edit address"
+                                            aria-label="Edit @row.AddressType"
+                                            @onclick="() => HandleEditClick(row)">
+                                        <img src="@Assets["icons/edit-pen.svg"]" alt="Edit" class="ma-action-icon" />
+                                    </button>
+                                    @if (row.CanDelete)
+                                    {
+                                        <button class="ma-icon-btn ma-icon-btn-delete"
+                                                title="Delete address"
+                                                aria-label="Delete @row.AddressType"
+                                                @onclick="() => HandleDeleteClick(row)">
+                                            <img src="@Assets["icons/trash.svg"]" alt="Delete" class="ma-action-icon" />
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* ── Add Address link ── *@
+        <div class="ma-add-link-row">
+            <button type="button"
+                    class="ma-add-link"
+                    aria-label="Add a new address"
+                    @onclick="HandleAddClick">
+                + Add Address
+            </button>
+        </div>
+
+        @* ── Inline Add / Edit Form ── *@
+        @if (_showForm && _editContext != null)
+        {
+            <div class="ma-form-panel" role="region" aria-label="@(_isEditMode ? "Edit address" : "Add address")">
+                <h2 class="ma-form-title">@(_isEditMode ? "Edit Address" : "Add Address")</h2>
+
+                @if (_formErrors.Any())
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        MessageStyle="MessageStyle.MultiLine"
+                                        Messages="_formErrors"
+                                        DismissButton="false" />
+                    <br />
+                }
+
+                <EditForm EditContext="@_editContext" OnSubmit="HandleFormSubmitAsync">
+                    <DataAnnotationsValidator />
+
+                    @* Country / Format ─────────────────────────────── *@
+                    <div class="ma-form-row">
+                        <div class="ma-form-field">
+                            <OutlinedSelectField Label="Country"
+                                                 Id="AddressCountry"
+                                                 @bind-Value="_countryValue"
+                                                 For="@(() => _countryValue)"
+                                                 Options="@_countryOptions" />
+                        </div>
+                        @* Address Type ──────────────────────────────── *@
+                        <div class="ma-form-field">
+                            <OutlinedSelectField Label="Address Type"
+                                                 Id="AddressType"
+                                                 @bind-Value="_addressTypeValue"
+                                                 For="@(() => _addressTypeValue)"
+                                                 Options="@_addressTypeOptions" />
+                        </div>
+                    </div>
+
+                    @* Line 1 ─────────────────────────────────────────── *@
+                    <div class="ma-form-row">
+                        <div class="ma-form-field ma-form-field-full">
+                            <OutlinedTextField Label="Address Line 1"
+                                               Id="LineOneAddress"
+                                               @bind-Value="_formModel.LineOneAddress"
+                                               For="@(() => _formModel.LineOneAddress)"
+                                               Visible="@_formSubmitted"
+                                               MaxLength="100" />
+                        </div>
+                    </div>
+
+                    @* Line 2 ─────────────────────────────────────────── *@
+                    <div class="ma-form-row">
+                        <div class="ma-form-field ma-form-field-full">
+                            <OutlinedTextField Label="Address Line 2 (optional)"
+                                               Id="LineTwoAddress"
+                                               @bind-Value="_formModel.LineTwoAddress"
+                                               For="@(() => _formModel.LineTwoAddress)"
+                                               MaxLength="100" />
+                        </div>
+                    </div>
+
+                    @* US / Canada: City + State/Province ─────────────── *@
+                    @if (_formModel.CountryAddressFormatCodeSK != 3)
+                    {
+                        <div class="ma-form-row">
+                            <div class="ma-form-field">
+                                <OutlinedTextField Label="City"
+                                                   Id="CityName"
+                                                   @bind-Value="_formModel.CityName"
+                                                   For="@(() => _formModel.CityName)"
+                                                   Visible="@_formSubmitted"
+                                                   MaxLength="50" />
+                            </div>
+
+                            @if (_formModel.CountryAddressFormatCodeSK == 1)
+                            {
+                                @* US: State dropdown + Zip ──────────────────── *@
+                                <div class="ma-form-field">
+                                    <OutlinedSelectField Label="State"
+                                                         Id="StateCodeSK"
+                                                         @bind-Value="_stateValue"
+                                                         For="@(() => _stateValue)"
+                                                         Options="@_stateOptions" />
+                                </div>
+                            }
+                            else
+                            {
+                                @* Canada: Province dropdown ─────────────────── *@
+                                <div class="ma-form-field">
+                                    <OutlinedSelectField Label="Province"
+                                                         Id="ProvinceCodeSK"
+                                                         @bind-Value="_provinceValue"
+                                                         For="@(() => _provinceValue)"
+                                                         Options="@_provinceOptions" />
+                                </div>
+                            }
+                        </div>
+
+                        @if (_formModel.CountryAddressFormatCodeSK == 1)
+                        {
+                            @* US: ZIP ───────────────────────────────────────── *@
+                            <div class="ma-form-row">
+                                <div class="ma-form-field">
+                                    <OutlinedTextField Label="ZIP Code"
+                                                       Id="ZipCode"
+                                                       @bind-Value="_formModel.ZipCode"
+                                                       For="@(() => _formModel.ZipCode)"
+                                                       Visible="@_formSubmitted"
+                                                       MaxLength="5" />
+                                </div>
+                                <div class="ma-form-field">
+                                    <OutlinedTextField Label="ZIP+4 (optional)"
+                                                       Id="ZipExtension"
+                                                       @bind-Value="_formModel.ZipExtension"
+                                                       For="@(() => _formModel.ZipExtension)"
+                                                       MaxLength="4" />
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @* Canada: Postal Code ───────────────────────────── *@
+                            <div class="ma-form-row">
+                                <div class="ma-form-field">
+                                    <OutlinedTextField Label="Postal Code"
+                                                       Id="CanadianPostalCode"
+                                                       @bind-Value="_formModel.CanadianPostalCode"
+                                                       For="@(() => _formModel.CanadianPostalCode)"
+                                                       Visible="@_formSubmitted"
+                                                       Placeholder="A1A 1A1"
+                                                       MaxLength="7" />
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        @* International: Lines 3 + 4 ─────────────────── *@
+                        <div class="ma-form-row">
+                            <div class="ma-form-field ma-form-field-full">
+                                <OutlinedTextField Label="Address Line 3 (optional)"
+                                                   Id="LineThreeAddress"
+                                                   @bind-Value="_formModel.LineThreeAddress"
+                                                   For="@(() => _formModel.LineThreeAddress)"
+                                                   MaxLength="100" />
+                            </div>
+                        </div>
+                        <div class="ma-form-row">
+                            <div class="ma-form-field ma-form-field-full">
+                                <OutlinedTextField Label="Address Line 4 (optional)"
+                                                   Id="LineFourAddress"
+                                                   @bind-Value="_formModel.LineFourAddress"
+                                                   For="@(() => _formModel.LineFourAddress)"
+                                                   MaxLength="100" />
+                            </div>
+                        </div>
+                    }
+
+                    @* Form Buttons ────────────────────────────────────── *@
+                    <div class="ma-form-buttons" role="group" aria-label="Address form actions">
+                        <button type="button"
+                                class="ma-btn-cancel"
+                                @onclick="HandleFormCancel"
+                                aria-label="Cancel address edit">
+                            CANCEL
+                        </button>
+                        <button type="submit"
+                                class="ma-btn-save"
+                                disabled="@_isSaving"
+                                aria-label="Save address">
+                            @if (_isSaving)
+                            {
+                                <span>SAVING...</span>
+                            }
+                            else
+                            {
+                                <span>SAVE</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        }
+
+        @* ── Cancel Button ── *@
+        <div class="ma-bottom-bar">
+            <button type="button"
+                    class="ma-btn-cancel"
+                    aria-label="Cancel and return to account details"
+                    @onclick="HandleCancel">
+                CANCEL
+            </button>
+        </div>
+    }
+</div>
+
+@* ── Delete Confirmation Modal ── *@
+@if (_showDeleteModal)
+{
+    <div class="ma-modal-backdrop" @onclick="CloseDeleteModal">
+        <div class="ma-modal" @onclick:stopPropagation="true"
+             role="dialog" aria-modal="true" aria-labelledby="delete-address-title">
+
+            <div class="ma-modal-header">
+                <h3 id="delete-address-title" class="ma-modal-title">
+                    <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
+                    Delete Address
+                </h3>
+                <button type="button" class="ma-modal-close" @onclick="CloseDeleteModal"
+                        aria-label="Close" disabled="@_isDeleting">&#x2715;</button>
+            </div>
+
+            <div class="ma-modal-body">
+                @if (_isDeleting)
+                {
+                    <LoadingSpinner Message="Deleting address..." />
+                }
+                else if (!string.IsNullOrWhiteSpace(_deleteError))
+                {
+                    <p class="ma-modal-error">@_deleteError</p>
+                }
+                else
+                {
+                    <p class="ma-modal-text">
+                        Are you sure you want to delete the <strong>@_addressToDelete?.AddressType</strong> address?
+                        This action cannot be undone.
+                    </p>
+                }
+            </div>
+
+            <div class="ma-modal-footer">
+                @if (!_isDeleting)
+                {
+                    <button type="button" class="ma-btn-cancel" @onclick="CloseDeleteModal">CANCEL</button>
+                    <button type="button" class="ma-btn-delete" @onclick="ConfirmDeleteAsync">DELETE</button>
+                }
+            </div>
+        </div>
+    </div>
+}

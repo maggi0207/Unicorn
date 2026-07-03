@@ -14,6 +14,7 @@ builder.Services.AddScoped<RegistrationStateService>();
 builder.Services.AddScoped<AddressValidationCoordinator>();
 builder.Services.AddScoped<IYearQuarterPaidWagesService, YearQuarterPaidWagesService>();
 builder.Services.AddScoped<UI.EmployerPortal.Web.Features.ManageAccount.Services.IAccountDetailsService, UI.EmployerPortal.Web.Features.ManageAccount.Services.AccountDetailsService>();
+builder.Services.AddScoped<UI.EmployerPortal.Web.Features.ManageAccount.Services.IManageAddressService, UI.EmployerPortal.Web.Features.ManageAccount.Services.ManageAddressService>();
 
 
 var app = builder.Build();
