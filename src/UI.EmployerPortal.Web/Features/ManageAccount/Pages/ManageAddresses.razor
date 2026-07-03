@@ -210,8 +210,8 @@
     }
     else
     {
-        <h1 class="page-title fw-bold">Manage Addresses</h1>
-        <p class="fw-normal fs-md mb-4">Add, Edit and Delete business addresses for an account.</p>
+        <h1 class="page-title">Manage Addresses</h1>
+        <p class="page-description">Add, Edit and Delete business addresses for an account.</p>
 
         @* ── Success / Error banners ── *@
         @if (!string.IsNullOrWhiteSpace(_successMessage))
@@ -235,26 +235,26 @@
         }
 
         @* ── Addresses Table ── *@
-        <div class="table-container mb-3">
-            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Employer addresses">
+        <div class="ma-table-container">
+            <table class="ma-table" aria-label="Employer addresses">
                 <caption class="visually-hidden">List of employer addresses with address type and actions</caption>
                 <thead>
-                    <tr class="header-row">
-                        <th scope="col" class="header-cell" style="width: 35%;">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Address Type</span>
+                    <tr>
+                        <th scope="col" style="width: 30%;">
+                            <div class="header-content">
+                                <span>Address Type</span>
                                 <img src="@Assets["images/sort/sort-icon.svg"]" class="sort-icon" alt="" aria-hidden="true" />
                             </div>
                         </th>
-                        <th scope="col" class="header-cell" style="width: 50%;">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Address</span>
+                        <th scope="col" style="width: 60%;">
+                            <div class="header-content">
+                                <span>Address</span>
                                 <img src="@Assets["images/sort/sort-icon.svg"]" class="sort-icon" alt="" aria-hidden="true" />
                             </div>
                         </th>
-                        <th scope="col" class="header-cell actions-cell" style="width: 15%;">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Action</span>
+                        <th scope="col" style="width: 10%;">
+                            <div class="header-content">
+                                <span>Action</span>
                             </div>
                         </th>
                     </tr>
@@ -262,12 +262,12 @@
                 <tbody>
                     @foreach (var row in _addresses)
                     {
-                        <tr class="data-row" @key="row.AddressSK">
-                            <td class="fw-normal fs-md">@row.AddressType</td>
-                            <td class="fw-normal fs-md">@row.FormattedAddress</td>
+                        <tr @key="row.AddressSK">
+                            <td>@row.AddressType</td>
+                            <td>@row.FormattedAddress</td>
                             <td>
-                                <div class="action-buttons d-flex gap-2">
-                                    <button class="btn btn-sm p-1 action-btn"
+                                <div class="action-buttons">
+                                    <button type="button" class="action-btn"
                                             title="Edit address"
                                             aria-label="Edit @row.AddressType"
                                             @onclick="() => HandleEditClick(row)">
@@ -275,7 +275,7 @@
                                     </button>
                                     @if (row.CanDelete)
                                     {
-                                        <button class="btn btn-sm p-1 action-btn"
+                                        <button type="button" class="action-btn"
                                                 title="Delete address"
                                                 aria-label="Delete @row.AddressType"
                                                 @onclick="() => HandleDeleteClick(row)">
@@ -291,25 +291,19 @@
         </div>
 
         @* ── Add Address link ── *@
-        <div class="mb-4">
-            <button type="button"
-                    class="btn btn-link fw-bold p-0 text-decoration-none d-flex align-items-center gap-2"
-                    style="color: #0071bc;"
-                    aria-label="Add a new address"
-                    @onclick="HandleAddClick">
-                <span class="fs-5">+</span> Add Address
+        <div class="add-address-container">
+            <button type="button" class="add-address-link" aria-label="Add a new address" @onclick="HandleAddClick">
+                <span class="add-address-icon">+</span> Add Address
             </button>
         </div>
 
         @* ── Cancel Button ── *@
-        <div class="mt-4">
-            <button type="button"
-                    class="btn btn-outline-dark fw-bold px-4"
-                    aria-label="Cancel and return to account details"
-                    @onclick="HandleCancel">
+        <div class="cancel-btn-container">
+            <button type="button" class="btn-cancel" aria-label="Cancel and return to account details" @onclick="HandleCancel">
                 CANCEL
             </button>
         </div>
+    }
     }
 </div>
 

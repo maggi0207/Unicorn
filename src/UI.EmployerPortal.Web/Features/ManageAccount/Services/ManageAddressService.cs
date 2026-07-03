@@ -162,14 +162,18 @@ internal class ManageAddressService : IManageAddressService
     private static AddressRowModel MapToRowModel(StreetAddressProxy proxy)
     {
         var typeCodeSK = proxy.AddressCodeSK ?? 0;
+        var addressType = proxy.AddressCode ?? proxy.ShortDescription ?? string.Empty;
+
+        var isMainBusinessMailing = typeCodeSK == MainBusinessMailingAddressCodeSK ||
+                                    addressType.Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase);
 
         return new AddressRowModel
         {
             AddressSK = proxy.AddressSK ?? 0,
             AddressTypeCodeSK = typeCodeSK,
-            AddressType = proxy.AddressCode ?? proxy.ShortDescription ?? string.Empty,
+            AddressType = addressType,
             FormattedAddress = BuildFormattedAddress(proxy),
-            CanDelete = typeCodeSK != MainBusinessMailingAddressCodeSK,
+            CanDelete = !isMainBusinessMailing,
             CountryAddressFormatCodeSK = proxy.CountryAddressFormatCodeSK ?? CountryUS,
             LineOneAddress = proxy.LineOneAddress ?? string.Empty,
             LineTwoAddress = proxy.LineTwoAddress,
