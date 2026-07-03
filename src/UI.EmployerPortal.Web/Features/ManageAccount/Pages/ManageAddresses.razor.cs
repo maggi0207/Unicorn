@@ -201,40 +201,28 @@ public partial class ManageAddresses
         _formErrors = [];
 
         // Sync string-bound selects back to the model before validation
+        _formModel.CountryAddressFormatCodeSK = 1;
         if (int.TryParse(_countryValue, out var c))
         {
             _formModel.CountryAddressFormatCodeSK = c;
         }
-        else
-        {
-            _formModel.CountryAddressFormatCodeSK = 1;
-        }
 
+        _formModel.AddressTypeCodeSK = 0;
         if (int.TryParse(_addressTypeValue, out var at))
         {
             _formModel.AddressTypeCodeSK = at;
         }
-        else
-        {
-            _formModel.AddressTypeCodeSK = 0;
-        }
 
+        _formModel.StateCodeSK = null;
         if (int.TryParse(_stateValue, out var st))
         {
             _formModel.StateCodeSK = st;
         }
-        else
-        {
-            _formModel.StateCodeSK = null;
-        }
 
+        _formModel.ProvinceCodeSK = null;
         if (int.TryParse(_provinceValue, out var pr))
         {
             _formModel.ProvinceCodeSK = pr;
-        }
-        else
-        {
-            _formModel.ProvinceCodeSK = null;
         }
 
         if (!_editContext!.Validate())
