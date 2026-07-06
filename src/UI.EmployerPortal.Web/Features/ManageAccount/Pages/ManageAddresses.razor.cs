@@ -319,13 +319,13 @@ public partial class ManageAddresses
                 AddressLine1 = _formModel.LineOneAddress,
                 AddressLine2 = _formModel.LineTwoAddress,
                 City = _formModel.CityName,
-                State = _stateOptions.FirstOrDefault(s => s.Value == _stateValue)?.Text, // Send text instead of ID if needed, though validator usually expects state name. 
+                State = _stateOptions.FirstOrDefault(s => { return s.Value == _stateValue; })?.Text,
                 Zip = _formModel.ZipCode,
                 Extension = _formModel.ZipExtension,
-                Country = _countryOptions.FirstOrDefault(c => c.Value == _countryValue)?.Text
+                Country = _countryOptions.FirstOrDefault(c => { return c.Value == _countryValue; })?.Text
             };
 
-            var label = _addressTypeOptions.FirstOrDefault(a => a.Value == _addressTypeValue)?.Text ?? "Address";
+            var label = _addressTypeOptions.FirstOrDefault(a => { return a.Value == _addressTypeValue; })?.Text ?? "Address";
 
             var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
 
@@ -365,10 +365,10 @@ public partial class ManageAddresses
             // Map the finalized correction back to the form model
             if (finalizedCorrections.FirstOrDefault() is { } item)
             {
-                _formModel.LineOneAddress = item.Original.AddressLine1;
+                _formModel.LineOneAddress = item.Original.AddressLine1 ?? string.Empty;
                 _formModel.LineTwoAddress = item.Original.AddressLine2;
-                _formModel.CityName = item.Original.City;
-                _formModel.ZipCode = item.Original.Zip;
+                _formModel.CityName = item.Original.City ?? string.Empty;
+                _formModel.ZipCode = item.Original.Zip ?? string.Empty;
                 _formModel.ZipExtension = item.Original.Extension;
                 // State and Country drop-downs are assumed correct or we'd map them back by text matching.
             }
@@ -392,28 +392,14 @@ public partial class ManageAddresses
             {
                 _addresses = await ManageAddressService.GetAddressesAsync(_employerSK);
 
-                if (_isEditMode)
-                {
-                    _successMessage = "Address updated successfully.";
-                }
-                else
-                {
-                    _successMessage = "Address added successfully.";
-                }
+                _successMessage = _isEditMode ? "Address updated successfully." : "Address added successfully.";
 
                 _bannerKey = Guid.NewGuid().ToString();
                 _showForm = false;
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(error))
-                {
-                    _formErrors = ["Unable to save address. Please try again."];
-                }
-                else
-                {
-                    _formErrors = [error];
-                }
+                _formErrors = [string.IsNullOrWhiteSpace(error) ? "Unable to save address. Please try again." : error];
                 _showForm = true; // Show form again to display error
             }
         }
