@@ -165,7 +165,8 @@ internal class ManageAddressService : IManageAddressService
         var addressType = proxy.AddressCode ?? proxy.ShortDescription ?? string.Empty;
 
         var isMainBusinessMailing = typeCodeSK == MainBusinessMailingAddressCodeSK ||
-                                    addressType.Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase);
+                                    addressType.Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase) ||
+                                    (proxy.ShortDescription ?? string.Empty).Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase);
 
         return new AddressRowModel
         {
