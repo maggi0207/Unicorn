@@ -3,14 +3,29 @@ using UI.EmployerPortal.Razor.SharedComponents.Model;
 
 namespace UI.EmployerPortal.Web.Features.Shared.Components;
 
+/// <summary>
+/// A reusable component that displays address validation warnings and allows the user
+/// to select between an originally entered address and a suggested corrected address.
+/// </summary>
 public partial class SharedAddressCorrection : ComponentBase
 {
+    /// <summary>
+    /// The list of address corrections to display to the user.
+    /// </summary>
     [Parameter, EditorRequired]
     public List<AddressCorrectionItem> Corrections { get; set; } = new();
 
+    /// <summary>
+    /// Event triggered when the user clicks the "Edit Address" button.
+    /// Typically used by the parent to navigate back to the original entry form.
+    /// </summary>
     [Parameter]
     public EventCallback OnEditAddress { get; set; }
 
+    /// <summary>
+    /// Event triggered when the user successfully resolves all address issues and clicks Continue.
+    /// Passes back the list of corrections. The parent should typically apply the user's choices.
+    /// </summary>
     [Parameter]
     public EventCallback<List<AddressCorrectionItem>> OnContinue { get; set; }
 
