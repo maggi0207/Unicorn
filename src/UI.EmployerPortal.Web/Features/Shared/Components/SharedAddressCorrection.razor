@@ -17,7 +17,7 @@
                 <div>
                     <p class="ac-required-title">Required Options Missing</p>
                     <ul class="ac-required-links">
-                        @foreach (var errIdx in ItemErrors.OrderBy(x => x))
+                        @foreach (var errIdx in _itemErrors.OrderBy(x => x))
                         {
                             <li><a href="#ac-item-@errIdx">@GetTypeName(Corrections[errIdx].Label) option</a></li>
                         }
@@ -110,7 +110,7 @@
                                        @onchange="() => SetSelectionEntered(idx)" />
                                 Use @GetTypeName(item.Label) as entered
                             </label>
-                            @if (ItemErrors.Contains(idx))
+                            @if (_itemErrors.Contains(idx))
                             {
                                 <p class="ac-field-error">
                                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -131,9 +131,9 @@
                             </button>
                         </div>
 
-                        <label class="ac-checkbox-label @(ItemErrors.Contains(idx) ? "ac-checkbox-label--error" : "")">
+                        <label class="ac-checkbox-label @(_itemErrors.Contains(idx) ? "ac-checkbox-label--error" : "")">
                             <input type="checkbox"
-                                   checked="@AcceptedAsEntered.Contains(idx)"
+                                   checked="@_acceptedAsEntered.Contains(idx)"
                                    @onchange="(e) => ToggleAcceptAsEntered(idx, e)" />
                             Use @GetTypeName(item.Label) as entered
                         </label>

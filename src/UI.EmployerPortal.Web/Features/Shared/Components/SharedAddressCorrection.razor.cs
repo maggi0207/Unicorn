@@ -30,13 +30,13 @@ public partial class SharedAddressCorrection : ComponentBase
     public EventCallback<List<AddressCorrectionItem>> OnContinue { get; set; }
 
     /// <summary>Indices of items that were unresolved when CONTINUE was clicked.</summary>
-    protected HashSet<int> ItemErrors = new();
+    protected HashSet<int> _itemErrors = new();
     
     /// <summary>Per-item radio selection: "corrected" or "entered". Only for items with a suggestion.</summary>
-    protected Dictionary<int, string> Selections = new();
+    protected Dictionary<int, string> _selections = new();
     
     /// <summary>Indices of no-suggestion items accepted via checkbox.</summary>
-    protected HashSet<int> AcceptedAsEntered = new();
+    protected HashSet<int> _acceptedAsEntered = new();
 
     /// <summary>Constant representing the choice to use the corrected address.</summary>
     protected const string SelectionCorrected = "corrected";
@@ -56,38 +56,53 @@ public partial class SharedAddressCorrection : ComponentBase
     }
 
     /// <summary>Returns the lowercase type name for use in body text and radio labels.</summary>
-    protected static string GetTypeName(string label) => label.ToLower();
+    protected static string GetTypeName(string label)
+    {
+        return label.ToLower();
+    }
 
     /// <summary>Returns the label as-is for section headers.</summary>
-    protected static string GetSectionTitle(string label) => label;
+    protected static string GetSectionTitle(string label)
+    {
+        return label;
+    }
 
     /// <summary>Returns the current radio selection for item at the specified index, or null.</summary>
-    protected string? GetSelection(int index) => Selections.TryGetValue(index, out var v) ? v : null;
+    protected string? GetSelection(int index)
+    {
+        return _selections.TryGetValue(index, out var v) ? v : null;
+    }
 
     /// <summary>Sets the radio selection for a specific correction item.</summary>
     protected void SetSelection(int index, string value)
     {
-        Selections[index] = value;
-        ItemErrors.Remove(index);
+        _selections[index] = value;
+        _itemErrors.Remove(index);
     }
 
     /// <summary>Marks the user's selection to use the corrected address.</summary>
-    protected void SetSelectionCorrected(int index) => SetSelection(index, SelectionCorrected);
+    protected void SetSelectionCorrected(int index)
+    {
+        SetSelection(index, SelectionCorrected);
+    }
     
     /// <summary>Marks the user's selection to use the entered address.</summary>
-    protected void SetSelectionEntered(int index) => SetSelection(index, SelectionEntered);
+    protected void SetSelectionEntered(int index)
+    {
+        SetSelection(index, SelectionEntered);
+    }
 
     /// <summary>Toggles the "use as entered" checkbox for a no-suggestion item.</summary>
     protected void ToggleAcceptAsEntered(int index, ChangeEventArgs e)
     {
         if (e.Value is true)
         {
-            AcceptedAsEntered.Add(index);
-            ItemErrors.Remove(index);
+            _acceptedAsEntered.Add(index);
+            _itemErrors.Remove(index);
         }
         else
         {
-            AcceptedAsEntered.Remove(index);
+            _acceptedAsEntered.Remove(index);
         }
     }
 
@@ -107,7 +122,7 @@ public partial class SharedAddressCorrection : ComponentBase
     /// </summary>
     protected void HandleContinue()
     {
-        ItemErrors.Clear();
+        _itemErrors.Clear();
 
         for (var i = 0; i < Corrections.Count; i++)
         {
@@ -115,15 +130,15 @@ public partial class SharedAddressCorrection : ComponentBase
             if (!item.IsOnlyCapitalizationOrZipExtensionChange)
             {
                 var resolved = item.Suggested is not null
-                    ? Selections.ContainsKey(i)
-                    : AcceptedAsEntered.Contains(i);
+                    ? _selections.ContainsKey(i)
+                    : _acceptedAsEntered.Contains(i);
 
                 if (!resolved)
-                    ItemErrors.Add(i);
+                    _itemErrors.Add(i);
             }
         }
 
-        if (ItemErrors.Count > 0)
+        if (_itemErrors.Count > 0)
             return;
 
         ApplyAndNotify();
@@ -139,7 +154,7 @@ public partial class SharedAddressCorrection : ComponentBase
             var item = Corrections[i];
             if (item.Suggested is not null
                 && (item.IsOnlyCapitalizationOrZipExtensionChange
-                    || (Selections.TryGetValue(i, out var choice)
+                    || (_selections.TryGetValue(i, out var choice)
                     && choice == SelectionCorrected)))
             {
                 ApplyCorrection(item.Original, item.Suggested);
