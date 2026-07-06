@@ -49,7 +49,7 @@ public partial class SharedAddressCorrection : ComponentBase
     /// </summary>
     protected override void OnInitialized()
     {
-        if (!Corrections.Exists(ac => !ac.IsOnlyCapitalizationOrZipExtensionChange))
+        if (!Corrections.Exists(ac => { return !ac.IsOnlyCapitalizationOrZipExtensionChange; }))
         {
             ApplyAndNotify();
         }
@@ -134,12 +134,16 @@ public partial class SharedAddressCorrection : ComponentBase
                     : _acceptedAsEntered.Contains(i);
 
                 if (!resolved)
+                {
                     _itemErrors.Add(i);
+                }
             }
         }
 
         if (_itemErrors.Count > 0)
+        {
             return;
+        }
 
         ApplyAndNotify();
     }
@@ -185,7 +189,7 @@ public partial class SharedAddressCorrection : ComponentBase
     protected static string FormatLine1(AddressModel a)
     {
         var parts = new[] { a.AddressLine1, a.AddressLine2 }
-            .Where(s => !string.IsNullOrWhiteSpace(s));
+            .Where(s => { return !string.IsNullOrWhiteSpace(s); });
         return string.Join(" ", parts).ToUpperInvariant();
     }
 
