@@ -78,8 +78,9 @@ internal class ManageAddressService : IManageAddressService
                     EmployerSK = employerSK,
                     SecureUserSK = secureUserSK,
                     AddressTypeCodeSK = model.AddressTypeCodeSK,
-                    LineOneAddress = model.LineOneAddress,
-                    LineTwoAddress = model.LineTwoAddress ?? string.Empty,
+                    // Backend expects UI Line 1 in LineTwoAddress and UI Line 2 in LineOneAddress — swap on save
+                    LineOneAddress = model.LineTwoAddress ?? string.Empty,
+                    LineTwoAddress = model.LineOneAddress,
                     CityName = model.CityName ?? string.Empty,
                     CountyName = model.CountyName ?? string.Empty,
                     ProvinceCodeSK = model.ProvinceCodeSK ?? 0,
@@ -98,8 +99,9 @@ internal class ManageAddressService : IManageAddressService
                     EmployerSK = employerSK,
                     SecureUserSK = secureUserSK,
                     AddressTypeCodeSK = model.AddressTypeCodeSK,
-                    LineOneAddress = model.LineOneAddress,
-                    LineTwoAddress = model.LineTwoAddress ?? string.Empty,
+                    // Backend expects UI Line 1 in LineTwoAddress and UI Line 2 in LineOneAddress — swap on save
+                    LineOneAddress = model.LineTwoAddress ?? string.Empty,
+                    LineTwoAddress = model.LineOneAddress,
                     LineThreeAddress = model.LineThreeAddress ?? string.Empty,
                     LineFourAddress = model.LineFourAddress ?? string.Empty
                 };
@@ -116,8 +118,9 @@ internal class ManageAddressService : IManageAddressService
                     EmployerSK = employerSK,
                     SecureUserSK = secureUserSK,
                     AddressTypeCodeSK = model.AddressTypeCodeSK,
-                    LineOneAddress = model.LineOneAddress,
-                    LineTwoAddress = model.LineTwoAddress ?? string.Empty,
+                    // Backend expects UI Line 1 in LineTwoAddress and UI Line 2 in LineOneAddress — swap on save
+                    LineOneAddress = model.LineTwoAddress ?? string.Empty,
+                    LineTwoAddress = model.LineOneAddress,
                     CityName = model.CityName ?? string.Empty,
                     CountyName = model.CountyName ?? string.Empty,
                     StateCodeSK = model.StateCodeSK ?? 0,
@@ -176,8 +179,9 @@ internal class ManageAddressService : IManageAddressService
             FormattedAddress = BuildFormattedAddress(proxy),
             CanDelete = !isMainBusinessMailing,
             CountryAddressFormatCodeSK = proxy.CountryAddressFormatCodeSK ?? CountryUS,
-            LineOneAddress = proxy.LineOneAddress ?? string.Empty,
-            LineTwoAddress = proxy.LineTwoAddress,
+            // Backend stores UI Line 1 in LineTwoAddress and UI Line 2 in LineOneAddress — swap on load
+            LineOneAddress = proxy.LineTwoAddress ?? string.Empty,
+            LineTwoAddress = proxy.LineOneAddress,
             CityName = proxy.CityName,
             StateCode = proxy.StateCode,
             StateCodeSK = proxy.StateCodeSK,

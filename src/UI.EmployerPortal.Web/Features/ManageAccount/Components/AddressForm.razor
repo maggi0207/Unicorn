@@ -1,0 +1,172 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+
+@if (FormErrors.Any())
+{
+    <UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationBanner NotificationType="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationType.Alert"
+                        MessageStyle="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.MessageStyle.MultiLine"
+                        Messages="FormErrors"
+                        DismissButton="false" />
+    <br />
+}
+
+<EditForm EditContext="@EditContext" OnSubmit="OnSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="row mb-3" style="max-width: 800px;">
+        <div class="col-md-6 col-12">
+            <OutlinedSelectField Label="Address Type"
+                                 Id="AddressType"
+                                 @bind-Value="AddressTypeValue"
+                                 For="@(() => AddressTypeValue)"
+                                 Options="@AddressTypeOptions" />
+        </div>
+    </div>
+
+    <div class="row mb-3" style="max-width: 800px;">
+        <div class="col-md-6 col-12">
+            <OutlinedSelectField Label="Country"
+                                 Id="AddressCountry"
+                                 @bind-Value="CountryValue"
+                                 For="@(() => CountryValue)"
+                                 Options="@CountryOptions" />
+        </div>
+    </div>
+
+    <div class="row mb-3" style="max-width: 800px;">
+        <div class="col-md-6 col-12">
+            <OutlinedTextField Label="Address Line 1"
+                               Id="LineOneAddress"
+                               @bind-Value="FormModel.LineOneAddress"
+                               For="@(() => FormModel.LineOneAddress)"
+                               Visible="@FormSubmitted"
+                               MaxLength="100" />
+        </div>
+        <div class="col-md-6 col-12 mt-3 mt-md-0">
+            <OutlinedTextField Label="Address Line 2 (optional)"
+                               Id="LineTwoAddress"
+                               @bind-Value="FormModel.LineTwoAddress"
+                               For="@(() => FormModel.LineTwoAddress)"
+                               MaxLength="100" />
+        </div>
+    </div>
+
+    @if (FormModel.CountryAddressFormatCodeSK != 3)
+    {
+        <div class="row mb-3" style="max-width: 800px;">
+            <div class="col-md-6 col-12">
+                <OutlinedTextField Label="City"
+                                   Id="CityName"
+                                   @bind-Value="FormModel.CityName"
+                                   For="@(() => FormModel.CityName)"
+                                   Visible="@FormSubmitted"
+                                   MaxLength="50" />
+            </div>
+
+            @if (FormModel.CountryAddressFormatCodeSK == 1)
+            {
+                <div class="col-md-6 col-12 mt-3 mt-md-0">
+                    <OutlinedSelectField Label="State"
+                                         Id="StateCodeSK"
+                                         @bind-Value="StateValue"
+                                         For="@(() => StateValue)"
+                                         Options="@StateOptions" />
+                </div>
+            }
+            else
+            {
+                <div class="col-md-6 col-12 mt-3 mt-md-0">
+                    <OutlinedSelectField Label="Province"
+                                         Id="ProvinceCodeSK"
+                                         @bind-Value="ProvinceValue"
+                                         For="@(() => ProvinceValue)"
+                                         Options="@ProvinceOptions" />
+                </div>
+            }
+        </div>
+
+        @if (FormModel.CountryAddressFormatCodeSK == 1)
+        {
+            <div class="row mb-3" style="max-width: 800px;">
+                <div class="col-md-6 col-12">
+                    <div class="d-flex align-items-center">
+                        <div style="flex: 1;">
+                            <OutlinedTextField Label="Zip Code"
+                                               Id="ZipCode"
+                                               @bind-Value="FormModel.ZipCode"
+                                               For="@(() => FormModel.ZipCode)"
+                                               Visible="@FormSubmitted"
+                                               MaxLength="5" />
+                        </div>
+                        <span class="mx-2 fw-bold text-muted">-</span>
+                        <div style="flex: 1;">
+                            <OutlinedTextField Label="+4 (Optional)"
+                                               Id="ZipExtension"
+                                               @bind-Value="FormModel.ZipExtension"
+                                               For="@(() => FormModel.ZipExtension)"
+                                               MaxLength="4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row mb-3" style="max-width: 800px;">
+                <div class="col-md-6 col-12">
+                    <OutlinedTextField Label="Postal Code"
+                                       Id="CanadianPostalCode"
+                                       @bind-Value="FormModel.CanadianPostalCode"
+                                       For="@(() => FormModel.CanadianPostalCode)"
+                                       Visible="@FormSubmitted"
+                                       Placeholder="A1A 1A1"
+                                       MaxLength="7" />
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row mb-3" style="max-width: 800px;">
+            <div class="col-md-6 col-12">
+                <OutlinedTextField Label="Address Line 3 (optional)"
+                                   Id="LineThreeAddress"
+                                   @bind-Value="FormModel.LineThreeAddress"
+                                   For="@(() => FormModel.LineThreeAddress)"
+                                   MaxLength="100" />
+            </div>
+            <div class="col-md-6 col-12 mt-3 mt-md-0">
+                <OutlinedTextField Label="Address Line 4 (optional)"
+                                   Id="LineFourAddress"
+                                   @bind-Value="FormModel.LineFourAddress"
+                                   For="@(() => FormModel.LineFourAddress)"
+                                   MaxLength="100" />
+            </div>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between mt-5" style="max-width: 800px;" role="group" aria-label="Address form actions">
+        <button type="button"
+                class="btn fw-bold px-4 rounded-1"
+                style="border: 2px solid #003663; color: #003663; background: #fff; min-width: 120px;"
+                @onclick="OnCancel"
+                aria-label="Cancel address edit">
+            CANCEL
+        </button>
+        <button type="submit"
+                class="btn fw-bold px-4 rounded-1"
+                style="background-color: #003663; color: #fff; border: 2px solid #003663; min-width: 120px;"
+                disabled="@IsSaving"
+                aria-label="Save address">
+            @if (IsSaving)
+            {
+                <span>SAVING...</span>
+            }
+            else
+            {
+                <span>SAVE</span>
+            }
+        </button>
+    </div>
+</EditForm>

@@ -1,189 +1,22 @@
 @page "/employer-registration/address-correction"
-@using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Web.Features.Shared.Components
 @rendermode InteractiveServer
 
 <PageTitle>Address Correction</PageTitle>
 
-<div class="page_wrapper">
-    <div class="ac-page-content">
-
-        <h1 class="page-title">Address Correction</h1>
-
-        @* ── REQUIRED OPTIONS MISSING BANNER (shown after failed CONTINUE) ── *@
-        @if (_itemErrors.Count > 0)
-        {
-            <div class="ac-required-banner">
-                <svg class="ac-required-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                     aria-hidden="true">
-                    <circle cx="8" cy="8" r="8" fill="#C82838" />
-                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
-                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
-                </svg>
-                <div>
-                    <p class="ac-required-title">Required Options Missing</p>
-                    <ul class="ac-required-links">
-                        @foreach (var errIdx in _itemErrors.OrderBy(x => x))
-                        {
-                            <li><a href="#ac-item-@errIdx">@GetTypeName(_items[errIdx].Label) option</a></li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        }
-
-        @* ── ALL WARNING BANNERS GROUPED AT TOP ── *@
-        @foreach (var item in _items.Where(ac => !ac.IsOnlyCapitalizationOrZipExtensionChange))
-        {
-            <div class="ac-warning">
-                <svg class="ac-warning-icon" width="20" height="20" viewBox="0 0 16 16" fill="none"
-                     aria-hidden="true">
-                    <circle cx="8" cy="8" r="8" fill="#C82838" />
-                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
-                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
-                </svg>
-                <div class="ac-warning-text">
-                    <p><strong>Verify your @GetTypeName(item.Label):</strong></p>
-                    <p>
-                        We think this @GetTypeName(item.Label) may be incorrect or incomplete.
-                        To proceed, please choose one of the options below.
-                        If you use the address as entered, mail may be undeliverable.
-                    </p>
-                    @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
-                    {
-                        <ul class="ac-warning-errors">
-                            <li>@item.ErrorMessage</li>
-                        </ul>
-                    }
-                </div>
-            </div>
-        }
-
-        @* ── ADDRESS CORRECTION SECTIONS ── *@
-        @for (int i = 0; i < _items.Count; i++)
-        {
-            var idx = i;
-            var item = _items[idx];
-
-            @if (!item.IsOnlyCapitalizationOrZipExtensionChange)
-            {
-                <div id="ac-item-@idx" class="ac-correction-block">
-
-                    @* Section header: e.g. "Mailing Address Entered" *@
-                    <div class="ac-section-header">
-                        <h2>
-                            <span>@GetSectionTitle(item.Label) Entered</span>
-                        </h2>
-                    </div>
-
-                    @* Entered address box *@
-                    <div class="ac-address-box">
-                        <p>@FormatLine1(item.Original)</p>
-                        <p>@FormatLine2(item.Original)</p>
-                    </div>
-
-                    @if (item.Suggested is not null)
-                    {
-                        @* EDIT ADDRESS — outlined button, right-aligned *@
-                        <div class="ac-actions-edit">
-                            <button type="button" class="btn btn--sm btn--secondary" @onclick="EditAddress">
-                                EDIT ADDRESS
-                            </button>
-                        </div>
-
-                        @* Corrected address — e.g. "Corrected Mailing Address:" *@
-                        <h2>
-                            <p class="ac-section-label">
-                                Corrected @GetSectionTitle(item.Label):
-                            </p>
-                        </h2>
-
-                        <div class="ac-address-box">
-                            <p>@FormatLine1(item.Suggested)</p>
-                            <p>@FormatLine2(item.Suggested)</p>
-                        </div>
-
-                        @* Type-specific differs text *@
-                        <p class="ac-differs-text">
-                            The @GetTypeName(item.Label) entered differs from the corrected @GetTypeName(item.Label).
-                        </p>
-
-                        @* Radio buttons *@
-                        <div class="ac-radio-group">
-                            <label class="ac-radio-label">
-                                <input type="radio"
-                                       name="ac-choice-@idx"
-                                       checked="@(GetSelection(idx) == SelectionCorrected)"
-                                       @onchange="() => SetSelectionCorrected(idx)" />
-                                Use corrected @GetTypeName(item.Label)
-                            </label>
-                            <label class="ac-radio-label">
-                                <input type="radio"
-                                       name="ac-choice-@idx"
-                                       checked="@(GetSelection(idx) == SelectionEntered)"
-                                       @onchange="() => SetSelectionEntered(idx)" />
-                                Use @GetTypeName(item.Label) as entered
-                            </label>
-                            @if (_itemErrors.Contains(idx))
-                            {
-                                <p class="ac-field-error">
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                        <circle cx="8" cy="8" r="8" fill="#C82838" />
-                                        <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
-                                        <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
-                                    </svg>
-                                    Please select an option.
-                                </p>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        @* No suggestion — EDIT ADDRESS button right-aligned, then checkbox *@
-                        <div class="ac-actions-edit">
-                            <button type="button" class="btn btn--sm btn--secondary" @onclick="EditAddress">
-                                EDIT ADDRESS
-                            </button>
-                        </div>
-
-                        <label class="ac-checkbox-label @(_itemErrors.Contains(idx) ? "ac-checkbox-label--error" : "")">
-                            <input type="checkbox"
-                                   checked="@_acceptedAsEntered.Contains(idx)"
-                                   @onchange="(e) => ToggleAcceptAsEntered(idx, e)" />
-                            Use @GetTypeName(item.Label) as entered
-                        </label>
-                    }
-
-                </div>
-
-                <hr class="ac-separator" />
-            }
-        }
-
-        @* ── FOOTER: CONTINUE ── *@
-        <div class="ac-footer">
-            <button type="button" class="btn btn--primary" @onclick="HandleContinue">
-                CONTINUE
-            </button>
-        </div>
-
-    </div>
-</div>
+@if (_items.Count > 0)
+{
+    <SharedAddressCorrection Corrections="@_items"
+                             OnEditAddress="EditAddress"
+                             OnContinue="HandleContinue" />
+}
 
 @code {
     [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private List<AddressCorrectionItem> _items = new();
-
-    /// <summary>Per-item radio selection: "corrected" or "entered". Only for items with a suggestion.</summary>
-    private Dictionary<int, string> _selections = new();
-
-    /// <summary>Indices of no-suggestion items accepted via checkbox.</summary>
-    private HashSet<int> _acceptedAsEntered = new();
-
-    /// <summary>Indices of items that were unresolved when CONTINUE was clicked.</summary>
-    private HashSet<int> _itemErrors = new();
+    private List<UI.EmployerPortal.Razor.SharedComponents.Model.AddressCorrectionItem> _items = new();
 
     protected override void OnInitialized()
     {
@@ -196,45 +29,6 @@
         }
     }
 
-    private const string SelectionCorrected = "corrected";
-    private const string SelectionEntered = "entered";
-
-    /// <summary>
-    /// Returns the lowercase type name for use in body text and radio labels.
-    /// "Mailing Address" → "mailing address".
-    /// </summary>
-    private static string GetTypeName(string label) => label.ToLower();
-
-    /// <summary>Returns the label as-is for section headers.</summary>
-    private static string GetSectionTitle(string label) => label;
-
-    /// <summary>Returns the current radio selection for item at <paramref name="index"/>, or null.</summary>
-    private string? GetSelection(int index)
-        => _selections.TryGetValue(index, out var v) ? v : null;
-
-    private void SetSelection(int index, string value)
-    {
-        _selections[index] = value;
-        _itemErrors.Remove(index);
-    }
-
-    private void SetSelectionCorrected(int index) => SetSelection(index, SelectionCorrected);
-    private void SetSelectionEntered(int index) => SetSelection(index, SelectionEntered);
-
-    /// <summary>Toggles the "use as entered" checkbox for a no-suggestion item.</summary>
-    private void ToggleAcceptAsEntered(int index, ChangeEventArgs e)
-    {
-        if (e.Value is true)
-        {
-            _acceptedAsEntered.Add(index);
-            _itemErrors.Remove(index);
-        }
-        else
-        {
-            _acceptedAsEntered.Remove(index);
-        }
-    }
-
     /// <summary>Returns the user to the originating step to edit their address.</summary>
     private void EditAddress()
     {
@@ -243,83 +37,32 @@
         Nav.NavigateTo("employer-registration/steps");
     }
 
-    /// <summary>Validates all items are resolved, then applies corrections and navigates.</summary>
-    private void HandleContinue()
+    /// <summary>Applies all accepted corrections then navigates to the next step.</summary>
+    private void HandleContinue(List<UI.EmployerPortal.Razor.SharedComponents.Model.AddressCorrectionItem> correctedItems)
     {
-        _itemErrors.Clear();
-
-        for (var i = 0; i < _items.Count; i++)
-        {
-            var item = _items[i];
-            if (!item.IsOnlyCapitalizationOrZipExtensionChange)
-            {
-                var resolved = item.Suggested is not null
-                    ? _selections.ContainsKey(i)
-                    : _acceptedAsEntered.Contains(i);
-
-                if (!resolved)
-                    _itemErrors.Add(i);
-            }
-        }
-
-        if (_itemErrors.Count > 0)
-            return;
-
+        // The items have already been modified by SharedAddressCorrection, 
+        // we just need to mirror them if necessary and navigate.
         ApplyAndNavigate();
     }
 
-    /// <summary>Applies all accepted corrections then navigates to the next step.</summary>
     private void ApplyAndNavigate()
     {
         for (var i = 0; i < _items.Count; i++)
         {
             var item = _items[i];
-            if (item.Suggested is not null
-                && (item.IsOnlyCapitalizationOrZipExtensionChange
-                    || (_selections.TryGetValue(i, out var choice)
-                    && choice == SelectionCorrected)))
+            
+            // Mirror mailing correction to physical[0] when it is a copy of mailing
+            if (RegistrationState.PhysicalSameAsMailing &&
+                RegistrationState.BusinessInfo is not null &&
+                ReferenceEquals(item.Original, RegistrationState.BusinessInfo.MailingAddress) &&
+                item.Suggested != null)
             {
-                ApplyCorrection(item.Original, item.Suggested);
-
-                // Mirror mailing correction to physical[0] when it is a copy of mailing
-                if (RegistrationState.PhysicalSameAsMailing &&
-                    RegistrationState.BusinessInfo is not null &&
-                    ReferenceEquals(item.Original, RegistrationState.BusinessInfo.MailingAddress))
-                {
-                    ApplyCorrection(RegistrationState.BusinessInfo.PhysicalLocations[0], item.Suggested);
-                }
+                SharedAddressCorrection.ApplyCorrection(RegistrationState.BusinessInfo.PhysicalLocations[0], item.Suggested);
             }
         }
 
         RegistrationState.CurrentStep = RegistrationState.EditStep;
         RegistrationState.ContinueActionClick = true;
         Nav.NavigateTo("employer-registration/steps");
-    }
-
-    /// <summary>Copies all address fields from <paramref name="source"/> into <paramref name="target"/>.</summary>
-    private static void ApplyCorrection(AddressModel target, AddressModel source)
-    {
-        target.AddressLine1 = source.AddressLine1;
-        target.AddressLine2 = source.AddressLine2;
-        target.City = source.City;
-        target.State = source.State;
-        target.Zip = source.Zip;
-        target.Extension = source.Extension;
-        target.Country = source.Country;
-    }
-
-    private static string FormatLine1(AddressModel a)
-    {
-        var parts = new[] { a.AddressLine1, a.AddressLine2 }
-            .Where(s => !string.IsNullOrWhiteSpace(s));
-        return string.Join(" ", parts).ToUpperInvariant();
-    }
-
-    private static string FormatLine2(AddressModel a)
-    {
-        var zip = string.IsNullOrWhiteSpace(a.Extension)
-            ? a.Zip
-            : $"{a.Zip}-{a.Extension}";
-        return $"{a.City?.ToUpperInvariant()}, {a.State} {zip}".Trim();
     }
 }

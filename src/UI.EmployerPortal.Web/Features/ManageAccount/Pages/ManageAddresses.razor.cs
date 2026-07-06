@@ -6,6 +6,7 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
@@ -17,6 +18,7 @@ public partial class ManageAddresses
     [Inject] private IManageAddressService ManageAddressService { get; set; } = default!;
     [Inject] private ISessionManager SessionManager { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private IAddressValidationWrapper AddressValidator { get; set; } = default!;
 
     private int _employerSK;
     private List<AddressRowModel> _addresses = [];
@@ -34,6 +36,10 @@ public partial class ManageAddresses
 
     private AddressFormModel _formModel = new();
     private EditContext? _editContext;
+
+    // Address Correction State
+    private bool _showCorrection = false;
+    private List<AddressCorrectionItem> _corrections = new();
 
     // String-bound select helpers (OutlinedSelectField binds to string)
     private string _countryValue = "1";
@@ -211,6 +217,7 @@ public partial class ManageAddresses
         _formSubmitted = false;
         _editContext = new EditContext(_formModel);
         _showForm = true;
+        _showCorrection = false;
         _errorMessage = null;
         _successMessage = null;
     }
@@ -253,6 +260,7 @@ public partial class ManageAddresses
         _formSubmitted = false;
         _editContext = new EditContext(_formModel);
         _showForm = true;
+        _showCorrection = false;
         _errorMessage = null;
         _successMessage = null;
     }
@@ -305,6 +313,79 @@ public partial class ManageAddresses
 
         try
         {
+            // Map form model to AddressModel for validation
+            var addressModel = new AddressModel
+            {
+                AddressLine1 = _formModel.LineOneAddress,
+                AddressLine2 = _formModel.LineTwoAddress,
+                City = _formModel.CityName,
+                State = _stateOptions.FirstOrDefault(s => s.Value == _stateValue)?.Text, // Send text instead of ID if needed, though validator usually expects state name. 
+                Zip = _formModel.ZipCode,
+                Extension = _formModel.ZipExtension,
+                Country = _countryOptions.FirstOrDefault(c => c.Value == _countryValue)?.Text
+            };
+
+            var label = _addressTypeOptions.FirstOrDefault(a => a.Value == _addressTypeValue)?.Text ?? "Address";
+
+            var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
+
+            if (corrections.Any())
+            {
+                _corrections = corrections;
+                _showCorrection = true;
+                _showForm = false;
+                return;
+            }
+
+            await ProceedToSaveAsync();
+        }
+        catch
+        {
+            _formErrors = ["An unexpected error occurred during validation. Please try again."];
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void HandleCorrectionEdit()
+    {
+        _showCorrection = false;
+        _showForm = true;
+    }
+
+    private async Task HandleCorrectionContinue(List<AddressCorrectionItem> finalizedCorrections)
+    {
+        _isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            // Map the finalized correction back to the form model
+            if (finalizedCorrections.FirstOrDefault() is { } item)
+            {
+                _formModel.LineOneAddress = item.Original.AddressLine1;
+                _formModel.LineTwoAddress = item.Original.AddressLine2;
+                _formModel.CityName = item.Original.City;
+                _formModel.ZipCode = item.Original.Zip;
+                _formModel.ZipExtension = item.Original.Extension;
+                // State and Country drop-downs are assumed correct or we'd map them back by text matching.
+            }
+
+            await ProceedToSaveAsync();
+        }
+        finally
+        {
+            _isSaving = false;
+            _showCorrection = false;
+        }
+    }
+
+    private async Task ProceedToSaveAsync()
+    {
+        try
+        {
             var (success, error) = await ManageAddressService.SaveAddressAsync(_formModel, _employerSK);
 
             if (success)
@@ -333,15 +414,13 @@ public partial class ManageAddresses
                 {
                     _formErrors = [error];
                 }
+                _showForm = true; // Show form again to display error
             }
         }
         catch
         {
             _formErrors = ["An unexpected error occurred. Please try again."];
-        }
-        finally
-        {
-            _isSaving = false;
+            _showForm = true;
         }
     }
 

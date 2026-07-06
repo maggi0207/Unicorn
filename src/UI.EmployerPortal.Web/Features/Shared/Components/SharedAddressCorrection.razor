@@ -1,0 +1,155 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+
+<div class="page_wrapper">
+    <div class="ac-page-content">
+
+        <h1 class="page-title">Address Correction</h1>
+
+        @if (ItemErrors.Count > 0)
+        {
+            <div class="ac-required-banner">
+                <svg class="ac-required-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                     aria-hidden="true">
+                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                </svg>
+                <div>
+                    <p class="ac-required-title">Required Options Missing</p>
+                    <ul class="ac-required-links">
+                        @foreach (var errIdx in ItemErrors.OrderBy(x => x))
+                        {
+                            <li><a href="#ac-item-@errIdx">@GetTypeName(Corrections[errIdx].Label) option</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+        @foreach (var item in Corrections.Where(ac => !ac.IsOnlyCapitalizationOrZipExtensionChange))
+        {
+            <div class="ac-warning">
+                <svg class="ac-warning-icon" width="20" height="20" viewBox="0 0 16 16" fill="none"
+                     aria-hidden="true">
+                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                </svg>
+                <div class="ac-warning-text">
+                    <p><strong>Verify your @GetTypeName(item.Label):</strong></p>
+                    <p>
+                        We think this @GetTypeName(item.Label) may be incorrect or incomplete.
+                        To proceed, please choose one of the options below.
+                        If you use the address as entered, mail may be undeliverable.
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                    {
+                        <ul class="ac-warning-errors">
+                            <li>@item.ErrorMessage</li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+
+        @for (int i = 0; i < Corrections.Count; i++)
+        {
+            var idx = i;
+            var item = Corrections[idx];
+
+            @if (!item.IsOnlyCapitalizationOrZipExtensionChange)
+            {
+                <div id="ac-item-@idx" class="ac-correction-block">
+
+                    <div class="ac-section-header">
+                        <h2>
+                            <span>@GetSectionTitle(item.Label) Entered</span>
+                        </h2>
+                    </div>
+
+                    <div class="ac-address-box">
+                        <p>@FormatLine1(item.Original)</p>
+                        <p>@FormatLine2(item.Original)</p>
+                    </div>
+
+                    @if (item.Suggested is not null)
+                    {
+                        <div class="ac-actions-edit">
+                            <button type="button" class="btn btn--sm btn--secondary" @onclick="HandleEditAddress">
+                                EDIT ADDRESS
+                            </button>
+                        </div>
+
+                        <h2>
+                            <p class="ac-section-label">
+                                Corrected @GetSectionTitle(item.Label):
+                            </p>
+                        </h2>
+
+                        <div class="ac-address-box">
+                            <p>@FormatLine1(item.Suggested)</p>
+                            <p>@FormatLine2(item.Suggested)</p>
+                        </div>
+
+                        <p class="ac-differs-text">
+                            The @GetTypeName(item.Label) entered differs from the corrected @GetTypeName(item.Label).
+                        </p>
+
+                        <div class="ac-radio-group">
+                            <label class="ac-radio-label">
+                                <input type="radio"
+                                       name="ac-choice-@idx"
+                                       checked="@(GetSelection(idx) == SelectionCorrected)"
+                                       @onchange="() => SetSelectionCorrected(idx)" />
+                                Use corrected @GetTypeName(item.Label)
+                            </label>
+                            <label class="ac-radio-label">
+                                <input type="radio"
+                                       name="ac-choice-@idx"
+                                       checked="@(GetSelection(idx) == SelectionEntered)"
+                                       @onchange="() => SetSelectionEntered(idx)" />
+                                Use @GetTypeName(item.Label) as entered
+                            </label>
+                            @if (ItemErrors.Contains(idx))
+                            {
+                                <p class="ac-field-error">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                        <circle cx="8" cy="8" r="8" fill="#C82838" />
+                                        <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                                        <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                                    </svg>
+                                    Please select an option.
+                                </p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="ac-actions-edit">
+                            <button type="button" class="btn btn--sm btn--secondary" @onclick="HandleEditAddress">
+                                EDIT ADDRESS
+                            </button>
+                        </div>
+
+                        <label class="ac-checkbox-label @(ItemErrors.Contains(idx) ? "ac-checkbox-label--error" : "")">
+                            <input type="checkbox"
+                                   checked="@AcceptedAsEntered.Contains(idx)"
+                                   @onchange="(e) => ToggleAcceptAsEntered(idx, e)" />
+                            Use @GetTypeName(item.Label) as entered
+                        </label>
+                    }
+
+                </div>
+
+                <hr class="ac-separator" />
+            }
+        }
+
+        <div class="ac-footer">
+            <button type="button" class="btn btn--primary" @onclick="HandleContinue">
+                CONTINUE
+            </button>
+        </div>
+
+    </div>
+</div>
