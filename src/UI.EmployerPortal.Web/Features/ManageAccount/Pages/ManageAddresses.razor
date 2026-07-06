@@ -210,13 +210,11 @@
     }
     else
     {
-        <h1 class="page-title">Manage Addresses</h1>
-        <p class="page-description">Add, Edit and Delete business addresses for an account.</p>
+        <h1 class="page-title fw-bold">Manage Addresses</h1>
 
-        @* ── Success / Error banners ── *@
         @if (!string.IsNullOrWhiteSpace(_successMessage))
         {
-            <div class="flash-banner-wrapper mb-3">
+            <div class="flash-banner-wrapper">
                 <NotificationBanner @key="_bannerKey"
                                     NotificationType="NotificationType.Confirmation"
                                     MessageStyle="MessageStyle.SingleLine"
@@ -226,7 +224,7 @@
         }
         @if (!string.IsNullOrWhiteSpace(_errorMessage))
         {
-            <div class="flash-banner-wrapper mb-3">
+            <div class="flash-banner-wrapper">
                 <NotificationBanner NotificationType="NotificationType.Alert"
                                     MessageStyle="MessageStyle.SingleLine"
                                     Message="@_errorMessage"
@@ -234,40 +232,49 @@
             </div>
         }
 
-        @* ── Addresses Table ── *@
-        <div class="ma-table-container">
-            <table class="ma-table" aria-label="Employer addresses">
+        <div class="table-container">
+            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Employer addresses">
                 <caption class="visually-hidden">List of employer addresses with address type and actions</caption>
                 <thead>
-                    <tr>
-                        <th scope="col" style="width: 30%;">
-                            <div class="header-content">
-                                <span>Address Type</span>
-                                <img src="@Assets["images/sort/sort-icon.svg"]" class="sort-icon" alt="" aria-hidden="true" />
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell"
+                            style="width: 30%;"
+                            @onclick="@(() => Sort("addressType"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "addressType"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("addressType")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Address Type</span>
+                                @GetSortIcon("addressType")
                             </div>
                         </th>
-                        <th scope="col" style="width: 60%;">
-                            <div class="header-content">
-                                <span>Address</span>
-                                <img src="@Assets["images/sort/sort-icon.svg"]" class="sort-icon" alt="" aria-hidden="true" />
+                        <th scope="col" class="header-cell"
+                            style="width: 58%;"
+                            @onclick="@(() => Sort("address"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "address"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("address")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Address</span>
+                                @GetSortIcon("address")
                             </div>
                         </th>
-                        <th scope="col" style="width: 10%;">
-                            <div class="header-content">
-                                <span>Action</span>
+                        <th scope="col" class="header-cell actions-cell" style="width: 12%;">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Action</span>
                             </div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var row in _addresses)
+                    @foreach (var row in SortedAddresses)
                     {
-                        <tr @key="row.AddressSK">
-                            <td>@row.AddressType</td>
-                            <td>@row.FormattedAddress</td>
+                        <tr class="data-row" @key="row.AddressSK">
+                            <td class="fw-normal fs-md">@row.AddressType</td>
+                            <td class="fw-normal fs-md">@row.FormattedAddress</td>
                             <td>
                                 <div class="action-buttons">
-                                    <button type="button" class="action-btn"
+                                    <button class="btn btn-sm p-1 action-btn"
                                             title="Edit address"
                                             aria-label="Edit @row.AddressType"
                                             @onclick="() => HandleEditClick(row)">
@@ -275,7 +282,7 @@
                                     </button>
                                     @if (row.CanDelete)
                                     {
-                                        <button type="button" class="action-btn"
+                                        <button class="btn btn-sm p-1 action-btn"
                                                 title="Delete address"
                                                 aria-label="Delete @row.AddressType"
                                                 @onclick="() => HandleDeleteClick(row)">
@@ -290,22 +297,28 @@
             </table>
         </div>
 
-        @* ── Add Address link ── *@
-        <div class="add-address-container">
-            <button type="button" class="add-address-link" aria-label="Add a new address" @onclick="HandleAddClick">
-                <span class="add-address-icon">+</span> Add Address
+        <div class="top-actions" style="padding-top: 8px;">
+            <button type="button"
+                    class="btn btn-link fw-bold p-0 text-decoration-none d-flex align-items-center gap-1"
+                    style="color: #0071bc; font-size: 16px;"
+                    aria-label="Add a new address"
+                    @onclick="HandleAddClick">
+                + Add Address
             </button>
         </div>
 
-        @* ── Cancel Button ── *@
-        <div class="cancel-btn-container">
-            <button type="button" class="btn-cancel" aria-label="Cancel and return to account details" @onclick="HandleCancel">
+        <div style="margin-top: 32px;">
+            <button type="button"
+                    class="btn btn-outline-secondary fw-bold px-4"
+                    aria-label="Cancel and return to account details"
+                    @onclick="HandleCancel">
                 CANCEL
             </button>
         </div>
     }
     }
 </div>
+
 
 @* ── Delete Confirmation Modal ── *@
 @if (_showDeleteModal)

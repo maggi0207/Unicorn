@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
@@ -44,6 +45,74 @@ public partial class ManageAddresses
     private bool _isDeleting = false;
     private string? _deleteError;
     private AddressRowModel? _addressToDelete;
+
+    private string _sortColumn = "addressType";
+    private bool _sortAscending = true;
+
+    private IEnumerable<AddressRowModel> SortedAddresses
+    {
+        get
+        {
+            return _sortColumn switch
+            {
+                "address" => SortBy(_addresses, r => { return r.FormattedAddress; }),
+                _ => SortBy(_addresses, r => { return r.AddressType; })
+            };
+        }
+    }
+
+    private IOrderedEnumerable<AddressRowModel> SortBy<TKey>(
+        List<AddressRowModel> source, Func<AddressRowModel, TKey> keySelector)
+    {
+        return _sortAscending
+            ? source.OrderBy(keySelector)
+            : source.OrderByDescending(keySelector);
+    }
+
+    private void Sort(string column)
+    {
+        if (_sortColumn == column)
+        {
+            _sortAscending = !_sortAscending;
+        }
+        else
+        {
+            _sortColumn = column;
+            _sortAscending = true;
+        }
+    }
+
+    private MarkupString GetSortIcon(string column)
+    {
+        string path;
+        string altText;
+
+        if (_sortColumn == column)
+        {
+            path = _sortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            altText = _sortAscending ? "Sorted ascending" : "Sorted descending";
+        }
+        else
+        {
+            path = "images/sort/sort-icon.svg";
+            altText = "Not sorted";
+        }
+
+        return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' alt='{altText}' />");
+    }
+
+    private string? GetAriaSort(string column)
+    {
+        return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
+    }
+
+    private void HandleHeaderKeyDown(KeyboardEventArgs e, string column)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            Sort(column);
+        }
+    }
 
     private readonly List<SelectOption> _countryOptions =
     [
