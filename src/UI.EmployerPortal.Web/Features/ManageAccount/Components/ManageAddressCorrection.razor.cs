@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Components;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
-namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Components;
+namespace UI.EmployerPortal.Web.Features.ManageAccount.Components;
 
 /// <summary>
-/// A reusable component that displays address validation warnings and allows the user
-/// to select between an originally entered address and a suggested corrected address.
+/// A component that displays address validation warnings and allows the user
+/// to select between an originally entered address and a suggested corrected address
+/// for the Manage Addresses feature.
 /// </summary>
-public partial class SharedAddressCorrection : ComponentBase
+public partial class ManageAddressCorrection : ComponentBase
 {
     /// <summary>
     /// The list of address corrections to display to the user.
