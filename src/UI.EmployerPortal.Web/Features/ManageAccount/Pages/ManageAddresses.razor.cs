@@ -133,12 +133,12 @@ public partial class ManageAddresses
     /// </summary>
     private readonly List<SelectOption> _addressTypeOptions =
     [
-        new SelectOption { Value = "1",  Text = "Main Business Mailing Address" },
-        new SelectOption { Value = "2",  Text = "Main Physical Location" },
-        new SelectOption { Value = "3",  Text = "Secondary Physical Location" },
-        new SelectOption { Value = "4",  Text = "Additional Physical Location" },
-        new SelectOption { Value = "5",  Text = "Headquarters" },
-        new SelectOption { Value = "6",  Text = "Business Records" }
+        new SelectOption { Value = "0",  Text = "Main Business Mailing Address" },
+        new SelectOption { Value = "1",  Text = "Main Physical Location" },
+        new SelectOption { Value = "2",  Text = "Secondary Physical Location" },
+        new SelectOption { Value = "3",  Text = "Additional Physical Location" },
+        new SelectOption { Value = "4",  Text = "Headquarters" },
+        new SelectOption { Value = "5",  Text = "Business Records" }
     ];
 
     private readonly List<SelectOption> _stateOptions =
