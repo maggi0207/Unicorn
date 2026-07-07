@@ -91,6 +91,10 @@ internal class ManageAddressService : IManageAddressService
                     return _accountMaintenanceService.SaveEmployerAddressCanadaAsync(canadaRequest);
                 });
                 saved = canadaResponse?.Value ?? false;
+                if (!saved && canadaResponse?.RuleViolations?.Length > 0)
+                {
+                    return (false, canadaResponse.RuleViolations[0].RuleViolation);
+                }
                 break;
 
             case CountryOtherIntl:
@@ -110,6 +114,10 @@ internal class ManageAddressService : IManageAddressService
                     return _accountMaintenanceService.SaveEmployerAddressOtherInternationalAsync(intlRequest);
                 });
                 saved = intlResponse?.Value ?? false;
+                if (!saved && intlResponse?.RuleViolations?.Length > 0)
+                {
+                    return (false, intlResponse.RuleViolations[0].RuleViolation);
+                }
                 break;
 
             default:
@@ -132,6 +140,10 @@ internal class ManageAddressService : IManageAddressService
                     return _accountMaintenanceService.SaveEmployerAddressUnitedStatesAsync(usRequest);
                 });
                 saved = usResponse?.Value ?? false;
+                if (!saved && usResponse?.RuleViolations?.Length > 0)
+                {
+                    return (false, usResponse.RuleViolations[0].RuleViolation);
+                }
                 break;
         }
 
