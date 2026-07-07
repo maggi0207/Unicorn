@@ -75,40 +75,92 @@ public partial class AddressForm : ComponentBase
     /// </summary>
     [Parameter] public List<SelectOption> ProvinceOptions { get; set; } = new();
 
+    private string? _addressTypeValue;
     /// <summary>
     /// The currently selected Address Type value (bound to string).
     /// </summary>
-    [Parameter] public string? AddressTypeValue { get; set; }
+    [Parameter]
+    public string? AddressTypeValue
+    {
+        get => _addressTypeValue;
+        set
+        {
+            if (_addressTypeValue != value)
+            {
+                _addressTypeValue = value;
+                AddressTypeValueChanged.InvokeAsync(value);
+            }
+        }
+    }
     
     /// <summary>
     /// Event callback for when the Address Type value changes.
     /// </summary>
     [Parameter] public EventCallback<string?> AddressTypeValueChanged { get; set; }
 
+    private string? _countryValue;
     /// <summary>
     /// The currently selected Country value (bound to string).
     /// </summary>
-    [Parameter] public string? CountryValue { get; set; }
+    [Parameter]
+    public string? CountryValue
+    {
+        get => _countryValue;
+        set
+        {
+            if (_countryValue != value)
+            {
+                _countryValue = value;
+                CountryValueChanged.InvokeAsync(value);
+            }
+        }
+    }
     
     /// <summary>
     /// Event callback for when the Country value changes.
     /// </summary>
     [Parameter] public EventCallback<string?> CountryValueChanged { get; set; }
 
+    private string? _stateValue;
     /// <summary>
     /// The currently selected State value (bound to string).
     /// </summary>
-    [Parameter] public string? StateValue { get; set; }
+    [Parameter]
+    public string? StateValue
+    {
+        get => _stateValue;
+        set
+        {
+            if (_stateValue != value)
+            {
+                _stateValue = value;
+                StateValueChanged.InvokeAsync(value);
+            }
+        }
+    }
     
     /// <summary>
     /// Event callback for when the State value changes.
     /// </summary>
     [Parameter] public EventCallback<string?> StateValueChanged { get; set; }
 
+    private string? _provinceValue;
     /// <summary>
     /// The currently selected Province value (bound to string).
     /// </summary>
-    [Parameter] public string? ProvinceValue { get; set; }
+    [Parameter]
+    public string? ProvinceValue
+    {
+        get => _provinceValue;
+        set
+        {
+            if (_provinceValue != value)
+            {
+                _provinceValue = value;
+                ProvinceValueChanged.InvokeAsync(value);
+            }
+        }
+    }
     
     /// <summary>
     /// Event callback for when the Province value changes.
