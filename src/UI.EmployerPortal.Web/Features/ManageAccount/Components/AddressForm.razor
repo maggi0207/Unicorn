@@ -18,7 +18,8 @@
         <div class="col-md-6 col-12">
             <OutlinedSelectField Label="Address Type"
                                  Id="AddressType"
-                                 @bind-Value="AddressTypeValue"
+                                 Value="@AddressTypeValue"
+                                 ValueChanged="OnAddressTypeChanged"
                                  For="@(() => AddressTypeValue)"
                                  Options="@AddressTypeOptions" />
         </div>
@@ -28,7 +29,8 @@
         <div class="col-md-6 col-12">
             <OutlinedSelectField Label="Country"
                                  Id="AddressCountry"
-                                 @bind-Value="CountryValue"
+                                 Value="@CountryValue"
+                                 ValueChanged="OnCountryChanged"
                                  For="@(() => CountryValue)"
                                  Options="@CountryOptions" />
         </div>
@@ -69,7 +71,8 @@
                 <div class="col-md-6 col-12 mt-3 mt-md-0">
                     <OutlinedSelectField Label="State"
                                          Id="StateCodeSK"
-                                         @bind-Value="StateValue"
+                                         Value="@StateValue"
+                                         ValueChanged="OnStateChanged"
                                          For="@(() => StateValue)"
                                          Options="@StateOptions" />
                 </div>
@@ -79,7 +82,8 @@
                 <div class="col-md-6 col-12 mt-3 mt-md-0">
                     <OutlinedSelectField Label="Province"
                                          Id="ProvinceCodeSK"
-                                         @bind-Value="ProvinceValue"
+                                         Value="@ProvinceValue"
+                                         ValueChanged="OnProvinceChanged"
                                          For="@(() => ProvinceValue)"
                                          Options="@ProvinceOptions" />
                 </div>
