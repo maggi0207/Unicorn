@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using UI.EmployerPortal.Razor.SharedComponents.Inputs.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Components;
@@ -115,24 +114,36 @@ public partial class AddressForm : ComponentBase
     /// </summary>
     [Parameter] public EventCallback<string?> ProvinceValueChanged { get; set; }
 
+    /// <summary>
+    /// Handles the Address Type selection change.
+    /// </summary>
     protected async Task OnAddressTypeChanged(string? newValue)
     {
         AddressTypeValue = newValue;
         await AddressTypeValueChanged.InvokeAsync(newValue);
     }
 
+    /// <summary>
+    /// Handles the Country selection change.
+    /// </summary>
     protected async Task OnCountryChanged(string? newValue)
     {
         CountryValue = newValue;
         await CountryValueChanged.InvokeAsync(newValue);
     }
 
+    /// <summary>
+    /// Handles the State selection change.
+    /// </summary>
     protected async Task OnStateChanged(string? newValue)
     {
         StateValue = newValue;
         await StateValueChanged.InvokeAsync(newValue);
     }
 
+    /// <summary>
+    /// Handles the Province selection change.
+    /// </summary>
     protected async Task OnProvinceChanged(string? newValue)
     {
         ProvinceValue = newValue;
