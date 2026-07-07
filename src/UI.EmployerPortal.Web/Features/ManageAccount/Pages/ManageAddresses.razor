@@ -175,10 +175,9 @@
     <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="delete-address-title" aria-modal="true" @onclick="CloseDeleteModal" style="z-index: 1050;">
         <div class="modal-dialog modal-dialog-centered" role="document" @onclick:stopPropagation="true">
             <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="delete-address-title">
-                        <img src="@Assets["icons/delete_warning.svg"]" alt="" width="30" height="30" aria-hidden="true" />
-                        Delete Address
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="delete-address-title" style="color: #003663; font-size: 18px;">
+                        Delete Employer Address
                     </h5>
                     <button type="button" class="btn-close" aria-label="Close" disabled="@_isDeleting" @onclick="CloseDeleteModal"></button>
                 </div>
@@ -193,17 +192,16 @@
                     }
                     else
                     {
-                        <p class="mb-0">
-                            Are you sure you want to delete the <strong>@_addressToDelete?.AddressType</strong> address?
-                            This action cannot be undone.
+                        <p class="mb-4 mt-2" style="font-size: 14px;">
+                            Confirm that you want to delete this address.
                         </p>
                     }
                 </div>
-                <div class="modal-footer border-top px-3 py-2">
+                <div class="modal-footer border-0 px-3 pb-3 pt-0">
                     @if (!_isDeleting)
                     {
-                        <button type="button" class="btn btn-outline-dark fw-bold px-4" @onclick="CloseDeleteModal">CANCEL</button>
-                        <button type="button" class="btn btn-danger fw-bold px-4" @onclick="ConfirmDeleteAsync">DELETE</button>
+                        <button type="button" class="btn btn-link fw-bold text-decoration-none px-3" style="color: #003663; font-size: 14px;" @onclick="CloseDeleteModal">CANCEL</button>
+                        <button type="button" class="btn fw-bold px-4" style="border: 1px solid #003663; color: #003663; background: #fff; font-size: 14px; border-radius: 4px;" @onclick="ConfirmDeleteAsync">DELETE ADDRESS</button>
                     }
                 </div>
             </div>
