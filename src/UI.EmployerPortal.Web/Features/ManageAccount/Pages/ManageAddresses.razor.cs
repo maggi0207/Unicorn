@@ -195,8 +195,9 @@ public partial class ManageAddresses
                 _addresses = await ManageAddressService.GetAddressesAsync(_employerSK);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error loading addresses: {ex}");
             _loadError = true;
         }
         finally
