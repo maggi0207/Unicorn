@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
-namespace UI.EmployerPortal.Web.Features.Shared.Components;
+namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Components;
 
 /// <summary>
 /// A reusable component that displays address validation warnings and allows the user

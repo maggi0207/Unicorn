@@ -1,6 +1,6 @@
 @page "/employer-registration/address-correction"
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
-@using UI.EmployerPortal.Web.Features.Shared.Components
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Components
 @rendermode InteractiveServer
 
 <PageTitle>Address Correction</PageTitle>
@@ -16,7 +16,7 @@
     [Inject] private RegistrationStateService RegistrationState { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private List<UI.EmployerPortal.Razor.SharedComponents.Model.AddressCorrectionItem> _items = new();
+    private List<AddressCorrectionItem> _items = new();
 
     protected override void OnInitialized()
     {
@@ -38,7 +38,7 @@
     }
 
     /// <summary>Applies all accepted corrections then navigates to the next step.</summary>
-    private void HandleContinue(List<UI.EmployerPortal.Razor.SharedComponents.Model.AddressCorrectionItem> correctedItems)
+    private void HandleContinue(List<AddressCorrectionItem> correctedItems)
     {
         // The items have already been modified by SharedAddressCorrection, 
         // we just need to mirror them if necessary and navigate.

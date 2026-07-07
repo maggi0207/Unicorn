@@ -39,7 +39,7 @@ public partial class ManageAddresses
 
     // Address Correction State
     private bool _showCorrection = false;
-    private List<AddressCorrectionItem> _corrections = new();
+    private List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> _corrections = new();
 
     // String-bound select helpers (OutlinedSelectField binds to string)
     private string _countryValue = "1";
@@ -355,7 +355,7 @@ public partial class ManageAddresses
         _showForm = true;
     }
 
-    private async Task HandleCorrectionContinue(List<AddressCorrectionItem> finalizedCorrections)
+    private async Task HandleCorrectionContinue(List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> finalizedCorrections)
     {
         _isSaving = true;
         StateHasChanged();

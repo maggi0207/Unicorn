@@ -1,11 +1,11 @@
-@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 
 <div class="page_wrapper">
     <div class="ac-page-content">
 
         <h1 class="page-title">Address Correction</h1>
 
-        @if (ItemErrors.Count > 0)
+        @if (_itemErrors.Count > 0)
         {
             <div class="ac-required-banner">
                 <svg class="ac-required-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
