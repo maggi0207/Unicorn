@@ -21,8 +21,8 @@ internal class ManageAddressService : IManageAddressService
     private const int CountryCanada = 2;
     private const int CountryOtherIntl = 3;
 
-    // The Main Business Mailing Address has AddressCodeSK = 1 (primary address, not deletable per Figma)
-    private const int MainBusinessMailingAddressCodeSK = 1;
+    // The Main Business Mailing Address has AddressCodeSK = 11 (primary address, not deletable per Figma)
+    private const int MainBusinessMailingAddressCodeSK = 11;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ManageAddressService"/> class.
