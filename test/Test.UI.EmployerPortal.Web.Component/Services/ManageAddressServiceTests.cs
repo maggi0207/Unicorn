@@ -22,8 +22,7 @@ public class ManageAddressServiceTests
         string? shortDesc = null,
         int addressCodeSK = 2,
         bool isActive = true,
-        int countryCodeSK = 1) =>
-        new()
+        int countryCodeSK = 1) => new()
         {
             AddressSK = 10,
             AddressCodeSK = addressCodeSK,

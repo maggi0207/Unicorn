@@ -7,7 +7,7 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
-namespace Test.UI.EmployerPortal.Web.Component.Pages;
+namespace Test.UI.EmployerPortal.Web.Component.Features.ManageAccount;
 
 /// <summary>
 /// Component tests for the ManageAddresses page.
@@ -26,7 +26,7 @@ public class ManageAddressesTests : BunitContext
         _fakeSession = A.Fake<ISessionManager>();
 
         // Default: session returns employerSK = 1
-        A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
+        A.CallTo(() => { return _fakeSession.GetAsync<SelectedEmployerAccount>(); })
             .Returns(Task.FromResult<SelectedEmployerAccount?>(
                 new SelectedEmployerAccount
                 {
@@ -34,7 +34,7 @@ public class ManageAddressesTests : BunitContext
                 }));
 
         // Default: service returns empty list
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>()));
 
         Services.AddSingleton(_fakeService);
@@ -46,8 +46,7 @@ public class ManageAddressesTests : BunitContext
         string type = "Main Physical Location",
         string address = "123 Main St, Madison, WI 53701",
         bool canDelete = true,
-        int addressTypeCodeSK = 13) =>
-        new()
+        int addressTypeCodeSK = 13) => new()
         {
             AddressSK = sk,
             AddressTypeCodeSK = addressTypeCodeSK,
@@ -65,7 +64,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Page_Title()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask); // flush OnInitializedAsync
+        await cut.InvokeAsync(() => { return Task.CompletedTask; }); // flush OnInitializedAsync
 
         Assert.Equal("Manage Addresses", cut.Find("h1.page-title").TextContent.Trim());
     }
@@ -75,7 +74,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Description_Text()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Add, Edit and Delete business addresses for an account.", cut.Markup);
     }
@@ -85,7 +84,7 @@ public class ManageAddressesTests : BunitContext
     public void Shows_Loading_Spinner_Initially()
     {
         // Prevent the async load from completing by using a never-completing task
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(new TaskCompletionSource<List<AddressRowModel>>().Task);
 
         var cut = Render<ManageAddresses>();
@@ -98,11 +97,11 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Renders_Empty_Table_When_No_Addresses()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>()));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.NotEmpty(cut.FindAll("table"));
         Assert.Empty(cut.FindAll("tr.data-row"));
@@ -113,7 +112,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Address_Type_Column_Header()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Address Type", cut.Markup);
     }
@@ -123,7 +122,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Address_Column_Header()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Address", cut.Markup);
     }
@@ -133,7 +132,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Action_Column_Header()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Action", cut.Markup);
     }
@@ -142,7 +141,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Renders_One_Data_Row_Per_Address()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 1, type: "Main Physical Location"),
@@ -150,7 +149,7 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Equal(2, cut.FindAll("tr.data-row").Count);
     }
@@ -159,14 +158,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Renders_Address_Type_In_Row()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(type: "Headquarters")
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Headquarters", cut.Markup);
     }
@@ -175,14 +174,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Renders_Formatted_Address_In_Row()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(address: "456 Oak Ave, Green Bay, WI 54301")
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("456 Oak Ave, Green Bay, WI 54301", cut.Markup);
     }
@@ -191,7 +190,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Every_Row_Has_Edit_Button()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MainMailingRow(),
@@ -199,7 +198,7 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         var editButtons = cut.FindAll("button[aria-label^='Edit']");
         Assert.Equal(2, editButtons.Count);
@@ -209,11 +208,11 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Delete_Button_Hidden_For_Main_Mailing_Address()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel> { MainMailingRow() }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Empty(cut.FindAll("button[aria-label^='Delete']"));
     }
@@ -222,14 +221,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Delete_Button_Shown_For_Deletable_Addresses()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 2, type: "Secondary Physical Location", canDelete: true)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.NotEmpty(cut.FindAll("button[aria-label^='Delete']"));
     }
@@ -238,7 +237,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Delete_Button_Only_Shown_For_Deletable_Rows_In_Mixed_List()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MainMailingRow(),
@@ -247,7 +246,7 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         // Only 2 deletable rows — 3rd (main mailing) has no delete button
         Assert.Equal(2, cut.FindAll("button[aria-label^='Delete']").Count);
@@ -258,7 +257,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Renders_Add_Address_Button()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Add Address", cut.Markup);
     }
@@ -268,7 +267,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Add_Form_Hidden_Initially()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.DoesNotContain("Add Address", cut.Find("h1.page-title").TextContent);
     }
@@ -278,7 +277,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Clicking_Add_Address_Shows_Form_With_Add_Title()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Add a new address']").Click();
 
@@ -290,7 +289,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Add_Form_Shows_Address_Line_1_Field()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Add a new address']").Click();
 
@@ -302,7 +301,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Add_Form_Shows_Address_Line_2_Field()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Add a new address']").Click();
 
@@ -313,11 +312,11 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Clicking_Edit_Button_Shows_Form_With_Edit_Title()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel> { MakeRow() }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Edit']").Click();
 
@@ -328,14 +327,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Edit_Form_Prepopulates_From_Selected_Row()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(type: "Headquarters", sk: 5)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Edit Headquarters']").Click();
 
@@ -348,7 +347,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Cancel_On_Add_Form_Returns_To_Table()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Add a new address']").Click();
         Assert.Contains("Add Address", cut.Find("h1.page-title").TextContent);
@@ -362,11 +361,11 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Cancel_On_Edit_Form_Returns_To_Table()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel> { MakeRow() }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Edit']").Click();
         cut.Find("button[aria-label='Cancel address edit']").Click();
@@ -379,7 +378,7 @@ public class ManageAddressesTests : BunitContext
     public async Task Delete_Modal_Hidden_Initially()
     {
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Empty(cut.FindAll("[aria-labelledby='delete-address-title']"));
     }
@@ -388,14 +387,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Clicking_Delete_Button_Shows_Modal()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 2, type: "Secondary Physical Location", canDelete: true)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Delete']").Click();
 
@@ -406,14 +405,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Delete_Modal_Contains_Address_Type_Name()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 2, type: "Headquarters", canDelete: true)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Delete Headquarters']").Click();
 
@@ -424,20 +423,20 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Cancel_In_Delete_Modal_Closes_Modal()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 2, canDelete: true)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Delete']").Click();
-        cut.FindAll("button").First(b => b.TextContent.Trim() == "CANCEL").Click();
+        cut.FindAll("button").First(b => { return b.TextContent.Trim() == "CANCEL"; }).Click();
 
         Assert.Empty(cut.FindAll("[aria-labelledby='delete-address-title']"));
-        A.CallTo(() => _fakeService.DeleteAddressAsync(A<long>._, A<int>._))
+        A.CallTo(() => { return _fakeService.DeleteAddressAsync(A<long>._, A<int>._); })
             .MustNotHaveHappened();
     }
 
@@ -445,7 +444,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Successful_Delete_Refreshes_Address_List()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 2, type: "Headquarters", canDelete: true)
@@ -455,13 +454,13 @@ public class ManageAddressesTests : BunitContext
             .Returns(Task.FromResult<(bool, string)>((true, string.Empty)));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Delete Headquarters']").Click();
         await cut.InvokeAsync(() =>
-            cut.FindAll("button").First(b => b.TextContent.Trim() == "DELETE").ClickAsync(new()));
+            cut.FindAll("button").First(b => { return b.TextContent.Trim() == "DELETE"; }).ClickAsync(new()));
 
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .MustHaveHappenedTwiceExactly(); // once on init, once after delete
     }
 
@@ -472,7 +471,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Clicking_Address_Type_Header_Twice_Toggles_Sort_Direction()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 1, type: "Headquarters"),
@@ -480,7 +479,7 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         var addressTypeHeader = cut.Find("th[aria-sort]");
 
@@ -488,7 +487,7 @@ public class ManageAddressesTests : BunitContext
         Assert.Equal("ascending", addressTypeHeader.GetAttribute("aria-sort"));
 
         // Second click: should toggle to descending
-        await cut.InvokeAsync(() => addressTypeHeader.ClickAsync(new()));
+        await cut.InvokeAsync(() => { return addressTypeHeader.ClickAsync(new()); });
 
         addressTypeHeader = cut.Find("th[aria-sort='descending']");
         Assert.NotNull(addressTypeHeader);
@@ -498,7 +497,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Clicking_Different_Column_Resets_Sort_To_Ascending()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 1, type: "A Type", address: "Z Address"),
@@ -506,11 +505,11 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         // Default sort is addressType ascending — click the "Address" header
         var headers = cut.FindAll("th.header-cell");
-        await cut.InvokeAsync(() => headers[1].ClickAsync(new()));
+        await cut.InvokeAsync(() => { return headers[1].ClickAsync(new()); });
 
         // The Address column now has aria-sort="ascending"
         var addressHeader = cut.Find("th[aria-sort='ascending']");
@@ -521,11 +520,11 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Shows_Error_Banner_When_Load_Fails()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .ThrowsAsync(new InvalidOperationException("WCF failure"));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         Assert.Contains("Unable to load addresses", cut.Markup, StringComparison.OrdinalIgnoreCase);
     }
@@ -534,12 +533,12 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task GetAddressesAsync_Called_With_Session_EmployerSK()
     {
-        A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
+        A.CallTo(() => { return _fakeSession.GetAsync<SelectedEmployerAccount>(); })
             .Returns(Task.FromResult<SelectedEmployerAccount?>(
                 new SelectedEmployerAccount { EmployerAccount = new EmployerAccount { Id = 42 } }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         A.CallTo(() => _fakeService.GetAddressesAsync(42)).MustHaveHappenedOnceExactly();
     }
@@ -548,24 +547,22 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task GetAddressesAsync_Not_Called_When_Session_Is_Null()
     {
-        A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
+        A.CallTo(() => { return _fakeSession.GetAsync<SelectedEmployerAccount>(); })
             .Returns(Task.FromResult<SelectedEmployerAccount?>(null));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._)).MustNotHaveHappened();
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); }).MustNotHaveHappened();
     }
 
     /// <summary>In Edit mode, Address Type dropdown is disabled when editing Main Mailing Address (11).</summary>
     [Fact]
     public async Task Edit_Form_Disables_Address_Type_For_Main_Mailing()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
-            .Returns(Task.FromResult(new List<AddressRowModel> { MainMailingRow() }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Edit']").Click();
 
@@ -577,14 +574,14 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Edit_Form_Disables_Address_Type_For_Main_Physical()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MakeRow(sk: 1, type: "Main Physical Location", addressTypeCodeSK: 13)
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label^='Edit']").Click();
 
@@ -596,7 +593,7 @@ public class ManageAddressesTests : BunitContext
     [Fact]
     public async Task Add_Form_Hides_Primary_Addresses_If_They_Exist()
     {
-        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+        A.CallTo(() => { return _fakeService.GetAddressesAsync(A<int>._); })
             .Returns(Task.FromResult(new List<AddressRowModel>
             {
                 MainMailingRow(),
@@ -604,7 +601,7 @@ public class ManageAddressesTests : BunitContext
             }));
 
         var cut = Render<ManageAddresses>();
-        await cut.InvokeAsync(() => Task.CompletedTask);
+        await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Add a new address']").Click();
 
