@@ -46,6 +46,9 @@ public partial class AddressForm : ComponentBase
     /// Event triggered when the user successfully submits the valid form.
     /// </summary>
     [Parameter]
+    public bool IsAddressTypeDisabled { get; set; }
+
+    [Parameter]
     public EventCallback OnSubmit { get; set; }
 
     /// <summary>

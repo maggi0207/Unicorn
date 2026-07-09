@@ -67,6 +67,28 @@ public partial class ManageAddresses
         }
     }
 
+    private bool IsAddressTypeDisabled => _isEditMode && (_addressTypeValue == "11" || _addressTypeValue == "13");
+
+    private List<SelectOption> AvailableAddressTypeOptions
+    {
+        get
+        {
+            var options = _allAddressTypeOptions.ToList();
+
+            if (_addresses.Any(a => a.AddressTypeCodeSK == 11 && a.AddressSK != _formModel.AddressSK))
+            {
+                options.RemoveAll(o => o.Value == "11");
+            }
+            
+            if (_addresses.Any(a => a.AddressTypeCodeSK == 13 && a.AddressSK != _formModel.AddressSK))
+            {
+                options.RemoveAll(o => o.Value == "13");
+            }
+
+            return options;
+        }
+    }
+
     private IOrderedEnumerable<AddressRowModel> SortBy<TKey>(
         List<AddressRowModel> source, Func<AddressRowModel, TKey> keySelector)
     {
@@ -131,7 +153,7 @@ public partial class ManageAddresses
     /// Address type options — AddressTypeCodeSK values.
     /// TODO: Confirm actual SKs with backend team.
     /// </summary>
-    private readonly List<SelectOption> _addressTypeOptions =
+    private readonly List<SelectOption> _allAddressTypeOptions =
     [
         new SelectOption { Value = "11", Text = "Main Business Mailing Address" },
         new SelectOption { Value = "13", Text = "Main Physical Location" },
@@ -326,7 +348,7 @@ public partial class ManageAddresses
                 Country = _countryOptions.FirstOrDefault(c => { return c.Value == _countryValue; })?.Text
             };
 
-            var label = _addressTypeOptions.FirstOrDefault(a => { return a.Value == _addressTypeValue; })?.Text ?? "Address";
+            var label = _allAddressTypeOptions.FirstOrDefault(a => { return a.Value == _addressTypeValue; })?.Text ?? "Address";
 
             var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
 

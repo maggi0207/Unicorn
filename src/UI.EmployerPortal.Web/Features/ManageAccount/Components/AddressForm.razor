@@ -21,7 +21,8 @@
                                  Value="@AddressTypeValue"
                                  ValueChanged="OnAddressTypeChanged"
                                  For="@(() => AddressTypeValue)"
-                                 Options="@AddressTypeOptions" />
+                                 Options="@AddressTypeOptions"
+                                 Disabled="@IsAddressTypeDisabled" />
         </div>
     </div>
 
