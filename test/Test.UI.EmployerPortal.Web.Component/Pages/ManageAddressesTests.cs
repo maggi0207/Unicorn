@@ -45,10 +45,12 @@ public class ManageAddressesTests : BunitContext
         long sk = 1,
         string type = "Main Physical Location",
         string address = "123 Main St, Madison, WI 53701",
-        bool canDelete = true) =>
+        bool canDelete = true,
+        int addressTypeCodeSK = 13) =>
         new()
         {
             AddressSK = sk,
+            AddressTypeCodeSK = addressTypeCodeSK,
             AddressType = type,
             FormattedAddress = address,
             CanDelete = canDelete,
@@ -56,7 +58,7 @@ public class ManageAddressesTests : BunitContext
         };
 
     private static AddressRowModel MainMailingRow() =>
-        MakeRow(sk: 1, type: "Main Business Mailing Address", canDelete: false);
+        MakeRow(sk: 1, type: "Main Business Mailing Address", canDelete: false, addressTypeCodeSK: 11);
 
     /// <summary>Page renders the "Manage Addresses" h1 title after loading.</summary>
     [Fact]
@@ -553,5 +555,61 @@ public class ManageAddressesTests : BunitContext
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._)).MustNotHaveHappened();
+    }
+
+    /// <summary>In Edit mode, Address Type dropdown is disabled when editing Main Mailing Address (11).</summary>
+    [Fact]
+    public async Task Edit_Form_Disables_Address_Type_For_Main_Mailing()
+    {
+        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+            .Returns(Task.FromResult(new List<AddressRowModel> { MainMailingRow() }));
+
+        var cut = Render<ManageAddresses>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        cut.Find("button[aria-label^='Edit']").Click();
+
+        var select = cut.Find("select#AddressType");
+        Assert.True(select.HasAttribute("disabled"));
+    }
+
+    /// <summary>In Edit mode, Address Type dropdown is disabled when editing Main Physical Location (13).</summary>
+    [Fact]
+    public async Task Edit_Form_Disables_Address_Type_For_Main_Physical()
+    {
+        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+            .Returns(Task.FromResult(new List<AddressRowModel>
+            {
+                MakeRow(sk: 1, type: "Main Physical Location", addressTypeCodeSK: 13)
+            }));
+
+        var cut = Render<ManageAddresses>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        cut.Find("button[aria-label^='Edit']").Click();
+
+        var select = cut.Find("select#AddressType");
+        Assert.True(select.HasAttribute("disabled"));
+    }
+
+    /// <summary>In Add mode, Main Mailing and Main Physical are hidden if they already exist.</summary>
+    [Fact]
+    public async Task Add_Form_Hides_Primary_Addresses_If_They_Exist()
+    {
+        A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
+            .Returns(Task.FromResult(new List<AddressRowModel>
+            {
+                MainMailingRow(),
+                MakeRow(sk: 2, type: "Main Physical Location", addressTypeCodeSK: 13)
+            }));
+
+        var cut = Render<ManageAddresses>();
+        await cut.InvokeAsync(() => Task.CompletedTask);
+
+        cut.Find("button[aria-label='Add a new address']").Click();
+
+        var options = cut.FindAll("select#AddressType option").Select(o => o.GetAttribute("value")).ToList();
+        Assert.DoesNotContain("11", options);
+        Assert.DoesNotContain("13", options);
     }
 }

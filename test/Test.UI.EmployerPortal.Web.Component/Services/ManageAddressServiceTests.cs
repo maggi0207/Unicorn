@@ -55,7 +55,7 @@ public class ManageAddressServiceTests
         var addressType = proxy.AddressCode ?? proxy.ShortDescription ?? string.Empty;
 
         var isMainBusinessMailing =
-            typeCodeSK == 1 ||
+            typeCodeSK == 11 ||
             addressType.Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase) ||
             (proxy.ShortDescription ?? string.Empty).Contains("Main Business Mailing", StringComparison.OrdinalIgnoreCase);
 
@@ -179,20 +179,20 @@ public class ManageAddressServiceTests
 
     // ── CanDelete Logic ───────────────────────────────────────────────────────
 
-    /// <summary>Main Business Mailing Address (AddressCodeSK == 1) cannot be deleted.</summary>
+    /// <summary>Main Business Mailing Address (AddressCodeSK == 11) cannot be deleted.</summary>
     [Fact]
-    public void MapProxy_CanDelete_False_When_AddressCodeSK_Is_1()
+    public void MapProxy_CanDelete_False_When_AddressCodeSK_Is_11()
     {
-        var proxy = MakeProxy(addressCodeSK: 1, addressCode: "Some Address");
+        var proxy = MakeProxy(addressCodeSK: 11, addressCode: "Some Address");
 
         var row = MapProxy(proxy);
 
         Assert.False(row.CanDelete);
     }
 
-    /// <summary>Any address with AddressCodeSK != 1 and no mailing keyword can be deleted.</summary>
+    /// <summary>Any address with AddressCodeSK != 11 and no mailing keyword can be deleted.</summary>
     [Fact]
-    public void MapProxy_CanDelete_True_When_AddressCodeSK_Is_Not_1_And_Not_Mailing()
+    public void MapProxy_CanDelete_True_When_AddressCodeSK_Is_Not_11_And_Not_Mailing()
     {
         var proxy = MakeProxy(addressCodeSK: 2, addressCode: "Main Physical Location");
 
