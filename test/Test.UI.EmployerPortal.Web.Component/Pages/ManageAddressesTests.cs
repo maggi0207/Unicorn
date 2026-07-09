@@ -43,6 +43,8 @@ public class ManageAddressesTests : BunitContext
         Services.AddSingleton(_fakeService);
         Services.AddSingleton(_fakeSession);
         Services.AddSingleton(_fakeValidator);
+
+        JSInterop.Mode = JSRuntimeMode.Loose;
     }
 
     private static AddressRowModel MakeRow(
