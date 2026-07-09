@@ -6,6 +6,7 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace Test.UI.EmployerPortal.Web.Component.Features.ManageAccount;
 
@@ -18,12 +19,14 @@ public class ManageAddressesTests : BunitContext
 {
     private readonly IManageAddressService _fakeService;
     private readonly ISessionManager _fakeSession;
+    private readonly IAddressValidationWrapper _fakeValidator;
 
     /// <summary>Registers required services before each test.</summary>
     public ManageAddressesTests()
     {
         _fakeService = A.Fake<IManageAddressService>();
         _fakeSession = A.Fake<ISessionManager>();
+        _fakeValidator = A.Fake<IAddressValidationWrapper>();
 
         // Default: session returns employerSK = 1
         A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
@@ -39,6 +42,7 @@ public class ManageAddressesTests : BunitContext
 
         Services.AddSingleton(_fakeService);
         Services.AddSingleton(_fakeSession);
+        Services.AddSingleton(_fakeValidator);
     }
 
     private static AddressRowModel MakeRow(
