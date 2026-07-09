@@ -75,14 +75,14 @@ public partial class ManageAddresses
         {
             var options = _allAddressTypeOptions.ToList();
 
-            if (_addresses.Any(a => a.AddressTypeCodeSK == 11 && a.AddressSK != _formModel.AddressSK))
+            if (_addresses.Any(a => { return a.AddressTypeCodeSK == 11 && a.AddressSK != _formModel.AddressSK; }))
             {
-                options.RemoveAll(o => o.Value == "11");
+                options.RemoveAll(o => { return o.Value == "11"; });
             }
             
-            if (_addresses.Any(a => a.AddressTypeCodeSK == 13 && a.AddressSK != _formModel.AddressSK))
+            if (_addresses.Any(a => { return a.AddressTypeCodeSK == 13 && a.AddressSK != _formModel.AddressSK; }))
             {
-                options.RemoveAll(o => o.Value == "13");
+                options.RemoveAll(o => { return o.Value == "13"; });
             }
 
             return options;
@@ -473,14 +473,9 @@ public partial class ManageAddresses
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(error))
-                {
-                    _deleteError = "Unable to delete the address. Please try again.";
-                }
-                else
-                {
-                    _deleteError = error;
-                }
+                _deleteError = string.IsNullOrWhiteSpace(error) 
+                    ? "Unable to delete the address. Please try again." 
+                    : error;
             }
         }
         catch
