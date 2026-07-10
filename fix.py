@@ -1,10 +1,8 @@
-Hi Bill,
+System.NullReferenceException:
+Object reference not set to an instance of an object.
 
-Just wanted to quickly confirm the UIEP-626 task for Update Account Information.
+at Hca.Credentialing.Client.Pages.Paf.Components.Tasks.Mss18.Mss18PerFacilityQuestions.OnInitializedAsync()
 
-Based on the service interface, should we use AccountMaintenanceService?
-
-For fetching the employer details: GetPortalEmployerProfile()
-For updating the employer details: UpdateEmployerDemographics()
-
-Is that correct?
+File:
+Mss18PerFacilityQuestions.razor
+Line: 90
