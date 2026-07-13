@@ -1,5 +1,6 @@
 using System.ServiceModel;
 using UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
+using UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
 namespace UI.EmployerPortal.Web.Startup.WcfServiceClients;
@@ -29,6 +30,21 @@ internal static class DependencyInjection
 
         // Register our wrapper that calls the SOAP client
         services.AddScoped<IAddressValidationWrapper, AddressValidationService>();
+
+        // Register AccountMaintenanceService WCF client
+        services.AddTransient<IAccountMaintenanceService>(x =>
+        {
+            var config = configurations.AccountMaintenanceServiceConfiguration
+                      ?? WcfServiceClientConfiguration.DefaultConfiguration;
+
+            var binding = CreateBinding(config);
+
+            var endpointAddress = string.IsNullOrEmpty(config.Url)
+                ? new AccountMaintenanceServiceClient().Endpoint.Address
+                : new EndpointAddress(config.Url);
+
+            return new AccountMaintenanceServiceClient(binding, endpointAddress);
+        });
 
         return services;
     }

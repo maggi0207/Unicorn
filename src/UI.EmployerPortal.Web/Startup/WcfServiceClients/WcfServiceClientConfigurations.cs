@@ -3,6 +3,7 @@ namespace UI.EmployerPortal.Web.Startup.WcfServiceClients;
 internal sealed record WcfServiceClientConfigurations
 {
     public WcfServiceClientConfiguration? AddressValidationServiceConfiguration { get; init; }
+    public WcfServiceClientConfiguration? AccountMaintenanceServiceConfiguration { get; init; }
 
     public static WcfServiceClientConfigurations LoadFromConfiguration(IConfiguration configuration)
     {
@@ -10,6 +11,7 @@ internal sealed record WcfServiceClientConfigurations
         return new WcfServiceClientConfigurations
         {
             AddressValidationServiceConfiguration = LoadConfiguration(sectionName, "AddressValidationService", configuration),
+            AccountMaintenanceServiceConfiguration = LoadConfiguration(sectionName, "AccountMaintenanceService", configuration),
         };
     }
 
