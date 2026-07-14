@@ -43,16 +43,6 @@ public partial class ManageAddresses
     private EditContext? _editContext;
 
     // Address Correction State
-    private bool _showCorrection = false;
-    private List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> _corrections = new();
-
-    // String-bound select helpers (OutlinedSelectField binds to string)
-    private string _countryValue = "1";
-    private string _addressTypeValue = string.Empty;
-    private string _stateValue = string.Empty;
-    private string _provinceValue = string.Empty;
-
-    private bool _showDeleteModal = false;
     private bool _isDeleting = false;
     private string? _deleteError;
     private AddressRowModel? _addressToDelete;
@@ -72,7 +62,7 @@ public partial class ManageAddresses
         }
     }
 
-    private bool IsAddressTypeDisabled => _isEditMode && (_addressTypeValue == "11" || _addressTypeValue == "13");
+    private bool IsAddressTypeDisabled => _isEditMode && (_formModel.AddressTypeString == "11" || _formModel.AddressTypeString == "13");
 
     private List<SelectOption> AvailableAddressTypeOptions
     {
@@ -237,10 +227,6 @@ public partial class ManageAddresses
     {
         _isEditMode = false;
         _formModel = new AddressFormModel { CountryAddressFormatCodeSK = 1 };
-        _countryValue = "1";
-        _addressTypeValue = string.Empty;
-        _stateValue = string.Empty;
-        _provinceValue = string.Empty;
         _formErrors = [];
         _formFieldIds = [];
         _formSubmitted = false;
@@ -269,22 +255,13 @@ public partial class ManageAddresses
             ProvinceCodeSK = row.StateCodeSK,
             LineThreeAddress = row.LineThreeAddress,
             LineFourAddress = row.LineFourAddress,
-            CountyName = row.CountyName
+            CountyName = row.CountyName,
+            CountryString = row.CountryAddressFormatCodeSK.ToString(),
+            AddressTypeString = row.AddressTypeCodeSK.ToString(),
+            StateString = row.StateCodeSK?.ToString(),
+            ProvinceString = row.StateCodeSK?.ToString()
         };
 
-        _countryValue = row.CountryAddressFormatCodeSK.ToString();
-        _addressTypeValue = row.AddressTypeCodeSK.ToString();
-
-        if (row.StateCodeSK.HasValue)
-        {
-            _stateValue = row.StateCodeSK.Value.ToString();
-            _provinceValue = row.StateCodeSK.Value.ToString();
-        }
-        else
-        {
-            _stateValue = string.Empty;
-            _provinceValue = string.Empty;
-        }
         _formErrors = [];
         _formFieldIds = [];
         _formSubmitted = false;
@@ -307,31 +284,6 @@ public partial class ManageAddresses
         _formSubmitted = true;
         _formErrors = [];
         _formFieldIds = [];
-
-        // Sync string-bound selects back to the model before validation
-        _formModel.CountryAddressFormatCodeSK = 1;
-        if (int.TryParse(_countryValue, out var c))
-        {
-            _formModel.CountryAddressFormatCodeSK = c;
-        }
-
-        _formModel.AddressTypeCodeSK = 0;
-        if (int.TryParse(_addressTypeValue, out var at))
-        {
-            _formModel.AddressTypeCodeSK = at;
-        }
-
-        _formModel.StateCodeSK = null;
-        if (int.TryParse(_stateValue, out var st))
-        {
-            _formModel.StateCodeSK = st;
-        }
-
-        _formModel.ProvinceCodeSK = null;
-        if (int.TryParse(_provinceValue, out var pr))
-        {
-            _formModel.ProvinceCodeSK = pr;
-        }
 
         if (!_editContext!.Validate())
         {
@@ -382,13 +334,13 @@ public partial class ManageAddresses
                 AddressLine1 = _formModel.LineOneAddress,
                 AddressLine2 = _formModel.LineTwoAddress,
                 City = _formModel.CityName,
-                State = _stateOptions.FirstOrDefault(s => { return s.Value == _stateValue; })?.Text,
+                State = _stateOptions.FirstOrDefault(s => { return s.Value == _formModel.StateString; })?.Text,
                 Zip = _formModel.ZipCode,
                 Extension = _formModel.ZipExtension,
-                Country = _countryOptions.FirstOrDefault(c => { return c.Value == _countryValue; })?.Text
+                Country = _countryOptions.FirstOrDefault(c => { return c.Value == _formModel.CountryString; })?.Text
             };
 
-            var label = _allAddressTypeOptions.FirstOrDefault(a => { return a.Value == _addressTypeValue; })?.Text ?? "Address";
+            var label = _allAddressTypeOptions.FirstOrDefault(a => { return a.Value == _formModel.AddressTypeString; })?.Text ?? "Address";
 
             var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
 
