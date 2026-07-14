@@ -337,13 +337,13 @@ public partial class ManageAddresses
         {
             var properties = new[]
             {
-                nameof(AddressFormModel.AddressTypeCodeSK),
-                nameof(AddressFormModel.CountryAddressFormatCodeSK),
+                nameof(AddressFormModel.AddressTypeString),
+                nameof(AddressFormModel.CountryString),
                 nameof(AddressFormModel.LineOneAddress),
                 nameof(AddressFormModel.LineTwoAddress),
                 nameof(AddressFormModel.CityName),
-                nameof(AddressFormModel.StateCodeSK),
-                nameof(AddressFormModel.ProvinceCodeSK),
+                nameof(AddressFormModel.StateString),
+                nameof(AddressFormModel.ProvinceString),
                 nameof(AddressFormModel.ZipCode),
                 nameof(AddressFormModel.CanadianPostalCode),
                 nameof(AddressFormModel.LineThreeAddress),
@@ -356,7 +356,16 @@ public partial class ManageAddresses
                 foreach (var error in _editContext.GetValidationMessages(fi))
                 {
                     _formErrors.Add(error);
-                    _formFieldIds.Add(prop);
+                    
+                    var fieldId = prop switch
+                    {
+                        nameof(AddressFormModel.AddressTypeString) => "AddressType",
+                        nameof(AddressFormModel.CountryString) => "AddressCountry",
+                        nameof(AddressFormModel.StateString) => "StateCodeSK",
+                        nameof(AddressFormModel.ProvinceString) => "ProvinceCodeSK",
+                        _ => prop
+                    };
+                    _formFieldIds.Add(fieldId);
                 }
             }
             return;
