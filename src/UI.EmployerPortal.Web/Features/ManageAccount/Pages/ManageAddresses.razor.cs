@@ -43,6 +43,10 @@ public partial class ManageAddresses
     private EditContext? _editContext;
 
     // Address Correction State
+    private bool _showCorrection = false;
+    private List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> _corrections = new();
+
+    private bool _showDeleteModal = false;
     private bool _isDeleting = false;
     private string? _deleteError;
     private AddressRowModel? _addressToDelete;
