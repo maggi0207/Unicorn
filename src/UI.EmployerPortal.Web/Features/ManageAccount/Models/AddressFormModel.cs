@@ -22,9 +22,24 @@ public class AddressFormModel : IValidatableObject
     /// </summary>
     public int CountryAddressFormatCodeSK { get; set; } = 1;
 
+    /// <summary>
+    /// The string representation of the selected address type.
+    /// </summary>
     public string? AddressTypeString { get; set; }
+
+    /// <summary>
+    /// The string representation of the selected country format.
+    /// </summary>
     public string? CountryString { get; set; } = "1";
+
+    /// <summary>
+    /// The string representation of the selected state.
+    /// </summary>
     public string? StateString { get; set; }
+
+    /// <summary>
+    /// The string representation of the selected province.
+    /// </summary>
     public string? ProvinceString { get; set; }
 
     // ── US / Canada shared ──────────────────────────────────
@@ -83,14 +98,22 @@ public class AddressFormModel : IValidatableObject
     /// <returns>A collection of validation results for any failed rules.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(AddressTypeString) || !int.TryParse(AddressTypeString, out int at) || at <= 0)
+        if (string.IsNullOrWhiteSpace(AddressTypeString) || !int.TryParse(AddressTypeString, out var at) || at <= 0)
         {
             yield return new ValidationResult("Please select an Address Type.", new[] { nameof(AddressTypeString) });
         }
+        else
+        {
+            AddressTypeCodeSK = at;
+        }
 
-        if (string.IsNullOrWhiteSpace(CountryString) || !int.TryParse(CountryString, out int c) || c < 1 || c > 3)
+        if (string.IsNullOrWhiteSpace(CountryString) || !int.TryParse(CountryString, out var c) || c < 1 || c > 3)
         {
             yield return new ValidationResult("Please select a Country.", new[] { nameof(CountryString) });
+        }
+        else
+        {
+            CountryAddressFormatCodeSK = c;
         }
 
         // 1 = US, 2 = Canada, 3 = Other International
@@ -112,9 +135,14 @@ public class AddressFormModel : IValidatableObject
         // US specific required fields
         if (CountryAddressFormatCodeSK == 1)
         {
-            if (string.IsNullOrWhiteSpace(StateString) || !int.TryParse(StateString, out int st) || st <= 0)
+            if (string.IsNullOrWhiteSpace(StateString) || !int.TryParse(StateString, out var st) || st <= 0)
             {
                 yield return new ValidationResult("State is required.", new[] { nameof(StateString) });
+            }
+            else
+            {
+                StateCodeSK = st;
+                ProvinceCodeSK = null;
             }
             if (string.IsNullOrWhiteSpace(ZipCode))
             {
@@ -125,9 +153,14 @@ public class AddressFormModel : IValidatableObject
         // Canada specific required fields
         if (CountryAddressFormatCodeSK == 2)
         {
-            if (string.IsNullOrWhiteSpace(ProvinceString) || !int.TryParse(ProvinceString, out int pr) || pr <= 0)
+            if (string.IsNullOrWhiteSpace(ProvinceString) || !int.TryParse(ProvinceString, out var pr) || pr <= 0)
             {
                 yield return new ValidationResult("Province is required.", new[] { nameof(ProvinceString) });
+            }
+            else
+            {
+                ProvinceCodeSK = pr;
+                StateCodeSK = null;
             }
             if (string.IsNullOrWhiteSpace(CanadianPostalCode))
             {
