@@ -22,6 +22,11 @@ public class AddressFormModel : IValidatableObject
     /// </summary>
     public int CountryAddressFormatCodeSK { get; set; } = 1;
 
+    public string? AddressTypeString { get; set; }
+    public string? CountryString { get; set; } = "1";
+    public string? StateString { get; set; }
+    public string? ProvinceString { get; set; }
+
     // ── US / Canada shared ──────────────────────────────────
 
     /// <summary>Street address line 1.</summary>
@@ -78,14 +83,14 @@ public class AddressFormModel : IValidatableObject
     /// <returns>A collection of validation results for any failed rules.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (AddressTypeCodeSK <= 0)
+        if (string.IsNullOrWhiteSpace(AddressTypeString) || !int.TryParse(AddressTypeString, out int at) || at <= 0)
         {
-            yield return new ValidationResult("Please select an Address Type.", new[] { nameof(AddressTypeCodeSK) });
+            yield return new ValidationResult("Please select an Address Type.", new[] { nameof(AddressTypeString) });
         }
 
-        if (CountryAddressFormatCodeSK < 1 || CountryAddressFormatCodeSK > 3)
+        if (string.IsNullOrWhiteSpace(CountryString) || !int.TryParse(CountryString, out int c) || c < 1 || c > 3)
         {
-            yield return new ValidationResult("Please select a Country.", new[] { nameof(CountryAddressFormatCodeSK) });
+            yield return new ValidationResult("Please select a Country.", new[] { nameof(CountryString) });
         }
 
         // 1 = US, 2 = Canada, 3 = Other International
@@ -96,7 +101,7 @@ public class AddressFormModel : IValidatableObject
         }
 
         // City is required for US and Canada
-        if (CountryAddressFormatCodeSK == 1 || CountryAddressFormatCodeSK == 2)
+        if (CountryAddressFormatCodeSK is 1 or 2)
         {
             if (string.IsNullOrWhiteSpace(CityName))
             {
@@ -107,9 +112,9 @@ public class AddressFormModel : IValidatableObject
         // US specific required fields
         if (CountryAddressFormatCodeSK == 1)
         {
-            if (!StateCodeSK.HasValue || StateCodeSK.Value <= 0)
+            if (string.IsNullOrWhiteSpace(StateString) || !int.TryParse(StateString, out int st) || st <= 0)
             {
-                yield return new ValidationResult("State is required.", new[] { nameof(StateCodeSK) });
+                yield return new ValidationResult("State is required.", new[] { nameof(StateString) });
             }
             if (string.IsNullOrWhiteSpace(ZipCode))
             {
@@ -120,9 +125,9 @@ public class AddressFormModel : IValidatableObject
         // Canada specific required fields
         if (CountryAddressFormatCodeSK == 2)
         {
-            if (!ProvinceCodeSK.HasValue || ProvinceCodeSK.Value <= 0)
+            if (string.IsNullOrWhiteSpace(ProvinceString) || !int.TryParse(ProvinceString, out int pr) || pr <= 0)
             {
-                yield return new ValidationResult("Province is required.", new[] { nameof(ProvinceCodeSK) });
+                yield return new ValidationResult("Province is required.", new[] { nameof(ProvinceString) });
             }
             if (string.IsNullOrWhiteSpace(CanadianPostalCode))
             {

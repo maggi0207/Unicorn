@@ -19,9 +19,8 @@
         <div class="col-md-6 col-12">
             <OutlinedSelectField Label="Address Type"
                                  Id="AddressType"
-                                 Value="@AddressTypeValue"
-                                 ValueChanged="OnAddressTypeChanged"
-                                 For="@(() => AddressTypeValue)"
+                                 @bind-Value="FormModel.AddressTypeString"
+                                 For="@(() => FormModel.AddressTypeString)"
                                  Options="@AddressTypeOptions"
                                  Disabled="@IsAddressTypeDisabled" />
         </div>
@@ -31,9 +30,8 @@
         <div class="col-md-6 col-12">
             <OutlinedSelectField Label="Country"
                                  Id="AddressCountry"
-                                 Value="@CountryValue"
-                                 ValueChanged="OnCountryChanged"
-                                 For="@(() => CountryValue)"
+                                 @bind-Value="FormModel.CountryString"
+                                 For="@(() => FormModel.CountryString)"
                                  Options="@CountryOptions" />
         </div>
     </div>
@@ -73,9 +71,8 @@
                 <div class="col-md-6 col-12 mt-3 mt-md-0">
                     <OutlinedSelectField Label="State"
                                          Id="StateCodeSK"
-                                         Value="@StateValue"
-                                         ValueChanged="OnStateChanged"
-                                         For="@(() => StateValue)"
+                                         @bind-Value="FormModel.StateString"
+                                         For="@(() => FormModel.StateString)"
                                          Options="@StateOptions" />
                 </div>
             }
@@ -84,9 +81,8 @@
                 <div class="col-md-6 col-12 mt-3 mt-md-0">
                     <OutlinedSelectField Label="Province"
                                          Id="ProvinceCodeSK"
-                                         Value="@ProvinceValue"
-                                         ValueChanged="OnProvinceChanged"
-                                         For="@(() => ProvinceValue)"
+                                         @bind-Value="FormModel.ProvinceString"
+                                         For="@(() => FormModel.ProvinceString)"
                                          Options="@ProvinceOptions" />
                 </div>
             }

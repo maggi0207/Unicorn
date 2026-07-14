@@ -33,6 +33,10 @@ public partial class ManageAddresses
     private bool _isSaving = false;
     private bool _formSubmitted = false;
     private List<string> _formErrors = [];
+
+    /// <summary>
+    /// Tracks the property names associated with validation errors, allowing the error banner to navigate to fields on click.
+    /// </summary>
     private List<string> _formFieldIds = [];
 
     private AddressFormModel _formModel = new();
