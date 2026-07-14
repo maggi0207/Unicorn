@@ -43,6 +43,12 @@ public partial class AddressForm : ComponentBase
     public List<string> FormErrors { get; set; } = new();
 
     /// <summary>
+    /// A list of field IDs corresponding to the validation errors, used for navigating to the field when an error is clicked.
+    /// </summary>
+    [Parameter]
+    public List<string> FormFieldIds { get; set; } = new();
+
+    /// <summary>
     /// Event triggered when the user successfully submits the valid form.
     /// </summary>
     [Parameter]

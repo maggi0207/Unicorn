@@ -33,6 +33,7 @@ public partial class ManageAddresses
     private bool _isSaving = false;
     private bool _formSubmitted = false;
     private List<string> _formErrors = [];
+    private List<string> _formFieldIds = [];
 
     private AddressFormModel _formModel = new();
     private EditContext? _editContext;
@@ -237,6 +238,7 @@ public partial class ManageAddresses
         _stateValue = string.Empty;
         _provinceValue = string.Empty;
         _formErrors = [];
+        _formFieldIds = [];
         _formSubmitted = false;
         _editContext = new EditContext(_formModel);
         _showForm = true;
@@ -280,6 +282,7 @@ public partial class ManageAddresses
             _provinceValue = string.Empty;
         }
         _formErrors = [];
+        _formFieldIds = [];
         _formSubmitted = false;
         _editContext = new EditContext(_formModel);
         _showForm = true;
@@ -299,6 +302,7 @@ public partial class ManageAddresses
     {
         _formSubmitted = true;
         _formErrors = [];
+        _formFieldIds = [];
 
         // Sync string-bound selects back to the model before validation
         _formModel.CountryAddressFormatCodeSK = 1;
@@ -327,7 +331,30 @@ public partial class ManageAddresses
 
         if (!_editContext!.Validate())
         {
-            _formErrors = _editContext.GetValidationMessages().ToList();
+            var properties = new[]
+            {
+                nameof(AddressFormModel.AddressTypeCodeSK),
+                nameof(AddressFormModel.CountryAddressFormatCodeSK),
+                nameof(AddressFormModel.LineOneAddress),
+                nameof(AddressFormModel.LineTwoAddress),
+                nameof(AddressFormModel.CityName),
+                nameof(AddressFormModel.StateCodeSK),
+                nameof(AddressFormModel.ProvinceCodeSK),
+                nameof(AddressFormModel.ZipCode),
+                nameof(AddressFormModel.CanadianPostalCode),
+                nameof(AddressFormModel.LineThreeAddress),
+                nameof(AddressFormModel.LineFourAddress)
+            };
+
+            foreach (var prop in properties)
+            {
+                var fi = new FieldIdentifier(_formModel, prop);
+                foreach (var error in _editContext.GetValidationMessages(fi))
+                {
+                    _formErrors.Add(error);
+                    _formFieldIds.Add(prop);
+                }
+            }
             return;
         }
 
@@ -437,6 +464,7 @@ public partial class ManageAddresses
     {
         _showForm = false;
         _formErrors = [];
+        _formFieldIds = [];
     }
 
     private void CloseDeleteModal()

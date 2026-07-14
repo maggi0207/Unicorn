@@ -29,7 +29,6 @@ public class AddressFormModel : IValidatableObject
     // ── US / Canada shared ──────────────────────────────────
 
     /// <summary>Street address line 1.</summary>
-    [Required(ErrorMessage = "Address Line 1 is required.")]
     [MaxLength(100)]
     public string LineOneAddress { get; set; } = string.Empty;
 
@@ -80,6 +79,11 @@ public class AddressFormModel : IValidatableObject
     {
         // 1 = US, 2 = Canada, 3 = Other International
         
+        if (string.IsNullOrWhiteSpace(LineOneAddress))
+        {
+            yield return new ValidationResult("Address Line 1 is required.", new[] { nameof(LineOneAddress) });
+        }
+
         // City is required for US and Canada
         if (CountryAddressFormatCodeSK == 1 || CountryAddressFormatCodeSK == 2)
         {
