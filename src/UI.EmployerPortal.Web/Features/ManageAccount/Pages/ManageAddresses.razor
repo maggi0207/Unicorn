@@ -169,40 +169,56 @@
 @* ── Delete Confirmation Modal ── *@
 @if (_showDeleteModal)
 {
-    <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="delete-address-title" aria-modal="true" @onclick="CloseDeleteModal" style="z-index: 1050;">
-        <div class="modal-dialog modal-dialog-centered" role="document" @onclick:stopPropagation="true">
-            <div class="modal-content">
-                <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="delete-address-title" style="color: #003663; font-size: 18px;">
-                        Delete Employer Address
-                    </h5>
-                    <button type="button" class="btn-close" aria-label="Close" disabled="@_isDeleting" @onclick="CloseDeleteModal"></button>
-                </div>
-                <div class="modal-body">
-                    @if (_isDeleting)
-                    {
-                        <LoadingSpinner Message="Deleting address..." />
-                    }
-                    else if (!string.IsNullOrWhiteSpace(_deleteError))
-                    {
-                        <p class="text-danger mb-0">@_deleteError</p>
-                    }
-                    else
-                    {
-                        <p class="mb-4 mt-2" style="font-size: 14px;">
-                            Confirm that you want to delete this address.
-                        </p>
-                    }
-                </div>
-                <div class="modal-footer border-0 px-3 pb-3 pt-0">
-                    @if (!_isDeleting)
-                    {
-                        <button type="button" class="btn btn-link fw-bold text-decoration-none px-3" style="color: #003663; font-size: 14px;" @onclick="CloseDeleteModal">CANCEL</button>
-                        <button type="button" class="btn fw-bold px-4" style="border: 1px solid #003663; color: #003663; background: #fff; font-size: 14px; border-radius: 4px;" @onclick="ConfirmDeleteAsync">DELETE ADDRESS</button>
-                    }
-                </div>
+    <div class="del-modal-backdrop" @onclick="CloseDeleteModal" role="presentation">
+        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-address-title" @onclick:stopPropagation="true">
+
+            @* Header *@
+            <div class="del-modal-header">
+                <h2 class="del-modal-title" id="delete-address-title">Delete Employer Address</h2>
+                <button type="button"
+                        class="del-modal-close"
+                        aria-label="Close dialog"
+                        disabled="@_isDeleting"
+                        @onclick="CloseDeleteModal">
+                    &times;
+                </button>
             </div>
+
+            @* Body *@
+            <div class="del-modal-body">
+                @if (_isDeleting)
+                {
+                    <LoadingSpinner Message="Deleting address..." />
+                }
+                else if (!string.IsNullOrWhiteSpace(_deleteError))
+                {
+                    <p class="del-modal-error">@_deleteError</p>
+                }
+                else
+                {
+                    <p class="del-modal-text">Confirm that you want to delete this address.</p>
+                }
+            </div>
+
+            @* Footer *@
+            @if (!_isDeleting)
+            {
+                <div class="del-modal-footer">
+                    <button type="button"
+                            id="btn-delete-cancel"
+                            class="del-btn-cancel"
+                            @onclick="CloseDeleteModal">
+                        CANCEL
+                    </button>
+                    <button type="button"
+                            id="btn-delete-confirm"
+                            class="del-btn-delete"
+                            @onclick="ConfirmDeleteAsync">
+                        DELETE ADDRESS
+                    </button>
+                </div>
+            }
+
         </div>
     </div>
 }
