@@ -5,7 +5,7 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
 /// <summary>
 /// View model for the Add / Edit address form.
 /// </summary>
-public class AddressFormModel
+public class AddressFormModel : IValidatableObject
 {
     /// <summary>
     /// The surrogate key of the existing address. Null when adding a new address.
@@ -74,6 +74,45 @@ public class AddressFormModel
     public string? LineThreeAddress { get; set; }
 
     /// <summary>Line 4 — International only.</summary>
-    [MaxLength(100)]
     public string? LineFourAddress { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        // 1 = US, 2 = Canada, 3 = Other International
+        
+        // City is required for US and Canada
+        if (CountryAddressFormatCodeSK == 1 || CountryAddressFormatCodeSK == 2)
+        {
+            if (string.IsNullOrWhiteSpace(CityName))
+            {
+                yield return new ValidationResult("City is required.", new[] { nameof(CityName) });
+            }
+        }
+
+        // US specific required fields
+        if (CountryAddressFormatCodeSK == 1)
+        {
+            if (!StateCodeSK.HasValue || StateCodeSK.Value <= 0)
+            {
+                yield return new ValidationResult("State is required.", new[] { nameof(StateCodeSK) });
+            }
+            if (string.IsNullOrWhiteSpace(ZipCode))
+            {
+                yield return new ValidationResult("Zip Code is required.", new[] { nameof(ZipCode) });
+            }
+        }
+
+        // Canada specific required fields
+        if (CountryAddressFormatCodeSK == 2)
+        {
+            if (!ProvinceCodeSK.HasValue || ProvinceCodeSK.Value <= 0)
+            {
+                yield return new ValidationResult("Province is required.", new[] { nameof(ProvinceCodeSK) });
+            }
+            if (string.IsNullOrWhiteSpace(CanadianPostalCode))
+            {
+                yield return new ValidationResult("Postal Code is required.", new[] { nameof(CanadianPostalCode) });
+            }
+        }
+    }
 }
