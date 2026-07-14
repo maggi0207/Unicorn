@@ -405,6 +405,17 @@ public partial class ManageAddresses
     {
         try
         {
+            if (_isEditMode && _formModel.AddressSK.HasValue && _formModel.AddressTypeCodeSK != 11)
+            {
+                var (removeSuccess, removeError) = await ManageAddressService.DeleteAddressAsync(_formModel.AddressSK.Value, _employerSK);
+                if (!removeSuccess)
+                {
+                    _formErrors = [string.IsNullOrWhiteSpace(removeError) ? "Unable to update address. Please try again." : removeError];
+                    _showForm = true;
+                    return;
+                }
+            }
+
             var (success, error) = await ManageAddressService.SaveAddressAsync(_formModel, _employerSK);
 
             if (success)
