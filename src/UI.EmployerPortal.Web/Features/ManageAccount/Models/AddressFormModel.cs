@@ -15,15 +15,11 @@ public class AddressFormModel : IValidatableObject
     /// <summary>
     /// The address type surrogate key selected from the dropdown.
     /// </summary>
-    [Required(ErrorMessage = "Address Type is required.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Please select an Address Type.")]
     public int AddressTypeCodeSK { get; set; }
 
     /// <summary>
     /// Country format: 1 = United States, 2 = Canada, 3 = Other International.
     /// </summary>
-    [Required]
-    [Range(1, 3, ErrorMessage = "Please select a Country.")]
     public int CountryAddressFormatCodeSK { get; set; } = 1;
 
     // ── US / Canada shared ──────────────────────────────────
@@ -75,8 +71,23 @@ public class AddressFormModel : IValidatableObject
     /// <summary>Line 4 — International only.</summary>
     public string? LineFourAddress { get; set; }
 
+    /// <summary>
+    /// Performs conditional validation for the address form fields based on the selected country format.
+    /// </summary>
+    /// <param name="validationContext">The validation context.</param>
+    /// <returns>A collection of validation results for any failed rules.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
+        if (AddressTypeCodeSK <= 0)
+        {
+            yield return new ValidationResult("Please select an Address Type.", new[] { nameof(AddressTypeCodeSK) });
+        }
+
+        if (CountryAddressFormatCodeSK < 1 || CountryAddressFormatCodeSK > 3)
+        {
+            yield return new ValidationResult("Please select a Country.", new[] { nameof(CountryAddressFormatCodeSK) });
+        }
+
         // 1 = US, 2 = Canada, 3 = Other International
         
         if (string.IsNullOrWhiteSpace(LineOneAddress))
