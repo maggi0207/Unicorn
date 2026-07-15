@@ -84,17 +84,31 @@ public partial class ManageAddresses
             var options = _allAddressTypeOptions.ToList();
 
             // Collect all address type SKs already in use by a different address row
-            var usedTypes = _addresses
-                .Where(a => a.AddressSK != _formModel.AddressSK)
-                .Select(a => a.AddressTypeCodeSK)
-                .ToHashSet();
+            var usedTypes = new HashSet<int>();
+            foreach (var address in _addresses)
+            {
+                if (address.AddressSK != _formModel.AddressSK)
+                {
+                    usedTypes.Add(address.AddressTypeCodeSK);
+                }
+            }
 
             // Remove any already-used type EXCEPT Additional Physical Location (20),
             // which is allowed to have multiple entries
-            options.RemoveAll(o =>
-                int.TryParse(o.Value, out var sk) &&
-                sk != AdditionalPhysicalLocationSK &&
-                usedTypes.Contains(sk));
+            var toRemove = new List<SelectOption>();
+            foreach (var option in options)
+            {
+                if (int.TryParse(option.Value, out var sk) &&
+                    sk != AdditionalPhysicalLocationSK &&
+                    usedTypes.Contains(sk))
+                {
+                    toRemove.Add(option);
+                }
+            }
+            foreach (var option in toRemove)
+            {
+                options.Remove(option);
+            }
 
             return options;
         }
