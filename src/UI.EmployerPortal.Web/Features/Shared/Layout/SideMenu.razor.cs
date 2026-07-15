@@ -544,12 +544,33 @@ public partial class SideMenu : IDisposable
 
     private bool IsSubmenuActive(SubMenuItem submenu)
     {
-        var currentUri = NavigationManager.Uri;
         var relativePath = GetUrlPath();
-        return relativePath.Equals(submenu.Url.TrimStart('/').ToLower(), StringComparison.OrdinalIgnoreCase) || submenu.AdditionalUrls.Any(url =>
+        var mainUrl = submenu.Url.TrimStart('/').ToLower();
+
+        if (relativePath.Equals(mainUrl, StringComparison.OrdinalIgnoreCase) || 
+            relativePath.StartsWith(mainUrl + "/", StringComparison.OrdinalIgnoreCase))
         {
-            return relativePath.StartsWith(url.TrimStart('/').ToLower(), StringComparison.OrdinalIgnoreCase);
-        });
+            return true;
+        }
+
+        foreach (var url in submenu.AdditionalUrls)
+        {
+            var additionalUrl = url.TrimStart('/').ToLower();
+            
+            // Exact match
+            if (relativePath.Equals(additionalUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Sub-path match: only apply StartsWith if the additional URL has multiple segments.
+            // This prevents top-level routes (like "manage-account") from loosely matching sibling pages.
+            if (additionalUrl.Contains('/') && relativePath.StartsWith(additionalUrl + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private string GetUrlPath()
