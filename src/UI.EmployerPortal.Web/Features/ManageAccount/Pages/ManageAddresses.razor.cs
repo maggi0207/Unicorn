@@ -80,14 +80,13 @@ public partial class ManageAddresses
             }
 
             // Sort the non-mailing rows by the selected column
-            IEnumerable<AddressRowModel> sortedOthers;
             if (_sortColumn == "address")
             {
-                sortedOthers = SortBy(otherRows, r => r.FormattedAddress);
+                otherRows.Sort(CompareByAddress);
             }
             else
             {
-                sortedOthers = SortBy(otherRows, r => r.AddressType);
+                otherRows.Sort(CompareByAddressType);
             }
 
             // Prepend mailing row (if present) so it is always first
@@ -96,13 +95,39 @@ public partial class ManageAddresses
             {
                 result.Add(mailingRow);
             }
-            foreach (var row in sortedOthers)
+            foreach (var row in otherRows)
             {
                 result.Add(row);
             }
 
             return result;
         }
+    }
+
+    /// <summary>
+    /// Compares two address rows by their formatted address for sorting.
+    /// </summary>
+    private int CompareByAddress(AddressRowModel x, AddressRowModel y)
+    {
+        var result = string.Compare(x.FormattedAddress, y.FormattedAddress, StringComparison.OrdinalIgnoreCase);
+        if (!_sortAscending)
+        {
+            result = -result;
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Compares two address rows by their address type for sorting.
+    /// </summary>
+    private int CompareByAddressType(AddressRowModel x, AddressRowModel y)
+    {
+        var result = string.Compare(x.AddressType, y.AddressType, StringComparison.OrdinalIgnoreCase);
+        if (!_sortAscending)
+        {
+            result = -result;
+        }
+        return result;
     }
 
     /// <summary>
@@ -151,14 +176,6 @@ public partial class ManageAddresses
 
             return options;
         }
-    }
-
-    private IOrderedEnumerable<AddressRowModel> SortBy<TKey>(
-        List<AddressRowModel> source, Func<AddressRowModel, TKey> keySelector)
-    {
-        return _sortAscending
-            ? source.OrderBy(keySelector)
-            : source.OrderByDescending(keySelector);
     }
 
     private void Sort(string column)
