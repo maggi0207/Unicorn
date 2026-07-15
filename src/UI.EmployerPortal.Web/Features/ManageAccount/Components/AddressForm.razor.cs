@@ -49,11 +49,14 @@ public partial class AddressForm : ComponentBase
     public List<string> FormFieldIds { get; set; } = new();
 
     /// <summary>
-    /// Event triggered when the user successfully submits the valid form.
+    /// Indicates whether the Address Type dropdown should be disabled (e.g., when editing certain address types).
     /// </summary>
     [Parameter]
     public bool IsAddressTypeDisabled { get; set; }
 
+    /// <summary>
+    /// Event triggered when the user successfully submits the valid form.
+    /// </summary>
     [Parameter]
     public EventCallback OnSubmit { get; set; }
 

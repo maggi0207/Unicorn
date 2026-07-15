@@ -54,15 +54,54 @@ public partial class ManageAddresses
     private string _sortColumn = "addressType";
     private bool _sortAscending = true;
 
+    /// <summary>
+    /// The address type SK for Main Business Mailing — always pinned as the first row in the table.
+    /// </summary>
+    private const int MainBusinessMailingSK = 11;
+
     private IEnumerable<AddressRowModel> SortedAddresses
     {
         get
         {
-            return _sortColumn switch
+            // Separate Main Business Mailing from the rest
+            AddressRowModel? mailingRow = null;
+            var otherRows = new List<AddressRowModel>();
+
+            foreach (var address in _addresses)
             {
-                "address" => SortBy(_addresses, r => { return r.FormattedAddress; }),
-                _ => SortBy(_addresses, r => { return r.AddressType; })
-            };
+                if (address.AddressTypeCodeSK == MainBusinessMailingSK)
+                {
+                    mailingRow = address;
+                }
+                else
+                {
+                    otherRows.Add(address);
+                }
+            }
+
+            // Sort the non-mailing rows by the selected column
+            IEnumerable<AddressRowModel> sortedOthers;
+            if (_sortColumn == "address")
+            {
+                sortedOthers = SortBy(otherRows, r => r.FormattedAddress);
+            }
+            else
+            {
+                sortedOthers = SortBy(otherRows, r => r.AddressType);
+            }
+
+            // Prepend mailing row (if present) so it is always first
+            var result = new List<AddressRowModel>();
+            if (mailingRow != null)
+            {
+                result.Add(mailingRow);
+            }
+            foreach (var row in sortedOthers)
+            {
+                result.Add(row);
+            }
+
+            return result;
         }
     }
 
