@@ -215,6 +215,7 @@ public partial class SideMenu : IDisposable
             [
                 new() { Title = "View Rate Summary", Url = "manage-account/rate-summary" },
                 new() { Title = "UI Account Details", Url = "manage-account/account-details" },
+                new() { Title = "Manage Addresses", Url = "manage-account/manage-addresses" },
                 new() { Title = "UI Account Users", Url = "manage-account/account-users", AdditionalUrls=["manage-account"] },
                 new() { Title = "Associated ESP Accounts", Url = "manage-account/esp-accounts" },
                 new() { Title = "My UI Account Details", Url = "manage-account/ui-account" }
@@ -380,12 +381,31 @@ public partial class SideMenu : IDisposable
 
     private bool IsSubmenuActive(SubMenuItem submenu)
     {
-        var currentUri = NavigationManager.Uri;
         var relativePath = GetUrlPath();
-        return relativePath.Equals(submenu.Url.TrimStart('/').ToLower(), StringComparison.OrdinalIgnoreCase) || submenu.AdditionalUrls.Any(url =>
+        var mainUrl = submenu.Url.TrimStart('/').ToLower();
+
+        if (relativePath.Equals(mainUrl, StringComparison.OrdinalIgnoreCase) || 
+            relativePath.StartsWith(mainUrl + "/", StringComparison.OrdinalIgnoreCase))
         {
-            return relativePath.StartsWith(url.TrimStart('/').ToLower(), StringComparison.OrdinalIgnoreCase);
-        });
+            return true;
+        }
+
+        foreach (var url in submenu.AdditionalUrls)
+        {
+            var additionalUrl = url.TrimStart('/').ToLower();
+            
+            // Exact match
+            if (relativePath.Equals(additionalUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (additionalUrl.Contains('/') && relativePath.StartsWith(additionalUrl + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private string GetUrlPath()
