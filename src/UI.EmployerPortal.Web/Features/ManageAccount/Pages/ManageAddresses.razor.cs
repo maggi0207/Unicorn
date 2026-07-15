@@ -66,7 +66,16 @@ public partial class ManageAddresses
         }
     }
 
-    private bool IsAddressTypeDisabled => _isEditMode && (_formModel.AddressTypeString == "11" || _formModel.AddressTypeString == "13");
+    /// <summary>
+    /// Address type is always disabled in edit mode — the type cannot be changed once an address is saved.
+    /// </summary>
+    private bool IsAddressTypeDisabled => _isEditMode;
+
+    /// <summary>
+    /// Address type SK for Additional Physical Location — the only type that allows multiple entries.
+    /// All other address types are unique and hidden from the dropdown once added.
+    /// </summary>
+    private const int AdditionalPhysicalLocationSK = 20;
 
     private List<SelectOption> AvailableAddressTypeOptions
     {
@@ -74,15 +83,18 @@ public partial class ManageAddresses
         {
             var options = _allAddressTypeOptions.ToList();
 
-            if (_addresses.Any(a => { return a.AddressTypeCodeSK == 11 && a.AddressSK != _formModel.AddressSK; }))
-            {
-                options.RemoveAll(o => { return o.Value == "11"; });
-            }
-            
-            if (_addresses.Any(a => { return a.AddressTypeCodeSK == 13 && a.AddressSK != _formModel.AddressSK; }))
-            {
-                options.RemoveAll(o => { return o.Value == "13"; });
-            }
+            // Collect all address type SKs already in use by a different address row
+            var usedTypes = _addresses
+                .Where(a => a.AddressSK != _formModel.AddressSK)
+                .Select(a => a.AddressTypeCodeSK)
+                .ToHashSet();
+
+            // Remove any already-used type EXCEPT Additional Physical Location (20),
+            // which is allowed to have multiple entries
+            options.RemoveAll(o =>
+                int.TryParse(o.Value, out var sk) &&
+                sk != AdditionalPhysicalLocationSK &&
+                usedTypes.Contains(sk));
 
             return options;
         }
@@ -326,6 +338,7 @@ public partial class ManageAddresses
             }
             return;
         }
+
 
         _isSaving = true;
         StateHasChanged();
