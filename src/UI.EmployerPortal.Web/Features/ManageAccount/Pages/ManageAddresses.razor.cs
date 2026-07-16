@@ -7,6 +7,8 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
+using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
+using UI.EmployerPortal.Web.Features.Dashboard;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
@@ -19,6 +21,8 @@ public partial class ManageAddresses
     [Inject] private ISessionManager SessionManager { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
     [Inject] private IAddressValidationWrapper AddressValidator { get; set; } = default!;
+    [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
 
     private int _employerSK;
     private List<AddressRowModel> _addresses = [];
@@ -53,6 +57,18 @@ public partial class ManageAddresses
 
     private string _sortColumn = "addressType";
     private bool _sortAscending = true;
+
+    /// <summary>
+    /// Indicates whether the current employer has a Power of Attorney on file.
+    /// When true, editing the Main Business Mailing address is blocked.
+    /// </summary>
+    private bool _hasPOA = false;
+
+    /// <summary>
+    /// Controls visibility of the POA restriction modal shown when an employer
+    /// with a POA on file attempts to edit the Main Business Mailing address.
+    /// </summary>
+    private bool _showPoaModal = false;
 
     /// <summary>
     /// The address type SK for Main Business Mailing — always pinned as the first row in the table.
@@ -296,6 +312,22 @@ public partial class ManageAddresses
             if (_employerSK > 0)
             {
                 _addresses = await ManageAddressService.GetAddressesAsync(_employerSK);
+
+                // Fetch the full employer record to check the POA indicator
+                var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+                if (employer != null)
+                {
+                    var request = new EmployerRequest
+                    {
+                        EmployerSK = employer.Id,
+                        SecureUserSK = 0
+                    };
+                    var fullEmployer = await AccountSummaryService.GetEmployerAsync(request);
+                    if (fullEmployer != null && fullEmployer.Employer != null)
+                    {
+                        _hasPOA = fullEmployer.Employer.PoaIndicator == true;
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -325,6 +357,14 @@ public partial class ManageAddresses
 
     private void HandleEditClick(AddressRowModel row)
     {
+        // If the employer has a POA on file, block editing the Main Business Mailing address
+        // and show the POA information modal instead.
+        if (row.AddressTypeCodeSK == MainBusinessMailingSK && _hasPOA)
+        {
+            _showPoaModal = true;
+            return;
+        }
+
         _isEditMode = true;
         _formModel = new AddressFormModel
         {
@@ -356,6 +396,14 @@ public partial class ManageAddresses
         _showCorrection = false;
         _errorMessage = null;
         _successMessage = null;
+    }
+
+    /// <summary>
+    /// Closes the POA restriction modal.
+    /// </summary>
+    private void ClosePoaModal()
+    {
+        _showPoaModal = false;
     }
 
     private void HandleDeleteClick(AddressRowModel row)

@@ -222,3 +222,46 @@
         </div>
     </div>
 }
+
+@* ── POA Restriction Modal ── *@
+@if (_showPoaModal)
+{
+    <div class="del-modal-backdrop" @onclick="ClosePoaModal" role="presentation">
+        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poa-modal-title" @onclick:stopPropagation="true">
+
+            @* Header *@
+            <div class="del-modal-header">
+                <h2 class="del-modal-title" id="poa-modal-title">Cannot Edit Address</h2>
+                <button type="button"
+                        class="del-modal-close"
+                        aria-label="Close dialog"
+                        @onclick="ClosePoaModal">
+                    &times;
+                </button>
+            </div>
+
+            @* Body *@
+            <div class="del-modal-body">
+                <p class="del-modal-text">
+                    The Main Business Mailing Address is based on your Power of Attorney (POA) on file and can't be edited.
+                    You can update your Employer Power of Attorney Assignment (Form UCT-8291-E) by submitting a completed
+                    <a href="https://dwd.wisconsin.gov/dwd/forms/ui/uct-8291-e.htm" target="_blank" rel="noopener noreferrer">UCT-8291-E, Employer Power of Attorney Assignment</a>,
+                    by mail to DWD PO Box 7942 Madison, WI 53707, by email to
+                    <a href="mailto:UIPOA@dwd.wisconsin.gov">UIPOA@dwd.wisconsin.gov</a>,
+                    or by fax to (608) 327-6158.
+                </p>
+            </div>
+
+            @* Footer *@
+            <div class="del-modal-footer">
+                <button type="button"
+                        id="btn-poa-close"
+                        class="del-btn-delete"
+                        @onclick="ClosePoaModal">
+                    CLOSE
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
