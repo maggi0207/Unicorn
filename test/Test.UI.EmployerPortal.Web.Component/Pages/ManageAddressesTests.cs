@@ -46,13 +46,9 @@ public class ManageAddressesTests : BunitContext
         A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
             .Returns(Task.FromResult(new List<AddressRowModel>()));
 
-        // Default: no POA on file — ActivePOAOnFile = false
-        // This preserves existing test behaviour (edit opens normally)
-        A.CallTo(() => _fakeAccountSummaryService.GetEmployerAsync(A<EmployerRequest>._))
-            .Returns(Task.FromResult<EmployerSummaryResponse?>(new EmployerSummaryResponse
-            {
-                Employer = new EmployerSummaryProxy { ActivePOAOnFile = false }
-            }));
+        // AccountSummaryService.GetEmployerAsync returns null by default (FakeItEasy default for async).
+        // The page already guards: if (fullEmployer != null && fullEmployer.Employer != null)
+        // so _hasPOA stays false — the correct default for all existing tests.
 
         // Default: return a safe user SK of 0
         A.CallTo(() => _fakeUserAccountService.GetUserSKClaim())
@@ -488,7 +484,13 @@ public class ManageAddressesTests : BunitContext
         await cut.InvokeAsync(() => { return Task.CompletedTask; });
 
         cut.Find("button[aria-label='Delete Headquarters']").Click();
-        await cut.InvokeAsync(() => { return cut.FindAll("button").First(b => { return b.TextContent.Trim() == "DELETE"; }).ClickAsync(new()); });
+        await cut.InvokeAsync(() =>
+        {
+            return cut.FindAll("button").First(b =>
+            {
+                return b.TextContent.Trim() == "DELETE";
+            }).ClickAsync(new());
+        });
 
         A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
             .MustHaveHappenedTwiceExactly(); // once on init, once after delete
