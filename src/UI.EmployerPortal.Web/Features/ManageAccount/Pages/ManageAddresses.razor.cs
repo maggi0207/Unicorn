@@ -5,6 +5,7 @@ using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
@@ -23,6 +24,7 @@ public partial class ManageAddresses
     [Inject] private IAddressValidationWrapper AddressValidator { get; set; } = default!;
     [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
     [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
 
     private int _employerSK;
     private List<AddressRowModel> _addresses = [];
@@ -322,7 +324,7 @@ public partial class ManageAddresses
                     var request = new EmployerRequest
                     {
                         EmployerSK = employer.Id,
-                        SecureUserSK = 0
+                        SecureUserSK = UserAccountService.GetUserSKClaim()
                     };
                     var fullEmployer = await AccountSummaryService.GetEmployerAsync(request);
                     if (fullEmployer != null && fullEmployer.Employer != null)
