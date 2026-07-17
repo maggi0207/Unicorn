@@ -57,12 +57,12 @@ public class ManageAddressesTests : BunitContext
         A.CallTo(() => _fakeUserAccountService.GetUserSKClaim())
             .Returns(0);
 
-        Services.AddSingleton(_fakeService);
-        Services.AddSingleton(_fakeSession);
-        Services.AddSingleton(_fakeValidator);
-        Services.AddSingleton(_fakeAccountSummaryService);
-        Services.AddSingleton(_fakeUserAccountService);
-        Services.AddSingleton(_fakeDashboardOrchestrator);
+        Services.AddSingleton<IManageAddressService>(_fakeService);
+        Services.AddSingleton<ISessionManager>(_fakeSession);
+        Services.AddSingleton<IAddressValidationWrapper>(_fakeValidator);
+        Services.AddSingleton<IAccountSummaryService>(_fakeAccountSummaryService);
+        Services.AddSingleton<IUserAccountService>(_fakeUserAccountService);
+        Services.AddSingleton<IDashboardOrchestrator>(_fakeDashboardOrchestrator);
 
         JSInterop.Mode = JSRuntimeMode.Loose;
     }
