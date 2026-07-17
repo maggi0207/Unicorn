@@ -1,10 +1,12 @@
 using Bunit;
 using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
+using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 
@@ -20,6 +22,8 @@ public class ManageAddressesTests : BunitContext
     private readonly IManageAddressService _fakeService;
     private readonly ISessionManager _fakeSession;
     private readonly IAddressValidationWrapper _fakeValidator;
+    private readonly IAccountSummaryService _fakeAccountSummaryService;
+    private readonly IUserAccountService _fakeUserAccountService;
 
     /// <summary>Registers required services before each test.</summary>
     public ManageAddressesTests()
@@ -27,6 +31,8 @@ public class ManageAddressesTests : BunitContext
         _fakeService = A.Fake<IManageAddressService>();
         _fakeSession = A.Fake<ISessionManager>();
         _fakeValidator = A.Fake<IAddressValidationWrapper>();
+        _fakeAccountSummaryService = A.Fake<IAccountSummaryService>();
+        _fakeUserAccountService = A.Fake<IUserAccountService>();
 
         // Default: session returns employerSK = 1
         A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
@@ -40,9 +46,23 @@ public class ManageAddressesTests : BunitContext
         A.CallTo(() => _fakeService.GetAddressesAsync(A<int>._))
             .Returns(Task.FromResult(new List<AddressRowModel>()));
 
+        // Default: no POA on file — ActivePOAOnFile = false
+        // This preserves existing test behaviour (edit opens normally)
+        A.CallTo(() => _fakeAccountSummaryService.GetEmployerAsync(A<EmployerRequest>._))
+            .Returns(Task.FromResult<EmployerSummaryResponse?>(new EmployerSummaryResponse
+            {
+                Employer = new EmployerSummaryProxy { ActivePOAOnFile = false }
+            }));
+
+        // Default: return a safe user SK of 0
+        A.CallTo(() => _fakeUserAccountService.GetUserSKClaim())
+            .Returns(0);
+
         Services.AddSingleton(_fakeService);
         Services.AddSingleton(_fakeSession);
         Services.AddSingleton(_fakeValidator);
+        Services.AddSingleton(_fakeAccountSummaryService);
+        Services.AddSingleton(_fakeUserAccountService);
 
         JSInterop.Mode = JSRuntimeMode.Loose;
     }
