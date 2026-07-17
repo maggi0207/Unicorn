@@ -7,6 +7,8 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
+using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
+using UI.EmployerPortal.Web.Features.Dashboard;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
@@ -19,9 +21,8 @@ public partial class ManageAddresses
     [Inject] private ISessionManager SessionManager { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
     [Inject] private IAddressValidationWrapper AddressValidator { get; set; } = default!;
-    // TODO: Uncomment these when the backend team confirms the POA property name on EmployerSummaryProxy
-    // [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
-    // [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
 
     private int _employerSK;
     private List<AddressRowModel> _addresses = [];
@@ -312,12 +313,23 @@ public partial class ManageAddresses
             {
                 _addresses = await ManageAddressService.GetAddressesAsync(_employerSK);
 
-                // TODO: Replace with real POA flag from AccountSummaryService once backend team
-                // confirms the exact property name on EmployerSummaryProxy.
-                // Ask: "What is the property name for the POA flag on EmployerSummaryProxy?"
-                // Example: fullEmployer.Employer.PoaFlag  OR  fullEmployer.Employer.HasPoa
-                // TEMPORARY: hardcoded true for UI testing — revert before merging!
-                _hasPOA = true;
+                // Fetch the full employer record to check if there is an active POA on file.
+                // If ActivePOAOnFile is true, editing the Main Business Mailing address is blocked.
+                // Confirmed property name from backend team (William Young, UIEP-830): ActivePOAOnFile
+                var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+                if (employer != null)
+                {
+                    var request = new EmployerRequest
+                    {
+                        EmployerSK = employer.Id,
+                        SecureUserSK = 0
+                    };
+                    var fullEmployer = await AccountSummaryService.GetEmployerAsync(request);
+                    if (fullEmployer != null && fullEmployer.Employer != null)
+                    {
+                        _hasPOA = fullEmployer.Employer.ActivePOAOnFile;
+                    }
+                }
 
             }
         }
