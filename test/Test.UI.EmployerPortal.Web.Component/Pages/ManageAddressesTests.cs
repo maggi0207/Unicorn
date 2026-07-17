@@ -9,6 +9,7 @@ using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
+using UI.EmployerPortal.Web.Features.Dashboard;
 
 namespace Test.UI.EmployerPortal.Web.Component.Features.ManageAccount;
 
@@ -24,6 +25,7 @@ public class ManageAddressesTests : BunitContext
     private readonly IAddressValidationWrapper _fakeValidator;
     private readonly IAccountSummaryService _fakeAccountSummaryService;
     private readonly IUserAccountService _fakeUserAccountService;
+    private readonly IDashboardOrchestrator _fakeDashboardOrchestrator;
 
     /// <summary>Registers required services before each test.</summary>
     public ManageAddressesTests()
@@ -33,6 +35,7 @@ public class ManageAddressesTests : BunitContext
         _fakeValidator = A.Fake<IAddressValidationWrapper>();
         _fakeAccountSummaryService = A.Fake<IAccountSummaryService>();
         _fakeUserAccountService = A.Fake<IUserAccountService>();
+        _fakeDashboardOrchestrator = A.Fake<IDashboardOrchestrator>();
 
         // Default: session returns employerSK = 1
         A.CallTo(() => _fakeSession.GetAsync<SelectedEmployerAccount>())
@@ -59,6 +62,7 @@ public class ManageAddressesTests : BunitContext
         Services.AddSingleton(_fakeValidator);
         Services.AddSingleton(_fakeAccountSummaryService);
         Services.AddSingleton(_fakeUserAccountService);
+        Services.AddSingleton(_fakeDashboardOrchestrator);
 
         JSInterop.Mode = JSRuntimeMode.Loose;
     }
