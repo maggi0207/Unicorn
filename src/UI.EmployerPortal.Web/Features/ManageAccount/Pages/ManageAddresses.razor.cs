@@ -23,7 +23,6 @@ public partial class ManageAddresses
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
     [Inject] private IAddressValidationWrapper AddressValidator { get; set; } = default!;
     [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
-    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
     [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
 
     private int _employerSK;
@@ -318,19 +317,16 @@ public partial class ManageAddresses
                 // Fetch the full employer record to check if there is an active POA on file.
                 // If ActivePOAOnFile is true, editing the Main Business Mailing address is blocked.
                 // Confirmed property name from backend team (William Young, UIEP-830): ActivePOAOnFile
-                var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
-                if (employer != null)
+                // NOTE: _employerSK is already loaded from session above — use it directly.
+                var poaRequest = new EmployerRequest
                 {
-                    var request = new EmployerRequest
-                    {
-                        EmployerSK = employer.Id,
-                        SecureUserSK = UserAccountService.GetUserSKClaim()
-                    };
-                    var fullEmployer = await AccountSummaryService.GetEmployerAsync(request);
-                    if (fullEmployer != null && fullEmployer.Employer != null)
-                    {
-                        _hasPOA = fullEmployer.Employer.ActivePOAOnFile;
-                    }
+                    EmployerSK = _employerSK,
+                    SecureUserSK = UserAccountService.GetUserSKClaim()
+                };
+                var fullEmployer = await AccountSummaryService.GetEmployerAsync(poaRequest);
+                if (fullEmployer != null && fullEmployer.Employer != null)
+                {
+                    _hasPOA = fullEmployer.Employer.ActivePOAOnFile;
                 }
 
             }
