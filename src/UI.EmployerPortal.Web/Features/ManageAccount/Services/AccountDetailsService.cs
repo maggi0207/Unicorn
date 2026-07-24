@@ -8,8 +8,8 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Services;
 /// <summary>
 /// Provides integration with the AccountMaintenanceService WCF proxy
 /// for fetching and updating employer account details.
-/// Uses <see cref="IAccountMaintenanceService.UpdateEmployerDemographicsAsync"/>
-/// to persist demographic changes.
+/// Uses <see cref="IAccountMaintenanceService.UpdateEmployerInformationAsync"/>
+/// to persist information changes.
 /// </summary>
 internal class AccountDetailsService : IAccountDetailsService
 {
@@ -67,9 +67,9 @@ internal class AccountDetailsService : IAccountDetailsService
     }
 
     /// <summary>
-    /// Updates the employer demographics by mapping the <see cref="AccountDetailsModel"/>
-    /// to an <see cref="EmployerDemographic"/> and calling
-    /// <see cref="IAccountMaintenanceService.UpdateEmployerDemographicsAsync"/>.
+    /// Updates the employer information by mapping the <see cref="AccountDetailsModel"/>
+    /// to an <see cref="EmployerUpdate"/> and calling
+    /// <see cref="IAccountMaintenanceService.UpdateEmployerInformationAsync"/>.
     /// </summary>
     /// <param name="model">The model containing the updated account information.</param>
     /// <param name="employerSK">The surrogate key of the employer.</param>
@@ -78,20 +78,28 @@ internal class AccountDetailsService : IAccountDetailsService
     {
         var secureUserSK = _userAccountService.GetUserSKClaim();
 
-        var empDemo = new EmployerDemographic
+        var request = new EmployerInformationUpdateRequest
         {
-            EmployerSK = employerSK,
-            Fein = model.FEIN,
-            TradeName = model.TradeName ?? string.Empty,
-            EmailAddress = model.EmailAddress,
-            LocalNumber = model.PhoneNumber,
-            Extension = model.Extension ?? string.Empty,
-            FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : 0
+            SecureUserSK = secureUserSK,
+            EmployerUpdate = new EmployerUpdate
+            {
+                EmployerSK = employerSK,
+                FEIN = model.FEIN,
+                LegalName = model.LegalName,
+                TradeName = model.TradeName ?? string.Empty,
+                EmailAddress = model.EmailAddress,
+                PhoneLocalNumber = model.PhoneNumber,
+                PhoneExtension = model.Extension ?? string.Empty,
+                FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
+                FeinChangeReasonExplanation = model.FeinChangeReasonExplanation ?? string.Empty,
+                LegalNameChangeReasonCodeSK = int.TryParse(model.ReasonForLegalNameChange, out var legalReasonSK) ? legalReasonSK : null,
+                LegalNameChangeExplanation = model.LegalNameChangeExplanation ?? string.Empty
+            }
         };
 
         var response = await _retryPolicy.ExecuteAsync(() =>
         {
-            return _accountMaintenanceService.UpdateEmployerDemographicsAsync(empDemo, secureUserSK);
+            return _accountMaintenanceService.UpdateEmployerInformationAsync(request);
         });
 
         if (response?.RuleViolations == null || response.RuleViolations.Length == 0)

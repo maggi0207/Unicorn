@@ -21,6 +21,12 @@ public class AccountDetailsModel
     public string? ReasonForFeinChange { get; set; }
 
     /// <summary>
+    /// Gets or sets the free-text explanation entered when "Other" is selected
+    /// as the reason for the FEIN change. Maps to EmployerUpdate.FeinChangeReasonExplanation.
+    /// </summary>
+    public string? FeinChangeReasonExplanation { get; set; }
+
+    /// <summary>
     /// Gets or sets the employer's legal name.
     /// </summary>
     [Required(ErrorMessage = "Legal Name is required.")]
@@ -32,6 +38,12 @@ public class AccountDetailsModel
     /// Passed as string to bind to OutlinedSelectField.
     /// </summary>
     public string? ReasonForLegalNameChange { get; set; }
+
+    /// <summary>
+    /// Gets or sets the free-text explanation entered when "Other" is selected
+    /// as the reason for the legal name change. Maps to EmployerUpdate.LegalNameChangeExplanation.
+    /// </summary>
+    public string? LegalNameChangeExplanation { get; set; }
 
     /// <summary>
     /// Gets or sets the employer's optional trade name (DBA).

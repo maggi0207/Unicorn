@@ -17,8 +17,8 @@ internal interface IAccountDetailsService
     Task<AccountDetailsModel> GetAccountDetailsAsync(int employerSK);
 
     /// <summary>
-    /// Updates the employer demographics via the
-    /// <see cref="IAccountMaintenanceService.UpdateEmployerDemographicsAsync"/> WCF operation.
+    /// Updates the employer information via the
+    /// <see cref="IAccountMaintenanceService.UpdateEmployerInformationAsync"/> WCF operation.
     /// </summary>
     /// <param name="model">The model containing the updated account information.</param>
     /// <param name="employerSK">The surrogate key of the employer.</param>

@@ -64,7 +64,17 @@
                 </div>
             </div>
 
-            @* ── Row 2: Legal Name + Reason for Legal Name Change ── *@
+            @* ── Explanation for FEIN Change (shown only when "Other" is selected) ── *@
+            @if (_model.ReasonForFeinChange == "5")
+            {
+                <div class="ad-field-single" aria-label="explanation-for-fein-change">
+                    <OutlinedTextField Label="Explanation for FEIN Change"
+                                       Id="FeinChangeReasonExplanation"
+                                       @bind-Value="_model.FeinChangeReasonExplanation"
+                                       For="@(() => _model.FeinChangeReasonExplanation)" />
+                </div>
+            }
+
             <div class="ad-fields-grid" aria-label="Legal name details">
                 <div class="ad-field" aria-label="legal-name">
                     <OutlinedTextField Label="Legal Name"
@@ -82,7 +92,18 @@
                 </div>
             </div>
 
-            @* ── Row 3: Trade Name (single column) ── *@
+            @* ── Explanation for Legal Name Change (shown only when "Other" is selected) ── *@
+            @if (_model.ReasonForLegalNameChange == "5")
+            {
+                <div class="ad-field-single" aria-label="explanation-for-legal-name-change">
+                    <OutlinedTextField Label="Explanation for Legal Name Change"
+                                       Id="LegalNameChangeExplanation"
+                                       @bind-Value="_model.LegalNameChangeExplanation"
+                                       For="@(() => _model.LegalNameChangeExplanation)" />
+                </div>
+            }
+
+
             <div class="ad-field-single" aria-label="trade-name">
                 <OutlinedTextField Label="Trade Name (optional)"
                                    Id="TradeName"
