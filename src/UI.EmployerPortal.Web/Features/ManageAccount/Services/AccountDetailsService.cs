@@ -94,15 +94,15 @@ internal class AccountDetailsService : IAccountDetailsService
                 EmployerSK = employerSK,
                 FEIN = model.FEIN,
                 LegalName = model.LegalName,
-                TradeName = model.TradeName ?? string.Empty,
+                TradeName = string.IsNullOrWhiteSpace(model.TradeName) ? null : model.TradeName,
                 EmailAddress = model.EmailAddress,
                 PhoneAreaCode = phoneAreaCode,
                 PhoneLocalNumber = phoneLocalNumber,
-                PhoneExtension = model.Extension ?? string.Empty,
+                PhoneExtension = string.IsNullOrWhiteSpace(model.Extension) ? null : model.Extension,
                 FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
-                FeinChangeReasonExplanation = model.FeinChangeReasonExplanation ?? string.Empty,
+                FeinChangeReasonExplanation = string.IsNullOrWhiteSpace(model.FeinChangeReasonExplanation) ? null : model.FeinChangeReasonExplanation,
                 LegalNameChangeReasonCodeSK = int.TryParse(model.ReasonForLegalNameChange, out var legalReasonSK) ? legalReasonSK : null,
-                LegalNameChangeExplanation = model.LegalNameChangeExplanation ?? string.Empty
+                LegalNameChangeExplanation = string.IsNullOrWhiteSpace(model.LegalNameChangeExplanation) ? null : model.LegalNameChangeExplanation
             }
         };
 
