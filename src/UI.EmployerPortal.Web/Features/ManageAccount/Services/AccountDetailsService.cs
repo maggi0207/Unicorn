@@ -78,6 +78,14 @@ internal class AccountDetailsService : IAccountDetailsService
     {
         var secureUserSK = _userAccountService.GetUserSKClaim();
 
+        // The EmployerUpdate WCF object requires PhoneAreaCode and PhoneLocalNumber
+        // as separate fields. Strip all non-digits from the formatted phone number
+        // (e.g. "(675) 555-5555" → "6755555555") then split: first 3 = area code,
+        // remaining 7 = local number. This is the same pattern used in ContactInformationService.
+        var phoneDigits = new string(model.PhoneNumber.Where(char.IsDigit).ToArray());
+        var phoneAreaCode    = phoneDigits.Length == 10 ? phoneDigits[..3]            : string.Empty;
+        var phoneLocalNumber = phoneDigits.Length == 10 ? phoneDigits.Substring(3, 7) : phoneDigits;
+
         var request = new EmployerInformationUpdateRequest
         {
             SecureUserSK = secureUserSK,
@@ -88,7 +96,8 @@ internal class AccountDetailsService : IAccountDetailsService
                 LegalName = model.LegalName,
                 TradeName = model.TradeName ?? string.Empty,
                 EmailAddress = model.EmailAddress,
-                PhoneLocalNumber = model.PhoneNumber,
+                PhoneAreaCode = phoneAreaCode,
+                PhoneLocalNumber = phoneLocalNumber,
                 PhoneExtension = model.Extension ?? string.Empty,
                 FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
                 FeinChangeReasonExplanation = model.FeinChangeReasonExplanation ?? string.Empty,
