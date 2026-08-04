@@ -66,19 +66,15 @@ public class AddressValidationService : IAddressValidationWrapper
         AddressModel? correctedAddress = null;
         if (response.OutputAddress is not null)
         {
-            // The service occasionally returns the street in LineTwoAddress when LineOneAddress is empty.
-            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
-                ? response.OutputAddress.LineTwoAddress
-                : response.OutputAddress.LineOneAddress;
-            var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
-                ? null
+            // SUITES: LineOneAddress = apartment, LineTwoAddress = street.
+            // AddressModel: AddressLine1 = street (line1), AddressLine2 = apartment (line2).
+            // Fallback: if LineTwoAddress is empty, the service put the street in LineOneAddress.
+            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineTwoAddress)
+                ? response.OutputAddress.LineOneAddress
                 : response.OutputAddress.LineTwoAddress;
-
-            // The service sometimes echoes the street address in both Line1 and Line2,
-            // potentially with different Unicode whitespace (e.g. non-breaking space \u00A0 vs \u0020).
-            // Normalize all whitespace before comparing to catch these invisible differences.
-            if (string.Equals(NormalizeWhitespace(line1), NormalizeWhitespace(line2), StringComparison.OrdinalIgnoreCase))
-                line2 = null;
+            var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineTwoAddress)
+                ? null
+                : (string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress) ? null : response.OutputAddress.LineOneAddress);
 
             correctedAddress = new AddressModel
             {
@@ -96,15 +92,6 @@ public class AddressValidationService : IAddressValidationWrapper
         return new AddressValidationResult(isValid, errorMessage, correctedAddress);
     }
 
-    /// <summary>
-    /// Normalizes a string by replacing all Unicode whitespace characters with a regular space
-    /// and collapsing consecutive spaces into one. Returns empty string for null/blank input.
-    /// </summary>
-    private static string NormalizeWhitespace(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
-        return Regex.Replace(value.Trim(), @"\s+", " ");
-    }
 
     /// <summary>
     /// Maps the AddressModel country display name to the ISO code expected by the WCF service.
