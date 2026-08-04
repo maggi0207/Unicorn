@@ -73,6 +73,11 @@ public class AddressValidationService : IAddressValidationWrapper
                 ? null
                 : response.OutputAddress.LineTwoAddress;
 
+            if (string.Equals(line1?.Trim(), line2?.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                line2 = null;
+            }
+
             correctedAddress = new AddressModel
             {
                 AddressLine1 = line1,
