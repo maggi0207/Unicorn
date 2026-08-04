@@ -122,8 +122,8 @@
                                   @bind-Value="_model.PhoneNumber"
                                   For="@(() => _model.PhoneNumber)"
                                   @bind-Extension="_model.Extension"
-                                  Placeholder="(999) 999-9999"
-                                  ExtensionPlaceholder="Ext. 99"
+                                  @bind-CountryCode="_model.CountryCode"
+                                  ShowCountryCode="true"
                                   Visible="@IsVisible(() => _model.PhoneNumber)" />
             </div>
 
@@ -243,6 +243,7 @@
             TradeName = _model.TradeName,
             PhoneNumber = _model.PhoneNumber,
             Extension = _model.Extension,
+            CountryCode = _model.CountryCode,
             EmailAddress = _model.EmailAddress
         };
 
@@ -302,7 +303,7 @@
                 if (_model.FEIN != _originalModel.FEIN) query.Add("fein=1");
                 if (_model.LegalName != _originalModel.LegalName) query.Add("name=1");
                 if (_model.TradeName != _originalModel.TradeName) query.Add("trade=1");
-                if (_model.PhoneNumber != _originalModel.PhoneNumber || _model.Extension != _originalModel.Extension) query.Add("phone=1");
+                if (_model.PhoneNumber != _originalModel.PhoneNumber || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) query.Add("phone=1");
                 if (_model.EmailAddress != _originalModel.EmailAddress) query.Add("email=1");
             }
             NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");

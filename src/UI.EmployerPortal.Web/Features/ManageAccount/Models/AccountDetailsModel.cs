@@ -62,6 +62,11 @@ public class AccountDetailsModel
     public string? Extension { get; set; }
 
     /// <summary>
+    /// Gets or sets the international country code for the phone number.
+    /// </summary>
+    public string? CountryCode { get; set; }
+
+    /// <summary>
     /// Gets or sets the primary email address.
     /// </summary>
     [Required(ErrorMessage = "Email Address is required.")]

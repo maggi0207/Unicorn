@@ -84,6 +84,7 @@ internal class AccountDetailsService : IAccountDetailsService
             TradeName = employer.TradeName,
             PhoneNumber = formattedPhone,
             Extension = extDigits,
+            CountryCode = employer.InternationalPhoneCode,
             EmailAddress = string.Empty
         };
     }
@@ -104,7 +105,7 @@ internal class AccountDetailsService : IAccountDetailsService
         // as separate fields. Strip all non-digits from the formatted phone number
         // (e.g. "(675) 555-5555" → "6755555555") then split: first 3 = area code,
         // remaining 7 = local number. This is the same pattern used in ContactInformationService.
-        var phoneDigits = new string(model.PhoneNumber.Where(char.IsDigit).ToArray());
+        var phoneDigits = new string((model.PhoneNumber ?? "").Where(char.IsDigit).ToArray());
         var phoneAreaCode    = phoneDigits.Length == 10 ? phoneDigits[..3]            : string.Empty;
         var phoneLocalNumber = phoneDigits.Length == 10 ? phoneDigits.Substring(3, 7) : phoneDigits;
 
@@ -121,6 +122,7 @@ internal class AccountDetailsService : IAccountDetailsService
                 PhoneAreaCode = phoneAreaCode,
                 PhoneLocalNumber = phoneLocalNumber,
                 PhoneExtension = string.IsNullOrWhiteSpace(model.Extension) ? null : model.Extension,
+                PhoneInternationalCode = string.IsNullOrWhiteSpace(model.CountryCode) ? null : model.CountryCode,
                 FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
                 FeinChangeReasonExplanation = string.IsNullOrWhiteSpace(model.FeinChangeReasonExplanation) ? null : model.FeinChangeReasonExplanation,
                 LegalNameChangeReasonCodeSK = int.TryParse(model.ReasonForLegalNameChange, out var legalReasonSK) ? legalReasonSK : null,
