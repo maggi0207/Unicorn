@@ -311,7 +311,9 @@
     private static string FormatLine1(AddressModel a)
     {
         var parts = new[] { a.AddressLine1, a.AddressLine2 }
-            .Where(s => !string.IsNullOrWhiteSpace(s));
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase);
         return string.Join(" ", parts).ToUpperInvariant();
     }
 

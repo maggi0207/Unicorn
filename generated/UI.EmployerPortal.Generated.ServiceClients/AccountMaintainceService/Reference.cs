@@ -26,6 +26,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -151,6 +152,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -169,7 +171,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -479,6 +480,44 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.SuccessField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BatchNotificationsResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class BatchNotificationsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
+    {
+        
+        private string EmployerAccountNumberField;
+        
+        private string NotificationStatusMessageField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmployerAccountNumber
+        {
+            get
+            {
+                return this.EmployerAccountNumberField;
+            }
+            set
+            {
+                this.EmployerAccountNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NotificationStatusMessage
+        {
+            get
+            {
+                return this.NotificationStatusMessageField;
+            }
+            set
+            {
+                this.NotificationStatusMessageField = value;
             }
         }
     }
@@ -5117,6 +5156,29 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UploadESPDXFileResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class UploadESPDXFileResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
+    {
+        
+        private string ConfirmationNumberField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ConfirmationNumber
+        {
+            get
+            {
+                return this.ConfirmationNumberField;
+            }
+            set
+            {
+                this.ConfirmationNumberField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="VoluntaryContributionCalculatorResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceResponses.Portal")]
     public partial class VoluntaryContributionCalculatorResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
@@ -5756,44 +5818,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BatchNotificationsResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
-        "viceResponses.Portal")]
-    public partial class BatchNotificationsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
-    {
-        
-        private string EmployerAccountNumberField;
-        
-        private string NotificationStatusMessageField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string EmployerAccountNumber
-        {
-            get
-            {
-                return this.EmployerAccountNumberField;
-            }
-            set
-            {
-                this.EmployerAccountNumberField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string NotificationStatusMessage
-        {
-            get
-            {
-                return this.NotificationStatusMessageField;
-            }
-            set
-            {
-                this.NotificationStatusMessageField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="EmployerPhoneResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceResponses.Portal")]
     public partial class EmployerPhoneResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
@@ -5845,11 +5869,75 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     public partial class COEResponse : UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalResponseBase
     {
         
+        private string AccountNumberField;
+        
+        private System.DateTime CorporateOfficeExclusionEffectiveDateField;
+        
+        private string CorporateOfficeExclusionStatusField;
+        
+        private int CorporateOfficeExclusionStatusSKField;
+        
         private bool IsNoSavingsShownField;
+        
+        private string LegalNameField;
         
         private bool SuccessField;
         
+        private string UIAccountNumberField;
+        
         private string WarningMessageField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AccountNumber
+        {
+            get
+            {
+                return this.AccountNumberField;
+            }
+            set
+            {
+                this.AccountNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime CorporateOfficeExclusionEffectiveDate
+        {
+            get
+            {
+                return this.CorporateOfficeExclusionEffectiveDateField;
+            }
+            set
+            {
+                this.CorporateOfficeExclusionEffectiveDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CorporateOfficeExclusionStatus
+        {
+            get
+            {
+                return this.CorporateOfficeExclusionStatusField;
+            }
+            set
+            {
+                this.CorporateOfficeExclusionStatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CorporateOfficeExclusionStatusSK
+        {
+            get
+            {
+                return this.CorporateOfficeExclusionStatusSKField;
+            }
+            set
+            {
+                this.CorporateOfficeExclusionStatusSKField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsNoSavingsShown
@@ -5865,6 +5953,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string LegalName
+        {
+            get
+            {
+                return this.LegalNameField;
+            }
+            set
+            {
+                this.LegalNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public bool Success
         {
             get
@@ -5874,6 +5975,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.SuccessField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UIAccountNumber
+        {
+            get
+            {
+                return this.UIAccountNumberField;
+            }
+            set
+            {
+                this.UIAccountNumberField = value;
             }
         }
         
@@ -8306,6 +8420,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -8444,6 +8559,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -8462,7 +8578,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -8530,8 +8645,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -8542,6 +8655,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -8563,6 +8678,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -9163,6 +9280,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -9301,6 +9419,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -9319,7 +9438,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -9388,8 +9506,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -9400,6 +9516,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -9421,6 +9539,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -11608,6 +11728,10 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private System.Nullable<System.DateTime> CompletedDateField;
         
+        private string CreatedUserNameField;
+        
+        private string CreatedUserWIUIDField;
+        
         private System.DateTime DueDateField;
         
         private string EFormDescField;
@@ -11618,9 +11742,13 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private int EFormTransactionSKField;
         
+        private string EmployerNameField;
+        
         private int EmployerSKField;
         
         private string StatusField;
+        
+        private string UIAccountNumberField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ClaimantName
@@ -11658,6 +11786,32 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.CompletedDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CreatedUserName
+        {
+            get
+            {
+                return this.CreatedUserNameField;
+            }
+            set
+            {
+                this.CreatedUserNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CreatedUserWIUID
+        {
+            get
+            {
+                return this.CreatedUserWIUIDField;
+            }
+            set
+            {
+                this.CreatedUserWIUIDField = value;
             }
         }
         
@@ -11727,6 +11881,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmployerName
+        {
+            get
+            {
+                return this.EmployerNameField;
+            }
+            set
+            {
+                this.EmployerNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int EmployerSK
         {
             get
@@ -11749,6 +11916,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.StatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UIAccountNumber
+        {
+            get
+            {
+                return this.UIAccountNumberField;
+            }
+            set
+            {
+                this.UIAccountNumberField = value;
             }
         }
     }
@@ -14529,9 +14709,15 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private string FinanceMethodDescriptionField;
         
+        private string InternationalPhoneCodeField;
+        
         private bool IsTaxableField;
         
         private string LegalNameField;
+        
+        private string LocalPhoneNumberField;
+        
+        private string PhoneAreaCodeField;
         
         private string PhoneExtensionField;
         
@@ -14654,6 +14840,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string InternationalPhoneCode
+        {
+            get
+            {
+                return this.InternationalPhoneCodeField;
+            }
+            set
+            {
+                this.InternationalPhoneCodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsTaxable
         {
             get
@@ -14676,6 +14875,32 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.LegalNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string LocalPhoneNumber
+        {
+            get
+            {
+                return this.LocalPhoneNumberField;
+            }
+            set
+            {
+                this.LocalPhoneNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string PhoneAreaCode
+        {
+            get
+            {
+                return this.PhoneAreaCodeField;
+            }
+            set
+            {
+                this.PhoneAreaCodeField = value;
             }
         }
         
@@ -14797,7 +15022,9 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy EmployerDetailsField;
         
-        private UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[] MissingReportsField;
+        private int MissingQuartersField;
+        
+        private int StatusField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public decimal CurrentBalance
@@ -14839,124 +15066,20 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[] MissingReports
+        public int MissingQuarters
         {
             get
             {
-                return this.MissingReportsField;
+                return this.MissingQuartersField;
             }
             set
             {
-                this.MissingReportsField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MissingReportProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
-        "viceProxies.Portal")]
-    public partial class MissingReportProxy : object
-    {
-        
-        private string DescriptionField;
-        
-        private System.DateTime DueDateField;
-        
-        private string FormattedQuarterYearField;
-        
-        private int QuarterField;
-        
-        private string ReportNameField;
-        
-        private string SelectValueField;
-        
-        private string StatusField;
-        
-        private int YearField;
-        
-        private bool isLateField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Description
-        {
-            get
-            {
-                return this.DescriptionField;
-            }
-            set
-            {
-                this.DescriptionField = value;
+                this.MissingQuartersField = value;
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime DueDate
-        {
-            get
-            {
-                return this.DueDateField;
-            }
-            set
-            {
-                this.DueDateField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string FormattedQuarterYear
-        {
-            get
-            {
-                return this.FormattedQuarterYearField;
-            }
-            set
-            {
-                this.FormattedQuarterYearField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Quarter
-        {
-            get
-            {
-                return this.QuarterField;
-            }
-            set
-            {
-                this.QuarterField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ReportName
-        {
-            get
-            {
-                return this.ReportNameField;
-            }
-            set
-            {
-                this.ReportNameField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string SelectValue
-        {
-            get
-            {
-                return this.SelectValueField;
-            }
-            set
-            {
-                this.SelectValueField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Status
+        public int Status
         {
             get
             {
@@ -14965,32 +15088,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.StatusField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Year
-        {
-            get
-            {
-                return this.YearField;
-            }
-            set
-            {
-                this.YearField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool isLate
-        {
-            get
-            {
-                return this.isLateField;
-            }
-            set
-            {
-                this.isLateField = value;
             }
         }
     }
@@ -15558,7 +15655,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private string CreateUserNameField;
         
-        private System.Nullable<long> EfileHeaderSKField;
+        private System.Nullable<int> EfileHeaderSKField;
         
         private System.Nullable<bool> FTPFlagField;
         
@@ -15568,17 +15665,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[] FatalErrorsField;
         
-        private System.Nullable<long> FileContactSKField;
+        private string FileContactNameField;
+        
+        private System.Nullable<int> FileContactSKField;
         
         private System.Nullable<decimal> FilePaymentAmountField;
         
         private System.Nullable<int> FileRecordCountField;
         
-        private System.Nullable<long> FileReportCountField;
+        private System.Nullable<int> FileReportCountField;
         
-        private System.Nullable<long> FileSizeBytesField;
+        private System.Nullable<int> FileSizeBytesField;
         
-        private System.Nullable<long> FileUploadDetailSKField;
+        private System.Nullable<int> FileUploadDetailSKField;
         
         private string FileUploadStatusCodeDescriptionField;
         
@@ -15590,7 +15689,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private string FormattedFileNameField;
         
-        private System.Nullable<long> NavigationSessionSKField;
+        private System.Nullable<int> NavigationSessionSKField;
         
         private int NonFatalErrorCountField;
         
@@ -15602,6 +15701,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private System.Nullable<decimal> PaymentAmountForErrorRecordsField;
         
+        private System.Nullable<decimal> PaymentAmountForNonErrorRecordsField;
+        
         private System.Nullable<System.DateTime> ProcessingCompletedField;
         
         private System.Nullable<System.DateTime> ProcessingStartedField;
@@ -15610,13 +15711,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private int ReportsRejectedField;
         
-        private System.Nullable<long> ReportsWithErrorsCountField;
+        private System.Nullable<int> ReportsWithErrorsCountField;
+        
+        private System.Nullable<int> ReportsWithoutErrorsCountField;
+        
+        private UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[] TaxFileUploadErrorDetailsField;
         
         private System.Nullable<bool> TestFileFlagField;
         
         private System.Nullable<System.DateTime> UpdateTimestampField;
         
         private System.Nullable<System.DateTime> UploadDateField;
+        
+        private string UploadTypeField;
         
         private System.Nullable<bool> ValidFormatFlagField;
         
@@ -15666,7 +15773,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> EfileHeaderSK
+        public System.Nullable<int> EfileHeaderSK
         {
             get
             {
@@ -15731,7 +15838,20 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> FileContactSK
+        public string FileContactName
+        {
+            get
+            {
+                return this.FileContactNameField;
+            }
+            set
+            {
+                this.FileContactNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> FileContactSK
         {
             get
             {
@@ -15770,7 +15890,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> FileReportCount
+        public System.Nullable<int> FileReportCount
         {
             get
             {
@@ -15783,7 +15903,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> FileSizeBytes
+        public System.Nullable<int> FileSizeBytes
         {
             get
             {
@@ -15796,7 +15916,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> FileUploadDetailSK
+        public System.Nullable<int> FileUploadDetailSK
         {
             get
             {
@@ -15874,7 +15994,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> NavigationSessionSK
+        public System.Nullable<int> NavigationSessionSK
         {
             get
             {
@@ -15952,6 +16072,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<decimal> PaymentAmountForNonErrorRecords
+        {
+            get
+            {
+                return this.PaymentAmountForNonErrorRecordsField;
+            }
+            set
+            {
+                this.PaymentAmountForNonErrorRecordsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<System.DateTime> ProcessingCompleted
         {
             get
@@ -16004,7 +16137,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<long> ReportsWithErrorsCount
+        public System.Nullable<int> ReportsWithErrorsCount
         {
             get
             {
@@ -16013,6 +16146,32 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.ReportsWithErrorsCountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> ReportsWithoutErrorsCount
+        {
+            get
+            {
+                return this.ReportsWithoutErrorsCountField;
+            }
+            set
+            {
+                this.ReportsWithoutErrorsCountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[] TaxFileUploadErrorDetails
+        {
+            get
+            {
+                return this.TaxFileUploadErrorDetailsField;
+            }
+            set
+            {
+                this.TaxFileUploadErrorDetailsField = value;
             }
         }
         
@@ -16052,6 +16211,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.UploadDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UploadType
+        {
+            get
+            {
+                return this.UploadTypeField;
+            }
+            set
+            {
+                this.UploadTypeField = value;
             }
         }
         
@@ -16367,6 +16539,284 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
             set
             {
                 this.WageUploadSplitFileSKField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TaxUploadErrorFlatFileRecordProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceProxies.Portal")]
+    public partial class TaxUploadErrorFlatFileRecordProxy : object
+    {
+        
+        private string AccountNumberField;
+        
+        private string AmountPaidField;
+        
+        private string CorrectiveActionField;
+        
+        private string EmployeeCount1Field;
+        
+        private string EmployeeCount2Field;
+        
+        private string EmployeeCount3Field;
+        
+        private string ErrorMessageField;
+        
+        private string ExclusionsField;
+        
+        private string FEINField;
+        
+        private int FileUploadErrorSKField;
+        
+        private string FirstQuarterDeferralElectionField;
+        
+        private string GrossWagesField;
+        
+        private string InsuranceIndicatorField;
+        
+        private string LegalNameField;
+        
+        private string QuarterField;
+        
+        private int RecordNumberField;
+        
+        private string TaxablePayrollField;
+        
+        private string YearField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AccountNumber
+        {
+            get
+            {
+                return this.AccountNumberField;
+            }
+            set
+            {
+                this.AccountNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AmountPaid
+        {
+            get
+            {
+                return this.AmountPaidField;
+            }
+            set
+            {
+                this.AmountPaidField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CorrectiveAction
+        {
+            get
+            {
+                return this.CorrectiveActionField;
+            }
+            set
+            {
+                this.CorrectiveActionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmployeeCount1
+        {
+            get
+            {
+                return this.EmployeeCount1Field;
+            }
+            set
+            {
+                this.EmployeeCount1Field = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmployeeCount2
+        {
+            get
+            {
+                return this.EmployeeCount2Field;
+            }
+            set
+            {
+                this.EmployeeCount2Field = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmployeeCount3
+        {
+            get
+            {
+                return this.EmployeeCount3Field;
+            }
+            set
+            {
+                this.EmployeeCount3Field = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ErrorMessage
+        {
+            get
+            {
+                return this.ErrorMessageField;
+            }
+            set
+            {
+                this.ErrorMessageField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Exclusions
+        {
+            get
+            {
+                return this.ExclusionsField;
+            }
+            set
+            {
+                this.ExclusionsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FEIN
+        {
+            get
+            {
+                return this.FEINField;
+            }
+            set
+            {
+                this.FEINField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FileUploadErrorSK
+        {
+            get
+            {
+                return this.FileUploadErrorSKField;
+            }
+            set
+            {
+                this.FileUploadErrorSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FirstQuarterDeferralElection
+        {
+            get
+            {
+                return this.FirstQuarterDeferralElectionField;
+            }
+            set
+            {
+                this.FirstQuarterDeferralElectionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string GrossWages
+        {
+            get
+            {
+                return this.GrossWagesField;
+            }
+            set
+            {
+                this.GrossWagesField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string InsuranceIndicator
+        {
+            get
+            {
+                return this.InsuranceIndicatorField;
+            }
+            set
+            {
+                this.InsuranceIndicatorField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string LegalName
+        {
+            get
+            {
+                return this.LegalNameField;
+            }
+            set
+            {
+                this.LegalNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Quarter
+        {
+            get
+            {
+                return this.QuarterField;
+            }
+            set
+            {
+                this.QuarterField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RecordNumber
+        {
+            get
+            {
+                return this.RecordNumberField;
+            }
+            set
+            {
+                this.RecordNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string TaxablePayroll
+        {
+            get
+            {
+                return this.TaxablePayrollField;
+            }
+            set
+            {
+                this.TaxablePayrollField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Year
+        {
+            get
+            {
+                return this.YearField;
+            }
+            set
+            {
+                this.YearField = value;
             }
         }
     }
@@ -20047,6 +20497,149 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MissingReportProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceProxies.Portal")]
+    public partial class MissingReportProxy : object
+    {
+        
+        private string DescriptionField;
+        
+        private System.DateTime DueDateField;
+        
+        private string FormattedQuarterYearField;
+        
+        private int QuarterField;
+        
+        private string ReportNameField;
+        
+        private string SelectValueField;
+        
+        private string StatusField;
+        
+        private int YearField;
+        
+        private bool isLateField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Description
+        {
+            get
+            {
+                return this.DescriptionField;
+            }
+            set
+            {
+                this.DescriptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime DueDate
+        {
+            get
+            {
+                return this.DueDateField;
+            }
+            set
+            {
+                this.DueDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FormattedQuarterYear
+        {
+            get
+            {
+                return this.FormattedQuarterYearField;
+            }
+            set
+            {
+                this.FormattedQuarterYearField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Quarter
+        {
+            get
+            {
+                return this.QuarterField;
+            }
+            set
+            {
+                this.QuarterField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ReportName
+        {
+            get
+            {
+                return this.ReportNameField;
+            }
+            set
+            {
+                this.ReportNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SelectValue
+        {
+            get
+            {
+                return this.SelectValueField;
+            }
+            set
+            {
+                this.SelectValueField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Status
+        {
+            get
+            {
+                return this.StatusField;
+            }
+            set
+            {
+                this.StatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Year
+        {
+            get
+            {
+                return this.YearField;
+            }
+            set
+            {
+                this.YearField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isLate
+        {
+            get
+            {
+                return this.isLateField;
+            }
+            set
+            {
+                this.isLateField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="NAICCodeProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceProxies.Portal")]
     public partial class NAICCodeProxy : object
@@ -20415,6 +21008,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -20553,6 +21147,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -20571,7 +21166,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -20640,8 +21234,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -20652,6 +21244,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -20673,6 +21267,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -21107,6 +21703,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -21245,6 +21842,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -21263,7 +21861,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -21332,8 +21929,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -21344,6 +21939,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -21365,6 +21962,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -22055,6 +22654,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -22193,6 +22793,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -22211,7 +22812,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -22280,8 +22880,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -22292,6 +22890,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -22313,6 +22913,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -22597,6 +23199,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -22735,6 +23338,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -22753,7 +23357,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -22822,8 +23425,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -22834,6 +23435,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -22855,6 +23458,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -23079,6 +23684,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -23217,6 +23823,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -23235,7 +23842,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -23304,8 +23910,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -23316,6 +23920,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -23337,6 +23943,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -24259,6 +24867,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -24397,6 +25006,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -24415,7 +25025,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -24484,8 +25093,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -24496,6 +25103,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -24517,6 +25126,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -28342,6 +28953,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -28480,6 +29092,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -28498,7 +29111,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -28567,8 +29179,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -28579,6 +29189,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -28600,6 +29212,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -33824,6 +34438,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -33962,6 +34577,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -33980,7 +34596,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -34049,8 +34664,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -34061,6 +34674,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -34082,6 +34697,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -35753,6 +36370,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         
         private string PhoneExtensionField;
         
+        private string PhoneInternationalCodeField;
+        
         private string PhoneLocalNumberField;
         
         private string TradeNameField;
@@ -35888,6 +36507,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string PhoneInternationalCode
+        {
+            get
+            {
+                return this.PhoneInternationalCodeField;
+            }
+            set
+            {
+                this.PhoneInternationalCodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string PhoneLocalNumber
         {
             get
@@ -35931,6 +36563,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -36069,6 +36702,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -36087,7 +36721,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -36156,8 +36789,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -36168,6 +36799,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -36189,6 +36822,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -36920,6 +37555,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -37058,6 +37694,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -37076,7 +37713,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -37145,8 +37781,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -37157,6 +37791,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -37178,6 +37814,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -37494,6 +38132,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -37632,6 +38271,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -37650,7 +38290,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -37719,8 +38358,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -37731,6 +38368,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -37752,6 +38391,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
@@ -39287,6 +39928,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AddESPUserResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.AvailableTaxWageFilingSelectionResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BankAccountInactivateResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitsAppealsWithdrawalSubmitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BenefitWeekResponse))]
@@ -39425,6 +40067,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateThreadResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UpdateUserWebControlsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.UploadESPDXFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.VoluntaryContributionCalculatorResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentApprovalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WageAdjustmentBySSNResponse))]
@@ -39443,7 +40086,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserPreferenceResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserRoleCodeResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.WebUserSecurityResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerPhoneResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerEmailResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.COEResponse))]
@@ -39512,8 +40154,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.PortalEmployerProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ESPEmployerSummaryProxy))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.EmployerStatusProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.ActivateReasonCodeProxy))]
@@ -39524,6 +40164,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadDetailProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileUploadErrorProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.TaxUploadErrorFlatFileRecordProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FileContactProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinanceMethodConversionRequestProxy))]
@@ -39545,6 +40187,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.FinancialInstitutionProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.CardEFTPaymentActivityProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.NAICCodeProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService.StaffMemberProxy))]
