@@ -1,0 +1,456 @@
+@page "/manage-account/status-change"
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@using System.Text.RegularExpressions
+@using System.ServiceModel
+@using UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
+@using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.EmployerInformation.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@inject NavigationManager _nav;
+@inject IAccountSummaryService _accountSummaryServvice;
+@inject IUserAccountService _userAccountService;
+@inject IDashboardOrchestrator _dashboardOrchestrator;
+@inject IAccountMaintenanceService _accountMaintenanceService;
+@inject IConfiguration _configuration;
+@inject IJSRuntime _jsRuntime;
+
+<PageTitle>Status Change Request</PageTitle>
+
+<div class="article-wrapper">
+    <h1 class="vf-page-title" id="PageHeader">UI Account Status Change Request</h1>
+    <hr />
+    <NotificationBanner NotificationType="NotificationType.Alert"
+                        Title="Network Error"
+                        Message="@_toastError"
+                        Visible="@(!string.IsNullOrWhiteSpace(_toastError))" />
+    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                        Title="Success"
+                        Message="@_toastSuccess"
+                        Visible="@(!string.IsNullOrWhiteSpace(_toastSuccess))" />
+
+    @if (_employerData != null)
+    {
+        @if (_formSubmitted && _validationErrors.Count() > 0)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="_validationErrors"
+                                MessageFieldIds="_validationFieldIds"
+                                DismissButton="false" />
+        
+        }
+        <div class="status-change">
+            <p>Change the status of your UI account due to changes in your business activity. Please complete the requested information below and Submit your request.</p>
+            <p>Please verify the following information before @(_employerData.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open" ? "closing" : "re-opening") your account.</p>
+            <p>All fields are required unless noted.</p>
+            <div class="account-information">
+                <h3>Account Information</h3>
+                <dl>
+                    <div>
+                        <dt>Legal Name</dt>
+                        <dd>@_employerData.LegalName</dd>
+                    </div>
+                    <div>
+                        <dt>UI Account Number</dt>
+                        <dd>@FormatUIAccountNumber(_employerData.UIAccountNumber)</dd>
+                    </div>
+                    <div>
+                        <dt>Trade Name</dt>
+                        <dd>@(_employerData.TradeName ?? "-")</dd>
+                    </div>
+                    <div>
+                        <dt>Current Status</dt>
+                        <dd>@_employerData.CurrentEmployerStatus.CurrentStatus</dd>
+                    </div>
+                    <div>
+                        <dt>Main Business Mailing Address</dt>
+                        <dd>
+                            @((MarkupString)MainBusinessMailingAddress)
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            <EditForm EditContext="@_editContext" FormName="StatusChange" OnSubmit="Submit" role="form">
+                <div class="form-body">
+                    <p>If this information isn't correct, go to the <a href="manage-account/account-details">UI Account Summary</a> page to make updates</p>
+
+                    <div class="half-width">
+                        <OutlinedTextField Id="employment-date"
+                                           Label="@EmploymentDateFieldText"
+                                           @bind-Value="EmploymentDateAlias"
+                                           Type="date"
+                                           Placeholder="MM/DD/YYYY"
+                                           onblur="() => TouchField(nameof(_model.EmploymentDate))"
+                                           onchange="@(() => RunValidation(_editContext.Field(nameof(_model.EmploymentDate))))"
+                                           ForceError="@(HasFieldErrors(nameof(_model.EmploymentDate)))"
+                                           ForceErrorMessage="@_editContext.GetValidationMessages(_editContext.Field(nameof(_model.EmploymentDate))).FirstOrDefault()" />
+                    </div>
+                    <div class="half-width">
+                        <OutlinedTextField Id="payroll-date"
+                                           Label="@PayrollDateFieldText"
+                                           @bind-Value="PayrollDateAlias"
+                                           Type="date"
+                                           Placeholder="MM/DD/YYYY"
+                                           onblur="() => TouchField(nameof(_model.PayrollDate))"
+                                           onchange="@(() => RunValidation(_editContext.Field(nameof(_model.PayrollDate))))"
+                                           ForceError="@(HasFieldErrors(nameof(_model.PayrollDate)))"
+                                           ForceErrorMessage="@_editContext.GetValidationMessages(_editContext.Field(nameof(_model.PayrollDate))).FirstOrDefault()" />
+                    </div>
+                    <div class="half-width">
+                        @if (_employerData.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open")
+                        {
+                            <GenericOutlinedSelectField Id="closure-reason"
+                                                        TValue="ClosureReason?"
+                                                        Label="Reason for Closure"
+                                                        Options="ClosureReasonOptions"
+                                                        For="@(() => _model.ClosureReason)"
+                                                        OnBlur="@(() => TouchField(nameof(_model.ClosureReason)))"
+                                                        ErrorVisible="@(HasFieldErrors(nameof(_model.ClosureReason)))"
+                                                        @bind-Value="_model.ClosureReason" />
+                        }
+                        else
+                        {
+                            <GenericOutlinedSelectField Id="activity-reason"
+                                                        TValue="ActivationReason?"
+                                                        Label="Reason for Re-Opening"
+                                                        Options="ActivationReasonOptions"
+                                                        For="@(() => _model.ActivationReason)"
+                                                        OnBlur="@(() => TouchField(nameof(_model.ActivationReason)))"
+                                                        ErrorVisible="@(HasFieldErrors(nameof(_model.ActivationReason)))"
+                                                        @bind-Value="_model.ActivationReason" />
+                        }
+                    </div>
+
+                    <p id="email-label">Enter your email address so we may contact you in the event there is a problem with your request.</p>
+                    <div class="half-width">
+                        <OutlinedTextField Id="email-address"
+                                           aria-describedby="email-label"
+                                           Label="Email Address"
+                                           Type="email"
+                                           For="() => _model.Email"
+                                           Placeholder="name@example.com"
+                                           MaxLength="255"
+                                           @bind-Value="_model.Email"
+                                           onchange="@(() => RunValidation(_editContext.Field(nameof(_model.Email))))"
+                                           ForceError="@(HasFieldErrors(nameof(_model.Email)))"
+                                           ForceErrorMessage="@_editContext.GetValidationMessages(_editContext.Field(nameof(_model.Email))).FirstOrDefault()" />
+                    </div>
+
+                    <p id="comments-label">Enter any comments you would like to include with your request.</p>
+                    <div aria-describedby="comments-label" class="full-width">
+                        <OutlinedTextArea Id="comments"
+                                          Label="Comments (Optional)"
+                                          MaxLength="500"
+                                          @bind-Value="_model.Comments" />
+                    </div>
+                    <div class="footer">
+                        <Button Text="CANCEL"
+                                Variant="ButtonVariant.Secondary"
+                                Onclick="@(() => _nav.NavigateTo("manage-account/account-details"))" />
+                        <Button Text="SUBMIT"
+                                Variant="ButtonVariant.Primary"
+                                Onclick="Submit"
+                                Disabled="@(_working)" />
+                    </div>
+                </div>
+            </EditForm>
+            <PageBlockingLoadingSpinner Message="Working ..." IsLoading="@_working" />
+        </div>
+    }
+    else
+    {
+        <LoadingSpinner Message="Loading..."></LoadingSpinner>
+    }
+</div>
+
+@code {
+    private bool _working = false;
+    private bool _formSubmitted = false;
+    private EditContext _editContext = default!;
+    private ValidationMessageStore _messageStore = default!;
+    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+    private EmployerSummaryProxy? _employerData { get; set; } = null;
+
+    private string _technicalDifficulties { get; set; } = string.Empty;
+    private string _generalError { get; set; } = "There was an error";
+
+    private List<string> _validationErrors { get; set; } = new();
+    private List<string> _validationFieldIds { get; set; } = new();
+    private string _toastError { get; set; } = string.Empty;
+    private string _toastSuccess { get; set; } = string.Empty;
+
+    private string MainBusinessMailingAddress =>
+        _employerData?.StreetAddresses.FirstOrDefault(sa => string.Compare(sa.AddressType, "main business mailing", StringComparison.OrdinalIgnoreCase) == 0)?.StreetAddressDisplay ?? string.Empty;
+
+    private StatusChangeModel _model { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(_model);
+        _messageStore = new ValidationMessageStore(_editContext);
+
+        _technicalDifficulties =  _configuration.GetValue<string>("Messages:TechnicalDifficulties") ?? "There was an error.";
+
+        //Track validation state as user interacts
+        _editContext.OnFieldChanged += (_, f) =>
+        {
+            _touchedFields.Add(f.FieldIdentifier);
+            RunValidation(f.FieldIdentifier);
+
+            _editContext.NotifyValidationStateChanged();
+        };
+        _editContext.OnValidationRequested += (_, __) =>
+        {
+            RunValidation();
+        };
+
+        var secureUserSk = _userAccountService.GetUserSKClaim();
+
+        var employer = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
+        if (employer == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var employerResponse = await _accountSummaryServvice.GetEmployerAsync(new UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerRequest
+            {
+                EmployerSK = employer.Id,
+                SecureUserSK = secureUserSk
+            });
+            if (employerResponse == null)
+            {
+                return;
+            }
+            _employerData = employerResponse.Employer;
+        }
+        catch (CommunicationException)
+        {
+            _toastError = _technicalDifficulties;
+        }
+        catch
+        {
+            _toastError = _generalError;
+        }
+    }
+
+    private void TouchField (string fieldName)
+    {
+        var fieldIdentifier = _editContext.Field(fieldName);
+
+        if (!_touchedFields.TryGetValue(fieldIdentifier, out var actualValue))
+        {
+            _touchedFields.Add(fieldIdentifier);
+        }
+        RunValidation(fieldIdentifier);
+    }
+
+    private string FormatUIAccountNumber(string value)
+    {
+        return $"{value[..6]}-{value[6..9]}-{value[9..]}";
+    }
+
+    private bool HasFieldErrors(string fieldName) =>
+        (_touchedFields.Contains(_editContext.Field(fieldName)) || _formSubmitted)
+        && _editContext.GetValidationMessages(_editContext.Field(fieldName)).Count() > 0;
+
+    private string EmploymentDateAlias
+    {
+        get
+        {
+            return _model.EmploymentDate?.ToString("yyyy-MM-dd") ?? string.Empty;
+        }
+        set
+        {
+            if (DateOnly.TryParse(value, out var dateValue))
+            {
+                _model.EmploymentDate = dateValue;
+            }
+            else
+            {
+                _model.EmploymentDate = null;
+            }
+        }
+    }
+
+    private string PayrollDateAlias
+    {
+        get
+        {
+            return _model.PayrollDate?.ToString("yyyy-MM-dd") ?? string.Empty;
+        }
+        set
+        {
+            if (DateOnly.TryParse(value, out var dateValue))
+            {
+                _model.PayrollDate = dateValue;
+            }
+            else
+            {
+                _model.PayrollDate = null;
+            }
+        }
+    }
+
+    private List<KeyValuePair<ClosureReason?, string>> ClosureReasonOptions => Enum.GetValues<ClosureReason>().Select(cr =>
+    {
+        return new KeyValuePair<ClosureReason?, string>(cr, cr.GetDisplayName());
+    }).ToList();
+
+    private List<KeyValuePair<ActivationReason?, string>> ActivationReasonOptions => Enum.GetValues<ActivationReason>().Select(ar =>
+    {
+        return new KeyValuePair<ActivationReason?, string>(ar, ar.GetDisplayName());
+    }).ToList();
+
+    private string EmploymentDateFieldText => _employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() switch
+    {
+        "open" => "Last Date Employees Worked",
+        "closed" => "Date Employment Resumed",
+        _ => string.Empty
+    };
+
+    private string PayrollDateFieldText => _employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() switch
+    {
+        "open" => "Last Date Payroll Checks Were Issued",
+        "closed" => "New Payroll Date",
+        _ => string.Empty
+    };
+
+    private void RunValidation(FieldIdentifier? changedField = null)
+    {
+        if (changedField.HasValue)
+        {
+            // Clear only that field’s errors
+            _messageStore.Clear(changedField.Value);
+        }
+        else
+        {
+            // Full validation (on submit)
+            _messageStore.Clear();
+        }
+
+        ValidateModel();
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private void ValidateModel()
+    {
+        _messageStore.Clear();
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+
+        if (!_model.EmploymentDate.HasValue)
+        {
+            var errorText = "You must enter a date";
+            _messageStore.Add(_editContext.Field(nameof(_model.EmploymentDate)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("employment-date");
+        }
+
+        if (!_model.PayrollDate.HasValue)
+        {
+            var errorText = "You must enter a date";
+            _messageStore.Add(_editContext.Field(nameof(_model.PayrollDate)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("payroll-date");
+        }
+
+        if (_employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open" && !_model.ClosureReason.HasValue)
+        {
+            var errorText = "You must select a Closure Reason";
+            _messageStore.Add(_editContext.Field(nameof(_model.ClosureReason)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("closure-reason");
+        }
+
+        if (_employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "closed" && !_model.ActivationReason.HasValue)
+        {
+            var errorText = "You must select an Activation Reason";
+            _messageStore.Add(_editContext.Field(nameof(_model.ActivationReason)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("activation-reason");
+        }
+
+        if (string.IsNullOrWhiteSpace(_model.Email))
+        {
+            var errorText = "You must enter an email address";
+            _messageStore.Add(_editContext.Field(nameof(_model.Email)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("email-address");
+
+        }
+        else
+        {
+            if (!Regex.IsMatch(_model.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase))
+            {
+                var errorText = "You must enter a valid email";
+                _messageStore.Add(_editContext.Field(nameof(_model.Email)), errorText);
+                _validationErrors.Add(errorText);
+                _validationFieldIds.Add("email-address");
+            }
+        }
+
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private async Task Submit()
+    {
+        _working = true;
+        RunValidation();
+        _formSubmitted = true;
+
+        if (!(_editContext.GetValidationMessages().Count() > 0))
+        {
+            var secureUserSk = _userAccountService.GetUserSKClaim();
+
+            var request = new PortalStatusChangeRequest
+                {
+                    EmployerSK = _employerData!.EmployerSK,
+                    Comments = string.IsNullOrWhiteSpace(_model.Comments) ? null : _model.Comments,
+                    EmailAddress = _model.Email,
+                    SecureUserSK = secureUserSk
+                };
+
+            if (_employerData!.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open")
+            {
+                request.ClosureReasonCodeSK = (int?)_model.ClosureReason;
+                request.LastEmploymentDate = _model.EmploymentDate.ToDateTimeNullable();
+                request.LastPayrollDate = _model.PayrollDate.ToDateTimeNullable();
+            }
+            else
+            {
+                request.ActivateReasonCodeSK = (int?)_model.ActivationReason;
+                request.DateEmploymentResumed = _model.EmploymentDate.ToDateTimeNullable();
+                request.NewPayrollDate = _model.EmploymentDate.ToDateTimeNullable();
+            }
+
+            try
+            {
+                var response = await _accountMaintenanceService.CreateStatusChangeRequestAsync(request);
+
+                _toastSuccess = "Status change request submitted Successfully";
+            }
+            catch (CommunicationException)
+            {
+                _toastError = _technicalDifficulties;
+            }
+            catch
+            {
+                _toastError = _generalError;
+            }
+            finally
+            {
+                _working = false;
+            }
+        }
+        _working = false;
+        await _jsRuntime.InvokeVoidAsync("scrollToTop");
+    }
+}

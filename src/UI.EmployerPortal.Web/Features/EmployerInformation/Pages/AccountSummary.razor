@@ -1,0 +1,296 @@
+@page "/manage-account/account-details-2"
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@using System.Globalization
+@using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@using UI.EmployerPortal.Razor.SharedComponents.Accordion.Accordion
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+
+@using TaxAndWageService = UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@using AccountSummaryService = UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
+
+@inject IAccountSummaryService _accountSummaryService;
+@inject ITaxWageReportingService _taxWageReportingService;
+@inject IUserAccountService _userAccountService;
+@inject IDashboardOrchestrator _dashboardOrchestrator;
+@inject IJSRuntime _jsRuntime;
+@inject NavigationManager _navigationManager;
+
+<PageTitle>UI Account Summary</PageTitle>
+
+<h1 class="vf-page-title" id="PageHeader">UI Account Summary</h1>
+<hr/>
+
+@if (employerData != null && missingQuarters != null)
+{
+    <div class="columns">
+        <div class="accordions">
+            <SummaryAccordion Title="Account Information">
+                <div class="edit-button">
+                    <a href="manage-account/update-account">&#9998; Edit</a>
+                </div>
+                <dl class="accordion-data">
+                    <div>
+                        <dt>UI Account Number</dt>
+                        <dd>@FormatUIAccountNumber(employerData.Employer.UIAccountNumber)</dd>
+                    </div>
+                    <div>
+                        <dt>FEIN</dt>
+                        <dd>@FormatFEIN(employerData.Employer.FEIN)</dd>
+                    </div>
+                    <div>
+                        <dt>Legal Name</dt>
+                        <dd>@employerData.Employer.LegalName</dd>
+                    </div>
+                    <div>
+                        <dt>Trade Name</dt>
+                        <dd>@FormatPossiblyEmptyString(employerData.Employer.TradeName)</dd>
+                    </div>
+                    <div>
+                        <dt>Business Phone</dt>
+                        <dd>@(employerData.Employer.PhoneNumbers.FirstOrDefault(pn => pn.PhoneCode == "Business")?.FormatedPhoneNumber ?? "-")</dd>
+                    </div>
+                    <div>
+                        <dt>Business Email</dt>
+                        <dd>@(employerData.Employer.EmailAddresses.FirstOrDefault(em => em.TypeCode == "Business")?.EmailAddress ?? "-")</dd>
+                    </div>
+                </dl>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Address Information">
+                <div class="edit-button">
+                    <a href="manage-account/manage-addresses">&#9998; Edit</a>
+                </div>
+                <dl class="accordion-data">
+                    @foreach (var (addressName, display) in FormatAddresses())
+                    {
+                        <div>
+                            <dt>@addressName</dt>
+                            <dd>@((MarkupString)display)</dd>
+                        </div>
+                    }
+                </dl>
+                <a href="manage-account/manage-addresses">+ Add Address</a>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Business Classification">
+                <dl class="accordion-data">
+                    <div>
+                        <dt>Business Classification</dt>
+                        <dd>@employerData.Employer.BusinessClassification</dd>
+                    </div>
+                    <div>
+                        <dt>Ownership Classification</dt>
+                        <dd>@employerData.Employer.OwnershipClassificationType</dd>
+                    </div>
+                    <div>
+                        <dt>Employer Classification</dt>
+                        <dd>@employerData.Employer.EmployerClassification</dd>
+                    </div>
+                </dl>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Account Status & Subjectivity">
+                <dl class="accordion-data">
+                    <div>
+                        <dt>Current Status</dt>
+                        <dd>@employerData.Employer.CurrentEmployerStatus.CurrentStatus</dd>
+                    </div>
+                    <div>
+                        <dt>Subjectivity Status</dt>
+                        <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityStatus</dd>
+                    </div>
+                    <div>
+                        <dt>Subjectivity Reason</dt>
+                        <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityReason</dd>
+                    </div>
+                    <div>
+                        <dt>Subject Date</dt>
+                        <dd>@(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                    </div>
+                    <div>
+                        <dt>Closure Reason</dt>
+                        <dd>@FormatPossiblyEmptyString(employerData.Employer.CurrentEmployerStatus.ClosureReason)</dd>
+                    </div>
+                    <div>
+                        <dt>Quarter First Pay</dt>
+                        <dd>@($"{employerData.Employer.CurrentEmployerStatus.QuarterFirstPay}/{(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.Year.ToString() ?? string.Empty)}")</dd>
+                    </div>
+                    <div>
+                        <dt>Last Employment Date</dt>
+                        <dd>@(employerData.Employer.CurrentEmployerStatus.LastEmploymentDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                    </div>
+                    <div>
+                        <dt>Last Payroll Date</dt>
+                        <dd>@(employerData.Employer.CurrentEmployerStatus.LastPayrollDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                    </div>
+                </dl>
+                <a href="manage-account/status-change">
+                    @(string.Compare(employerData.Employer.CurrentEmployerStatus.CurrentStatus, "open", StringComparison.InvariantCultureIgnoreCase) == 0 ? "Close Account" : "Reopen Account")
+                </a>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Tax Rates & Balances">
+                <dl class="accordion-data">
+                    @foreach (var taxYearRate in employerData.Employer.TaxRates.OrderBy(tr => tr.RateYear))
+                    {
+                        <div>
+                            <dt>@($"{taxYearRate.RateYear} Tax Rate")</dt>
+                            <dd>@($"{(taxYearRate.TotalRate * 100).ToString("F2")}%")</dd>
+                        </div>
+                    }
+                    <div>
+                        <dt>Accounts Receivable Balance</dt>
+                        <dd>@employerData.Employer.AccountsReceivableBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
+                    </div>
+                    <div>
+                        <dt>Current Reserve Fund Balance</dt>
+                        <dd>@employerData.Employer.ReserveFundBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
+                    </div>
+                    <div>
+                        <dt>10% Write off Year</dt>
+                        <dd>@(employerData.Employer.WriteOffDate?.Year.ToString() ?? "-")</dd>
+                    </div>
+                    <div>
+                        <dt>Voluntary Year</dt>
+                        <dd>@(employerData.Employer.VoluntaryYear?.ToString() ?? "-")</dd>
+                    </div>
+                </dl>
+                <a href="manage-account/rate-summary">Rate Summary</a>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Filing & Reporting">
+                <dl class="accordion-data">
+                    <div>
+                        <dt>Quarterly Reports Missing</dt>
+                        <dd>@string.Join(", ", missingQuarters?.MissingReports.Select(mr => mr.FormattedQuarterYear) ?? new List<string>())</dd>
+                    </div>
+                    <div>
+                        <dt>Required to Pay Electronically</dt>
+                        <dd>@(employerData.Employer.ElectronicPayRequired ? "Yes" : "No")</dd>
+                    </div>
+                    <div>
+                        <dt>Initial Report Due Date</dt>
+                        <dd>@employerData.Employer.InitialReportDueDate.ToString("MM/dd/yyyy")</dd>
+                    </div>
+                    <div>
+                        <dt>Required to File Wages Electronically</dt>
+                        <dd>@(employerData.Employer.ElectronicFilingRequired ? "Yes" : "No")</dd>
+                    </div>
+                    <div>
+                        <dt>Corporate Officer Exclusion</dt>
+                        <dd>@FormatPossiblyEmptyString(employerData.Employer.CorporateOfficerExclusion)</dd>
+                    </div>
+                </dl>
+                <a href="manage-account/corporate-office-exclusion">Corporate Officer Exclusion Resonableness Worksheet</a>
+            </SummaryAccordion>
+
+            <SummaryAccordion Title="Audit & Appeals">
+                <dl class="accordion-data">
+                    <div>
+                        <dt>Appeal Pending</dt>
+                        <dd>@(employerData.Employer.AppealPending ? "Yes" : "No")</dd>
+                    </div>
+                    <div>
+                        <dt>Audit in Progress</dt>
+                        <dd>@(employerData.Employer.AuditInProgress ? "Yes" : "No")</dd>
+                    </div>
+                    @foreach (var audit in employerData.Employer.Audits)
+                    {
+                        <div>
+                            <dt>Audit Period Covered</dt>
+                            <dd>@audit.AuditPeriodCovered</dd>
+                        </div>
+                        <div>
+                            <dt>Audit Scheduled Date</dt>
+                            <dd>@audit.AuditScheduledDate.ToString("MM/dd/yyyy")</dd>
+                        </div>
+                    }
+                </dl>
+            </SummaryAccordion>
+
+            <a href=""
+                @onclick="ScrollToTop"
+                @onclick:preventDefault="true">
+                &uarr; Top of Page
+            </a>
+        </div>
+
+        <nav class="jump-menu" aria-label="Page Sections">
+            <h4>Jump To</h4>
+            <hr />
+            <ul>
+                <li><a href="manage-account/account-details/#AccountInformation">Account Information</a></li>
+                <li><a href="manage-account/account-details/#AddressInformation">Address Information</a></li>
+                <li><a href="manage-account/account-details/#BusinessClassification">Business Classification</a></li>
+                <li><a href="manage-account/account-details/#AccountStatusSubjectivity">Account Status & Subjectivity</a></li>
+                <li><a href="manage-account/account-details/#TaxRatesBalances">Tax Rates & Balances</a></li>
+                <li><a href="manage-account/account-details/#FilingReporting">Filing & Reporting</a></li>
+                <li><a href="manage-account/account-details/#AuditAppeals">Audit & Appeals</a></li>
+            </ul>
+        </nav>
+    </div>
+}
+else
+{
+    <LoadingSpinner Message="Loading..." />
+}
+
+@code {
+    private EmployerDetailsResponse? employerData = null;
+    private TaxAndWageService.MissingReportsResponse? missingQuarters = null;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        var secureUserSk = _userAccountService.GetUserSKClaim();
+
+        var selectedClient = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
+
+        if (selectedClient == null) return;
+
+        var employerSk = selectedClient.Id;
+
+        var employerRequest = new AccountSummaryService.EmployerRequest()
+            {
+                EmployerSK = employerSk,
+                SecureUserSK = secureUserSk
+            };
+
+        employerData = await _accountSummaryService.GetEmployerAsync(employerRequest);
+
+        missingQuarters = await _taxWageReportingService.GetMissingQuartersAsync(employerSk, secureUserSk);
+    }
+
+    private List<Tuple<string, string>> FormatAddresses()
+    {
+        return employerData?.Employer.StreetAddresses.Select(address =>
+        {
+            return Tuple.Create(
+                address.AddressType,
+                address.StreetAddressDisplay
+            );
+        }).ToList() ?? new List<Tuple<string, string>>();
+    }
+
+    private string FormatUIAccountNumber(string value)
+    {
+        return $"{value[..6]}-{value[6..9]}-{value[9..]}";
+    }
+
+    private string FormatFEIN(string value)
+    {
+        return $"{value[..2]}-{value[2..]}";
+    }
+
+    private string FormatPossiblyEmptyString(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    private async Task ScrollToTop()
+    {
+        await _jsRuntime.InvokeVoidAsync("scrollToTop");        
+    }
+}
