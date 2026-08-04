@@ -55,13 +55,35 @@ internal class AccountDetailsService : IAccountDetailsService
 
         var employer = response.EmployerProxy;
 
+        var rawPhone = employer.PhoneNumber ?? string.Empty;
+        var phoneSplit = rawPhone.Split(new[] { 'x', 'X' }, 2);
+        var phoneStr = phoneSplit[0];
+        var extStr = phoneSplit.Length > 1 ? phoneSplit[1] : string.Empty;
+
+        var phoneDigits = new string(phoneStr.Where(char.IsDigit).ToArray());
+        if (phoneDigits.Length > 10) phoneDigits = phoneDigits[..10];
+
+        var formattedPhone = phoneDigits.Length switch
+        {
+            > 6 => $"{phoneDigits[..3]}-{phoneDigits[3..6]}-{phoneDigits[6..]}",
+            > 3 => $"{phoneDigits[..3]}-{phoneDigits[3..]}",
+            _ => phoneDigits
+        };
+
+        var extDigits = new string(extStr.Where(char.IsDigit).ToArray());
+
+        var feinStr = employer.FEIN ?? string.Empty;
+        var feinDigits = new string(feinStr.Where(char.IsDigit).ToArray());
+        if (feinDigits.Length > 9) feinDigits = feinDigits[..9];
+        var formattedFein = feinDigits.Length > 2 ? $"{feinDigits[..2]}-{feinDigits[2..]}" : feinDigits;
+
         return new AccountDetailsModel
         {
-            FEIN = employer.FEIN ?? string.Empty,
+            FEIN = formattedFein,
             LegalName = employer.LegalName ?? string.Empty,
             TradeName = employer.TradeName,
-            PhoneNumber = employer.PhoneNumber ?? string.Empty,
-            Extension = string.Empty,
+            PhoneNumber = formattedPhone,
+            Extension = extDigits,
             EmailAddress = string.Empty
         };
     }

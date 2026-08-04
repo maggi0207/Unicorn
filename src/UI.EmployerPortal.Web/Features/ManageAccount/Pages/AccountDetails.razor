@@ -28,6 +28,10 @@
     {
         <LoadingSpinner Message="Loading account details..." />
     }
+    else if (_isSaving)
+    {
+        <LoadingSpinner Message="Saving account details..." />
+    }
     else
     {
         @* ── Validation Error Summary ── *@
@@ -166,6 +170,16 @@
     private bool _formSubmitted = false;
 
     /// <summary>
+    /// Tracks whether the form is currently saving.
+    /// </summary>
+    private bool _isSaving = false;
+
+    /// <summary>
+    /// The original model used to detect which fields were changed.
+    /// </summary>
+    private AccountDetailsModel? _originalModel;
+
+    /// <summary>
     /// Tracks which fields the user has interacted with so errors show on field change.
     /// </summary>
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
@@ -221,6 +235,17 @@
             _model = new AccountDetailsModel();
         }
 
+        // Clone the original model to detect changes later
+        _originalModel = new AccountDetailsModel
+        {
+            FEIN = _model.FEIN,
+            LegalName = _model.LegalName,
+            TradeName = _model.TradeName,
+            PhoneNumber = _model.PhoneNumber,
+            Extension = _model.Extension,
+            EmailAddress = _model.EmailAddress
+        };
+
         _editContext = new EditContext(_model);
 
         // Track field interactions for progressive error display
@@ -262,11 +287,25 @@
             return;
         }
 
+        _isSaving = true;
+        StateHasChanged();
+
         var result = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
 
+        _isSaving = false;
+        
         if (result.success)
         {
-            NavigationManager.NavigateTo("/manage-account?success=true");
+            var query = new List<string> { "success=true" };
+            if (_originalModel != null)
+            {
+                if (_model.FEIN != _originalModel.FEIN) query.Add("fein=1");
+                if (_model.LegalName != _originalModel.LegalName) query.Add("name=1");
+                if (_model.TradeName != _originalModel.TradeName) query.Add("trade=1");
+                if (_model.PhoneNumber != _originalModel.PhoneNumber || _model.Extension != _originalModel.Extension) query.Add("phone=1");
+                if (_model.EmailAddress != _originalModel.EmailAddress) query.Add("email=1");
+            }
+            NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");
         }
         else
         {

@@ -1,4 +1,4 @@
-@page "/manage-account/account-details-2"
+@page "/manage-account/account-summary"
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using System.Globalization
 @using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
@@ -19,6 +19,17 @@
 @inject NavigationManager _navigationManager;
 
 <PageTitle>UI Account Summary</PageTitle>
+
+@if (_successMessages.Any())
+{
+    <div class="mb-4">
+        <UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationBanner 
+            NotificationType="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationType.Success"
+            Title="Account information changed"
+            MessageStyle="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.MessageStyle.MultiLine"
+            Messages="_successMessages" />
+    </div>
+}
 
 <h1 class="vf-page-title" id="PageHeader">UI Account Summary</h1>
 <hr/>
@@ -241,9 +252,27 @@ else
 @code {
     private EmployerDetailsResponse? employerData = null;
     private TaxAndWageService.MissingReportsResponse? missingQuarters = null;
+    private List<string> _successMessages = new();
 
     protected override async Task OnInitializedAsync ()
     {
+        var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        
+        if (query.TryGetValue("success", out var successValue) && successValue == "true")
+        {
+            if (query.TryGetValue("fein", out _)) _successMessages.Add("Request for FEIN change submitted for approval.");
+            if (query.TryGetValue("name", out _)) _successMessages.Add("Request for Legal Name change submitted for approval.");
+            if (query.TryGetValue("trade", out _)) _successMessages.Add("Trade Name has been updated.");
+            if (query.TryGetValue("phone", out _)) _successMessages.Add("Phone Number has been updated.");
+            if (query.TryGetValue("email", out _)) _successMessages.Add("Email Address has been updated.");
+            
+            if (_successMessages.Count == 0)
+            {
+                _successMessages.Add("Account information updated successfully.");
+            }
+        }
+
         var secureUserSk = _userAccountService.GetUserSKClaim();
 
         var selectedClient = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
