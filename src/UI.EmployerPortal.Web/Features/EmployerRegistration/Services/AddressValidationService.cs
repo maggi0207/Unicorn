@@ -1,4 +1,5 @@
 using System.ServiceModel;
+using System.Text.RegularExpressions;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using GeneratedClient = UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
 
@@ -73,10 +74,11 @@ public class AddressValidationService : IAddressValidationWrapper
                 ? null
                 : response.OutputAddress.LineTwoAddress;
 
-            if (string.Equals(line1?.Trim(), line2?.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
+            // The service sometimes echoes the street address in both Line1 and Line2,
+            // potentially with different Unicode whitespace (e.g. non-breaking space \u00A0 vs \u0020).
+            // Normalize all whitespace before comparing to catch these invisible differences.
+            if (string.Equals(NormalizeWhitespace(line1), NormalizeWhitespace(line2), StringComparison.OrdinalIgnoreCase))
                 line2 = null;
-            }
 
             correctedAddress = new AddressModel
             {
@@ -92,6 +94,16 @@ public class AddressValidationService : IAddressValidationWrapper
         }
 
         return new AddressValidationResult(isValid, errorMessage, correctedAddress);
+    }
+
+    /// <summary>
+    /// Normalizes a string by replacing all Unicode whitespace characters with a regular space
+    /// and collapsing consecutive spaces into one. Returns empty string for null/blank input.
+    /// </summary>
+    private static string NormalizeWhitespace(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        return Regex.Replace(value.Trim(), @"\s+", " ");
     }
 
     /// <summary>
