@@ -22,6 +22,12 @@ public class AddressModel
     [MaxLength(255, ErrorMessage = "Name cannot exceed 255 characters")]
     public string? Name { get; set; }
 
+     /// <summary>
+    /// County name returned by the address validation service (Finalist).
+    /// Not collected from the user — populated silently when address validation succeeds.
+    /// </summary>
+    public string? CountyName { get; set; }
+
     /// <summary>
     /// Country name. Defaults to "United States".
     /// </summary>

@@ -81,8 +81,8 @@ public class AddressValidationService : IAddressValidationWrapper
                 State = response.OutputAddress.StateCode,
                 Zip = response.OutputAddress.ZipCode,
                 Extension = response.OutputAddress.ZipCodeExtension,
-                // Service returns null CountryCode in OutputAddress; fall back to the input value.
-                Country = response.OutputAddress.CountryCode ?? address.Country
+                Country = response.OutputAddress.CountryCode ?? address.Country,
+                CountyName = response.OutputAddress.CountyName ?? string.Empty
             };
         }
 
