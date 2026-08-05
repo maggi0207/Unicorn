@@ -1,5 +1,4 @@
 using System.ServiceModel;
-using System.Text.RegularExpressions;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using GeneratedClient = UI.EmployerPortal.Generated.ServiceClients.AddressValidationService;
 
@@ -66,15 +65,13 @@ public class AddressValidationService : IAddressValidationWrapper
         AddressModel? correctedAddress = null;
         if (response.OutputAddress is not null)
         {
-            // SUITES: LineOneAddress = apartment, LineTwoAddress = street.
-            // AddressModel: AddressLine1 = street (line1), AddressLine2 = apartment (line2).
-            // Fallback: if LineTwoAddress is empty, the service put the street in LineOneAddress.
-            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineTwoAddress)
-                ? response.OutputAddress.LineOneAddress
-                : response.OutputAddress.LineTwoAddress;
-            var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineTwoAddress)
+            // The service occasionally returns the street in LineTwoAddress when LineOneAddress is empty.
+            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
+                ? response.OutputAddress.LineTwoAddress
+                : response.OutputAddress.LineOneAddress;
+            var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
                 ? null
-                : (string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress) ? null : response.OutputAddress.LineOneAddress);
+                : response.OutputAddress.LineTwoAddress;
 
             correctedAddress = new AddressModel
             {
@@ -85,15 +82,12 @@ public class AddressValidationService : IAddressValidationWrapper
                 Zip = response.OutputAddress.ZipCode,
                 Extension = response.OutputAddress.ZipCodeExtension,
                 // Service returns null CountryCode in OutputAddress; fall back to the input value.
-                Country = response.OutputAddress.CountryCode ?? address.Country,
-                // County is returned by Finalist and must be forwarded to the SUITES save request.
-                CountyName = response.OutputAddress.CountyName
+                Country = response.OutputAddress.CountryCode ?? address.Country
             };
         }
 
         return new AddressValidationResult(isValid, errorMessage, correctedAddress);
     }
-
 
     /// <summary>
     /// Maps the AddressModel country display name to the ISO code expected by the WCF service.

@@ -22,30 +22,34 @@
 @using UI.EmployerPortal.Web.Features.Landing
 
 
+<PageTitle>Employer Registration Complete</PageTitle>
 <div class="page_wrapper">
     <div class="registration-complete-container">
-        @if (showBanner)
-        {
-            <div>
-                <NotificationBanner Message="Initial Determination letter will be mailed to your main business mailing address." NotificationType=NotificationType.Confirmation></NotificationBanner>
-            </div>
-        }
+        <div id="status-notification-container" role="status">
+            @if (showBanner)
+            {
+                <NotificationBanner
+                    Message="Initial Determination letter will be mailed to your main business mailing address."
+                    NotificationType=NotificationType.Confirmation>
+                </NotificationBanner>
+            }
+        </div>
         @if (isLoading)
         {
             <div>
-                
+
 
                 <div class="transparent-sucess-content">
                     <div class="success-header">
-                        <img src="icons/check_circle_green.svg" width="30" />
+                        <img src="icons/check_circle_green.svg" width="30" alt=""/>
                         <h1 class="success-title">You Have Successfully Completed the Employer Registration</h1>
                     </div>
 
                     <div class="account-info">
                         <p class="account-text">
                             Your account number is on the
-                            <a class="determination-link" @onclick="DownloadPdf">Initial Determination(ID)</a>
-                            <img src="icons/check_circle_blue.svg" width="30" />
+                            <button class="text-button" @onclick="DownloadPdf">Initial Determination(ID)</button>
+                            <img src="icons/check_circle_blue.svg" width="30" alt=""/>
                         </p>
                     </div>
                 </div>
@@ -53,7 +57,7 @@
              </div>
             <br />
             <div class="mail-a-copy">
-                <a class="determination-link" @onclick="ShowNotification">Mail a copy of the ID to the main business mailing address</a>
+                <button class="text-button" @onclick="ShowNotification">Mail a copy of the ID</button> to the main business mailing address
             </div>
         }
         else
@@ -61,7 +65,8 @@
 
             @if (showIdLetterErrorBanner)
             {
-                <div class="row nb-alert" aria-label="The system couldn't load the Initial Determination letter, but your account is now open. You can view the Initial Determination letter in UI Documents when it is available." b-7npt0yvdkt=""><div class="col text-start" b-7npt0yvdkt=""><!--!-->
+                <div class="row nb-alert" role="alert" b-7npt0yvdkt="">
+                    <div class="col text-start" b-7npt0yvdkt=""><!--!-->
                         <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/alert-notification.svg" class="sort-icon" alt="Alert">
                         <span class="nb-text">
                             <strong class="mb-2 me-2">The system couldn't load the Initial Determination letter, but your account is now open.</strong>
@@ -74,22 +79,22 @@
             }
 
             <div class="success-header">
-                <img src="icons/check_circle_green.svg" width="30" />
+                <img src="icons/check_circle_green.svg" width="30" alt=""/>
                 <h1 class="success-title">You Have Successfully Completed the Employer Registration</h1>
             </div>
 
             <div class="account-info">
                 <p class="account-text">
                     Your account number is on the
-                    <a class="determination-link" @onclick="DownloadPdf">Initial Determination(ID)</a>
-                    <img src="icons/check_circle_blue.svg" width="30" />
+                    <button class="text-button" @onclick="DownloadPdf">Initial Determination(ID)</button>
+                    <img src="icons/check_circle_blue.svg" width="30" alt=""/>
                 </p>
             </div>
 
             <br />
 
             <div class="mail-a-copy">
-                <a class="determination-link" @onclick="ShowNotification">Mail a copy of the ID to the main business mailing address</a>
+                <button class="text-button" @onclick="ShowNotification">Mail a copy of the ID to the main business mailing address</button>
             </div>
 
             <br />
@@ -171,7 +176,7 @@
 
     private void HandleModalClose()
     {
-        _isModalOpen = false;    
+        _isModalOpen = false;
     }
 
 
@@ -256,13 +261,13 @@
             }
             // 45 seconds elapsed, PDF still not available
             showIdLetterErrorBanner = true;
-            
+
             // var empRegServices = await EmployerRegistrationServices.GeneratePDFIDForRegistration(request);
             // string pdfFilePath = empRegServices.PDFFilePath;
 
             // pdfFilePath = "\\\\dwdafs3\\vol3\\dev\\UI\\Data\\SUITES\\Correspondence\\Web\\20260306\\PKT024_104524_e0e334f5-a938-4b48-a72f-2f8b829c02e9.pdf";
 
-           
+
         }
         finally
         {

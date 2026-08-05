@@ -150,10 +150,10 @@
 
     private void GoBack()
     {
-        //Nav.NavigateTo(Nav.BaseUri);
+        //Nav.NavigateTo($"{Nav.BaseUri}home");
         var baseUri = new Uri(Nav.BaseUri);
         var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/'));
-        Nav.NavigateTo(pathBase);
+        Nav.NavigateTo(pathBase + "/home");
     }
 
 
@@ -262,7 +262,11 @@
             }
             else
             {
-                _errorMessage = "The registration number and the FEIN entered was not found";
+                if(response?.RuleViolations.Count()>0)
+                {
+                    _errorMessage = response.RuleViolations.First().RuleViolation;
+                }
+                // _errorMessage = "The registration number and the FEIN entered was not found";
                 editContext.NotifyValidationStateChanged();
                 StateHasChanged();
             }

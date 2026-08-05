@@ -9,7 +9,7 @@
                  ValueChanged="ValueChanged"
                  ValueExpression="ValueExpression"
                  class="radio-group">
-                 
+
     @foreach (var option in Options)
     {
         <label class="radio-option">
@@ -31,13 +31,14 @@
     [Parameter] public string CSS { get; set; } = "";
     [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString();
     [Parameter] public string? LabelledById { get; set; } = "";
+    [Parameter] public string? DescriptionId { get; set; } = "";
     [Parameter] public string? ErrorId { get; set; } = "";
     [Parameter] public bool IsRequired { get; set; } = false;
     private string? AriaDescribedBy
     {
         get
         {
-            return !string.IsNullOrWhiteSpace(ErrorId) ? ErrorId : null;
+            return $"{(!string.IsNullOrWhiteSpace(ErrorId) ? ErrorId : null)} {DescriptionId}";
         }
     }
 }

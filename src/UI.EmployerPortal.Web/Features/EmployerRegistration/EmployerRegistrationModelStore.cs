@@ -110,6 +110,13 @@ internal class EmployerRegistrationModelStore
         {
             try
             {
+
+                if (RedirectToPlanPath())
+                {
+                    _navigationManager.NavigateTo("employer-registration/planned-path");
+                    return new();
+                }
+
                 var secureUserSkClaim = _userAccountService.GetUserSKClaim();
 
                 var match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSk);
@@ -168,6 +175,78 @@ internal class EmployerRegistrationModelStore
         {
             return new() { _technicalDifficulties };
         }
+    }
+
+    private bool RedirectToPlanPath()
+    {
+        var response = GetResponses();
+        var isMatch = false;
+
+        if (response.Any())
+        {
+            var futaAnswer = response.Find(x =>
+            {
+                return x._surveyResponseItemSk is ((int) SurveyResponseItem.DMSTC_FUTA_FLG)
+                or ((int) SurveyResponseItem.AG_FTA_LBTY_FLG) or ((int) SurveyResponseItem.CFTA_LBTY_FLG);
+            });
+
+            var hasEmployeeIn20WeeksAnswer = response.Find(x =>
+            {
+                return x._surveyResponseItemSk is ((int) SurveyResponseItem.AG_10_IN_20_FLG)
+                or ((int) SurveyResponseItem.CMCL_1_IN_20_FLG) or ((int) SurveyResponseItem.NP_4_IN_20_FLG);
+            });
+
+            var paidWagesAnswer = response.Find(x =>
+            {
+                return x._surveyResponseItemSk is ((int) SurveyResponseItem.PAID_EE_FLG);
+            });
+
+            var payWagesInFutureAnswer = response.Find(x =>
+            {
+                return x._surveyResponseItemSk is ((int) SurveyResponseItem.EXPT_PAY_EE_FLG);
+            });
+
+            var ownerShipType = response.Find(x =>
+            {
+                return x._surveyResponseItemSk is ((int) SurveyResponseItem.OWNR_CLS_CD_SK);
+            });
+
+            if (ownerShipType != null)
+            {
+                if (ownerShipType._response == ((int) OwnershipType.QSF).ToString())
+                {
+                    isMatch = true;
+                }
+
+            }
+
+            if (payWagesInFutureAnswer != null && paidWagesAnswer != null)
+            {
+                if (payWagesInFutureAnswer._response.ToUpper() == "FALSE" && paidWagesAnswer._response.ToUpper() == "FALSE")
+                {
+                    isMatch = true;
+                }
+
+            }
+
+            if (futaAnswer != null)
+            {
+                if (futaAnswer._response.ToUpper() == "FALSE")
+                {
+                    isMatch = true;
+                }
+            }
+
+            if (hasEmployeeIn20WeeksAnswer != null)
+            {
+                if (hasEmployeeIn20WeeksAnswer._response.ToUpper() == "FALSE")
+                {
+                    isMatch = true;
+                }
+            }
+
+        }
+        return isMatch;
     }
 
     /// <summary>
@@ -371,7 +450,6 @@ internal class EmployerRegistrationModelStore
                     StateCodeSK = GetStateProvinceAbbreviationFromCode(address.State),
                     ZipCode = address.Zip,
                     ZipExtension = address.Extension,
-                    CountyName = address.CountyName ?? string.Empty,
                     EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressUnitedStatesAsync(usRequest);
@@ -386,7 +464,6 @@ internal class EmployerRegistrationModelStore
                     CityName = address.City,
                     ProvinceCodeSK = GetStateProvinceAbbreviationFromCode(address.Province),
                     CanadianPostalCode = address.PostalCode,
-                    CountyName = address.CountyName ?? string.Empty,
                     EmployerRegistrationAddressSK = address.RegistrationAddressSk != 0 ? address.RegistrationAddressSk : null,
                 };
                 return await _employerRegistrationService.SaveRegistrationAddressCanadaAsync(caRequest);

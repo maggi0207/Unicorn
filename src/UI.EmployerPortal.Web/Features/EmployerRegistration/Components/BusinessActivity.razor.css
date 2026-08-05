@@ -617,6 +617,9 @@
 ::deep .master-input--error {
     border-color: #C82838 !important;
 }
+::deep .master-input--error:focus {
+    border-width: 2px !important;
+}
 /* Red label text when validation fails */
 ::deep .master-label--error {
     color: #C82838 !important;

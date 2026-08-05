@@ -32,13 +32,13 @@
         <h1 class="page-title">Unemployment Insurance Subjectivity</h1>
         <p class="page-subtitle">
             These answers will help us determine whether your business is covered under Wisconsin's Unemployment Insurance Law. All fields are required unless noted.
-        </p>      
-        <EditForm EditContext="_subjectivityContext">           
+        </p>
+        <EditForm EditContext="_subjectivityContext">
            <DataAnnotationsValidator />
-            <p class="page-subtitle" id="business-category-label">
+            <p class="page-subtitle" id="BusinessCategory" tabindex="-1">
                 Select your business category. <strong>To be considered a non-profit organization by the State of Wisconsin, you must have received a 501(c)(3) determination from the IRS.</strong>
             </p>
-       
+
             <div id="section_1" class="ui-radio-section">
                 @switch (_scenario)
                 {
@@ -100,13 +100,13 @@
                             <input type="radio" disabled id="bc-nonprofit-other-disabled" />
                             <label for="bc-nonprofit-other-disabled" class="ui-radio-locked-label">Non-Profit (other)</label>
                         </div>
-                       
-                        break;                 
+
+                        break;
                     case BusinessCategoryScenario.FreeChoice:
                     default:
                         <!-- Step 1 = No + Step 5 = Other: Commercial pre-selected, NonProfit_Other selectable -->
                         <RadioGroup TValue="BusinessCategory?"
-                                    LabelledById="business-category-label"
+                                    LabelledById="BusinessCategory"
                                     Value="SubjectivityModel.BusinessCategory"
                                     ValueChanged="OnBusinessCatagoryChanged"
                                     ValueExpression="() => SubjectivityModel.BusinessCategory"
@@ -120,22 +120,18 @@
             @if (Section2Visible())
             {
                 <div id="section_2" class="ui-radio-section">
-                    <p class="page-subtitle" id="label-501-status">Have you applied for 501(c)(3) status with the IRS?</p>
+                    <p class="page-subtitle" id="HasAppliedFor501c3Status" tabindex="-1">Have you applied for 501(c)(3) status with the IRS?</p>
                     <br />
                     <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="label-501-status"
+                                LabelledById="HasAppliedFor501c3Status"
                                 Value="SubjectivityModel.HasAppliedFor501c3Status"
                                 ValueChanged="OnHasAppliedFor501c3StatusChange"
                                 ValueExpression="() => SubjectivityModel.HasAppliedFor501c3Status"
-                                Options="@YesNoRadioOptions" />                  
+                                Options="@YesNoRadioOptions" />
                  </div>
             }
-
-            <div class="ui-section-header">
-                <span>Financial Institution for Business Checking Account</span>
-            </div>
 
             <FinancialInstitutionAddr Address="SubjectivityModel.FinancialInstitution"
                           ShowName="true"
@@ -143,56 +139,60 @@
                          Visible="@_showAddressErrors"/>
 
             <div class="ui-radio-section">
-                <p class="ui-text"><strong>Note: </strong>@GetNoteText()<a href=@GetPermittedExclusionsUrl() class="link-underline-primary">Permitted Exclusions</a>.</p>
+                <p class="ui-text"><strong>Note: </strong>@GetNoteText()<a href=@GetPermittedExclusionsUrl() target='_blank' rel='noopener noreferrer'class="link-underline-primary">Permitted Exclusions</a>.</p>
             </div>
             @if (Section0Visible)
             {
                 <div id="section0" class="ui-radio-section">
-                    <p class="ui-text" id="label-employee">Do you have employees who work in states other than Wisconsin?</p>                  
+                    <p class="ui-text" id="HasEmployeesOutsideWisconsin501" tabindex="-1">Do you have employees who work in states other than Wisconsin?</p>
                      <FieldError For="@(() => SubjectivityModel.HasEmployeesOutsideWisconsin501)"
                                 Visible=_formSubmitted />
                     <RadioGroup TValue="bool?"
-                                LabelledById="label-employee"
+                                LabelledById="HasEmployeesOutsideWisconsin501"
                                 Value="SubjectivityModel.HasEmployeesOutsideWisconsin501"
                                 ValueChanged="OnHasEmployeesOutsideWisconsinChange501"
                                 ValueExpression="() => SubjectivityModel.HasEmployeesOutsideWisconsin501"
-                                Options="@YesNoRadioOptions" />                            
+                                Options="@YesNoRadioOptions" />
                 </div>
             }
 
             @if (Section3Visible)
             {
                 <div id="section3" class="ui-radio-section">
-                    <p class="ui-text"  id="label-employee">Do you have employees who work in states other than Wisconsin?</p>
+                    <p class="ui-text"  id="HasEmployeesOutsideWisconsin" tabindex="-1">Do you have employees who work in states other than Wisconsin?</p>
                     <FieldError For="@(() => SubjectivityModel.HasEmployeesOutsideWisconsin)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="label-employee"
+                                LabelledById="HasEmployeesOutsideWisconsin"
                                 Value="SubjectivityModel.HasEmployeesOutsideWisconsin"
                                 ValueChanged="OnHasEmployeesOutsideWisconsinChange"
                                 ValueExpression="() => SubjectivityModel.HasEmployeesOutsideWisconsin"
                                 Options="@YesNoRadioOptions" />
-                  
-                </div>            
+
+                </div>
             }
 
             @if (Section6Visible)
             {
                 <div id="section_6" class="ui-radio-section">
-                    <Tooltip Text="For-profit entities paying State Unemployment Tax (SUTA) in a state other than Wisconsin often have a FUTA liability. Some non-profit entities may owe SUTA but not FUTA. More details on FUTA liability can be found on the IRS website: <a href='https://www.irs.gov/taxtopics/tc759' target='_blank' rel='noopener noreferrer'> Topic no. 759, Form 940, Employers Annual Federal Unemployment (FUTA) Tax Return – filing and deposit requirements | Internal Revenue Service </a>"
-                             AllowHtml="true"
-                             Placement="auto">
-                        <p id="Federal-Unemploymen-label" class="ui-text">Do you have a <a href='https://www.irs.gov/taxtopics/tc759' target='_blank' rel='noopener noreferrer'> Federal Unemployment Tax (FUTA)</a> liability based on payrolls in any state other than Wisconsin?</p>
-                    </Tooltip>
+                    <p id="HasFutaLiabilityInOtherStates" class="ui-text" tabindex="-1">
+                        Do you have a <a href='https://www.irs.gov/taxtopics/tc759' target='_blank' rel='noopener noreferrer'> Federal Unemployment Tax (FUTA)</a> liability based on payrolls in any state other than Wisconsin?
+                    </p>
+                    <p id="Federal-Unemployment-description" class="ui-radio-description">
+                        For-profit entities paying State Unemployment Tax (SUTA) in a state other than Wisconsin often have a FUTA liability.
+                        Some non-profit entities may owe SUTA but not FUTA. More details on FUTA liability can be found on the
+                        <a href='https://www.irs.gov/taxtopics/tc759' target='_blank' rel='noopener noreferrer'>IRS website</a>.
+                    </p>
                     <FieldError For="@(() => SubjectivityModel.HasFutaLiabilityInOtherStates)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="Federal-Unemploymen-label"
+                                LabelledById="HasFutaLiabilityInOtherStatesl"
+                                DescriptionId="Federal-Unemployment-description"
                                 Value="SubjectivityModel.HasFutaLiabilityInOtherStates"
                                 ValueChanged="OnHasFutaLiabilityInOtherStatesChange"
                                 ValueExpression="() => SubjectivityModel.HasFutaLiabilityInOtherStates"
                                 Options="@YesNoRadioOptions" />
-                 
+
                 </div>
             }
 
@@ -200,16 +200,16 @@
                 @if (Section4Visible)
                 {
                     <div id="section_4" class="ui-radio-section">
-                        <p id="wages-question-label" class="ui-text">@GetWagesQuestion()</p>
+                        <p id="PaidWagesOver1500Employees" class="ui-text" tabindex="-1">@GetWagesQuestion()</p>
                           <FieldError For="@(() => SubjectivityModel.PaidWagesOver1500Employees)"
                                 Visible="_formSubmitted" />
                         <RadioGroup TValue="bool?"
-                                    LabelledById="wages-question-label"
+                                    LabelledById="PaidWagesOver1500Employees"
                                     Value="SubjectivityModel.PaidWagesOver1500Employees"
                                     ValueChanged="OnPaidWagesOver1500EmployeesChange"
                                     ValueExpression="() => SubjectivityModel.PaidWagesOver1500Employees"
                                     Options="@YesNoRadioOptions" />
-                   
+
                     </div>
                 }
 
@@ -218,19 +218,20 @@
                     {
                         @if (SubjectivityModel.Wages != null && SubjectivityModel.Wages.Count > 0 && BusinessCategory != BusinessCategory.NonProfit_501c3)
                         {
-                            <p class="ui-text">@GetWagesTableDisclaimer()</p>
-                            <table>
+                            <p id="table description" class="ui-text">@GetWagesTableDisclaimer()</p>
+                            <table id="Wages" tabindex="-1" aria-label="Gross quarterly payroll by year" aria-describedby="table description">
                                 <tr style="text-align:center;">
-                                    <th></th>
-                                    <th>Q1</th>
-                                    <th>Q2</th>
-                                    <th>Q3</th>
-                                    <th>Q4</th>
+                                    <th class="visually-hidden">Year</th>
+                                    <th id="q1-header">Q1</th>
+                                    <th id="q2-header">Q2</th>
+                                    <th id="q3-header">Q3</th>
+                                    <th id="q4-header">Q4</th>
                                 </tr>
+                                @{int index = 0;}
                                 @foreach (var row in SubjectivityModel.Wages)
                                 {
                                     <tr class"ui-table-row-header">
-                                        <td class="ui-table-row-header">@row.Year</td>
+                                        <th id="year-@index" scope="row" class="ui-table-row-header">@row.Year</th>
 
                                         <td class="ui-table-text-box">
                                             <NumericTextBox @bind-Value="row.Q1Wages"
@@ -239,7 +240,8 @@
                                                             CssClass="@(row.Q1Disabled ? "textboxReadOnlyBackgroundColor" : "")"
                                                             DecimalPlaces="@DecimalPlaces"
                                                             IsReadonly="@row.Q1Disabled"
-                                                            Min="0" Max="10000000" />
+                                                            Min="0" Max="10000000"
+                                                            AriaLabelledBy="@($"q1-header year-{index}")"/>
                                         </td>
 
                                         <td class="ui-table-text-box">
@@ -249,7 +251,8 @@
                                                             CssClass="@(row.Q2Disabled ? "textboxReadOnlyBackgroundColor" : "")"
                                                             DecimalPlaces="@DecimalPlaces"
                                                             IsReadonly="@row.Q2Disabled"
-                                                            Min="0" Max="10000000" />
+                                                            Min="0" Max="10000000"
+                                                            AriaLabelledBy="@($"q2-header year-{index}")"/>
 
                                         </td>
 
@@ -260,7 +263,8 @@
                                                             ShowCurrencyIcon="false"
                                                             DecimalPlaces="@DecimalPlaces"
                                                             IsReadonly="@row.Q3Disabled"
-                                                            Min="0" Max="10000000" />
+                                                            Min="0" Max="10000000"
+                                                            AriaLabelledBy="@($"q3-header year-{index}")"/>
 
                                         </td>
 
@@ -271,10 +275,12 @@
                                                             ShowCurrencyIcon="false"
                                                             DecimalPlaces="@DecimalPlaces"
                                                             IsReadonly="@row.Q4Disabled"
-                                                            Min="0" Max="10000000" />
+                                                            Min="0" Max="10000000"
+                                                            AriaLabelledBy="@($"q4-header year-{index}")"/>
 
                                         </td>
                                     </tr>
+                                    index++;
                                 }
 
                             </table>
@@ -288,16 +294,16 @@
             @if (Section9Visible)
             {
                 <div id="section_9" class="ui-radio-section">
-                    <p id="EmployeeIn20Weeks" class="ui-text">@EmployeeIn20Weeks()</p>
+                    <p id="HasEmployeeIn20Weeks" class="ui-text" tabindex="-1">@EmployeeIn20Weeks()</p>
                     <FieldError For="@(() => SubjectivityModel.HasEmployeeIn20Weeks)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="EmployeeIn20Weeks"
+                                LabelledById="HasEmployeeIn20Weeks"
                                 Value="SubjectivityModel.HasEmployeeIn20Weeks"
                                 ValueChanged="OnHasEmployeeIn20WeeksChange"
                                 ValueExpression="() => SubjectivityModel.HasEmployeeIn20Weeks"
                                 Options="@YesNoRadioOptions" />
-                    
+
                 </div>
             }
             @* quarter employees question yes (20th week end date) *@
@@ -325,61 +331,67 @@
             @if (Section13Visible)
                     {
                         <div id="section_13" class="ui-radio-section">
-                            <p id="ExpectToPayWagesQuestion-label" class="ui-text">@GetExpectToPayWagesQuestion()</p>
+                            <p id="ExpectToPayWagesInAQuarter" class="ui-text" tabindex="-1">@GetExpectToPayWagesQuestion()</p>
                             <FieldError For="@(() => SubjectivityModel.ExpectToPayWagesInAQuarter)"
                                         Visible="_formSubmitted" />
                             <RadioGroup TValue="bool?"
-                                        LabelledById="ExpectToPayWagesQuestion-label"
+                                        LabelledById="ExpectToPayWagesInAQuarter"
                                         Value="SubjectivityModel.ExpectToPayWagesInAQuarter"
                                         ValueChanged="OnExpectToPayWagesInAQuarterChange"
                                         ValueExpression="() => SubjectivityModel.ExpectToPayWagesInAQuarter"
                                         Options="@YesNoRadioOptions" />
-                    
+
                         </div>
                     }
                     @* expect to pay wages in a calendar quarter yes (when?) *@
                         @if(Section14Visible)
                         {
                             <div id="section_14" class="ui-radio-section">
-                                <p class="ui-text">When?</p>
+                                <p class="ui-text" id="WhenExpectToPayWagesInAQuarter-label">When?</p>
                                 <FieldError For="@(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter)"
                                             Visible="_formSubmitted" />
                                 <OutlinedSelectField @bind-Value="SubjectivityModel.WhenExpectToPayWagesInAQuarter"
+                                                    Id="WhenExpectToPayWagesInAQuarter"
+                                                    AriaLabelledBy="WhenExpectToPayWagesInAQuarter-label"
+                                                    AriaDescribedById="ExpectToPayWagesInAQuarter"
                                                      Options="@ExpectedWagesCatagories"
                                                      For="() => SubjectivityModel.WhenExpectToPayWagesInAQuarter"
                                                      Visible="true" />
                             </div>
-                
+
                         }
                     @* end expect to pay wages in a calendar quater yes*@
                 @* end quarter wages no *@
-          
+
                 @* end quater employees question yes *@
                 @* quarter employees question no (expect future quarter employees) *@
             @if (Section18Visible)
                     {
                         <div id="section_18" class="ui-radio-section">
-                            <p id="ExpectToHaveWagesQuestion-label" class="ui-text">@GetExpectToHaveWagesQuestion()</p>
+                            <p id="ExpectToHaveWagesInAQuarter" class="ui-text" tabindex="-1">@GetExpectToHaveWagesQuestion()</p>
                             <FieldError For="@(() => SubjectivityModel.ExpectToHaveWagesInAQuarter)"
                                         Visible="_formSubmitted" />
                             <RadioGroup TValue="bool?"
-                                        LabelledById="ExpectToHaveWagesQuestion-label"
+                                        LabelledById="ExpectToHaveWagesInAQuarter"
                                         Value="SubjectivityModel.ExpectToHaveWagesInAQuarter"
                                         ValueChanged="OnExpectToHaveWagesInAQuarterChange"
                                         ValueExpression="() => SubjectivityModel.ExpectToHaveWagesInAQuarter"
                                         Options="@YesNoRadioOptions" />
-                    
+
                         </div>
                     }
                     @* expect future quarter employees yes (when?) *@
                         @if (Section19Visible)
                         {
                             <div id="section_19" class="ui-radio-section">
-                                <p class="ui-text">When?</p>
+                                <p class="ui-text" id="WhenExpectToHaveWagesInAQuarter-label">When?</p>
                                 <FieldError For="@(() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter)"
                                             Visible="_formSubmitted" />
                                 <OutlinedSelectField @bind-Value="SubjectivityModel.WhenExpectToHaveWagesInAQuarter"
-                                                     Options="@ExpectedWagesCatagories"
+                                                    Id="WhenExpectToHaveWagesInAQuarter"
+                                                    AriaLabelledBy="WhenExpectToHaveWagesInAQuarter-label"
+                                                    AriaDescribedById="ExpectToHaveWagesInAQuarter"
+                                                    Options="@ExpectedWagesCatagories"
                                                      For="() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter"
                                                      Visible="true" />
                             </div>
@@ -388,44 +400,47 @@
                     @* end expect future quarter employees yes *@
                 @* end quarter employees question no *@
             @* end quarter employees question *@
-            
+
             @if (Section15Visible)
             {
                 <div id="section_15" class="ui-radio-section">
-                    <p id="PaidWagesPerformWI-label" class="ui-text">@PaidWagesPerformWI()</p>
+                    <p id="PayWagesPerformWI" class="ui-text" tabindex="-1">@PaidWagesPerformWI()</p>
                     <FieldError For="@(() => SubjectivityModel.PayWagesPerformWI)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="PaidWagesPerformWI-label"
+                                LabelledById="PayWagesPerformWI"
                                 Value="SubjectivityModel.PayWagesPerformWI"
                                 ValueChanged="OnHasPayWagesPerformWI"
                                 ValueExpression="() => SubjectivityModel.PayWagesPerformWI"
                                 Options="@YesNoRadioOptions" />
-                   
+
                 </div>
             }
             @if (Section16Visible)
             {
                 <div id="section_16" class="ui-radio-section">
-                    <p id ="ExpectPayWagesPerformWI-label" class="ui-text">@ExpectPayWagesPerformWI()</p>
+                    <p id ="ExpectToPayWagesPerformWI" class="ui-text" tabindex="-1">@ExpectPayWagesPerformWI()</p>
                     <FieldError For="@(() => SubjectivityModel.ExpectToPayWagesPerformWI)"
                                 Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                                LabelledById="ExpectPayWagesPerformWI-label"
+                                LabelledById="ExpectToPayWagesPerformWI"
                                 Value="SubjectivityModel.ExpectToPayWagesPerformWI"
                                 ValueChanged="OnExpectToPayWagesPerformWI"
                                 ValueExpression="() => SubjectivityModel.ExpectToPayWagesPerformWI"
                                 Options="@YesNoRadioOptions" />
-                   
+
                 </div>
             }
             @if (Section17Visible)
             {
                 <div id="section_17" class="ui-radio-section">
-                    <p class="ui-text">When?</p>
+                    <p class="ui-text" id="AFL_XPCT_PY_WI_WGS_WHN_TXT-label">When?</p>
                     <FieldError For="@(() => SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT)"
                                 Visible="_formSubmitted" />
                     <OutlinedSelectField @bind-Value="SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT"
+                                        Id="AFL_XPCT_PY_WI_WGS_WHN_TXT"
+                                        AriaLabelledBy="AFL_XPCT_PY_WI_WGS_WHN_TXT-label"
+                                        AriaDescribedById="ExpectToPayWagesPerformWI"
                                          Options="@ExpectedWagesCatagories"
                                          For="() => SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT"
                                          Visible="true" />

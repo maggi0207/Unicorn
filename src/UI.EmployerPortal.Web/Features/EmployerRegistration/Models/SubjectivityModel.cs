@@ -115,7 +115,12 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory.HasValue)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT, _response = ((int) BusinessCategory.Value).ToString(), _responseDisplay = BusinessCategory.Value.ToString() });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
+                _response = ((int) BusinessCategory.Value).ToString(),
+                _responseDisplay = BusinessCategory.Value.GetDisplayName()
+            });
         }
 
         if (!string.IsNullOrWhiteSpace(FinancialInstitution.Name))
@@ -180,7 +185,8 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory == Models.BusinessCategory.Agricultural)
         {
-            if (HasFutaLiabilityInOtherStates.HasValue) //6.20 // has futa liability in other states
+            if (HasEmployeesOutsideWisconsin.HasValue && HasEmployeesOutsideWisconsin.Value
+                && HasFutaLiabilityInOtherStates.HasValue) //6.10
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AG_FTA_LBTY_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStates.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStates.Value) });
             }
@@ -238,7 +244,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         if (BusinessCategory == Models.BusinessCategory.Commercial)
         {
             if (HasEmployeesOutsideWisconsin.HasValue && HasEmployeesOutsideWisconsin.Value
-                && HasFutaLiabilityInOtherStates.HasValue) // commercial employer with futa payroll outside wisconsin
+                && HasFutaLiabilityInOtherStates.HasValue) //6.10
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CFTA_LBTY_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStates.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStates.Value) });
             }
@@ -291,8 +297,14 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
+            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
         {
+
+            if (PaidWagesOver1500Employees.HasValue) //6.24) // 20k cash wages for ag labor in quarter
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CMCL_PD_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PaidWagesOver1500Employees.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PaidWagesOver1500Employees.Value) });
+            }
+
             if (HasEmployeeIn20Weeks.HasValue) //6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.NP_4_IN_20_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasEmployeeIn20Weeks.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasEmployeeIn20Weeks.Value) });
@@ -303,6 +315,16 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 }
             }
 
+            if (ExpectToPayWagesInAQuarter.HasValue) //6.34) // commercial employer expects to pay at least 1500 in wages in quarter in year
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesInAQuarter.Value) });
+            }
+
+        }
+
+        if (BusinessCategory.HasValue
+        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
+        {
             if (ExpectToHaveWagesInAQuarter.HasValue) //6.42) // employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.NP_XPCT_4_IN_20_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToHaveWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToHaveWagesInAQuarter.Value) });

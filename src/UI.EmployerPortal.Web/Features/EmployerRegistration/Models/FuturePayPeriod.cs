@@ -10,19 +10,19 @@ public enum FuturePayPeriod
     /// <summary>
     /// None
     /// </summary>
-    [Display(Name = "Within thirty days")]
+    [Display(Name = "Within 30 days")]
     WithinThirtyDays = 1,
 
     /// <summary>
     /// 
     /// </summary>
-    [Display(Name = "Thirty to ninety days")]
+    [Display(Name = "30 to 90 days")]
     ThirtyToNinetyDays = 2,
 
     /// <summary>
     /// 
     /// </summary>
-    [Display(Name = "Six months")]
+    [Display(Name = "6 months")]
     SixMonths = 3,
 
     /// <summary>

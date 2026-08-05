@@ -9,7 +9,7 @@
 <PageTitle>Business Activity</PageTitle>
 <div class="page_wrapper">
     <div class="bi-page-content">
-        <h1 class="page-title">Business Activity</h1>        
+        <h1 class="page-title">Business Activity</h1>
         <EditForm Model="Model"
                   OnValidSubmit="HandleContinue"
                   OnInvalidSubmit="OnInvalid"
@@ -114,10 +114,7 @@
                                         <li>
                                             Any employer who is engaged in a construction industry who knowingly or intentionally provides
                                             false information to the department for the purpose of misclassifying an employee as a non-employee
-                                            will be assessed a penalty. Additional information can be found at
-                                            <a href="https://dwd.wisconsin.gov/ui201/t2201.htm#employee_definition" target="_blank" rel="noopener noreferrer">
-                                                https://dwd.wisconsin.gov/ui201/t2201.htm#employee_definition
-                                            </a>
+                                            will be assessed a penalty. Review <a href="https://dwd.wisconsin.gov/ui201/t2201.htm#employee_definition" target="_blank" rel="noopener noreferrer">Covered and Excluded Employment</a> for additional information.
                                         </li>
                                     </ul>
                                 </div>
@@ -166,7 +163,7 @@
                                 including corporate officers, under one unemployment account?
                             </p>
                             @if (_showAllErrors && InvalidFields.Contains("ProvidesEmployeeLeasing"))
-                            {   
+                            {
                                 <ValidationError ErrorMessage="The question must be answered to continue" ErrorId="employeeLeasing-error" />
                             }
                             <div class="bc-radio-group" aria-label="radio-options">
@@ -247,7 +244,7 @@
                                                     Label=""
                                                     Value="@Model.EmployeeCount"
                                                     ValueChanged="@(v => Model.EmployeeCount = v)"
-                                                    MaxLength="5"                 
+                                                    MaxLength="5"
                                                     Width="210"
                                                     HasError="@FieldErrors.ContainsKey("EmployeeCount")"
                                                     ErrorMessage="Employee Count is required"

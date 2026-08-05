@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.FluentUI.AspNetCore.Components.Extensions;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
@@ -554,7 +555,12 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     if (ExpectFuturePayroll.Value && ExpectedFuturePayrollPeriod.HasValue)
                     {
                         // 1.10
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ((int) ExpectedFuturePayrollPeriod.Value).ToString() });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME,
+                            _response = ((int) ExpectedFuturePayrollPeriod.Value).ToString(),
+                            _responseDisplay = ExpectedFuturePayrollPeriod.Value.GetDisplayName()
+                        });
                     }
                 }
             }

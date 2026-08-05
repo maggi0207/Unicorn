@@ -324,8 +324,8 @@ public partial class PreliminaryQuestions
         Model.FiscalAgentName = null;
         Model.FiscalAgentUIAccountNumber = null;
         Model.OtherReason = null;
-        Model.LastPayrollDate = null;
-        Model.LastEmploymentDate = null;
+        //Model.LastPayrollDate = null;
+        //Model.LastEmploymentDate = null;
         _leasingStartDateRaw = null;
         _lastEmploymentDateRaw = null;
         _lastPayrollDateRaw = null;
@@ -338,8 +338,8 @@ public partial class PreliminaryQuestions
         ResetField(() => Model.FiscalAgentName);
         ResetField(() => Model.FiscalAgentUIAccountNumber);
         ResetField(() => Model.OtherReason);
-        ResetField(() => Model.LastEmploymentDate);
-        ResetField(() => Model.LastPayrollDate);
+        //ResetField(() => Model.LastEmploymentDate);
+        //ResetField(() => Model.LastPayrollDate);
 
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.SelectedNoEmployeeReason)));
 
@@ -772,50 +772,92 @@ public partial class PreliminaryQuestions
                             "Enter the reason");
                     }
                     break;
-                case NoEmployeeReason.NotOperatingInWisconsin:
-                    var dateMin = DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6));
-                    var dateMax = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+                    //case NoEmployeeReason.NotOperatingInWisconsin:
+                    //    var dateMin = DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6));
+                    //    var dateMax = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
 
-                    if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
-                    }
-                    else if (IsVisible(() => Model.LastEmploymentDate))
-                    {
-                        if (!Model.LastEmploymentDate.HasValue)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
-                        }
-                        else if (Model.LastEmploymentDate.Value < dateMin)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
-                        }
-                        else if (Model.LastEmploymentDate.Value > dateMax)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
-                        }
-                    }
-                    if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
-                    }
-                    else if (IsVisible(() => Model.LastPayrollDate))
-                    {
-                        if (!Model.LastPayrollDate.HasValue)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
-                        }
-                        else if (Model.LastPayrollDate.Value < dateMin)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
-                        }
-                        else if (Model.LastPayrollDate.Value > dateMax)
-                        {
-                            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
-                        }
-                    }
-                    break;
+                    //    if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
+                    //    {
+                    //        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
+                    //    }
+                    //    else if (IsVisible(() => Model.LastEmploymentDate))
+                    //    {
+                    //        if (!Model.LastEmploymentDate.HasValue)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
+                    //        }
+                    //        else if (Model.LastEmploymentDate.Value < dateMin)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
+                    //        }
+                    //        else if (Model.LastEmploymentDate.Value > dateMax)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
+                    //        }
+                    //    }
+                    //    if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
+                    //    {
+                    //        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
+                    //    }
+                    //    else if (IsVisible(() => Model.LastPayrollDate))
+                    //    {
+                    //        if (!Model.LastPayrollDate.HasValue)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
+                    //        }
+                    //        else if (Model.LastPayrollDate.Value < dateMin)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
+                    //        }
+                    //        else if (Model.LastPayrollDate.Value > dateMax)
+                    //        {
+                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
+                    //        }
+                    //    }
+                    //    break;
             }
+            var dateMin = DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6));
+            var dateMax = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+
+            if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
+            {
+                _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
+            }
+            else if (IsVisible(() => Model.LastEmploymentDate))
+            {
+                if (!Model.LastEmploymentDate.HasValue)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
+                }
+                else if (Model.LastEmploymentDate.Value < dateMin)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
+                }
+                else if (Model.LastEmploymentDate.Value > dateMax)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
+            {
+                _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
+            }
+            else if (IsVisible(() => Model.LastPayrollDate))
+            {
+                if (!Model.LastPayrollDate.HasValue)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
+                }
+                else if (Model.LastPayrollDate.Value < dateMin)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
+                }
+                else if (Model.LastPayrollDate.Value > dateMax)
+                {
+                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
+                }
+            }
+
         }
 
         //Bind Notification Banner

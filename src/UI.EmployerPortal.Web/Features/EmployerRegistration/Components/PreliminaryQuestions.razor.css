@@ -23,7 +23,6 @@
     cursor: pointer;
     flex-shrink: 0;
     border: 2px solid #7A7A7A;
-    box-shadow: none;
 }
 
 .page-title {

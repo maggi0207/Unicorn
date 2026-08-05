@@ -87,7 +87,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     _lastName = m.LastName,
                     _middleName = m.MiddleInitial,
                     _ownershipPercentage = (m.OwnershipPercentage ?? 0).ToString(),
-                    _socialSecurityNumber = string.IsNullOrEmpty(m.SSN) ? m.SSN : "*********",
+                    _socialSecurityNumber = !string.IsNullOrWhiteSpace(m.SSN) ? m.SSN.Replace("-", string.Empty) : string.Empty,
                 };
             }).ToList() ?? new(),
             OwnershipType.LP => new()
@@ -99,7 +99,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _lastName = GeneralPartner.LastName,
                         _middleName = GeneralPartner.MiddleInitial,
                         _ownershipPercentage = (GeneralPartner.OwnershipPercentage ?? 0).ToString(),
-                        _socialSecurityNumber = string.IsNullOrEmpty(GeneralPartner.SSN) ? GeneralPartner.SSN : "*********",
+                        _socialSecurityNumber = !string.IsNullOrWhiteSpace(GeneralPartner.SSN) ? GeneralPartner.SSN.Replace("-", string.Empty) : string.Empty,
                     }
                 },
             OwnershipType.Corporation => Officers?.Select(off =>
@@ -111,7 +111,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     _lastName = off.LastName,
                     _middleName = off.MiddleInitial,
                     _ownershipPercentage = (off.OwnershipPercentage ?? 0).ToString(),
-                    _socialSecurityNumber = string.IsNullOrEmpty(off.SSN) ? off.SSN : "*********",
+                    _socialSecurityNumber = !string.IsNullOrWhiteSpace(off.SSN) ? off.SSN.Replace("-", string.Empty) : string.Empty,
                 };
             }).ToList() ?? new(),
             OwnershipType.SoleProprietorship or OwnershipType.Individual => new()
@@ -123,7 +123,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _lastName = Owner.LastName,
                         _middleName = Owner.MiddleInitial,
                         _ownershipPercentage = (Owner?.OwnershipPercentage ?? 0).ToString(),
-                        _socialSecurityNumber = string.IsNullOrEmpty(Owner!.SSN) ? Owner!.SSN : "*********",
+                        _socialSecurityNumber = !string.IsNullOrWhiteSpace(Owner!.SSN) ? Owner!.SSN.Replace("-", string.Empty) : string.Empty,
                     },
                 },
             OwnershipType.Estate => new()
@@ -135,7 +135,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _lastName = Decedent.LastName,
                         _middleName = Decedent.MiddleInitial,
                         _ownershipPercentage = (Decedent?.OwnershipPercentage ?? 0).ToString(),
-                        _socialSecurityNumber = string.IsNullOrEmpty(Decedent!.SSN) ? Decedent!.SSN : "*********",
+                        _socialSecurityNumber = !string.IsNullOrWhiteSpace(Decedent!.SSN) ? Decedent!.SSN.Replace("-", string.Empty) : string.Empty,
                     },
                     new SurveyContact
                     {
@@ -144,7 +144,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _lastName = PersonalRepresentative.LastName,
                         _middleName = PersonalRepresentative.MiddleInitial,
                         _ownershipPercentage = (PersonalRepresentative?.OwnershipPercentage ?? 0).ToString(),
-                        _socialSecurityNumber = string.IsNullOrEmpty(PersonalRepresentative!.SSN) ? PersonalRepresentative!.SSN : "*********",
+                        _socialSecurityNumber = !string.IsNullOrWhiteSpace(PersonalRepresentative!.SSN) ? PersonalRepresentative!.SSN.Replace("-", string.Empty) : string.Empty,
                     },
                 },
             _ => new(),
@@ -158,6 +158,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         {
             case OwnershipType.LLC:
             case OwnershipType.LLP:
+            case OwnershipType.LLCCorporation:
             case OwnershipType.Partnership:
                 if (IEmployerRegistrationModelSection.FindContactsHelper(contacts, RegistrationIndividualCode.Member, out var memberMatches))
                 {
@@ -174,7 +175,6 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                 }
                 break;
             case OwnershipType.Cooperative:
-            case OwnershipType.LLCCorporation:
                 Officers = contacts.Select(c =>
                 {
                     var hasContactCode = RegistrationIndividualCodeToOfficerRole.TryGetValue((RegistrationIndividualCode) c.RegistrationIndividualCodeSK, out var officerRole);
@@ -265,7 +265,12 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             {
                 return s.Value == IncorporationState;
             })?.Text ?? IncorporationState;
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString(), _responseDisplay = stateName });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD,
+                _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString(),
+                _responseDisplay = stateName
+            });
         }
 
         if (IsOutsideUSA && ForeignCountry != null)
@@ -273,13 +278,23 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_FGN_CTRY_NAM, _response = ForeignCountry });
         }
 
-        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP
+        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP or OwnershipType.LLCCorporation
             && RegistrationState != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString() });
+            var stateName = AddressModel.States.FirstOrDefault(s =>
+            {
+                return s.Value == RegistrationState;
+            })?.Text ?? RegistrationState;
+
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD,
+                _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString(),
+                _responseDisplay = stateName
+            });
         }
 
-        if (OwnershipType == OwnershipType.LLC
+        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLCCorporation
             && MoreThanFive.HasValue)
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_OVR_FIV_MBR_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(MoreThanFive.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(MoreThanFive.Value) });
@@ -431,7 +446,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         //{
         //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_RGST_ST_CD, _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(RegistrationState).ToString() });
         //}
-        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP
+        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP or OwnershipType.LLCCorporation
             && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.LLC_RGST_ST_CD, out var registrationStateValue)
             && int.TryParse(registrationStateValue.ReplyText, out var registrationStateCodeValue))
         {
@@ -443,7 +458,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         //{
         //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_OVR_FIV_MBR_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(MoreThanFive.Value) });
         //}
-        if (OwnershipType is OwnershipType.LLC
+        if (OwnershipType is OwnershipType.LLC or OwnershipType.LLCCorporation
             && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.LLC_OVR_FIV_MBR_FLG, out var moreThanFiveValue))
         {
             MoreThanFive = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(moreThanFiveValue.ReplyText);

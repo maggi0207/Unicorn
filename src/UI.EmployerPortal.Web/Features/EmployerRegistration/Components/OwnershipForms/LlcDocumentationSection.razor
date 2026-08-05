@@ -50,7 +50,7 @@
                 </label>
             </div>
         </div>
-    }  
+    }
     <!-- Reason and Acknowledge when No -->
     @if (Model.HasRequiredDocumentation == false)
     {
@@ -175,7 +175,7 @@
 
 @code {
     private const long MaxFileSizeBytes = 20 * 1024 * 1024; // 20 MB
-    private static readonly string[] AllowedExtensions = [".pdf", ".jpg", ".jpeg", ".heic", ".png"];
+    private static readonly string[] AllowedExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
 
     [Parameter]
     public LlcDocumentationModel Model { get; set; } = new();

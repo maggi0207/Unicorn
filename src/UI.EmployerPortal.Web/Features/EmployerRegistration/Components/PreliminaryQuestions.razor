@@ -299,6 +299,28 @@
             }
             @if (VisibilityQuestion_4)
             {
+                <!-- Question 3.1.2 (Question 3.1 No) -->
+                <span data-questionid="3.1.2"></span>
+                <OutlinedTextField Label="Last Date You Had Employees"
+                                   Id="LastEmploymentDate"
+                                   Type="date"
+                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
+                                   max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
+                                   @bind-Value="LastEmploymentDateAsString"
+                                   For="() => LastEmploymentDateAsString"
+                                   Visible="@IsVisible(()=>Model.LastEmploymentDate)"
+                                   FocusKey="response:3025" />
+                <br />
+
+                <OutlinedTextField Label="Date of Last Payroll"
+                                   Id="LastPayrollDate"
+                                   Type="date"
+                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
+                                   max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
+                                   @bind-Value="LastPayrollDateAsString"
+                                   For="() => LastPayrollDateAsString"
+                                   Visible="@IsVisible(()=>Model.LastPayrollDate)" />
+                <br />
                 <div class="no-employee-section">
                     <p id="SelectedNoEmployeeReason" class="section-title">
                         Select the reason you no longer have paid employees working in Wisconsin.
@@ -311,31 +333,9 @@
                                 ValueChanged="OnNoEmployeReasonChanged"
                                 ValueExpression="() => Model.SelectedNoEmployeeReason"
                                 Options="@NoEmployeReasonOptions" />
-                    @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.NotOperatingInWisconsin)
-                    {
-                        <!-- Question 3.1.2 (Question 3.1 No) -->
-                        <span data-questionid="3.1.2"></span>
-                        <OutlinedTextField Label="Last Date You Had Employees"
-                                           Id="LastEmploymentDate"
-                                           Type="date"
-                                           min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
-                                           max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
-                                           @bind-Value="LastEmploymentDateAsString"
-                                           For="() => LastEmploymentDateAsString"
-                                           Visible="@IsVisible(()=>Model.LastEmploymentDate)"
-                                           FocusKey="response:3025" />
-                        <br />
-
-                        <OutlinedTextField Label="Date of Last Payroll"
-                                           Id="LastPayrollDate"
-                                           Type="date"
-                                           min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
-                                           max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
-                                           @bind-Value="LastPayrollDateAsString"
-                                           For="() => LastPayrollDateAsString"
-                                           Visible="@IsVisible(()=>Model.LastPayrollDate)" />
-                        <br />
-                    }
+              
+                    
+                 
                     @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
                     {
                         <div class="peo-container">

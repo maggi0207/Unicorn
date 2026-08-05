@@ -123,7 +123,13 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FST_PYRL_DT, _response = DateFirstPaidWagesInWI.Value.ToString("MM/dd/yyyy") });
         }
 
-        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.RGST_PRIN_ACTV_CD_SK, _response = $"{(int) PrincipalBusinessActivity}", _responseDisplay = PrincipalBusinessActivity.GetDisplayName() });
+        responses.Add(new SurveyResponse()
+        {
+            _surveyResponseItemSk = (int) SurveyResponseItem.RGST_PRIN_ACTV_CD_SK,
+            _response = ((int) PrincipalBusinessActivity).ToString(),
+            _responseDisplay = PrincipalBusinessActivity.GetDisplayName()
+        });
+
         if (!string.IsNullOrWhiteSpace(PrimaryBusinessActivityDescription))
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRIN_OTHR_ACTV_DSC, _response = PrimaryBusinessActivityDescription });

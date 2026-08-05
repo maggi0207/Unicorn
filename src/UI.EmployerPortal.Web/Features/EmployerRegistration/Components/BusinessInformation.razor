@@ -1,6 +1,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Linq.Expressions
+@using System.Text.RegularExpressions
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
@@ -238,6 +239,22 @@
                 StateHasChanged();
             }
         };
+
+        var ownershipType = ModelStore.EmployerRegistrationModel.OwnershipSessionData?.OwnershipType ?? OwnershipType.None;
+
+        if (ownershipType == OwnershipType.SoleProprietorship
+            || ownershipType == OwnershipType.Individual
+            || ownershipType == OwnershipType.LP)
+        {
+            var ownerList = ModelStore.EmployerRegistrationModel.OwnershipSessionData?.GetSurveyContacts().FirstOrDefault();
+            if (ownerList != null)
+            {
+                var legalName = $"{ownerList._firstName} {ownerList._middleName} {ownerList._lastName}";
+                legalName = Regex.Replace(legalName, @"\s+", " ");
+                Model.LegalName = legalName.Trim();
+            }
+           
+        }
     }
 
     private Dictionary<FieldIdentifier, List<string>> _customFieldErrors = new();

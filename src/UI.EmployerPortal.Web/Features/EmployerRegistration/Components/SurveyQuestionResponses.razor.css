@@ -43,6 +43,10 @@
     background-color: #F3F3F3;
 }
 
+.accordion-button:focus {
+    border: 2px solid black;
+}
+
 .edit-section {
     position: relative;
     margin-bottom: -2.6em;

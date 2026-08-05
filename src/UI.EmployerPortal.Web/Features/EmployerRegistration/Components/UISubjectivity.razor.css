@@ -210,6 +210,9 @@
     padding-top: 10px;
     padding-bottom: 10px;
 }
+.ui-radio-description {
+    font-size: 14px;
+}
 
 /* Locked (pre-populated from Step 1) radio option */
 .ui-radio-locked-option {

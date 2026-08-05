@@ -45,16 +45,6 @@
         text-align: center;
     }
 
-    .determination-link {
-        color: #0066cc;
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-        .determination-link:hover {
-            color: #0052a3;
-        }
-
     .checkmark-small {
         display: inline-flex;
         align-items: center;
@@ -72,25 +62,7 @@
 
 /*Mail a copy label*/
 .mail-a-copy {
-    font-family: Verdana;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    leading-trim: NONE;
-    line-height: 160%;
-    letter-spacing: 0%;
     text-align: center;
-    text-decoration: underline;
-    text-decoration-style: solid;
-    text-decoration-offset: 0%;
-    text-decoration-thickness: 0%;
-    width: 479;
-    height: 26;
-    angle: 0 deg;
-    opacity: 1;
-    color: #0066cc;
-    text-decoration: underline;
-    cursor: pointer;
 }
 
 
@@ -143,7 +115,23 @@
         }
 }
 
+/*LINK BUTTONS */
+.text-button {
+    color: #0D6EFD;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
 
+.text-button:hover {
+    text-decoration: underline;
+    outline: none;
+}
 
 /*ACTION BUTTONS */
 .action-buttons {

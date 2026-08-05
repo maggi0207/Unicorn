@@ -306,17 +306,12 @@
         target.Zip = source.Zip;
         target.Extension = source.Extension;
         target.Country = source.Country;
-        // CountyName is returned by Finalist inside the corrected address and must be
-        // carried through to the model so it reaches the SUITES address save request.
-        target.CountyName = source.CountyName;
     }
 
     private static string FormatLine1(AddressModel a)
     {
         var parts = new[] { a.AddressLine1, a.AddressLine2 }
-            .Where(s => !string.IsNullOrWhiteSpace(s))
-            .Select(s => s.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase);
+            .Where(s => !string.IsNullOrWhiteSpace(s));
         return string.Join(" ", parts).ToUpperInvariant();
     }
 

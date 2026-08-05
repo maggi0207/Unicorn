@@ -39,7 +39,7 @@
                             <div class="vf-accordion-section">
                                 <div class="row">
                                     <div class="col-md-10 text-start">
-                                        <span class="vf-accordion-text">@question.QuestionText</span>
+                                        <span class="vf-accordion-text">@(QuestionTextReplacements.TryGetValue((SurveyResponseItem)question.QuestionSetItemSK, out var replacementText) ? replacementText : question.QuestionText)</span>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -48,8 +48,30 @@
                                     </div>
                                 </div>
                             </div>
-                        }
 
+                            @if(index == 5 && question.QuestionSetItemSK  == (int)SurveyResponseItem.BANK_NAM ){
+                            @foreach (var (addressCode, address) in GetAddressesForSection(index))
+                            {
+                                <div class="vf-accordion-section">
+                                    <div class="row">
+                                        <div class="col-md-10 text-start">
+                                            <span class="vf-accordion-text">@(AddressDescription.TryGetValue(addressCode, out var description) ? description : "Address")</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-10 text-start">
+                                            <span class="vf-accordion-answer">
+                                                @foreach (var line in address.GetDisplayLines())
+                                                {
+                                                    @line<br/>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        }
                         @if (index == 1) // Ownership -> contacts
                         {
                             foreach(var contact in Contacts)
@@ -97,26 +119,28 @@
                                 }
                             }
                         }
-
-                        @foreach (var (addressCode, address) in GetAddressesForSection(index))
+                        @if (index != 5)
                         {
-                            <div class="vf-accordion-section">
-                                <div class="row">
-                                    <div class="col-md-10 text-start">
-                                        <span class="vf-accordion-text">@(AddressDescription.TryGetValue(addressCode, out var description) ? description : "Address")</span>
+                            @foreach (var (addressCode, address) in GetAddressesForSection(index))
+                            {
+                                <div class="vf-accordion-section">
+                                    <div class="row">
+                                        <div class="col-md-10 text-start">
+                                            <span class="vf-accordion-text">@(AddressDescription.TryGetValue(addressCode, out var description) ? description : "Address")</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-10 text-start">
+                                            <span class="vf-accordion-answer">
+                                                @foreach (var line in address.GetDisplayLines())
+                                                {
+                                                    @line<br/>
+                                                }
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-10 text-start">
-                                        <span class="vf-accordion-answer">
-                                            @foreach (var line in address.GetDisplayLines())
-                                            {
-                                                @line<br/>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                            }
                         }
                     </div>
                 </div>
@@ -258,6 +282,14 @@
         { (int)SurveyResponseItem.EXPT_PAY_EE_TIME,           280 },  // Q3.2.1: When?
     };
 
+    private static readonly Dictionary<SurveyResponseItem, string> QuestionTextReplacements = new()
+    {
+        // --- Business Activity ---
+        { SurveyResponseItem.RGST_PRIN_ACTV_CD_SK, "Principal Business Activity" },
+        { SurveyResponseItem.PRIN_OTHR_ACTV_DSC, "Describe your primary business activity" },
+        { SurveyResponseItem.PRIN_SALE_DSC, "Describe the primary business activity for your Wisconsin based employment" },
+    };
+
     private List<Tuple<EmployerRegistrationQuestionDataProxy, SurveyResponse>> GetQuestionsForSection(string sectionName)
     {
         return Questions
@@ -308,6 +340,6 @@
     {
         return string.IsNullOrWhiteSpace(ssnValue)
             ? "No Value"
-            : $"***-**-{ssnValue[5..]}";
+            : "***-**-****";
     }
 }
