@@ -95,6 +95,12 @@ public class AddressModel
     public string? Extension { get; set; }
 
     /// <summary>
+    /// County name returned by the address validation service (Finalist).
+    /// Not collected from the user — populated silently when address validation succeeds.
+    /// </summary>
+    public string? CountyName { get; set; }
+
+    /// <summary>
     /// If the Name field is visible, then it is required
     /// Optional phone number associated with this address (used when <c>ShowPhone</c> is enabled on <c>AddressField</c>).
     /// </summary>
