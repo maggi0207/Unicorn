@@ -77,7 +77,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         {
             OwnershipType.LLC or OwnershipType.LLP or OwnershipType.Partnership or OwnershipType.LLCCorporation => Members?.Where(x =>
             {
-                return !string.IsNullOrEmpty(x.FirstName);
+                return !string.IsNullOrWhiteSpace(x.FirstName) || !string.IsNullOrWhiteSpace(x.LastName);
             }).Select(m =>
             {
                 return new SurveyContact
@@ -90,7 +90,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     _socialSecurityNumber = !string.IsNullOrWhiteSpace(m.SSN) ? m.SSN.Replace("-", string.Empty) : string.Empty,
                 };
             }).ToList() ?? new(),
-            OwnershipType.LP => new()
+            OwnershipType.LP => (string.IsNullOrWhiteSpace(GeneralPartner?.FirstName) && string.IsNullOrWhiteSpace(GeneralPartner?.LastName)) ? new() : new()
                 {
                     new SurveyContact
                     {
@@ -102,7 +102,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _socialSecurityNumber = !string.IsNullOrWhiteSpace(GeneralPartner.SSN) ? GeneralPartner.SSN.Replace("-", string.Empty) : string.Empty,
                     }
                 },
-            OwnershipType.Corporation => Officers?.Select(off =>
+            OwnershipType.Corporation => Officers?.Where(off => !string.IsNullOrWhiteSpace(off.FirstName) || !string.IsNullOrWhiteSpace(off.LastName)).Select(off =>
             {
                 return new SurveyContact
                 {
@@ -114,7 +114,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     _socialSecurityNumber = !string.IsNullOrWhiteSpace(off.SSN) ? off.SSN.Replace("-", string.Empty) : string.Empty,
                 };
             }).ToList() ?? new(),
-            OwnershipType.SoleProprietorship or OwnershipType.Individual => new()
+            OwnershipType.SoleProprietorship or OwnershipType.Individual => (string.IsNullOrWhiteSpace(Owner?.FirstName) && string.IsNullOrWhiteSpace(Owner?.LastName)) ? new() : new()
                 {
                     new SurveyContact
                     {
@@ -126,9 +126,9 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _socialSecurityNumber = !string.IsNullOrWhiteSpace(Owner!.SSN) ? Owner!.SSN.Replace("-", string.Empty) : string.Empty,
                     },
                 },
-            OwnershipType.Estate => new()
+            OwnershipType.Estate => new[]
                 {
-                    new SurveyContact
+                    (!string.IsNullOrWhiteSpace(Decedent?.FirstName) || !string.IsNullOrWhiteSpace(Decedent?.LastName)) ? new SurveyContact
                     {
                         _surveyIndividualCode = (int)RegistrationIndividualCode.Decedent,
                         _firstName = Decedent!.FirstName,
@@ -136,8 +136,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _middleName = Decedent.MiddleInitial,
                         _ownershipPercentage = (Decedent?.OwnershipPercentage ?? 0).ToString(),
                         _socialSecurityNumber = !string.IsNullOrWhiteSpace(Decedent!.SSN) ? Decedent!.SSN.Replace("-", string.Empty) : string.Empty,
-                    },
-                    new SurveyContact
+                    } : null,
+                    (!string.IsNullOrWhiteSpace(PersonalRepresentative?.FirstName) || !string.IsNullOrWhiteSpace(PersonalRepresentative?.LastName)) ? new SurveyContact
                     {
                         _surveyIndividualCode = (int)RegistrationIndividualCode.Personal_Rep,
                         _firstName = PersonalRepresentative!.FirstName,
@@ -145,8 +145,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         _middleName = PersonalRepresentative.MiddleInitial,
                         _ownershipPercentage = (PersonalRepresentative?.OwnershipPercentage ?? 0).ToString(),
                         _socialSecurityNumber = !string.IsNullOrWhiteSpace(PersonalRepresentative!.SSN) ? PersonalRepresentative!.SSN.Replace("-", string.Empty) : string.Empty,
-                    },
-                },
+                    } : null
+                }.OfType<SurveyContact>().ToList(),
             _ => new(),
         };
     }
