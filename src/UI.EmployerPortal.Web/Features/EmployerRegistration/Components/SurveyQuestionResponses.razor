@@ -121,12 +121,22 @@
                         }
                         @if (index != 5)
                         {
+                            int physicalLocationCount = 1;
                             @foreach (var (addressCode, address) in GetAddressesForSection(index))
                             {
+                                string label = AddressDescription.TryGetValue(addressCode, out var description) ? description : "Address";
+                                if (addressCode == RegistrationAddressCode.Physical_Location)
+                                {
+                                    if (physicalLocationCount > 1)
+                                    {
+                                        label = $"Physical Location {physicalLocationCount}";
+                                    }
+                                    physicalLocationCount++;
+                                }
                                 <div class="vf-accordion-section">
                                     <div class="row">
                                         <div class="col-md-10 text-start">
-                                            <span class="vf-accordion-text">@(AddressDescription.TryGetValue(addressCode, out var description) ? description : "Address")</span>
+                                            <span class="vf-accordion-text">@label</span>
                                         </div>
                                     </div>
                                     <div class="row">
