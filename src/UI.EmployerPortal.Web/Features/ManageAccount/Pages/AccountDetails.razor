@@ -75,7 +75,8 @@
                     <OutlinedTextField Label="Explanation for FEIN Change"
                                        Id="FeinChangeReasonExplanation"
                                        @bind-Value="_model.FeinChangeReasonExplanation"
-                                       For="@(() => _model.FeinChangeReasonExplanation)" />
+                                       For="@(() => _model.FeinChangeReasonExplanation)"
+                                       Visible="@IsVisible(() => _model.FeinChangeReasonExplanation)" />
                 </div>
             }
 
@@ -103,7 +104,8 @@
                     <OutlinedTextField Label="Explanation for Legal Name Change"
                                        Id="LegalNameChangeExplanation"
                                        @bind-Value="_model.LegalNameChangeExplanation"
-                                       For="@(() => _model.LegalNameChangeExplanation)" />
+                                       For="@(() => _model.LegalNameChangeExplanation)"
+                                       Visible="@IsVisible(() => _model.LegalNameChangeExplanation)" />
                 </div>
             }
 
@@ -332,7 +334,9 @@
         var fieldOrder = new[]
         {
             nameof(_model.FEIN),
+            nameof(_model.FeinChangeReasonExplanation),
             nameof(_model.LegalName),
+            nameof(_model.LegalNameChangeExplanation),
             nameof(_model.PhoneNumber),
             nameof(_model.EmailAddress)
         };
