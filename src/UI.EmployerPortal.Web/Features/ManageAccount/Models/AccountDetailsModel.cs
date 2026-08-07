@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
@@ -6,7 +6,7 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
 /// <summary>
 /// Represents the view model for updating the employer's account details.
 /// </summary>
-public class AccountDetailsModel : IValidatableObject
+public class AccountDetailsModel
 {
     /// <summary>
     /// Gets or sets the Federal Employer Identification Number (FEIN).
@@ -25,6 +25,7 @@ public class AccountDetailsModel : IValidatableObject
     /// Gets or sets the free-text explanation entered when "Other" is selected
     /// as the reason for the FEIN change. Maps to EmployerUpdate.FeinChangeReasonExplanation.
     /// </summary>
+    [RequiredIf("ReasonForFeinChange", "5", ErrorMessage = "Explanation for FEIN Change is required.")]
     public string? FeinChangeReasonExplanation { get; set; }
 
     /// <summary>
@@ -44,6 +45,7 @@ public class AccountDetailsModel : IValidatableObject
     /// Gets or sets the free-text explanation entered when "Other" is selected
     /// as the reason for the legal name change. Maps to EmployerUpdate.LegalNameChangeExplanation.
     /// </summary>
+    [RequiredIf("ReasonForLegalNameChange", "5", ErrorMessage = "Explanation for Legal Name Change is required.")]
     public string? LegalNameChangeExplanation { get; set; }
 
     /// <summary>
@@ -73,17 +75,30 @@ public class AccountDetailsModel : IValidatableObject
     [Required(ErrorMessage = "Email Address is required.")]
     [EmailAddress(ErrorMessage = "Invalid Email Address format.")]
     public string EmailAddress { get; set; } = string.Empty;
+}
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+public class RequiredIfAttribute : ValidationAttribute
+{
+    private readonly string _dependentProperty;
+    private readonly object _targetValue;
+
+    public RequiredIfAttribute(string dependentProperty, object targetValue)
     {
-        if (ReasonForFeinChange == "5" && string.IsNullOrWhiteSpace(FeinChangeReasonExplanation))
-        {
-            yield return new ValidationResult("Explanation for FEIN Change is required.", new[] { nameof(FeinChangeReasonExplanation) });
-        }
+        _dependentProperty = dependentProperty;
+        _targetValue = targetValue;
+    }
 
-        if (ReasonForLegalNameChange == "5" && string.IsNullOrWhiteSpace(LegalNameChangeExplanation))
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        var propertyInfo = validationContext.ObjectType.GetProperty(_dependentProperty);
+        if (propertyInfo != null)
         {
-            yield return new ValidationResult("Explanation for Legal Name Change is required.", new[] { nameof(LegalNameChangeExplanation) });
+            var dependentValue = propertyInfo.GetValue(validationContext.ObjectInstance);
+            if (Equals(dependentValue, _targetValue) && string.IsNullOrWhiteSpace(value as string))
+            {
+                return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.", new[] { validationContext.MemberName! });
+            }
         }
+        return ValidationResult.Success;
     }
 }
