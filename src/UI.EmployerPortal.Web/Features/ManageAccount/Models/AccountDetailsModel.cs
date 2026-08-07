@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
@@ -5,7 +6,7 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
 /// <summary>
 /// Represents the view model for updating the employer's account details.
 /// </summary>
-public class AccountDetailsModel
+public class AccountDetailsModel : IValidatableObject
 {
     /// <summary>
     /// Gets or sets the Federal Employer Identification Number (FEIN).
@@ -72,4 +73,17 @@ public class AccountDetailsModel
     [Required(ErrorMessage = "Email Address is required.")]
     [EmailAddress(ErrorMessage = "Invalid Email Address format.")]
     public string EmailAddress { get; set; } = string.Empty;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (ReasonForFeinChange == "5" && string.IsNullOrWhiteSpace(FeinChangeReasonExplanation))
+        {
+            yield return new ValidationResult("Explanation for FEIN Change is required.", new[] { nameof(FeinChangeReasonExplanation) });
+        }
+
+        if (ReasonForLegalNameChange == "5" && string.IsNullOrWhiteSpace(LegalNameChangeExplanation))
+        {
+            yield return new ValidationResult("Explanation for Legal Name Change is required.", new[] { nameof(LegalNameChangeExplanation) });
+        }
+    }
 }
