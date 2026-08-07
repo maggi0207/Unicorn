@@ -77,17 +77,31 @@ public class AccountDetailsModel
     public string EmailAddress { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// Specifies that a data field value is required when a dependent property matches a specific target value.
+/// </summary>
 public class RequiredIfAttribute : ValidationAttribute
 {
     private readonly string _dependentProperty;
     private readonly object _targetValue;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequiredIfAttribute"/> class.
+    /// </summary>
+    /// <param name="dependentProperty">The name of the property that this validation depends on.</param>
+    /// <param name="targetValue">The value the dependent property must have for this field to be required.</param>
     public RequiredIfAttribute(string dependentProperty, object targetValue)
     {
         _dependentProperty = dependentProperty;
         _targetValue = targetValue;
     }
 
+    /// <summary>
+    /// Validates the value based on the specified dependent property and target value.
+    /// </summary>
+    /// <param name="value">The value to validate.</param>
+    /// <param name="validationContext">The context information about the validation operation.</param>
+    /// <returns>A <see cref="ValidationResult"/> if validation fails; otherwise, <see cref="ValidationResult.Success"/>.</returns>
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         var propertyInfo = validationContext.ObjectType.GetProperty(_dependentProperty);
