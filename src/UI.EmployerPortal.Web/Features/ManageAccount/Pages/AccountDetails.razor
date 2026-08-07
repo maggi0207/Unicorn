@@ -291,6 +291,9 @@
         _isSaving = true;
         StateHasChanged();
 
+        _model.FEIN = _model.FEIN?.Replace("-", string.Empty) ?? string.Empty;
+        _model.PhoneNumber = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
+
         var result = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
 
         _isSaving = false;
