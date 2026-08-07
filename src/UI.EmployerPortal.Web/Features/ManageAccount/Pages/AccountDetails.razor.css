@@ -82,6 +82,10 @@
     width: 648px;
 }
 
+::deep .ad-field-double .master-text-field {
+    max-width: none;
+}
+
 /* ── Phone helper text ───────────────────────────────────────────────── */
 .phone-helper-text {
     font-family: Verdana, sans-serif;
