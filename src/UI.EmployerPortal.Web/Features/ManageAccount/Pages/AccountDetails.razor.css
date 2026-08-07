@@ -76,6 +76,12 @@
     width: 300px;
 }
 
+.ad-field-double {
+    display: flex;
+    flex-direction: column;
+    width: 648px;
+}
+
 /* ── Phone helper text ───────────────────────────────────────────────── */
 .phone-helper-text {
     font-family: Verdana, sans-serif;

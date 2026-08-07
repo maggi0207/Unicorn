@@ -71,7 +71,7 @@
             @* ── Explanation for FEIN Change (shown only when "Other" is selected) ── *@
             @if (_model.ReasonForFeinChange == "5")
             {
-                <div class="ad-field-single" aria-label="explanation-for-fein-change">
+                <div class="ad-field-double" aria-label="explanation-for-fein-change">
                     <OutlinedTextField Label="Explanation for FEIN Change"
                                        Id="FeinChangeReasonExplanation"
                                        @bind-Value="_model.FeinChangeReasonExplanation"
@@ -99,7 +99,7 @@
             @* ── Explanation for Legal Name Change (shown only when "Other" is selected) ── *@
             @if (_model.ReasonForLegalNameChange == "5")
             {
-                <div class="ad-field-single" aria-label="explanation-for-legal-name-change">
+                <div class="ad-field-double" aria-label="explanation-for-legal-name-change">
                     <OutlinedTextField Label="Explanation for Legal Name Change"
                                        Id="LegalNameChangeExplanation"
                                        @bind-Value="_model.LegalNameChangeExplanation"
