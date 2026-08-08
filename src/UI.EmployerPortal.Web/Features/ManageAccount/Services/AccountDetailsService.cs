@@ -84,7 +84,7 @@ internal class AccountDetailsService : IAccountDetailsService
             TradeName = employer.TradeName,
             PhoneNumber = formattedPhone,
             Extension = extDigits,
-            CountryCode = employer.InternationalPhoneCode,
+            CountryCode = string.IsNullOrWhiteSpace(employer.InternationalPhoneCode) ? null : $"+{employer.InternationalPhoneCode.TrimStart('+')}",
             EmailAddress = string.Empty
         };
     }
