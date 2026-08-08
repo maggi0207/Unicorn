@@ -305,10 +305,10 @@
             var query = new List<string> { "success=true" };
             if (_originalModel != null)
             {
-                if (_model.FEIN != _originalModel.FEIN) query.Add("fein=1");
+                if (_model.FEIN != (_originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty)) query.Add("fein=1");
                 if (_model.LegalName != _originalModel.LegalName) query.Add("name=1");
                 if (_model.TradeName != _originalModel.TradeName) query.Add("trade=1");
-                if (_model.PhoneNumber != _originalModel.PhoneNumber || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) query.Add("phone=1");
+                if (_model.PhoneNumber != (_originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty) || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) query.Add("phone=1");
                 if (_model.EmailAddress != _originalModel.EmailAddress) query.Add("email=1");
             }
             NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");
