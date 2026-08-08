@@ -292,6 +292,28 @@
             return;
         }
 
+        // Check if any changes were actually made before hitting the backend
+        bool hasChanges = false;
+        if (_originalModel != null)
+        {
+            var currentFeinUnformatted = _model.FEIN?.Replace("-", string.Empty) ?? string.Empty;
+            var originalFeinUnformatted = _originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty;
+            var currentPhoneUnformatted = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
+            var originalPhoneUnformatted = _originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
+
+            if (currentFeinUnformatted != originalFeinUnformatted) hasChanges = true;
+            else if (_model.LegalName != _originalModel.LegalName) hasChanges = true;
+            else if (_model.TradeName != _originalModel.TradeName) hasChanges = true;
+            else if (currentPhoneUnformatted != originalPhoneUnformatted || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) hasChanges = true;
+            else if (_model.EmailAddress != _originalModel.EmailAddress) hasChanges = true;
+        }
+
+        if (_originalModel != null && !hasChanges)
+        {
+            NavigationManager.NavigateTo("/manage-account/account-summary");
+            return;
+        }
+
         _isSaving = true;
         StateHasChanged();
 

@@ -86,6 +86,11 @@ public class AccountDetailsModel : IValidatableObject
     /// </summary>
     public string OriginalLegalName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Validates the model to ensure a reason is provided when the FEIN or Legal Name is changed.
+    /// </summary>
+    /// <param name="validationContext">The validation context.</param>
+    /// <returns>A collection of validation results.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var currentFeinUnformatted = FEIN?.Replace("-", string.Empty) ?? string.Empty;
