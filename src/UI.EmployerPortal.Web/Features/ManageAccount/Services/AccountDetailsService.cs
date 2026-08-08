@@ -122,7 +122,7 @@ internal class AccountDetailsService : IAccountDetailsService
                 PhoneAreaCode = phoneAreaCode,
                 PhoneLocalNumber = phoneLocalNumber,
                 PhoneExtension = string.IsNullOrWhiteSpace(model.Extension) ? null : model.Extension,
-                PhoneInternationalCode = string.IsNullOrWhiteSpace(model.CountryCode) ? null : model.CountryCode,
+                PhoneInternationalCode = string.IsNullOrWhiteSpace(model.CountryCode) ? null : model.CountryCode.TrimStart('+'),
                 FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
                 FeinChangeReasonExplanation = string.IsNullOrWhiteSpace(model.FeinChangeReasonExplanation) ? null : model.FeinChangeReasonExplanation,
                 LegalNameChangeReasonCodeSK = int.TryParse(model.ReasonForLegalNameChange, out var legalReasonSK) ? legalReasonSK : null,
