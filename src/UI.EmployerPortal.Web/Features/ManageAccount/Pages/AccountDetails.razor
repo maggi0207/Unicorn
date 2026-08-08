@@ -231,6 +231,8 @@
         if (_employerSK > 0)
         {
             _model = await AccountDetailsService.GetAccountDetailsAsync(_employerSK);
+            _model.OriginalFEIN = _model.FEIN;
+            _model.OriginalLegalName = _model.LegalName;
         }
         else
         {
@@ -334,8 +336,10 @@
         var fieldOrder = new[]
         {
             nameof(_model.FEIN),
+            nameof(_model.ReasonForFeinChange),
             nameof(_model.FeinChangeReasonExplanation),
             nameof(_model.LegalName),
+            nameof(_model.ReasonForLegalNameChange),
             nameof(_model.LegalNameChangeExplanation),
             nameof(_model.PhoneNumber),
             nameof(_model.EmailAddress)

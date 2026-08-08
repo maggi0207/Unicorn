@@ -6,7 +6,7 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
 /// <summary>
 /// Represents the view model for updating the employer's account details.
 /// </summary>
-public class AccountDetailsModel
+public class AccountDetailsModel : IValidatableObject
 {
     /// <summary>
     /// Gets or sets the Federal Employer Identification Number (FEIN).
@@ -75,6 +75,32 @@ public class AccountDetailsModel
     [Required(ErrorMessage = "Email Address is required.")]
     [EmailAddress(ErrorMessage = "Invalid Email Address format.")]
     public string EmailAddress { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the original FEIN to detect changes.
+    /// </summary>
+    public string OriginalFEIN { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the original legal name to detect changes.
+    /// </summary>
+    public string OriginalLegalName { get; set; } = string.Empty;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var currentFeinUnformatted = FEIN?.Replace("-", string.Empty) ?? string.Empty;
+        var originalFeinUnformatted = OriginalFEIN?.Replace("-", string.Empty) ?? string.Empty;
+
+        if (currentFeinUnformatted != originalFeinUnformatted && string.IsNullOrWhiteSpace(ReasonForFeinChange))
+        {
+            yield return new ValidationResult("Reason for FEIN Change is required when FEIN is updated.", new[] { nameof(ReasonForFeinChange) });
+        }
+
+        if (LegalName != OriginalLegalName && string.IsNullOrWhiteSpace(ReasonForLegalNameChange))
+        {
+            yield return new ValidationResult("Reason for Legal Name Change is required when Legal Name is updated.", new[] { nameof(ReasonForLegalNameChange) });
+        }
+    }
 }
 
 /// <summary>
