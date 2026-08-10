@@ -110,19 +110,15 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory.HasValue)
         {
-            // NonProfit_Other (6) is a frontend-only distinction used to drive UI logic.
-            // The WCF backend does not recognise category code 6; it handles non-profit
-            // employers that are not 501(c)(3) under the legacy NonProfit (2) code.
-            int wcfBusinessCategoryCode = BusinessCategory.Value == Models.BusinessCategory.NonProfit_Other
-                ? (int) Models.BusinessCategory.NonProfit
-                : (int) BusinessCategory.Value;
-
-            responses.Add(new SurveyResponse()
+            if (BusinessCategory.Value != Models.BusinessCategory.NonProfit_Other)
             {
-                _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
-                _response = wcfBusinessCategoryCode.ToString(),
-                _responseDisplay = BusinessCategory.Value.GetDisplayName()
-            });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
+                    _response = ((int) BusinessCategory.Value).ToString(),
+                    _responseDisplay = BusinessCategory.Value.GetDisplayName()
+                });
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(FinancialInstitutionString))
