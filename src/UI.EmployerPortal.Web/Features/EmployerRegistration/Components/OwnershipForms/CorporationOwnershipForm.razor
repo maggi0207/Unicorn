@@ -170,6 +170,8 @@
 
         try
         {
+            IsOutsideUSA = ContinueData.IsOutsideUSA;
+            _previousISOutsideUSA = IsOutsideUSA;
             IncorporationState = ContinueData.IncorporationState ?? string.Empty;
             ForeignCountry = ContinueData.ForeignCountry ?? string.Empty;
 
@@ -410,6 +412,8 @@
     {
         _ = OnDataChanged.InvokeAsync(new CorporationFormData
         {
+
+            IsOutsideUSA = IsOutsideUSA,
             IncorporationState = IncorporationState,
             ForeignCountry = ForeignCountry,
             Officers = Officers.Select(o => new OwnerMember

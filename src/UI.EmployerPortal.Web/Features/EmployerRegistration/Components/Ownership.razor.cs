@@ -383,8 +383,10 @@ public partial class Ownership
             Model.CorporateOfficerServices = null;
             Model.LlcDocumentation = null;
             Model.QualifiedSettlementFund = null;
-
-
+            Model.IsOutsideUSA = false;
+            Model.IncorporationState = string.Empty;
+            Model.ForeignCountry = string.Empty;
+            Model.Officers = [];
 
             StateHasChanged();
             await Task.Delay(100);
@@ -533,6 +535,7 @@ public partial class Ownership
                 case OwnershipType.Corporation:
                     if (_childFormData is CorporationFormData corpData)
                     {
+                        Model.IsOutsideUSA = corpData.IsOutsideUSA;
                         Model.IncorporationState = corpData.IncorporationState;
                         Model.ForeignCountry = corpData.ForeignCountry;
                         Model.Officers = corpData.Officers;

@@ -257,27 +257,31 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OWNR_CLS_CD_SK, _response = $"{(int) OwnershipType}", _responseDisplay = OwnershipType.GetDisplayName() });
         }
 
-        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA) });
-
-        if (!IsOutsideUSA && IncorporationState != null)
+        if (OwnershipType == OwnershipType.Corporation)
         {
-            var stateName = AddressModel.States.FirstOrDefault(s =>
-            {
-                return s.Value == IncorporationState;
-            })?.Text ?? IncorporationState;
-            responses.Add(new SurveyResponse()
-            {
-                _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD,
-                _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString(),
-                _responseDisplay = stateName
-            });
-        }
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA) });
 
-        if (IsOutsideUSA && ForeignCountry != null)
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_FGN_CTRY_NAM, _response = ForeignCountry });
-        }
+            //responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA) });
 
+            if (!IsOutsideUSA && !string.IsNullOrWhiteSpace(IncorporationState))
+            {
+                var stateName = AddressModel.States.FirstOrDefault(s =>
+                {
+                    return s.Value == IncorporationState;
+                })?.Text ?? IncorporationState;
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_ST_CD,
+                    _response = EmployerRegistrationModelStore.GetStateProvinceAbbreviationFromCode(IncorporationState).ToString(),
+                    _responseDisplay = stateName
+                });
+            }
+
+            if (IsOutsideUSA && ForeignCountry != null)
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_FGN_CTRY_NAM, _response = ForeignCountry });
+            }
+        }
         if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP or OwnershipType.LLCCorporation
             && RegistrationState != null)
         {

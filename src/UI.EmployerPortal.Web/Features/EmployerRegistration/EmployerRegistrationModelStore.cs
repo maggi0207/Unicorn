@@ -111,12 +111,6 @@ internal class EmployerRegistrationModelStore
             try
             {
 
-                if (RedirectToPlanPath())
-                {
-                    _navigationManager.NavigateTo("employer-registration/planned-path");
-                    return new();
-                }
-
                 var secureUserSkClaim = _userAccountService.GetUserSKClaim();
 
                 var match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSk);
@@ -153,6 +147,18 @@ internal class EmployerRegistrationModelStore
                     }
                     else
                     {
+                        if (registerResponse.LiableRegistration == false || registerResponse.EmployerSK == null)
+                        {
+                            var plannedPathResponse = new SessionEmployerRegistrationResponse()
+                            {
+                                Message = registerResponse.Message,
+                                SecondaryMessage = registerResponse.ResultSecondaryMessage,
+                            };
+                            await _sessionManager.ClearAsync<SessionEmployerRegistrationResponse>();
+                            await _sessionManager.SetAsync<SessionEmployerRegistrationResponse>(plannedPathResponse);
+                            _navigationManager.NavigateTo("employer-registration/planned-path");
+                            return new();
+                        }
                         var sessionEmployerRegistrationInfo = new SessionEmployerRegistrationInfo()
                         {
                             EmployerSk = registerResponse.EmployerSK ?? 0,
@@ -177,77 +183,7 @@ internal class EmployerRegistrationModelStore
         }
     }
 
-    private bool RedirectToPlanPath()
-    {
-        var response = GetResponses();
-        var isMatch = false;
 
-        if (response.Any())
-        {
-            var futaAnswer = response.Find(x =>
-            {
-                return x._surveyResponseItemSk is ((int) SurveyResponseItem.DMSTC_FUTA_FLG)
-                or ((int) SurveyResponseItem.AG_FTA_LBTY_FLG) or ((int) SurveyResponseItem.CFTA_LBTY_FLG);
-            });
-
-            var hasEmployeeIn20WeeksAnswer = response.Find(x =>
-            {
-                return x._surveyResponseItemSk is ((int) SurveyResponseItem.AG_10_IN_20_FLG)
-                or ((int) SurveyResponseItem.CMCL_1_IN_20_FLG) or ((int) SurveyResponseItem.NP_4_IN_20_FLG);
-            });
-
-            var paidWagesAnswer = response.Find(x =>
-            {
-                return x._surveyResponseItemSk is ((int) SurveyResponseItem.PAID_EE_FLG);
-            });
-
-            var payWagesInFutureAnswer = response.Find(x =>
-            {
-                return x._surveyResponseItemSk is ((int) SurveyResponseItem.EXPT_PAY_EE_FLG);
-            });
-
-            var ownerShipType = response.Find(x =>
-            {
-                return x._surveyResponseItemSk is ((int) SurveyResponseItem.OWNR_CLS_CD_SK);
-            });
-
-            if (ownerShipType != null)
-            {
-                if (ownerShipType._response == ((int) OwnershipType.QSF).ToString())
-                {
-                    isMatch = true;
-                }
-
-            }
-
-            if (payWagesInFutureAnswer != null && paidWagesAnswer != null)
-            {
-                if (payWagesInFutureAnswer._response.ToUpper() == "FALSE" && paidWagesAnswer._response.ToUpper() == "FALSE")
-                {
-                    isMatch = true;
-                }
-
-            }
-
-            if (futaAnswer != null)
-            {
-                if (futaAnswer._response.ToUpper() == "FALSE")
-                {
-                    isMatch = true;
-                }
-            }
-
-            if (hasEmployeeIn20WeeksAnswer != null)
-            {
-                if (hasEmployeeIn20WeeksAnswer._response.ToUpper() == "FALSE")
-                {
-                    isMatch = true;
-                }
-            }
-
-        }
-        return isMatch;
-    }
 
     /// <summary>
     /// Save the response to the WCF service that indicates they would like email notification of

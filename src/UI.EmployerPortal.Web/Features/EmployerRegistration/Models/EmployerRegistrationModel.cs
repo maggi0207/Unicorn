@@ -123,7 +123,7 @@ public class EmployerRegistrationModel
         addresses.AddRange(BusinessInformationModel.GetSurveyAddresses());
         addresses.AddRange(BusinessContactModel.GetSurveyAddresses());
         addresses.AddRange(BusinessActivityModel.GetSurveyAddresses());
-        addresses.AddRange(SubjectivityModel.GetSurveyAddresses());
+        //addresses.AddRange(SubjectivityModel.GetSurveyAddresses());
         return addresses;
     }
 
@@ -138,7 +138,7 @@ public class EmployerRegistrationModel
         BusinessInformationModel.LoadSurveyAddresses(addresses);
         BusinessContactModel.LoadSurveyAddresses(addresses);
         BusinessActivityModel.LoadSurveyAddresses(addresses);
-        SubjectivityModel.LoadSurveyAddresses(addresses);
+        //SubjectivityModel.LoadSurveyAddresses(addresses);
     }
 
     /// <summary>

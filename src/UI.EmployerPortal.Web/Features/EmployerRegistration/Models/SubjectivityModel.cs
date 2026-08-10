@@ -11,7 +11,7 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 public class SubjectivityModel : IEmployerRegistrationModelSection
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public SubjectivityModel() { }
 
@@ -20,7 +20,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     /// </summary>
     public BusinessCategory? BusinessCategory { get; set; }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string AFL_XPCT_PY_WI_WGS_WHN_TXT { get; set; } = String.Empty;
     /// <summary>
@@ -44,28 +44,24 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     /// <summary>
     /// Do you have employees who work in states other than Wisconsin?
     /// </summary>
-    //This look like top-level question as per the flow diagram shared in the 559 user story .  Always visible in this flow 
+    //This look like top-level question as per the flow diagram shared in the 559 user story .  Always visible in this flow
     public bool? HasEmployeesOutsideWisconsin501 { get; set; } = null;
     /// <summary>
     /// Do you have employees who work in states other than Wisconsin?
-    /// </summary>     
-    //This look like top-level question as per the flow diagram shared in the 559 user story .  Always visible in this flow  
+    /// </summary>
+    //This look like top-level question as per the flow diagram shared in the 559 user story .  Always visible in this flow
     public bool? HasEmployeesOutsideWisconsin { get; set; } = null;
 
     /// <summary>
     /// Do you have a Federal Unemployment Tax (FUTA) liability based on payrolls in any state other than Wisconsin?
     /// </summary>
-    ///  Visible only when HasEmployeesOutsideWisconsin = Yes    
+    ///  Visible only when HasEmployeesOutsideWisconsin = Yes
     public bool? HasFutaLiabilityInOtherStates { get; set; }
 
     /// <summary>
     /// FinancialInstitution
     /// </summary>
-    public FinancialInstitution FinancialInstitution { get; set; } = new();
-    /// <summary>
-    /// FinancialInstitution
-    /// </summary>
-    public AddressModel FinancialInstitutionaddress { get; set; } = new();
+    public string FinancialInstitutionString { get; set; } = String.Empty;
 
     /// <summary>
     /// Did you pay $1,500 or more in wages in a calendar quarter? (Employees path)
@@ -93,10 +89,9 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     public bool? HasEmployeeIn20Weeks { get; set; }
     /// <summary>
     /// Date the 20th week ended (must be Saturday)
-    /// (Visible when HasEmployeeIn20Weeks = Yes) 
+    /// (Visible when HasEmployeeIn20Weeks = Yes)
     /// </summary>
-    [RequiredIfVisibleAttribute("HasEmployeeIn20Weeks", true, ErrorMessage = "The date is not valid. Must be the week ending date of the 20th week. Format example: mm/dd/yyyy.")]
-    [SaturdayOnly(ErrorMessage = "The date is not valid. Must be the week ending date of the 20th week. Format example: mm/dd/yyyy.")]
+    [RequiredIfVisibleAttribute("HasEmployeeIn20Weeks", true, ErrorMessage = "The date is not valid. Format example: MM/DD/YYYY")]
     public DateTime? Week20EndDate { get; set; }
     /// <summary>
     /// do you expect to have x employees in 20 weeks in a calendar year
@@ -115,30 +110,17 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory.HasValue)
         {
-            // NonProfit_Other (6) is a frontend-only distinction used to drive UI logic.
-            // The WCF backend does not recognise category code 6; it handles non-profit
-            // employers that are not 501(c)(3) under the legacy NonProfit (2) code.
-            int wcfBusinessCategoryCode;
-            if (BusinessCategory.Value == Models.BusinessCategory.NonProfit_Other)
-            {
-                wcfBusinessCategoryCode = (int) Models.BusinessCategory.NonProfit;
-            }
-            else
-            {
-                wcfBusinessCategoryCode = (int) BusinessCategory.Value;
-            }
-
             responses.Add(new SurveyResponse()
             {
                 _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
-                _response = wcfBusinessCategoryCode.ToString(),
+                _response = ((int) BusinessCategory.Value).ToString(),
                 _responseDisplay = BusinessCategory.Value.GetDisplayName()
             });
         }
 
-        if (!string.IsNullOrWhiteSpace(FinancialInstitution.Name))
+        if (!string.IsNullOrWhiteSpace(FinancialInstitutionString))
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.BANK_NAM, _response = FinancialInstitution.Name });
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.BANK_NAM, _response = FinancialInstitutionString });
         }
 
         if (HasEmployeesOutsideWisconsin.HasValue)
@@ -336,7 +318,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
+        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             if (ExpectToHaveWagesInAQuarter.HasValue) //6.42) // employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
             {
@@ -369,19 +351,39 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
             if (yearOne.Q1Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q1_WAGES, _response = yearOne.Q1Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q1_WAGES,
+                    _response = yearOne.Q1Wages.Value.ToString(),
+                    _responseDisplay = yearOne.Q1Wages.Value.ToString("C2")
+                });
             }
             if (yearOne.Q2Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q2_WAGES, _response = yearOne.Q2Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q2_WAGES,
+                    _response = yearOne.Q2Wages.Value.ToString(),
+                    _responseDisplay = yearOne.Q2Wages.Value.ToString("C2")
+                });
             }
             if (yearOne.Q3Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q3_WAGES, _response = yearOne.Q3Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q3_WAGES,
+                    _response = yearOne.Q3Wages.Value.ToString(),
+                    _responseDisplay = yearOne.Q3Wages.Value.ToString("C2")
+                });
             }
             if (yearOne.Q4Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q4_WAGES, _response = yearOne.Q4Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q4_WAGES,
+                    _response = yearOne.Q4Wages.Value.ToString(),
+                    _responseDisplay = yearOne.Q4Wages.Value.ToString("C2")
+                });
             }
         }
 
@@ -393,19 +395,39 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
             if (yearTwo.Q1Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q1_WAGES, _response = yearTwo.Q1Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q1_WAGES,
+                    _response = yearTwo.Q1Wages.Value.ToString(),
+                    _responseDisplay = yearTwo.Q1Wages.Value.ToString("C2")
+                });
             }
             if (yearTwo.Q2Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q2_WAGES, _response = yearTwo.Q2Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q2_WAGES,
+                    _response = yearTwo.Q2Wages.Value.ToString(),
+                    _responseDisplay = yearTwo.Q2Wages.Value.ToString("C2")
+                });
             }
             if (yearTwo.Q3Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q3_WAGES, _response = yearTwo.Q3Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q3_WAGES,
+                    _response = yearTwo.Q3Wages.Value.ToString(),
+                    _responseDisplay = yearTwo.Q3Wages.Value.ToString("C2")
+                });
             }
             if (yearTwo.Q4Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q4_WAGES, _response = yearTwo.Q4Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q4_WAGES,
+                    _response = yearTwo.Q4Wages.Value.ToString(),
+                    _responseDisplay = yearTwo.Q4Wages.Value.ToString("C2")
+                });
             }
         }
 
@@ -417,19 +439,39 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
             if (yearThree.Q1Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q1_WAGES, _response = yearThree.Q1Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q1_WAGES,
+                    _response = yearThree.Q1Wages.Value.ToString(),
+                    _responseDisplay = yearThree.Q1Wages.Value.ToString("C2")
+                });
             }
             if (yearThree.Q2Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q2_WAGES, _response = yearThree.Q2Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q2_WAGES,
+                    _response = yearThree.Q2Wages.Value.ToString(),
+                    _responseDisplay = yearThree.Q2Wages.Value.ToString("C2")
+                });
             }
             if (yearThree.Q3Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES, _response = yearThree.Q3Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES,
+                    _response = yearThree.Q3Wages.Value.ToString(),
+                    _responseDisplay = yearThree.Q3Wages.Value.ToString("C2")
+                });
             }
             if (yearThree.Q4Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES, _response = yearThree.Q4Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES,
+                    _response = yearThree.Q4Wages.Value.ToString(),
+                    _responseDisplay = yearThree.Q4Wages.Value.ToString("C2")
+                });
             }
         }
 
@@ -441,19 +483,39 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
             if (yearFour.Q1Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q1_WAGES, _response = yearFour.Q1Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q1_WAGES,
+                    _response = yearFour.Q1Wages.Value.ToString(),
+                    _responseDisplay = yearFour.Q1Wages.Value.ToString("C2")
+                });
             }
             if (yearFour.Q2Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q2_WAGES, _response = yearFour.Q2Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q2_WAGES,
+                    _response = yearFour.Q2Wages.Value.ToString(),
+                    _responseDisplay = yearFour.Q2Wages.Value.ToString("C2")
+                });
             }
             if (yearFour.Q3Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q3_WAGES, _response = yearFour.Q3Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q3_WAGES,
+                    _response = yearFour.Q3Wages.Value.ToString(),
+                    _responseDisplay = yearFour.Q3Wages.Value.ToString("C2")
+                });
             }
             if (yearFour.Q4Wages.HasValue)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q4_WAGES, _response = yearFour.Q4Wages.Value.ToString() });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q4_WAGES,
+                    _response = yearFour.Q4Wages.Value.ToString(),
+                    _responseDisplay = yearFour.Q4Wages.Value.ToString("C2")
+                });
             }
         }
 
@@ -473,7 +535,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         // (!string.IsNullOrWhiteSpace(FinancialInstitution.Name))
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BANK_NAM, out var bankName))
         {
-            FinancialInstitution.Name = bankName.ReplyText;
+            FinancialInstitutionString = bankName.ReplyText;
         }
 
         // (HasEmployeesOutsideWisconsin.HasValue)
@@ -643,7 +705,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))
@@ -819,18 +881,18 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     {
         var addresses = new List<Tuple<RegistrationAddressCode, AddressModel>>();
 
-        if (!string.IsNullOrWhiteSpace(FinancialInstitution.AddressLine1))
-        {
-            FinancialInstitutionaddress.Name = FinancialInstitution.Name;
-            FinancialInstitutionaddress.Country = FinancialInstitution.Country;
-            FinancialInstitutionaddress.AddressLine1 = FinancialInstitution.AddressLine1;
-            FinancialInstitutionaddress.AddressLine2 = FinancialInstitution.AddressLine2;
-            FinancialInstitutionaddress.AddressLine3 = FinancialInstitution.AddressLine3;
-            FinancialInstitutionaddress.City = FinancialInstitution.City;
-            FinancialInstitutionaddress.State = FinancialInstitution.State;
-            FinancialInstitutionaddress.Zip = FinancialInstitution.Zip;
-            addresses.Add(Tuple.Create(RegistrationAddressCode.DFI_Received, FinancialInstitutionaddress));
-        }
+        //if (!string.IsNullOrWhiteSpace(FinancialInstitution.AddressLine1))
+        //{
+        //    FinancialInstitutionaddress.Name = FinancialInstitution.Name;
+        //    FinancialInstitutionaddress.Country = FinancialInstitution.Country;
+        //    FinancialInstitutionaddress.AddressLine1 = FinancialInstitution.AddressLine1;
+        //    FinancialInstitutionaddress.AddressLine2 = FinancialInstitution.AddressLine2;
+        //    FinancialInstitutionaddress.AddressLine3 = FinancialInstitution.AddressLine3;
+        //    FinancialInstitutionaddress.City = FinancialInstitution.City;
+        //    FinancialInstitutionaddress.State = FinancialInstitution.State;
+        //    FinancialInstitutionaddress.Zip = FinancialInstitution.Zip;
+        //    addresses.Add(Tuple.Create(RegistrationAddressCode.DFI_Received, FinancialInstitutionaddress));
+        //}
         return addresses;
     }
 
@@ -838,20 +900,20 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     public void LoadSurveyAddresses(RegistrationAddressProxy[] addresses)
     {
         // fight need to load financial institution address
-        if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
-        {
-            FinancialInstitutionaddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(financialInstitutionAddress);
-        }
+        //if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
+        //{
+        //    FinancialInstitutionaddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(financialInstitutionAddress);
+        //}
     }
 
     /// <inheritdoc/>
     public void PutAddressSKs(RegistrationAddressProxy[] addresses)
     {
-        if (FinancialInstitution != null
-            && IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
-        {
-            FinancialInstitution.RegistrationAddressSk = financialInstitutionAddress.EmployerRegistrationAddressSK;
-        }
+        //if (FinancialInstitution != null
+        //    && IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.DFI_Received, out var financialInstitutionAddress))
+        //{
+        //    FinancialInstitution.RegistrationAddressSk = financialInstitutionAddress.EmployerRegistrationAddressSK;
+        //}
     }
 }
 
@@ -887,7 +949,7 @@ public class RequiredIfVisibleAttribute : ValidationAttribute
     private readonly bool _expectedValue;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="isVisible"></param>
     /// <param name="expectedValue"></param>
@@ -898,7 +960,7 @@ public class RequiredIfVisibleAttribute : ValidationAttribute
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="value"></param>
     /// <param name="context"></param>

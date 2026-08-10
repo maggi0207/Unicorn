@@ -9,6 +9,11 @@ public class CorporationFormData
     /// </summary>
     public string IncorporationState { get; set; } = string.Empty;
     /// <summary>
+    /// IsOutsideUSA
+    /// </summary>
+    public bool IsOutsideUSA { get; set; }
+
+    /// <summary>
     /// ForeignCountry
     /// </summary>
     public string ForeignCountry { get; set; } = string.Empty;

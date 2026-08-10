@@ -145,7 +145,7 @@ public partial class BusinessActivity : ComponentBase
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions = new[]
     {
@@ -348,6 +348,10 @@ public partial class BusinessActivity : ComponentBase
         if (Model.SameAsPrimaryBusinessActivity)
         {
             Model.WisconsinSpecificBusinessActivity = Model.PrimaryBusinessActivityDescription;
+        }
+        else if (string.IsNullOrWhiteSpace(Model.WisconsinSpecificBusinessActivity))
+        {
+            AddFieldError("WisconsinSpecificBusinessActivity", "Primary Business Activity for Wisconsin Based Employment Description is required");
         }
 
         StateHasChanged();

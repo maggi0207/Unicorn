@@ -1,5 +1,6 @@
 @page "/employer-registration/UISubjectivity";
 
+@using Microsoft.FluentUI.AspNetCore.Components
 @using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
@@ -132,11 +133,15 @@
                                 Options="@YesNoRadioOptions" />
                  </div>
             }
-
-            <FinancialInstitutionAddr Address="SubjectivityModel.FinancialInstitution"
-                          ShowName="true"
-                          Legend="Financial Institution for Business Checking Account"
-                         Visible="@_showAddressErrors"/>
+                         <div>
+                             <p><strong>Financial Institution through which you will maintain your business checking account.</strong>Provide the Name and Address (Optional). </p>
+                            <textarea id="FinancialInstitution"
+                                       class="fI-control"
+                                        rows="4"
+                                         @bind="@SubjectivityModel.FinancialInstitutionString">
+                             </textarea>
+                           
+                         </div>
 
             <div class="ui-radio-section">
                 <p class="ui-text"><strong>Note: </strong>@GetNoteText()<a href=@GetPermittedExclusionsUrl() target='_blank' rel='noopener noreferrer'class="link-underline-primary">Permitted Exclusions</a>.</p>
@@ -314,15 +319,16 @@
                         <label class="form-label" for="Week20EndDate">
                             Date 20th Week Ended
                         </label>
-                        <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
-                                    Visible="_formSubmitted" />
                         <InputDate id="Week20EndDate"
                                    @bind-Value="SubjectivityModel.Week20EndDate"
                                    class="form-control"
                                    min="@TwentiethWeekMinSaturday().ToString("yyyy-MM-dd")"
+                                   max="@CurrentWeekSaturday().ToString("yyyy-MM-dd")"
                                    step="7"
                                    DisplayName="Date 20th Week Ended"
                                    @bind-Value:format="MM/dd/yyyy" />
+                        <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
+                                    Visible="_formSubmitted" />
                     </div>
                 </div>
             }

@@ -82,7 +82,7 @@ public class AddressValidationService : IAddressValidationWrapper
                 Zip = response.OutputAddress.ZipCode,
                 Extension = response.OutputAddress.ZipCodeExtension,
                 Country = response.OutputAddress.CountryCode ?? address.Country,
-                CountyName = response.OutputAddress.CountyName ?? string.Empty
+                CountyName = response.OutputAddress.CountyName
             };
         }
 

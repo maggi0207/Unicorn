@@ -37,7 +37,7 @@
                     CSS="@(_showAllErrors && _invalidFields.Contains("PaymentsForServices") ? "invalid" : "valid")"
                     Options="@YesNoRadioOptions" />
     </div>
-    
+
     <!-- "Yes" branch: Entity details + address -->
     @if (Model.PaymentsForServices == true)
     {
@@ -59,7 +59,7 @@
                                 OnKeyUp="@(() => ValidateSection())"
                                 Width="330" />
             </div>
-            
+
             <div class="qsf-id-row form-row">
                     <ValidatedInput Id="qsf-federal-id"
                                     Label="Federal ID Number"
@@ -71,7 +71,6 @@
                                     MaxLength="10"
                                     HintId="qsf-federal-id-hint"
                                     OnBlur="@(() => ValidateSection())"
-                                    OnKeyUp="@(() => ValidateSection())"
                                     Width="330" />
 
                     <ValidatedInput Id="qsf-wi-ui-account"
@@ -174,7 +173,7 @@
     }
 
     <!-- File Upload -->
-    <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">             
+    <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">
         <FileUpload Title="Court approved settlement agreement" Model="@typeof( object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
     </div>
 
@@ -261,7 +260,18 @@
 
     // --- 'Yes' branch handlers ---
     private void OnEntityLegalNameChanged(string value) { Model.EntityLegalName = value; NotifyDataChanged(); }
-    private void OnFederalIdChanged(string value) { Model.FederalIdNumber = value; NotifyDataChanged(); }
+    private void OnFederalIdChanged(string value)
+    {
+        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
+        if (int.TryParse(digitsOnly, out var intValue) && digitsOnly.Length == 9)
+        {
+            Model.FederalIdNumber = intValue.ToString("##-#######");
+        }
+        else {
+           Model.FederalIdNumber = value;
+        }
+        NotifyDataChanged();
+    }
     private void OnWiUiAccountChanged(string value) { Model.WisconsinUiAccountNumber = value; NotifyDataChanged(); }
     private void OnAddressLine1Changed(string value) { Model.ServiceAddress.AddressLine1 = value; NotifyDataChanged(); }
     private void OnAddressLine2Changed(string value) { Model.ServiceAddress.AddressLine2 = value; NotifyDataChanged(); }
@@ -318,11 +328,11 @@
         {
             _invalidFields.Add("PaymentsForServices");
             _fieldErrors["PaymentsForServices"] = "Please select whether the payments were for services";
-            _validationItems.Add(new ValidationItem(                                        
-                "Please select whether the payments were for services",        
+            _validationItems.Add(new ValidationItem(
+                "Please select whether the payments were for services",
                 "payments-for-services-group"));
         }
-                                                                     
+
         // "Yes" branch validations
         if (Model.PaymentsForServices == true)
         {
@@ -342,6 +352,27 @@
                 _validationItems.Add(new ValidationItem(
                     "Please enter the Federal Id Number",
                     "qsf-federal-id"));
+            }
+            else
+            {
+                var digitsOnly = new string(Model.FederalIdNumber.Where(char.IsDigit).ToArray());
+
+                if (digitsOnly.Length != 9)
+                {
+                    _invalidFields.Add("FederalIdNumber");
+                    _fieldErrors["FederalIdNumber"] = "Federal Id Number must be in format 99-9999999";
+                    _validationItems.Add(new ValidationItem(
+                    "Please enter a valid Federal Id Number",
+                    "qsf-federal-id"));
+                }
+                else if (digitsOnly.Distinct().Count() == 1)
+                {
+                    _invalidFields.Add("FederalIdNumber");
+                    _fieldErrors["FederalIdNumber"] = "Federal Id Number cannot be all the same digit";
+                    _validationItems.Add(new ValidationItem(
+                    "Please enter a valid Federal Id Number",
+                    "qsf-federal-id"));
+                }
             }
 
             //Address validations

@@ -39,3 +39,17 @@
     background-color: rgba(0, 0, 0, 0.03);
     border-radius: 4px;
 }
+
+/* Locked (forced) state */
+.radio-control:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.radio-option:has(.radio-control:disabled) {
+    cursor: not-allowed;
+}
+
+.radio-option:has(.radio-control:disabled):hover {
+    background-color: transparent;
+}

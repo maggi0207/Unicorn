@@ -1,17 +1,22 @@
 @page "/employer-registration/planned-path"
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
-@inject EmployerRegistrationInfo RegistrationInfo;
-@inject NavigationManager Nav;
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@inject RegistrationStateService RegistrationState
+@inject EmployerRegistrationInfo RegistrationInfo
+@inject NavigationManager Nav
+@inject ISessionManager sessionManager
 
 <PageTitle>Employer Registration Submitted</PageTitle>
 <div class="page_wrapper">
     <div class="emppath-page-content">
         <h1>Thank You for Submitting Your Employer Registration.</h1>
-        <p>It appears you may already be registered with our department. We will review your registration and contact you for additional information if necessary.</p>
-        <p>We will send you written notification of your Wisconsin Unemployment Insurance Account Number and tax rate(s) when your registration has been processed.</p>
+        <p>@message</p>
+        <p>@secondaryMessage</p>
         <PlannedPathRegister></PlannedPathRegister>
-        <div class="custom-divider" ></div>
+        <div class="custom-divider"></div>
         <div>
             <h2 class="subtitle">What's Next?</h2>
             <p>If you need to complete another employer registration, click "REGISTER ANOTHER EMPLOYER." If you do not have another business to register, click "GO TO HOME" to be taken back to the portal home page.</p>
@@ -39,13 +44,14 @@
     private bool isFormValid = true;
     private RegistrationModel model = new();
     private EditContext editContext = default!;
-
+    private string message = string.Empty;
+    private string secondaryMessage = string.Empty;
     public class RegistrationModel
     {
         public bool? HasRegistrationNumber { get; set; } = null;
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         editContext = new EditContext(model);
 
@@ -55,6 +61,18 @@
             isFormValid = editContext.Validate();
             StateHasChanged();
         };
+
+        var sessionEmployerRegistrationResponse = await sessionManager.GetAsync<SessionEmployerRegistrationResponse>();
+        if (sessionEmployerRegistrationResponse != null)
+        {
+            message = sessionEmployerRegistrationResponse.Message ?? "";
+            secondaryMessage = sessionEmployerRegistrationResponse.SecondaryMessage ?? "";
+        }
+        else
+        {
+            message = "It appears you may already be registered with our department. We will review your registration and contact you for additional information if necessary.";
+            secondaryMessage = "We will send you written notification of your Wisconsin Unemployment Insurance Account Number and tax rate(s) when your registration has been processed.";
+        }
     }
     private void gotohome()
     {
@@ -62,6 +80,8 @@
     }
     private void registeranotheremployer()
     {
+        RegistrationState.ClearForNewRegistration();
+        RegistrationInfo.ClearForNewRegistration();
         Nav.NavigateTo("employer-registration");
     }
 

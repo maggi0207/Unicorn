@@ -44,6 +44,15 @@ public class RegistrationStateService
     /// Continue the save process of the CurrentStep upon returning to the steps page
     /// </summary>
     public bool ContinueActionClick { get; set; } = false;
+
+    /// <summary>
+    /// Clears the model for a new Registration
+    /// </summary>
+    public void ClearForNewRegistration()
+    {
+        ContactInfo = null;
+        PhysicalSameAsMailing = false;
+    }
 }
 
 /// <summary>

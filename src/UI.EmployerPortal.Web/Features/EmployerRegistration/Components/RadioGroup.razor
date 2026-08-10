@@ -2,7 +2,7 @@
 @using System.Linq.Expressions;
 
 @typeparam TValue
-<div role="radiogroup" aria-labelledby="@LabelledById" aria-describedby="@AriaDescribedBy" aria-required="@(IsRequired? "true" : "false")">
+<div role="radiogroup" aria-labelledby="@LabelledById" aria-describedby="@AriaDescribedBy" aria-required="@(IsRequired? "true" : "false")" aria-disabled="@(IsForced ? "true" : "false")">
 <InputRadioGroup TValue="TValue"
                  id="@Id"
                  Value="Value"
@@ -13,7 +13,7 @@
     @foreach (var option in Options)
     {
         <label class="radio-option">
-            <InputRadio TValue="TValue" Value="option.Value" class="@($"radio-control {CSS}")" />
+            <InputRadio TValue="TValue" Value="option.Value" class="@($"radio-control {CSS}")" disabled="@IsForced" />
             <span class="radio-label" >@option.Label</span>
         </label>
     }
@@ -34,11 +34,34 @@
     [Parameter] public string? DescriptionId { get; set; } = "";
     [Parameter] public string? ErrorId { get; set; } = "";
     [Parameter] public bool IsRequired { get; set; } = false;
+
+    /// <summary>
+    /// When set, locks the group to this value: the option is pre-selected, synced up to the
+    /// bound model, and the radios are disabled so the user cannot change the answer.
+    /// Leave null (the default) for a normal, editable group.
+    /// </summary>
+    [Parameter] public TValue? ForcedValue { get; set; }
+
+    private bool IsForced => !EqualityComparer<TValue?>.Default.Equals(ForcedValue, default);
+
     private string? AriaDescribedBy
     {
         get
         {
             return $"{(!string.IsNullOrWhiteSpace(ErrorId) ? ErrorId : null)} {DescriptionId}";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Push the forced value into the bound model so validation and submission see it.
+        if (IsForced && !EqualityComparer<TValue?>.Default.Equals(Value, ForcedValue))
+        {
+            Value = ForcedValue!;
+            if (ValueChanged.HasDelegate)
+            {
+                await ValueChanged.InvokeAsync(ForcedValue);
+            }
         }
     }
 }

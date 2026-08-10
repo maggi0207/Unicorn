@@ -1,4 +1,6 @@
 @page "/employer-registration/SuccessRegistration"
+@inject EmployerRegistrationInfo RegistrationInfo
+@inject RegistrationStateService RegistrationState
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject ISessionManager SessionManager
@@ -13,6 +15,7 @@
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Web.Features.Shared.Session
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
 @using UI.EmployerPortal.Web.Features.Shared.Session.Managers
@@ -201,6 +204,8 @@
 
     private void RegisterAnotherEmployer()
     {
+        RegistrationState.ClearForNewRegistration();
+        RegistrationInfo.ClearForNewRegistration();
         NavigationManager.NavigateTo("employer-registration");
     }
 

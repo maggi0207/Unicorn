@@ -16,7 +16,7 @@ public partial class UISubjectivity
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
     private bool _formSubmitted = false;
-    private bool _showAddressErrors = false;
+
     private bool _insufficientQuarterlyWageEntered = false;
     private bool _wageCheckflag = false;
     private bool _wageFirstQ1Checkflag = false;
@@ -215,6 +215,19 @@ public partial class UISubjectivity
                 : twentyWeeksIntoNewYearNextSaturday;
         }
     }
+
+    private DateTime CurrentWeekSaturday()
+    {
+        var today = DateTime.Today;
+        // Saturday = DayOfWeek.Saturday (value 6)
+        var daysUntilSaturday = DayOfWeek.Saturday - today.DayOfWeek;
+        if (daysUntilSaturday < 0)
+        {
+            daysUntilSaturday += 7; // wrap to next Saturday
+        }
+        return today.AddDays(daysUntilSaturday);
+    }
+
 
     /// <summary>
     /// Determines the business category scenario for Step 6 based on Step 1 (non-profit answer)
@@ -581,7 +594,7 @@ public partial class UISubjectivity
             _insufficientQuarterlyWageEntered = Section5Visible && !(PaidWagesService.PaidWagesMeetsQuarterlyMinimum(BusinessCategory, SubjectivityModel.Wages));
 
         }
-        _showAddressErrors = false;
+
         // Block navigation when the user must correct their Step 1 answer before proceeding.
         // 501(c)(3) sub-tree validation
         if (IsVisible(() => SubjectivityModel.HasEmployeesOutsideWisconsin501) && Section0Visible)
@@ -629,13 +642,17 @@ public partial class UISubjectivity
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.Week20EndDate));
             if (!SubjectivityModel.Week20EndDate.HasValue)
             {
-                _messageStore.Add(field, "Enter Week End Date");
+                _messageStore.Add(field, "Enter Week End Date. ");
             }
             else
             {
                 if (SubjectivityModel.Week20EndDate.Value < TwentiethWeekMinSaturday())
                 {
-                    _messageStore.Add(field, "Date must be at least 20 weeks after the date you first had employees working in WI or the start of the year");
+                    _messageStore.Add(field, "Date must be at least 20 weeks after the date you first had employees working in WI or the start of the year. ");
+                }
+                if (SubjectivityModel.Week20EndDate.Value.DayOfWeek != DayOfWeek.Saturday)
+                {
+                    _messageStore.Add(field, "Date 20th week ended must be a Saturday");
                 }
             }
         }
