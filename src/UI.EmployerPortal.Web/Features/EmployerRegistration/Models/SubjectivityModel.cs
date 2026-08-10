@@ -110,10 +110,17 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory.HasValue)
         {
+            // NonProfit_Other (6) is a frontend-only distinction used to drive UI logic.
+            // The WCF backend does not recognise category code 6; it handles non-profit
+            // employers that are not 501(c)(3) under the legacy NonProfit (2) code.
+            int wcfBusinessCategoryCode = BusinessCategory.Value == Models.BusinessCategory.NonProfit_Other
+                ? (int) Models.BusinessCategory.NonProfit
+                : (int) BusinessCategory.Value;
+
             responses.Add(new SurveyResponse()
             {
                 _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
-                _response = ((int) BusinessCategory.Value).ToString(),
+                _response = wcfBusinessCategoryCode.ToString(),
                 _responseDisplay = BusinessCategory.Value.GetDisplayName()
             });
         }
@@ -318,7 +325,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
+        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
         {
             if (ExpectToHaveWagesInAQuarter.HasValue) //6.42) // employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
             {
@@ -705,7 +712,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))
