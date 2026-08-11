@@ -56,7 +56,7 @@ public partial class AccountDetails
     /// <summary>
     /// Tracks which fields the user has interacted with so errors show on field change.
     /// </summary>
-    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+    private readonly HashSet<FieldIdentifier> _touchedFields = [];
 
     /// <summary>
     /// The currently selected employer SK from the session.
@@ -66,31 +66,31 @@ public partial class AccountDetails
     /// <summary>
     /// The list of validation error messages displayed in the NotificationBanner.
     /// </summary>
-    private readonly List<string> _validationErrors = new();
+    private readonly List<string> _validationErrors = [];
 
     /// <summary>
     /// The list of field IDs corresponding to validation errors, enabling banner-to-field navigation.
     /// </summary>
-    private readonly List<string> _validationFieldIds = new();
+    private readonly List<string> _validationFieldIds = [];
 
     /// <summary>
     /// Options for the FEIN change reason dropdown.
     /// </summary>
-    private readonly List<SelectOption> _feinReasonOptions = new()
-    {
+    private readonly List<SelectOption> _feinReasonOptions =
+    [
         new SelectOption { Value = "1", Text = "EntryError" },
         new SelectOption { Value = "5", Text = "Other (additional explanation required)" }
-    };
+    ];
 
     /// <summary>
     /// Options for the Legal Name change reason dropdown.
     /// </summary>
-    private readonly List<SelectOption> _legalNameReasonOptions = new()
-    {
+    private readonly List<SelectOption> _legalNameReasonOptions =
+    [
         new SelectOption { Value = "1", Text = "Department of Financial Institutions Name Change" },
         new SelectOption { Value = "2", Text = "Department Error" },
         new SelectOption { Value = "5", Text = "Other (additional explanation required)" }
-    };
+    ];
 
     /// <summary>
     /// Initializes the EditContext with data from the backend and sets up field change tracking.
