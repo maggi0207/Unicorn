@@ -59,17 +59,20 @@
                                For="@(() => _model.FEIN)"
                                Visible="@IsVisible(() => _model.FEIN)" />
                 </div>
-                <div class="ad-field" aria-label="reason-for-fein-change">
-                    <OutlinedSelectField Label="Reason for FEIN Change"
-                                         Id="ReasonForFeinChange"
-                                         @bind-Value="_model.ReasonForFeinChange"
-                                         For="@(() => _model.ReasonForFeinChange)"
-                                         Options="@_feinReasonOptions" />
-                </div>
+                @if (FeinHasChanged())
+                {
+                    <div class="ad-field" aria-label="reason-for-fein-change">
+                        <OutlinedSelectField Label="Reason for FEIN Change"
+                                             Id="ReasonForFeinChange"
+                                             @bind-Value="_model.ReasonForFeinChange"
+                                             For="@(() => _model.ReasonForFeinChange)"
+                                             Options="@_feinReasonOptions" />
+                    </div>
+                }
             </div>
 
             @* ── Explanation for FEIN Change (shown only when "Other" is selected) ── *@
-            @if (_model.ReasonForFeinChange == "5")
+            @if (FeinHasChanged() && _model.ReasonForFeinChange == "5")
             {
                 <div class="ad-field-double" aria-label="explanation-for-fein-change">
                     <OutlinedTextField Label="Explanation for FEIN Change"
@@ -88,17 +91,20 @@
                                        For="@(() => _model.LegalName)"
                                        Visible="@IsVisible(() => _model.LegalName)" />
                 </div>
-                <div class="ad-field" aria-label="reason-for-legal-name-change">
-                    <OutlinedSelectField Label="Reason for Legal Name Change"
-                                         Id="ReasonForLegalNameChange"
-                                         @bind-Value="_model.ReasonForLegalNameChange"
-                                         For="@(() => _model.ReasonForLegalNameChange)"
-                                         Options="@_legalNameReasonOptions" />
-                </div>
+                @if (LegalNameHasChanged())
+                {
+                    <div class="ad-field" aria-label="reason-for-legal-name-change">
+                        <OutlinedSelectField Label="Reason for Legal Name Change"
+                                             Id="ReasonForLegalNameChange"
+                                             @bind-Value="_model.ReasonForLegalNameChange"
+                                             For="@(() => _model.ReasonForLegalNameChange)"
+                                             Options="@_legalNameReasonOptions" />
+                    </div>
+                }
             </div>
 
             @* ── Explanation for Legal Name Change (shown only when "Other" is selected) ── *@
-            @if (_model.ReasonForLegalNameChange == "5")
+            @if (LegalNameHasChanged() && _model.ReasonForLegalNameChange == "5")
             {
                 <div class="ad-field-double" aria-label="explanation-for-legal-name-change">
                     <OutlinedTextField Label="Explanation for Legal Name Change"
@@ -301,8 +307,8 @@
             var currentPhoneUnformatted = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
             var originalPhoneUnformatted = _originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
 
-            if (currentFeinUnformatted != originalFeinUnformatted) hasChanges = true;
-            else if (_model.LegalName != _originalModel.LegalName) hasChanges = true;
+            if (FeinHasChanged()) hasChanges = true;
+            else if (LegalNameHasChanged()) hasChanges = true;
             else if (_model.TradeName != _originalModel.TradeName) hasChanges = true;
             else if (currentPhoneUnformatted != originalPhoneUnformatted || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) hasChanges = true;
             else if (_model.EmailAddress != _originalModel.EmailAddress) hasChanges = true;
@@ -312,6 +318,18 @@
         {
             NavigationManager.NavigateTo("/manage-account/account-summary");
             return;
+        }
+
+        if (!FeinHasChanged())
+        {
+            _model.ReasonForFeinChange = null;
+            _model.FeinChangeReasonExplanation = null;
+        }
+
+        if (!LegalNameHasChanged())
+        {
+            _model.ReasonForLegalNameChange = null;
+            _model.LegalNameChangeExplanation = null;
         }
 
         _isSaving = true;
@@ -392,5 +410,25 @@
     private void Cancel()
     {
         NavigationManager.NavigateTo("/manage-account");
+    }
+
+    private bool FeinHasChanged()
+    {
+        if (_originalModel == null) 
+        {
+            return false;
+        }
+        var currentFeinUnformatted = _model.FEIN?.Replace("-", string.Empty) ?? string.Empty;
+        var originalFeinUnformatted = _originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty;
+        return currentFeinUnformatted != originalFeinUnformatted;
+    }
+
+    private bool LegalNameHasChanged()
+    {
+        if (_originalModel == null) 
+        {
+            return false;
+        }
+        return _model.LegalName != _originalModel.LegalName;
     }
 }
