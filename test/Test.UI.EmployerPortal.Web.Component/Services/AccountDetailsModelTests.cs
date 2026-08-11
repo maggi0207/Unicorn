@@ -40,7 +40,7 @@ public class AccountDetailsModelTests
     {
         var context = new ValidationContext(model);
         var results = new List<ValidationResult>();
-        foreach (ValidationResult result in model.Validate(context))
+        foreach (var result in model.Validate(context))
         {
             results.Add(result);
         }
@@ -68,9 +68,9 @@ public class AccountDetailsModelTests
     /// <returns>True if any result contains the member name.</returns>
     private static bool HasMemberError(List<ValidationResult> results, string memberName)
     {
-        foreach (ValidationResult result in results)
+        foreach (var result in results)
         {
-            foreach (string name in result.MemberNames)
+            foreach (var name in result.MemberNames)
             {
                 if (name == memberName)
                 {
@@ -89,7 +89,7 @@ public class AccountDetailsModelTests
     /// <returns>True if any error message contains the text.</returns>
     private static bool HasErrorContaining(List<ValidationResult> results, string text)
     {
-        foreach (ValidationResult result in results)
+        foreach (var result in results)
         {
             if (result.ErrorMessage != null && result.ErrorMessage.Contains(text))
             {
