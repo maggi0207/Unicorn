@@ -1,17 +1,31 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Linq.Expressions;
-using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
+/// <summary>
+/// Code-behind for the Account Details update page.
+/// </summary>
 public partial class AccountDetails
 {
+    /// <summary>
+    /// Gets or sets the navigation manager.
+    /// </summary>
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the account details service.
+    /// </summary>
     [Inject] private IAccountDetailsService AccountDetailsService { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the session manager.
+    /// </summary>
     [Inject] private ISessionManager SessionManager { get; set; } = default!;
 
     /// <summary>
@@ -295,7 +309,7 @@ public partial class AccountDetails
     /// <summary>
     /// Returns true when a field's errors should be visible (after form submission or user interaction).
     /// </summary>
-    private bool IsVisible(Expression<Func<string?>> For)
+    private bool IsVisible<T>(Expression<Func<T>> For)
     {
         return _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
     }
