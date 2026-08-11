@@ -80,3 +80,12 @@ Add new rules to this file whenever:
 - A coding pattern is established during a review/fix session
 - A user explicitly states a preference for how code should be written
 - A bug is fixed that reveals a recurring anti-pattern to avoid
+
+---
+
+## 9. IDE Warning Compliance
+
+- **IDE0044 (Make field readonly):** Any private field that is assigned only in the constructor or at declaration (e.g., `private readonly List<string> _errors = new();`) must be marked as `readonly`.
+- **IDE0042 (Variable declaration can be deconstructed):** When a method returns a tuple, deconstruct it directly into variables (e.g., `var (success, error) = await ...`) instead of assigning the tuple to a single variable.
+- **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates.
+- **IDE0046 ('if' statement can be simplified):** If an `if` statement can be simplified into a single return expression (e.g., returning a boolean condition directly instead of `if (x) return true; else return false;`), simplify it to satisfy the IDE rule, bypassing the "always use brackets for if statements" rule when applicable.

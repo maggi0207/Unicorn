@@ -66,17 +66,17 @@ public partial class AccountDetails
     /// <summary>
     /// The list of validation error messages displayed in the NotificationBanner.
     /// </summary>
-    private List<string> _validationErrors = new();
+    private readonly List<string> _validationErrors = new();
 
     /// <summary>
     /// The list of field IDs corresponding to validation errors, enabling banner-to-field navigation.
     /// </summary>
-    private List<string> _validationFieldIds = new();
+    private readonly List<string> _validationFieldIds = new();
 
     /// <summary>
     /// Options for the FEIN change reason dropdown.
     /// </summary>
-    private List<SelectOption> _feinReasonOptions = new()
+    private readonly List<SelectOption> _feinReasonOptions = new()
     {
         new SelectOption { Value = "1", Text = "EntryError" },
         new SelectOption { Value = "5", Text = "Other (additional explanation required)" }
@@ -85,7 +85,7 @@ public partial class AccountDetails
     /// <summary>
     /// Options for the Legal Name change reason dropdown.
     /// </summary>
-    private List<SelectOption> _legalNameReasonOptions = new()
+    private readonly List<SelectOption> _legalNameReasonOptions = new()
     {
         new SelectOption { Value = "1", Text = "Department of Financial Institutions Name Change" },
         new SelectOption { Value = "2", Text = "Department Error" },
@@ -178,18 +178,18 @@ public partial class AccountDetails
         _model.FEIN = _model.FEIN?.Replace("-", string.Empty) ?? string.Empty;
         _model.PhoneNumber = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
 
-        var result = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
+        var (success, error) = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
 
         _isSaving = false;
         
-        if (result.success)
+        if (success)
         {
             var query = BuildSuccessQuery();
             NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");
         }
         else
         {
-            _validationErrors.Add(result.error);
+            _validationErrors.Add(error);
             StateHasChanged();
         }
     }
@@ -199,12 +199,8 @@ public partial class AccountDetails
     /// </summary>
     private bool HasAnyFieldChanged()
     {
-        if (_originalModel == null)
-        {
-            return true;
-        }
-
-        return FeinHasChanged()
+        return _originalModel == null
+            || FeinHasChanged()
             || LegalNameHasChanged()
             || _model.TradeName != _originalModel.TradeName
             || PhoneHasChanged()
@@ -309,9 +305,9 @@ public partial class AccountDetails
     /// <summary>
     /// Returns true when a field's errors should be visible (after form submission or user interaction).
     /// </summary>
-    private bool IsVisible<T>(Expression<Func<T>> For)
+    private bool IsVisible<T>(Expression<Func<T>> forExpression)
     {
-        return _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(For));
+        return _formSubmitted || _touchedFields.Contains(FieldIdentifier.Create(forExpression));
     }
 
     /// <summary>
@@ -341,11 +337,7 @@ public partial class AccountDetails
     /// </summary>
     private bool LegalNameHasChanged()
     {
-        if (_originalModel == null) 
-        {
-            return false;
-        }
-        return _model.LegalName != _originalModel.LegalName;
+        return _originalModel != null && _model.LegalName != _originalModel.LegalName;
     }
 
     /// <summary>
