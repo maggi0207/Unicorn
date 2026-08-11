@@ -213,7 +213,7 @@ public class AccountDetailsTests : BunitContext
         var cut = await RenderAndFlushAsync();
 
         // Change the email field
-        cut.Find("input#EmailAddress").Change("new@example.com");
+        cut.Find("input#EmailAddress").Input("new@example.com");
 
         await cut.InvokeAsync(() =>
         {
@@ -240,7 +240,7 @@ public class AccountDetailsTests : BunitContext
 
         var cut = await RenderAndFlushAsync();
 
-        cut.Find("input#EmailAddress").Change("new@example.com");
+        cut.Find("input#EmailAddress").Input("new@example.com");
 
         await cut.InvokeAsync(() =>
         {

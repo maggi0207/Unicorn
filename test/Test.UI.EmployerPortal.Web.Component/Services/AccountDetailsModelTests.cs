@@ -107,7 +107,7 @@ public class AccountDetailsModelTests
     {
         var model = MakeValidModel();
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -119,7 +119,7 @@ public class AccountDetailsModelTests
         var model = MakeValidModel();
         model.FEIN = "98-7654321";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Single(results);
         Assert.True(HasMemberError(results, "ReasonForFeinChange"));
@@ -134,7 +134,7 @@ public class AccountDetailsModelTests
         model.FEIN = "98-7654321";
         model.ReasonForFeinChange = "1";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -147,7 +147,7 @@ public class AccountDetailsModelTests
         model.FEIN = "123456789";          // no dash
         model.OriginalFEIN = "12-3456789"; // with dash
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -160,7 +160,7 @@ public class AccountDetailsModelTests
         model.FEIN = "11-1111111";
         model.OriginalFEIN = "12-3456789";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Single(results);
         Assert.True(HasMemberError(results, "ReasonForFeinChange"));
@@ -174,7 +174,7 @@ public class AccountDetailsModelTests
     {
         var model = MakeValidModel();
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -186,7 +186,7 @@ public class AccountDetailsModelTests
         var model = MakeValidModel();
         model.LegalName = "New Corp Name";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Single(results);
         Assert.True(HasMemberError(results, "ReasonForLegalNameChange"));
@@ -201,7 +201,7 @@ public class AccountDetailsModelTests
         model.LegalName = "New Corp Name";
         model.ReasonForLegalNameChange = "2";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -216,7 +216,7 @@ public class AccountDetailsModelTests
         model.FEIN = "98-7654321";
         model.LegalName = "New Corp Name";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Equal(2, results.Count);
         Assert.True(HasMemberError(results, "ReasonForFeinChange"));
@@ -233,7 +233,7 @@ public class AccountDetailsModelTests
         model.LegalName = "New Corp Name";
         model.ReasonForLegalNameChange = "1";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
@@ -248,7 +248,7 @@ public class AccountDetailsModelTests
         model.ReasonForFeinChange = "5";
         model.FeinChangeReasonExplanation = null;
 
-        List<ValidationResult> results = RunFullValidation(model);
+        var results = RunFullValidation(model);
 
         Assert.True(HasErrorContaining(results, "Explanation for FEIN Change"));
     }
@@ -261,7 +261,7 @@ public class AccountDetailsModelTests
         model.ReasonForFeinChange = "5";
         model.FeinChangeReasonExplanation = "We merged with another company.";
 
-        List<ValidationResult> results = RunFullValidation(model);
+        var results = RunFullValidation(model);
 
         Assert.False(HasErrorContaining(results, "Explanation for FEIN Change"));
     }
@@ -274,7 +274,7 @@ public class AccountDetailsModelTests
         model.ReasonForFeinChange = "1";
         model.FeinChangeReasonExplanation = null;
 
-        List<ValidationResult> results = RunFullValidation(model);
+        var results = RunFullValidation(model);
 
         Assert.False(HasErrorContaining(results, "Explanation for FEIN Change"));
     }
@@ -287,7 +287,7 @@ public class AccountDetailsModelTests
         model.ReasonForLegalNameChange = "5";
         model.LegalNameChangeExplanation = null;
 
-        List<ValidationResult> results = RunFullValidation(model);
+        var results = RunFullValidation(model);
 
         Assert.True(HasErrorContaining(results, "Explanation for Legal Name Change"));
     }
@@ -300,7 +300,7 @@ public class AccountDetailsModelTests
         model.ReasonForLegalNameChange = "5";
         model.LegalNameChangeExplanation = "Court ordered name change.";
 
-        List<ValidationResult> results = RunFullValidation(model);
+        var results = RunFullValidation(model);
 
         Assert.False(HasErrorContaining(results, "Explanation for Legal Name Change"));
     }
@@ -315,7 +315,7 @@ public class AccountDetailsModelTests
         model.FEIN = "98-7654321";
         model.ReasonForFeinChange = "   ";
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Single(results);
         Assert.True(HasMemberError(results, "ReasonForFeinChange"));
@@ -329,7 +329,7 @@ public class AccountDetailsModelTests
         model.FEIN = null!;
         model.OriginalFEIN = null!;
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         // No FEIN-related validation error from Validate (Required is separate)
         Assert.False(HasMemberError(results, "ReasonForFeinChange"));
@@ -341,7 +341,7 @@ public class AccountDetailsModelTests
     {
         var model = new AccountDetailsModel();
 
-        List<ValidationResult> results = RunValidate(model);
+        var results = RunValidate(model);
 
         Assert.Empty(results);
     }
