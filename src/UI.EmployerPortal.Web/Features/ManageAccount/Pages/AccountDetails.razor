@@ -298,39 +298,13 @@
             return;
         }
 
-        // Check if any changes were actually made before hitting the backend
-        bool hasChanges = false;
-        if (_originalModel != null)
-        {
-            var currentFeinUnformatted = _model.FEIN?.Replace("-", string.Empty) ?? string.Empty;
-            var originalFeinUnformatted = _originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty;
-            var currentPhoneUnformatted = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
-            var originalPhoneUnformatted = _originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
-
-            if (FeinHasChanged()) hasChanges = true;
-            else if (LegalNameHasChanged()) hasChanges = true;
-            else if (_model.TradeName != _originalModel.TradeName) hasChanges = true;
-            else if (currentPhoneUnformatted != originalPhoneUnformatted || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) hasChanges = true;
-            else if (_model.EmailAddress != _originalModel.EmailAddress) hasChanges = true;
-        }
-
-        if (_originalModel != null && !hasChanges)
+        if (_originalModel != null && !HasAnyFieldChanged())
         {
             NavigationManager.NavigateTo("/manage-account/account-summary");
             return;
         }
 
-        if (!FeinHasChanged())
-        {
-            _model.ReasonForFeinChange = null;
-            _model.FeinChangeReasonExplanation = null;
-        }
-
-        if (!LegalNameHasChanged())
-        {
-            _model.ReasonForLegalNameChange = null;
-            _model.LegalNameChangeExplanation = null;
-        }
+        ClearUnchangedReasons();
 
         _isSaving = true;
         StateHasChanged();
@@ -344,15 +318,7 @@
         
         if (result.success)
         {
-            var query = new List<string> { "success=true" };
-            if (_originalModel != null)
-            {
-                if (_model.FEIN != (_originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty)) query.Add("fein=1");
-                if (_model.LegalName != _originalModel.LegalName) query.Add("name=1");
-                if (_model.TradeName != _originalModel.TradeName) query.Add("trade=1");
-                if (_model.PhoneNumber != (_originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty) || _model.Extension != _originalModel.Extension || _model.CountryCode != _originalModel.CountryCode) query.Add("phone=1");
-                if (_model.EmailAddress != _originalModel.EmailAddress) query.Add("email=1");
-            }
+            var query = BuildSuccessQuery();
             NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");
         }
         else
@@ -363,11 +329,89 @@
     }
 
     /// <summary>
+    /// Determines whether any field has been modified compared to the original model.
+    /// </summary>
+    private bool HasAnyFieldChanged()
+    {
+        if (_originalModel == null)
+        {
+            return true;
+        }
+
+        return FeinHasChanged()
+            || LegalNameHasChanged()
+            || _model.TradeName != _originalModel.TradeName
+            || PhoneHasChanged()
+            || _model.EmailAddress != _originalModel.EmailAddress;
+    }
+
+    /// <summary>
+    /// Clears the reason and explanation fields for FEIN and Legal Name if those fields were not changed.
+    /// </summary>
+    private void ClearUnchangedReasons()
+    {
+        if (!FeinHasChanged())
+        {
+            _model.ReasonForFeinChange = null;
+            _model.FeinChangeReasonExplanation = null;
+        }
+
+        if (!LegalNameHasChanged())
+        {
+            _model.ReasonForLegalNameChange = null;
+            _model.LegalNameChangeExplanation = null;
+        }
+    }
+
+    /// <summary>
+    /// Builds the success query string parameters based on which fields were changed.
+    /// </summary>
+    private List<string> BuildSuccessQuery()
+    {
+        var query = new List<string> { "success=true" };
+
+        if (_originalModel == null)
+        {
+            return query;
+        }
+
+        if (_model.FEIN != (_originalModel.FEIN?.Replace("-", string.Empty) ?? string.Empty))
+        {
+            query.Add("fein=1");
+        }
+
+        if (_model.LegalName != _originalModel.LegalName)
+        {
+            query.Add("name=1");
+        }
+
+        if (_model.TradeName != _originalModel.TradeName)
+        {
+            query.Add("trade=1");
+        }
+
+        if (PhoneHasChanged())
+        {
+            query.Add("phone=1");
+        }
+
+        if (_model.EmailAddress != _originalModel.EmailAddress)
+        {
+            query.Add("email=1");
+        }
+
+        return query;
+    }
+
+    /// <summary>
     /// Refreshes the validation summary by collecting all field errors in UI layout order.
     /// </summary>
     private void RefreshValidationSummary()
     {
-        if (!_formSubmitted) return;
+        if (!_formSubmitted)
+        {
+            return;
+        }
 
         _validationErrors.Clear();
         _validationFieldIds.Clear();
@@ -412,6 +456,9 @@
         NavigationManager.NavigateTo("/manage-account");
     }
 
+    /// <summary>
+    /// Determines whether the FEIN field has been modified from its original value.
+    /// </summary>
     private bool FeinHasChanged()
     {
         if (_originalModel == null) 
@@ -423,6 +470,9 @@
         return currentFeinUnformatted != originalFeinUnformatted;
     }
 
+    /// <summary>
+    /// Determines whether the Legal Name field has been modified from its original value.
+    /// </summary>
     private bool LegalNameHasChanged()
     {
         if (_originalModel == null) 
@@ -430,5 +480,21 @@
             return false;
         }
         return _model.LegalName != _originalModel.LegalName;
+    }
+
+    /// <summary>
+    /// Determines whether any phone-related field (number, extension, or country code) has been modified.
+    /// </summary>
+    private bool PhoneHasChanged()
+    {
+        if (_originalModel == null)
+        {
+            return false;
+        }
+        var currentPhoneUnformatted = _model.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
+        var originalPhoneUnformatted = _originalModel.PhoneNumber?.Replace("-", string.Empty) ?? string.Empty;
+        return currentPhoneUnformatted != originalPhoneUnformatted
+            || _model.Extension != _originalModel.Extension
+            || _model.CountryCode != _originalModel.CountryCode;
     }
 }
