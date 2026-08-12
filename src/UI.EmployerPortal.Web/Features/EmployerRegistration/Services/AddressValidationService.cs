@@ -27,8 +27,10 @@ public class AddressValidationService : IAddressValidationWrapper
         var request = new GeneratedClient.AddressProxy
         {
             AddressRequestType = GeneratedClient.AddressRequestTypeEnum.Employer,
-            LineOneAddress = address.AddressLine1,
-            LineTwoAddress = address.AddressLine2 ?? string.Empty,
+            // UIEP-1921: The backend FinalistFacade expects the street address on LineTwoAddress
+            // and suite/apt on LineOneAddress (it flips them internally). Match that convention.
+            LineOneAddress = address.AddressLine2 ?? string.Empty,
+            LineTwoAddress = address.AddressLine1,
             CityName = address.City,
             StateCode = address.State,
             ZipCode = address.Zip,
@@ -65,13 +67,14 @@ public class AddressValidationService : IAddressValidationWrapper
         AddressModel? correctedAddress = null;
         if (response.OutputAddress is not null)
         {
-            // The service occasionally returns the street in LineTwoAddress when LineOneAddress is empty.
-            var line1 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
-                ? response.OutputAddress.LineTwoAddress
-                : response.OutputAddress.LineOneAddress;
+            // UIEP-1921: The backend returns street on LineTwoAddress and suite/apt on
+            // LineOneAddress (same swapped convention we send). Map back to the UI model:
+            // AddressLine1 = street address (from backend LineTwoAddress)
+            // AddressLine2 = suite/apt      (from backend LineOneAddress)
+            var line1 = response.OutputAddress.LineTwoAddress;
             var line2 = string.IsNullOrWhiteSpace(response.OutputAddress.LineOneAddress)
                 ? null
-                : response.OutputAddress.LineTwoAddress;
+                : response.OutputAddress.LineOneAddress;
 
             correctedAddress = new AddressModel
             {
