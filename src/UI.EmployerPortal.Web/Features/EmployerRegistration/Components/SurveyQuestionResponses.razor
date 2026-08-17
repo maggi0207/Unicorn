@@ -36,6 +36,10 @@
                         }
                         @foreach (var (question, response) in GetQuestionsForSection(sectionName))
                         {
+                            @if (index == 1 && IsMoreThanFiveQuestion(question.QuestionSetItemSK))
+                            {
+                                continue;
+                            }
                             <div class="vf-accordion-section">
                                 <div class="row">
                                     <div class="col-md-10 text-start">
@@ -52,12 +56,27 @@
 
                         @if (index == 1) // Ownership -> contacts
                         {
+                            Dictionary<int, int> contactCountByCode = GetContactCountByCode();
+                            Dictionary<int, int> contactIndexByCode = new();
                             foreach(var contact in Contacts)
                             {
+                                int currentIndex;
+                                if (contactIndexByCode.ContainsKey(contact._surveyIndividualCode))
+                                {
+                                    contactIndexByCode[contact._surveyIndividualCode]++;
+                                    currentIndex = contactIndexByCode[contact._surveyIndividualCode];
+                                }
+                                else
+                                {
+                                    contactIndexByCode[contact._surveyIndividualCode] = 1;
+                                    currentIndex = 1;
+                                }
+                                bool showNumber = contactCountByCode.TryGetValue(contact._surveyIndividualCode, out var totalCount) && totalCount > 1;
+                                string prefix = GetNumberedIndividualPrefix(contact._surveyIndividualCode, currentIndex, showNumber);
                                 <div class="vf-accordion-section">
                                     <div class="row">
                                         <div class="col-md-10 text-start">
-                                            <span class="vf-accordion-text">@($"{GetIndividualPrefix(contact._surveyIndividualCode)}Name")</span>
+                                            <span class="vf-accordion-text">@($"{prefix}Name")</span>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -69,7 +88,7 @@
                                 <div class="vf-accordion-section">
                                     <div class="row">
                                         <div class="col-md-10 text-start">
-                                            <span class="vf-accordion-text">@($"{GetIndividualPrefix(contact._surveyIndividualCode)}Social Security Number")</span>
+                                            <span class="vf-accordion-text">@($"{prefix}Social Security Number")</span>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -85,12 +104,32 @@
                                     <div class="vf-accordion-section">
                                         <div class="row">
                                             <div class="col-md-10 text-start">
-                                                <span class="vf-accordion-text">@($"{GetIndividualPrefix(contact._surveyIndividualCode)}Ownership Percentage")</span>
+                                                <span class="vf-accordion-text">@($"{prefix}Ownership Percentage")</span>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-10 text-start">
                                                 <span class="vf-accordion-answer">@contact._ownershipPercentage</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @* Render "More than five?" questions AFTER the contacts *@
+                            foreach (var (question, response) in GetQuestionsForSection(sectionName))
+                            {
+                                if (IsMoreThanFiveQuestion(question.QuestionSetItemSK))
+                                {
+                                    <div class="vf-accordion-section">
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-text">@question.QuestionText</span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-answer">@(response._responseDisplay ?? response._response)</span>
                                             </div>
                                         </div>
                                     </div>
@@ -230,9 +269,74 @@
         { 11, "Treasurer" },
     };
 
+    /// <summary>
+    /// Gets the display prefix for a contact type without a number.
+    /// </summary>
+    /// <param name="individualCode">The individual code for the contact type.</param>
+    /// <returns>A string like "Member " or "Partner ".</returns>
     private static string GetIndividualPrefix(int individualCode)
     {
         return ContactDescription.TryGetValue(individualCode, out var individualDescription) ? $"{individualDescription} " : string.Empty;
+    }
+
+    /// <summary>
+    /// Gets the display prefix for a contact, including a sequential number when multiple contacts share the same code.
+    /// </summary>
+    /// <param name="individualCode">The individual code for the contact type.</param>
+    /// <param name="index">The 1-based index of this contact within its code group.</param>
+    /// <param name="showNumber">Whether to include the number in the prefix.</param>
+    /// <returns>A string like "Member 1 " or "Partner " depending on context.</returns>
+    private static string GetNumberedIndividualPrefix(int individualCode, int index, bool showNumber)
+    {
+        if (!ContactDescription.TryGetValue(individualCode, out var description))
+        {
+            return string.Empty;
+        }
+        if (showNumber)
+        {
+            return $"{description} {index} ";
+        }
+        return $"{description} ";
+    }
+
+    /// <summary>
+    /// The set of survey response item SKs that represent "More than five?" questions.
+    /// </summary>
+    private static readonly HashSet<int> MoreThanFiveQuestionSKs =
+    [
+        (int)SurveyResponseItem.LLC_OVR_FIV_MBR_FLG,
+        (int)SurveyResponseItem.PTNRSP_OVR_FIV_PTNR_FLG,
+    ];
+
+    /// <summary>
+    /// Determines whether the given question SK is a "More than five?" question.
+    /// </summary>
+    /// <param name="questionSetItemSK">The survey question set item SK to check.</param>
+    /// <returns>True if the question is a "More than five?" question.</returns>
+    private static bool IsMoreThanFiveQuestion(int questionSetItemSK)
+    {
+        return MoreThanFiveQuestionSKs.Contains(questionSetItemSK);
+    }
+
+    /// <summary>
+    /// Counts the number of contacts for each individual code.
+    /// </summary>
+    /// <returns>A dictionary mapping individual code to the count of contacts with that code.</returns>
+    private Dictionary<int, int> GetContactCountByCode()
+    {
+        Dictionary<int, int> counts = new();
+        foreach (SurveyContact contact in Contacts)
+        {
+            if (counts.ContainsKey(contact._surveyIndividualCode))
+            {
+                counts[contact._surveyIndividualCode]++;
+            }
+            else
+            {
+                counts[contact._surveyIndividualCode] = 1;
+            }
+        }
+        return counts;
     }
 
     private static readonly Dictionary<RegistrationAddressCode, string> AddressDescription = new()
