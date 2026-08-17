@@ -89,3 +89,4 @@ Add new rules to this file whenever:
 - **IDE0042 (Variable declaration can be deconstructed):** When a method returns a tuple, deconstruct it directly into variables (e.g., `var (success, error) = await ...`) instead of assigning the tuple to a single variable.
 - **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates.
 - **IDE0046 ('if' statement can be simplified):** If an `if` statement can be simplified into a single return expression (e.g., returning a boolean condition directly instead of `if (x) return true; else return false;`), simplify it to satisfy the IDE rule, bypassing the "always use brackets for if statements" rule when applicable.
+- **IDE0028 (Simplify collection initialization):** Use C# 12 collection expressions (`[]` instead of `new()` or `new List<T>()`) to initialize lists, arrays, and sets.

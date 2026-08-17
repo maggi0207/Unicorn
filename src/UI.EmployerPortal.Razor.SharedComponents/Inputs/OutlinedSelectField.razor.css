@@ -49,7 +49,7 @@
 .master-select-arrow {
     position: absolute;
     right: 14px;
-    top: 50%;
+    top: 28px;
     transform: translateY(-50%);
     pointer-events: none;
     display: flex;

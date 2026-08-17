@@ -96,6 +96,32 @@
                                     </div>
                                 }
                             }
+
+                            // Explicitly render QSF fields which are not in the standard Questions collection
+                            var isQsf = SurveyResponses.Any(r => r._surveyResponseItemSk == (int)SurveyResponseItem.OWNR_CLS_CD_SK && r._response == ((int)OwnershipType.QSF).ToString());
+                            if (isQsf)
+                            {
+                                var qsfResponses = SurveyResponses
+                                    .Where(r => QsfItemDescriptions.ContainsKey(r._surveyResponseItemSk))
+                                    .OrderBy(r => r._surveyResponseItemSk)
+                                    .ToList();
+
+                                foreach(var qsfResponse in qsfResponses)
+                                {
+                                    <div class="vf-accordion-section">
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-text">@QsfItemDescriptions[qsfResponse._surveyResponseItemSk]</span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-answer">@(qsfResponse._responseDisplay ?? qsfResponse._response)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
                         }
 
                         @{
@@ -218,6 +244,18 @@
         { RegistrationAddressCode.Fiscal_Agent, "Financial Institution Address" },
     };
 
+    private static readonly Dictionary<int, string> QsfItemDescriptions = new()
+    {
+        { (int)SurveyResponseItem.PAY_SRVS_QSF, "Were payments for services?" },
+        { (int)SurveyResponseItem.QSF_OWNR_LGL_NAM, "Legal Name" },
+        { (int)SurveyResponseItem.QSF_OWNR_FEIN, "Federal ID Number" },
+        { (int)SurveyResponseItem.QSF_OWNR_UI_ACCT_NUM, "Wisconsin UI Account number" },
+        { (int)SurveyResponseItem.QSF_OWNR_WI_ADDRESS, "Wisconsin address where services were performed" },
+        { (int)SurveyResponseItem.QSF_OWNR_PYMT_REASONS, "Reason for payments" },
+        { (int)SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT, "Court-approved Settlement Agreement File" },
+        { (int)SurveyResponseItem.PRTL_MISS_DOC_QSF_STL_AGR, "Will provide documentation later" }
+    };
+
     private void EditClicked(int step)
     {
         OnNavigateToStep.InvokeAsync(step + 1);
@@ -274,6 +312,7 @@
     {
         return Questions
             .Where(q => q.GroupDescription == sectionName)
+            .Where(q => !QsfItemDescriptions.ContainsKey(q.QuestionSetItemSK))
             .Select(q =>
             {
                 var match = SurveyResponses.FirstOrDefault(r => r._surveyResponseItemSk == q.QuestionSetItemSK);
