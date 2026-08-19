@@ -1,0 +1,53 @@
+@inject NavigationManager Nav;
+<h1 class="page-title">Voluntary Contribution Calculator</h1>
+<hr class="page-divider" />
+<div><br /></div>
+
+@if (!_isAvailable)
+{
+
+    <div class="info-panel">
+        <div class="info-panel-row">
+            <img src="@Assets["icons/information-notification.svg"]" class="info-panel-icon" width="16" height="16" aria-hidden="true" alt="" />
+            <div class="info-panel-text">
+                <p class="fw-bold info-panel-title">Voluntary contribution payments can’t be made at this time.</p>
+                <p class="fw-bold">
+                    The voluntary contribution calculator is available early to mid October. Voluntary<br />
+                    contribution payments must be submitted by November 30th.
+                </p>
+              
+            </div>
+        </div>
+    </div>
+}
+else if (!_isEligiblebyacc)
+{
+    <div class="info-panel-type">
+        <div class="info-panel-row">
+            <img src="@Assets["icons/information-notification.svg"]" class="info-panel-icon" width="16" height="16" aria-hidden="true" alt="" />
+            <div class="info-panel-text">
+                <p class="fw-bold info-panel-title">Your account is not eligible for a voluntary contribution.</p>
+
+      
+            </div>
+        </div>
+    </div>
+}
+<BillingButtonBar ShowBack="true"
+                  ShowContinue="false"
+                  ShowCancel="false"
+                  ButtonWidth="200"
+                  OnBack="GoBack">
+</BillingButtonBar>
+@code {
+    [Parameter]
+    public bool _isEligiblebyacc { get; set; }
+
+    [Parameter]
+    public bool _isAvailable { get; set; } = true;
+
+    private void GoBack()
+    {   
+        Nav.NavigateTo("billing-payments/payment-options?source=flow");
+    }
+}

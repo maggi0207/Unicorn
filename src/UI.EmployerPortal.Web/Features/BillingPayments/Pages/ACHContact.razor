@@ -1,0 +1,124 @@
+@page "/billing-payments/manage-contact"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>ACH Contact Information</PageTitle>
+<div class="page_wrapper">
+    <h1 class="page-title">Contact Information</h1>
+    <div class="bi-page-content">
+        <EditForm EditContext="@_editContext"
+                  OnValidSubmit="HandleContinue"
+                  OnInvalidSubmit="OnInvalid"
+                  FormName="ACHContactInformation">
+            <DataAnnotationsValidator />
+            <CustomValidator @ref="_customValidator" />
+
+           
+            <div id="notification-container" aria-live="polite">
+                @if (_contactexist)
+                {
+
+                    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                        Message="Contact Information is Saved."
+                                        Visible="true" />
+                    @if (Showback)
+                    {
+                        Nav.NavigateTo("billing-payments/bank-account-payment-ach");
+                    }
+
+                }
+
+                @if (_showValidationSummary && _validationErrors.Any())
+                {
+                    <div class="fix-section-width" style="max-width:684px;">
+                        <NotificationBanner NotificationType="NotificationType.Alert"
+                                            Title="Please fix the following errors:"
+                                            MessageStyle="MessageStyle.MultiLine"
+                                            Messages="_validationErrors"
+                                            MessageFieldIds="_validationFieldIds"
+                                            DismissButton="false" />
+                    </div>
+                }
+            </div>
+            <p class="contact-subtitle">All fields are required unless noted.</p>
+            <div class="bi-fields-grid">
+                <div class="bi-field">
+                    <OutlinedTextField Label="Name"
+                                       Id="con-name"
+                                       @bind-Value="Model.ContactName"
+                                       For="@(() => Model.ContactName)"
+                                       Required="true"
+                                       Visible="@IsVisible(() =>Model.ContactName)">
+                    </OutlinedTextField>
+
+                </div>
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Phone Number Format"
+                                         Id="con-phone-format"
+                                         Value = "@Model.PhoneNumberFormat"
+                                         ValueChanged="OnPhoneNumberFormatChanged"
+                                         Options="PhoneNumberFormat"
+                                         Required="true"
+                                         For="@(() => Model.PhoneNumberFormat)" />
+                </div>
+                <div class="bi-zip-row">
+                    <div class="bi-zip-field">
+                        <OutlinedTextField Label="Phone Number"
+                                           Id="con-phone"
+                                          @bind-Value="Model.PhoneNumber"
+                                          For="@(() => Model.PhoneNumber)"
+                                          InputMode="@(Model.PhoneNumberFormat == "International" ? null : "numeric")"
+                                          Mask ="@(Model.PhoneNumberFormat == "International" ? null : "(000) 000-0000")"
+                                          Placeholder ="@(Model.PhoneNumberFormat == "International" ? null : "(999) 999-9999")"
+                                          MaxLength="@(Model.PhoneNumberFormat == "International" ? 24:14)"
+                                          AllowedChars ="@(Model.PhoneNumberFormat == "International" ? "0123456789+- ()" : "numeric")"
+                                          Visible="@IsVisible(() => Model.PhoneNumber)" />
+                    </div>
+                    <span class="bi-zip-dash">—</span>
+                    <div class="bi-ext-field">
+                        <OutlinedTextField Label="Ext. (optional)"
+                                           Id="record-ext"
+                                           InputMode="numeric"
+                                           Maxlength="6"
+                                           @bind-Value="Model.PhoneExt" />
+                    </div>
+                </div>
+                <div class="bi-field">
+                    <OutlinedTextField Label="Email Address"
+                                       Id="record-email"
+                                       Type="email"
+                                       @bind-Value="Model.Email"
+                                       For="@(() => Model.Email)"
+                                       Visible="@IsVisible(() => Model.Email)" />
+
+                </div>
+                <div class="bi-field">
+                    <OutlinedTextField Label="Verify Email Address"
+                                       Id="record-confirm-email"
+                                       Type="email"
+                                       @bind-Value="Model.ConfirmEmail"
+                                       For="@(() => Model.ConfirmEmail)"
+                                       Visible="@IsVisible(() => Model.ConfirmEmail)" />
+                </div>
+            </div>
+
+            <BillingButtonBar ShowBack="@Showback"
+                              ShowContinue="true"
+                              ShowCancel="false"
+                              ContinueText="SAVE"
+                              OnContinue="Save"
+                              OnBack="GoBack">
+            </BillingButtonBar>
+
+
+        </EditForm>
+
+    </div>
+</div>
+
+
+

@@ -1,0 +1,113 @@
+.section-page {
+    max-width: 920px;
+    padding: 24px;
+}
+
+.section-header {
+    color: var(--color-header-nav);
+    font-size: 28px;
+    margin: 0 0 16px 0;
+}
+
+.section-description {
+    color: var(--color-text);
+    font-size: 16px;
+    margin: 0;
+}
+
+.billing-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+@media (max-width: 575px) {
+    .billing-container {
+        gap: var(--spacing-md);
+    }
+}
+
+/* Header */
+.billing-header {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.billing-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.billing-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.balance-amount {
+    font-size: 1.25rem;
+}
+
+.amount-due-link {
+    color: #0056b3;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+    .amount-due-link:hover {
+        text-decoration: underline;
+    }
+
+/* Section */
+.billing-section {
+    margin-bottom: 2rem;
+}
+
+.billing-section-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
+}
+
+.other-options-title {
+    font-size: 1.1rem;
+    color: #0056b3;
+    margin-bottom: 0.25rem;
+}
+
+.section-divider,
+.option-divider {
+    border-top: 1px solid #ccc;
+    margin: 0.5rem 0;
+}
+
+.section-description {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+/* Footer */
+.billing-footer {
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    margin-top: 1rem;
+}
+
+.footer-left {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.billing-field-error {
+    border: 1px solid #c82838 !important;
+}
+.billing-fieldset-error {
+    border: 1px solid #c82838;
+    border-radius: 4px;
+    padding: 8px 12px;
+}

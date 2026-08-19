@@ -1,0 +1,68 @@
+.billing-container {
+    padding: 16px;
+    max-width: 801px;
+}
+
+.billing-title {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 6px;
+    font-family: Verdana;
+}
+
+.billing-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.billing-row ::deep .amount-input {
+    width: 106px;
+    height: 38px;
+    flex: 0 0 auto;
+}
+.amount-due .highlight {
+    width:106px;
+    height:38px;  
+    left:48px;
+    top:121px;
+}
+
+.option {
+    margin-top: 12px;
+    gap:10px;
+    
+}
+   
+.description {
+    font-size: 16px;
+    color: #000000;
+    font-family: Verdana;
+    margin-left:16px;
+}
+
+.sr-only {
+    position: absolute;
+    left: -9999px;
+}
+.section-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    border-bottom: 2px solid #003663;
+    padding-bottom: 6px;
+    margin-top: 20px;
+    margin-bottom: 16px;
+}
+.billing-field-error {
+    border: 1px solid #c82838 !important;
+}
+.billing-fieldset-error {
+    border: 1px solid #c82838;
+    border-radius:4px;
+    padding:8px 12px;
+}

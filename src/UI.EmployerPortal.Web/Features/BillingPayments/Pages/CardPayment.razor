@@ -1,0 +1,715 @@
+@page "/billing-payments/card-payment"
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Globalization
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject ILogger<CardPayment> Logger
+
+<PageTitle>Credit/Debit Card Payment</PageTitle>
+
+<main id="main-content" class="section-page" aria-label="Credit/Debit Card Payment">
+    <div class="billing-payments-container">
+
+        <div aria-live="polite" aria-atomic="true" class="visually-hidden" role="status">
+            @_stepAnnouncement
+        </div>
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading payment details, please wait..." />
+        }
+        else
+        {
+            @* ════════════════════════════════════════════════════════
+               STEP 1 — Registration / Profile
+               ════════════════════════════════════════════════════════ *@
+            @if (_step == CardStep.Registration)
+            {
+                <BillingPaymentsHeader Amount="@_employer?.BalanceDue" ReturnUrl="@ReturnUrl"/>
+
+                <h1 class="page-title fw-bold">Credit/Debit Card Registration Profile</h1>
+                <div class="fix-section-width" style="max-width:684px;">
+                @if (_showValidationSummary && _validationErrors.Any())
+                {
+                    <div class="fix-section-width" style="max-width:684px;">
+                        <NotificationBanner NotificationType="NotificationType.Alert"
+                                            MessageStyle="MessageStyle.MultiLine"
+                                            Messages="_validationErrors"
+                                            MessageFieldIds="_validationFieldIds"
+                                            DismissButton="false" />
+                    </div>
+                }
+
+                <EditForm EditContext="_editContext"
+                          OnValidSubmit="GoToVerification"
+                          OnInvalidSubmit="OnFormInvalid">
+                    <DataAnnotationsValidator />
+
+                    <p class="card-service-fee-notice">
+                        A non-refundable 2% service fee is assessed on the amount of the card payment.
+                        In order to make your card payment, please complete the information below.
+                        If the information listed is not correct, update the applicable fields.
+                    </p>
+
+                    <div class="card-accepted-logos" aria-label="Accepted card types">
+                            <img src="images/billing/cards.svg" alt="cards" height="28" />
+                    </div>
+
+                    <p class="card-all-required-note">All fields are required.</p>
+
+                    @* ── Name ── *@
+                    <p class="card-section-label fw-bold">
+                        First and last name of the person making the payment online.
+                    </p>
+
+                    @* Figma: First Name and Last Name are stacked vertically, full-width *@
+                    <OutlinedTextField Label="First Name"
+                                       Id="card-first-name"
+                                       @bind-Value="_profile.FirstName"
+                                       For="@(() => _profile.FirstName)"
+                                       Visible="_showValidation"
+                                       MaxLength="50" />
+
+                    <OutlinedTextField Label="Last Name"
+                                       Id="card-last-name"
+                                       @bind-Value="_profile.LastName"
+                                       For="@(() => _profile.LastName)"
+                                       Visible="_showValidation"
+                                       MaxLength="50" />
+
+                    @* ── Billing Address ── *@
+                    <p class="card-section-label fw-bold">
+                        Billing address for the card being used to make a payment.
+                    </p>
+
+                    <OutlinedSelectField Label="Country"
+                                         Id="card-country"
+                                         Value="@_profile.Country"
+                                         ValueChanged="OnCountryChanged"
+                                         Options="_countryOptions"
+                                         Placeholder="Select Country"
+                                         For="@(() => _profile.Country)"
+                                         Visible="_showValidation" />
+
+                    <OutlinedTextField Label="Address Line 1"
+                                       Id="card-address1"
+                                       @bind-Value="_profile.AddressLine1"
+                                       For="@(() => _profile.AddressLine1)"
+                                       Visible="_showValidation"
+                                       MaxLength="100" />
+
+                    <OutlinedTextField Label="Address Line 2 (Optional)"
+                                       Id="card-address2"
+                                       @bind-Value="_profile.AddressLine2"
+                                       Visible="_showValidation"
+                                       MaxLength="100" />
+
+                    <OutlinedTextField Label="City"
+                                       Id="card-city"
+                                       @bind-Value="_profile.City"
+                                       For="@(() => _profile.City)"
+                                       Visible="_showValidation"
+                                       MaxLength="60" />
+
+                    @* State — only visible when United States is selected *@
+                    @if (_showState)
+                    {
+                        <OutlinedSelectField Label="State"
+                                             Id="card-state"
+                                             Value="@_profile.State"
+                                             ValueChanged="v => _profile.State = v"
+                                             Options="_stateOptions"
+                                             Placeholder="Select State"
+                                             Visible="_showValidation" />
+                    }
+                    <div class="bi-zip-row">
+                        <div class="bi-zip-field">
+                            <OutlinedTextField Label="Zip Code"
+                                               Id="card-zip"
+                                               @bind-Value="_profile.ZipCode"
+                                               For="@(() => _profile.ZipCode)"
+                                               Visible="_showValidation"
+                                               InputMode="numeric"
+                                               MaxLength="5" />
+                        </div>
+                        <span class="bi-zip-dash" aria-hidden="true">-</span>
+                        <div class="bi-ext-field">
+                            <OutlinedTextField Label="Ext. (Optional)"
+                                               Id="card-zip-ext"
+                                               @bind-Value="_profile.ZipExt"
+                                               Visible="_showValidation"
+                                               InputMode="numeric"
+                                               MaxLength="4" />
+                        </div>
+                    </div>
+
+                    @* ── Phone ── *@
+                    <p class="card-section-label fw-bold">
+                        Telephone number of the person making the payment online.
+                    </p>
+                    <PhoneNumberField @bind-Value="_profile.PhoneNumber"
+                                      For="() => _profile.PhoneNumber"
+                                      Visible="true"
+                                          Numeric="true"
+                                      ShowCountryCode="false"
+                                      CountryCodeDisabled="true" />
+
+                    @* ── Email ── *@
+                    <p class="card-section-label fw-bold">
+                        Email address to which we should send payment confirmation.
+                    </p>
+                    <OutlinedTextField Label="Email Address"
+                                       Id="card-email"
+                                       @bind-Value="_profile.Email"
+                                       For="@(() => _profile.Email)"
+                                       Visible="_showValidation"
+                                       MaxLength="100" />
+
+                    <p class="card-effective-date-note">
+                        Note that the payment is effective as of the date you make it. It can take up to
+                        two business days after the settlement date to post to your account.
+                    </p>
+
+                </EditForm>
+                </div>
+            }
+            else if (_step == CardStep.Verification)
+            {
+                <h1 class="billing-section-title fw-bold">Payment Verification</h1>
+                <div class="fix-section-width" style="max-width:684px;">
+                    @if (_cardPaymentError is not null)
+                    {
+                        <NotificationBanner NotificationType="NotificationType.Alert"
+                                            MessageStyle="MessageStyle.SingleLine"
+                                            Title="Card Payment Error"
+                                            Message="@_cardPaymentError"
+                                            DismissButton="false" />
+                    }
+                    @if (_showValidationSummary && _validationErrors.Any())
+                    {
+                        <div class="fix-section-width" style="max-width:684px;">
+                            <NotificationBanner NotificationType="NotificationType.Alert"
+                                                MessageStyle="MessageStyle.MultiLine"
+                                                Messages="_validationErrors"
+                                                DismissButton="false" />
+                        </div>
+                    }
+
+                    <p class="section-description">Please verify the payment information is correct.</p>
+
+                    <div class="ach-info-card">
+                        <hr class="ach-section-divider" aria-hidden="true" />
+
+                        <div class="ach-contact-grid">
+                            <div class="ach-info-field">
+                                <span class="ach-info-label">Payment Amount</span>
+                                <strong class="ach-info-value">@_paymentAmount.ToString("C")</strong>
+                            </div>
+                            <div class="ach-info-field">
+                                <span class="ach-info-label">Contact Name</span>
+                                <strong class="ach-info-value">@_profile.FirstName @_profile.LastName</strong>
+                            </div>
+                            <div class="ach-info-field">
+                                <span class="ach-info-label">Email Address</span>
+                                <strong class="ach-info-value">@_profile.Email</strong>
+                            </div>
+                            <div class="ach-info-field">
+                                <span class="ach-info-label">Address</span>
+                                <strong class="ach-info-value">
+                                    @_profile.AddressLine1<br />
+                                    @if (!string.IsNullOrWhiteSpace(_profile.AddressLine2))
+                                    {
+                                        @_profile.AddressLine2
+                                        <br />
+                                    }
+                                    @_profile.City@((_showState && !string.IsNullOrWhiteSpace(_profile.State)) ? $", {_profile.State}" : "")
+                                    @(" " + _profile.ZipCode)@(!string.IsNullOrWhiteSpace(_profile.ZipExt) ? $"-{_profile.ZipExt}" : "")
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (_step == CardStep.Confirmation)
+            {
+                <h1 class="billing-section-title fw-bold">Card Payment Confirmation</h1>
+                <div class="fix-section-width" style="max-width:684px;">
+                    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                        Message="Payment Request Submitted"
+                                        DismissButton="false" />
+
+                    <p class="section-description">A confirmation email has been sent.</p>
+                    <p class="section-description">Allow two business days for your payment to post to your account.</p>
+
+                    <div class="ach-info-card">
+                        <div class="ach-info-card-header">
+                            <h2 class="ach-info-card-title fw-bold">Payment Information</h2>
+                        </div>
+                        <hr class="ach-section-divider" aria-hidden="true" />
+                        <div class="ach-info-field">
+                            <span class="ach-info-label">Confirmation Number</span>
+                            <strong class="ach-info-value">@_confirmationNumber</strong>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* <CardPaymentVerificationModal @ref="_paymentModal"
+                                          OnPaymentCancelled="OnPaymentCancelled"
+                                          OnPaymentCompleted="OnPaymentCompleted" /> *@
+
+            @* ── Button Bar ──────────────────────────────────────────── *@
+            <nav class="billing-footer" aria-label="Page actions">
+                @if (_step == CardStep.Registration)
+                {
+                    <BillingButtonBar ShowBack="true"
+                                      ShowCancel="true"
+                                      ShowContinue="true"
+                                      OnBack="HandleBack"
+                                      OnCancel="HandleCancel"
+                                      OnContinue="SubmitRegistrationForm"
+                                      ContinueText="CONTINUE"
+                                      ButtonWidth="200" />
+                }
+                else if (_step == CardStep.Verification)
+                {
+                    <BillingButtonBar ShowBack="true"
+                                      ShowCancel="true"
+                                      ShowContinue="true"
+                                      ContinueEnabled="!_isSubmitting"
+                                      OnBack="HandleBack"
+                                      OnCancel="HandleCancel"
+                                      OnContinue="LaunchPaymentModal"
+                                      ContinueText="CONTINUE"
+                                      ButtonWidth="200" />
+                }
+                else if (_step == CardStep.Confirmation)
+                {
+                    <BillingButtonBar ShowBack="false"
+                                      ShowCancel="false"
+                                      ShowContinue="true"
+                                      OnContinue='() => Nav.NavigateTo("billing-payments/payment-history")'
+                                      ContinueText="PAYMENT HISTORY"
+                                      ButtonWidth="210"/>
+                }
+            </nav>
+        }
+    </div>
+</main>
+
+@code {
+    [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
+    [Inject] private IContactInformationService ContactInformationService { get; set; } = default!;
+    [Inject] private IEftPaymentService EftPaymentService { get; set; } = default!;
+    [Inject] private ICardPaymentService CardPaymentService { get; set; } = default!;
+    [Inject] private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    //private CardPaymentVerificationModal? _paymentModal;
+    //private IJSObjectReference? _paymentModalJsModule;
+    private DotNetObjectReference<CardPayment>? _paymentCallbackRef;
+
+    private CardStep _step = CardStep.Registration;
+    private string _stepAnnouncement = string.Empty;
+
+    private CardPaymentProfileModel _profile = new();
+    private EditContext _editContext = default!;
+
+    private decimal _paymentAmount;
+    private string _confirmationNumber = string.Empty;
+
+    private bool _isLoading = true;
+    private bool _showValidation;
+    private bool _showValidationSummary;
+    private bool _isSubmitting;
+    private List<string> _validationErrors = new();
+    private List<string> _validationFieldIds = [];
+    private string? _cardPaymentError;
+
+    private List<SelectOption> _countryOptions = new();
+    private Dictionary<string, string> _countryCodeMap = new(StringComparer.OrdinalIgnoreCase);
+    private List<SelectOption> _stateOptions = new();
+
+    private int _unitedStatesCodeSK = -1;
+    private string _customerAccountReference = string.Empty;
+    private UI.EmployerPortal.Web.Features.Shared.Accounts.Models.EmployerAccount? _employer;
+    private bool _showState =>
+        !string.IsNullOrEmpty(_profile.Country) &&
+        _profile.Country == _unitedStatesCodeSK.ToString();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await PageAuthorizationService.AuthorizeAsync(AuthorizationPolicies.RequiresAnyPaymentsPermission))
+        {
+            return;
+        }
+        _editContext = new EditContext(_profile);
+
+        var sessionTask = await BankAccountOrchestrator.GetPaymentToSessionAsync();
+        //var sessionTask = await BankAccountOrchestrator.GetPendingReimbursePaymentToSessionAsync();
+        var countryTask = EftPaymentService.GetCountryCodesAsync();
+        var stateTask = EftPaymentService.GetUSStateCodesAsync();
+
+        await Task.WhenAll(countryTask, stateTask);
+        if (!string.IsNullOrEmpty(sessionTask))
+        {
+            _paymentAmount = decimal.Parse(sessionTask);
+        }
+
+        //_paymentAmount = sessionTask.Result?.AmountToPay ?? 0m;
+        var countries = countryTask.Result;
+        _countryOptions = countries
+            .Select(c => new SelectOption { Value = c.CodeSK.ToString(), Text = ToTitleCase(c.LongDescription) })
+            .ToList();
+
+        _countryCodeMap = countries
+                       .Where(c => !string.IsNullOrWhiteSpace(c.ShortDescription))
+                       .GroupBy(c => c.CodeSK.ToString())
+                       .ToDictionary(
+                           g => g.Key,
+                           g => g.First().ShortDescription,
+                           StringComparer.OrdinalIgnoreCase);
+
+        var us = countries.FirstOrDefault(c =>
+            c.LongDescription.Equals("UNITED STATES", StringComparison.OrdinalIgnoreCase));
+        if (us is not null)
+        {
+            _unitedStatesCodeSK = us.CodeSK;
+            _profile.Country = _unitedStatesCodeSK.ToString();
+        }
+
+        _stateOptions = stateTask.Result
+            .Select(s => new SelectOption { Value = s.ShortDescription, Text = ToTitleCase(s.LongDescription) })
+            .ToList();
+
+        var wisconsin = stateTask.Result.FirstOrDefault(s => s.CodeSK == 58);
+        if(wisconsin is not null)
+        {
+            _profile.State = wisconsin.ShortDescription;
+        }
+        try
+        {
+            var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            _employer = employer;
+            var userSk = UserAccountService.GetUserSKClaim();
+            var empSk = employer?.Id ?? 0;
+
+            //_profile = await CardPaymentService.GetCardProfileAsync(10021377, 7174161);
+            _profile = await CardPaymentService.GetCardProfileAsync(userSk, empSk);
+            if (string.IsNullOrWhiteSpace(_profile.Country) && _unitedStatesCodeSK > 0)
+            {
+                _profile.Country = _unitedStatesCodeSK.ToString();
+            }
+            else
+            {
+                var countrySelection = countries.FirstOrDefault(c =>
+                    c.ShortDescription.Equals(_profile.Country, StringComparison.OrdinalIgnoreCase));
+                if (countrySelection is not null)
+                {
+                    _profile.Country = countrySelection.CodeSK.ToString();
+                }
+            }
+            _customerAccountReference = !string.IsNullOrWhiteSpace(Convert.ToString(_profile.RegistrationSK))
+               ? Convert.ToString(_profile.RegistrationSK)
+               : empSk.ToString(CultureInfo.InvariantCulture);
+            _editContext = new EditContext(_profile);
+        }
+        catch
+        {
+            _customerAccountReference = string.Empty;
+        }
+
+        _isLoading = false;
+    }
+
+    private void OnCountryChanged(string value)
+    {
+        _profile.Country = value;
+        if (!_showState)
+            _profile.State = null;
+    }
+
+    private void SubmitRegistrationForm()
+    {
+        _showValidation = true;
+        _editContext.Validate();
+
+        if (!ValidateStep1())
+        {
+            _showValidationSummary = true;
+            StateHasChanged();
+            return;
+        }
+
+        _ = GoToVerification();
+    }
+
+    private async Task GoToVerification()
+    {
+        _showValidationSummary = false;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+
+        if (_showState && string.IsNullOrWhiteSpace(_profile.State))
+        {
+            _validationErrors.Add("State is required");
+            _validationFieldIds.Add("card-state");
+            _showValidationSummary = true;
+            StateHasChanged();
+            return;
+        }
+
+        await NavigateToStep(CardStep.Verification,
+            "Payment Verification step. Please review your information");
+    }
+
+    private void OnFormInvalid()
+    {
+        _showValidation = true;
+        _showValidationSummary = true;
+        _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
+        _validationFieldIds.Clear();
+        foreach (var message in _validationErrors)
+        {
+            _validationFieldIds.Add(GetFieldIdForMessage(message));
+        }
+        StateHasChanged();
+    }
+
+    private async Task NavigateToStep(CardStep next, string announcement)
+    {
+        _step = next;
+        _stepAnnouncement = announcement;
+        _showValidationSummary = false;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+        await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+        StateHasChanged();
+    }
+
+    private async Task HandleBack()
+    {
+        switch (_step)
+        {
+            case CardStep.Verification:
+                _cardPaymentError = null;
+                await NavigateToStep(CardStep.Registration, "Returned to Registration step");
+                break;
+            case CardStep.Registration:
+                if(!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    Nav.NavigateTo(ReturnUrl);
+                }
+                else
+                {
+                    Nav.NavigateTo("billing-payments/payment-options?source=flow&returnUrl=billing-payments");
+                }
+                break;
+            default:
+                Nav.NavigateTo("billing-payments/billing");
+                break;
+        }
+    }
+
+    private void HandleCancel()
+    {
+        _cardPaymentError = null;
+        Nav.NavigateTo("billing-payments/billing");
+    }
+
+    private async Task LaunchPaymentModal()
+    {
+        if (_isSubmitting) return;
+
+        if (string.IsNullOrWhiteSpace(_customerAccountReference))
+        {
+            _cardPaymentError = "Customer account reference is missing. Please contact support.";
+            StateHasChanged();
+            return;
+        }
+
+        _isSubmitting = true;
+        _showValidationSummary = false;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+        _cardPaymentError = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await CardPaymentService.CreateHostedFormSessionAsync(
+                amount: _paymentAmount,
+                customerAccountReference: _customerAccountReference,
+                contactName: $"{_profile.FirstName} {_profile.LastName}".Trim(),
+                email: _profile.Email,
+                addressLine1: _profile.AddressLine1,
+                addressLine2: _profile.AddressLine2,
+                city: _profile.City,
+                state: _showState ? _profile.State : null,
+                zip: _profile.ZipCode,
+                country: Convert.ToString(_profile?.ISOCountryCode3!),
+                isUsAddress: _showState);
+
+            if (!result.Success || string.IsNullOrWhiteSpace(result.HostedFormHtml))
+            {
+                _cardPaymentError = result.ErrorMessage ?? "Unable to load the payment form. Please try again.";
+                _isSubmitting = false;
+                StateHasChanged();
+                return;
+            }
+
+            _paymentCallbackRef?.Dispose();
+            _paymentCallbackRef = DotNetObjectReference.Create(this);
+
+            await JS.InvokeVoidAsync("paymentModal.setupPaymentCallback", _paymentCallbackRef);
+            await JS.InvokeVoidAsync("paymentModal.openOrbipayOverlay", result.HostedFormHtml);
+
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error launching Orbipay popup");
+            _cardPaymentError = "An unexpected error occurred while launching payment.";
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnPaymentTokenReceived(string token, string digiSign, string customerAccountReference)
+    {
+        _isSubmitting = true;
+        _cardPaymentError = null;
+        StateHasChanged();
+        try
+        {
+            var userSk = UserAccountService.GetUserSKClaim();
+            var confirmation = await CardPaymentService.ConfirmPaymentAsync(
+                token,
+                digiSign,
+                customerAccountReference,
+                userSk,
+                new OrbipayPaymentConfirmationRequest
+                {
+                    Amount = _paymentAmount,
+                    ContactName = $"{_profile.FirstName} {_profile.LastName}".Trim(),
+                    Email = _profile.Email,
+                    AddressLine1 = _profile.AddressLine1,
+                    City = _profile.City,
+                    State = _showState ? _profile.State : null,
+                    Zip = _profile.ZipCode,
+                    Country = _profile.Country,
+                    EmployerSk = _employer?.Id ?? 0,
+                    //RegistrationSk = _employer?.,
+                    EmployerLegalName = _employer?.LegalName ?? string.Empty,
+                    EmployerAccountNumber = _employer?.EmployerAccountNumber ?? string.Empty,
+                    UIAccountNumber = _employer?.UIAccountNo ?? string.Empty,
+                    IsVoluntary = false
+                });
+
+            if (!confirmation.Success)
+            {
+                _cardPaymentError = confirmation.ErrorDescription ?? "Card payment failed. Please try again.";
+                _isSubmitting = false;
+                StateHasChanged();
+                return;
+            }
+
+            _confirmationNumber = confirmation.ConfirmationNumber ?? $"ORB{DateTime.UtcNow:yyyyMMddHHmmss}";
+            await NavigateToStep(CardStep.Confirmation, "Payment submitted. You are on the confirmation page.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error confirming Orbipay payment");
+            _cardPaymentError = "An unexpected error occurred while confirming payment.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool ValidateStep1()
+    {
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
+
+        if (!_editContext.Validate())
+        {
+            _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
+            foreach (var message in _validationErrors)
+            {
+                _validationFieldIds.Add(GetFieldIdForMessage(message));
+            }
+            return false;
+        }
+
+        if (_showState && string.IsNullOrWhiteSpace(_profile.State))
+        {
+            _validationErrors.Add("State is required");
+            _validationFieldIds.Add("card-state");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static string ToTitleCase(string value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? value
+            : System.Globalization.CultureInfo.InvariantCulture.TextInfo
+                .ToTitleCase(value.ToLowerInvariant());
+
+    private static string GetFieldIdForMessage(string message)
+    {
+        return message switch
+        {
+            var m when m.Contains("First name", StringComparison.OrdinalIgnoreCase) => "card-first-name",
+            var m when m.Contains("Last name", StringComparison.OrdinalIgnoreCase) => "card-last-name",
+            var m when m.Contains("Phone", StringComparison.OrdinalIgnoreCase) => "card-phone",
+            var m when m.Contains("Email", StringComparison.OrdinalIgnoreCase) => "card-email",
+            var m when m.Contains("Country", StringComparison.OrdinalIgnoreCase) => "card-country",
+            var m when m.Contains("Address line 1", StringComparison.OrdinalIgnoreCase) => "card-address1",
+            var m when m.Contains("City", StringComparison.OrdinalIgnoreCase) => "card-city",
+            var m when m.Contains("State", StringComparison.OrdinalIgnoreCase) => "card-state",
+            var m when m.Contains("Zip", StringComparison.OrdinalIgnoreCase) => "card-zip",
+            _=>string.Empty
+        };
+    }
+
+    private Task OnPaymentCancelled()
+    {
+        _isSubmitting = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPaymentCompleted() => Task.CompletedTask;
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+           await JS.InvokeVoidAsync("paymentModal.disposePaymentCallback");
+        }
+        catch
+        {}
+        _paymentCallbackRef?.Dispose();
+    }
+}

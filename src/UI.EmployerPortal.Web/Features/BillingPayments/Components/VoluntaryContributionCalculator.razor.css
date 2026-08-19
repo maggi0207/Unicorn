@@ -1,0 +1,239 @@
+.voluntary-Container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    width: 895px;
+    height: 1349px;
+}
+
+.title-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 24px;
+    width: 993px;
+    height: 46px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 116%;
+    /* or 37px */
+    display: flex;
+    color: #000000;
+    border-bottom: 1px solid #D9D9D9;
+}
+.title-smallheading {
+    width: 795px;
+    height: 52px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    display: flex;
+    align-items: center;
+    color: #000000;
+}
+.table {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 12px;
+    width: 845px;
+    min-height: 195px;
+}
+
+.table tr {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.col1 {
+    width: 680px;
+    min-height: 47px;
+    align-items: center;
+    padding: 0px 8px;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 24px;
+    display: flex
+
+}
+.col2 {
+    width: 149px;
+    min-height: 47px;
+    padding: 0px 8px;
+    gap: 8px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.sub-header {
+    width: 795px;
+    height: 57px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 160%;
+    /* or 29px */
+    color: #003663;
+}
+.table-estimate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 12px;
+    width: 795px;
+    height: 248px;
+}
+.table-estimate-col {
+    width: 330px;
+    height: 25px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    /* or 26px */
+    display: flex;
+    align-items: center;
+    text-transform: capitalize;
+    color: #000000;
+}
+.row_payment {
+     height: 57px;
+    /* Inside auto layout */
+    flex: none;
+    order: 2;
+    flex-grow: 0;
+    color: #0D6EFD;
+    font-family: 'Verdana';
+    text-align:right;
+    padding-right:0
+}
+.section-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    border-bottom: 2px solid #003663;
+    padding-bottom: 6px;
+    margin-top: 20px;
+    margin-bottom: 16px;
+}
+.section-paragraph {
+    width: 795px;
+    height: 78px;
+    left: 0px;
+    top: 45px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    /* identical to box height, or 26px */
+    display: flex;
+    align-items: center;
+    text-align: left;
+    color: #000000;
+}
+
+.recalculate-item {
+    color: #0D6EFD;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+    .recalculate-item:hover {
+        text-decoration: underline;
+    }
+
+.reclac-text {
+    margin-left: 6px;
+}
+.value {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 180px;
+}
+
+.taxable-payroll-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 895px; /* 636 + 159 */
+    min-height: 56px;
+    background: #fff;
+}
+
+/* Left Column */
+
+.taxable-payroll-info {
+    width: 500px;
+    height: 47px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 8px;
+}
+
+    .taxable-payroll-info .title {
+        font-weight: 700;
+        font-size: 17px;
+        line-height: 24px;
+    }
+
+    .taxable-payroll-info .subtitle {
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+/* Right Column */
+
+.taxable-payroll-actions {
+    width: 349px;
+    height: 47px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-right: 8px;
+}
+
+.recalculate-btn {
+    border: none;
+    background: transparent;
+    color: #0d6efd;
+    font-weight: 600;
+    cursor: pointer;
+}
+.custom-divider {
+    height: 1px;
+    border-top: 1px solid #E6E6E6 !important;
+    max-width: 845px; 
+    margin: 0px;
+    display: block;
+ 
+    
+}

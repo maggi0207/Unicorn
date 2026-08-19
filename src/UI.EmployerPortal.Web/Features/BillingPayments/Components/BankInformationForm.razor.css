@@ -1,0 +1,185 @@
+::deep form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.page-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 24px;
+}
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    width: 684px;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 16px;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    margin: 0;
+}
+
+.page-divider {
+    border: none;
+    border-top: 1px solid var(--color-gray-medium, #ADADAD);
+    margin: 0;
+    width: 100%;
+}
+
+.bank-name-region {
+    padding: 4px 0;
+}
+
+.bank-name-label {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.bank-name-value {
+    font-size: 16px;
+    min-height: 24px;
+    color: #000000;
+}
+
+.info-panel {
+    background-color: var(--color-blue-highlight, #EDF7FF);
+    border: 1px solid var(--color-gray-light, #E6E6E6);
+    border-radius: 4px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.portal-link {
+    color: var(--color-primary, #006bb7);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: Verdana, sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.help-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--color-primary, #006bb7);
+    font-size: 14px;
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+    .portal-link:hover {
+        color: var(--color-header-nav, #003663);
+        text-decoration: underline;
+    }
+
+.iat-region {
+    padding-left: 16px;
+}
+.iat-fields {
+    display:flex;
+    flex-direction:column;
+    gap: 24px;
+    width: 100%;
+}
+
+.pending-table {
+    border-collapse: collapse;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    width: 100%;
+}
+
+    .pending-table .header-row {
+        min-height: 56px;
+    }
+
+    .pending-table .header-cell {
+        height: 50px;
+        background-color: var(--color-gray-light, #f5f5f5);
+        cursor: pointer;
+        user-select: none;
+        padding: 0 !important;
+        border-bottom: 1px solid var(--color-gray-medium, #ADADAD) !important;
+        vertical-align: middle;
+    }
+
+        .pending-table .header-cell:hover {
+            background-color: #D9D9D9;
+        }
+
+        .pending-table .header-cell:focus {
+            outline: 2px solid var(--color-primary, #006bb7);
+            outline-offset: -2px;
+        }
+
+    .pending-table .header-content {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 8px var(--spacing-sm, 8px);
+        justify-content: space-between;
+    }
+
+    .pending-table .header-label {
+        font-family: Verdana, sans-serif;
+        font-size: 14px;
+        color: var(--color-text, #333333);
+    }
+
+    .pending-table .data-row:hover {
+        background-color: #f5f8fc;
+    }
+
+    .pending-table .data-row td {
+        vertical-align: middle;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--color-gray-light, #E6E6E6);
+        color: var(--color-text, #333333);
+        font-size: 14px;
+    }
+
+.button-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-gray-light, #E6E6E6);
+}
+
+.button-group-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}

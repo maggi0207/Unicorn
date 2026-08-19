@@ -1,0 +1,460 @@
+.section-page {
+    max-width: 993px;
+    padding: 24px;
+}
+
+.section-header {
+    color: #003663;
+    font-size: 28px;
+    margin: 0 0 16px 0;
+}
+
+.section-description {
+    color: #000000;
+    font-size: 16px;
+    margin: 0;
+    max-width: 684px;
+}
+
+.billing-section{
+    max-width:684px;
+}
+
+.billing-payments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.billing-footer{
+    max-width:684px !important;
+}
+
+.billing-section-title {
+    max-width: 993px;
+    font-family: 'Verdana';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 133%;
+    display: flex;
+    align-items: center;
+    color: #003663;
+}
+
+.billing-section-title-black {
+    max-width: 993px;
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 32px;
+    leading-trim: NONE;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #000000;
+}
+
+/* ── Page container ─────────────────────────────────────────────── */
+/*.billing-payments-container {
+    max-width: 684px;
+    padding: 24px 16px 48px;
+}*/
+
+/* ── Inline card (Payment Information sections rendered by the page) */
+.ach-info-card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: #f3f3f3;
+}
+
+.ach-info-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+    .ach-info-card-header:focus-visible {
+        outline: 2px solid #003663;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+.ach-info-card-title {
+    margin: 0;
+    color: #003663;
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 25px;
+    leading-trim: NONE;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.ach-card-card-title-payment {
+    border-bottom: 1px solid var(--color-stroke-button-secondary, #003663);
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.ach-info-card-title-display {
+    margin: 0;
+    color: #000;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.ach-collapse-icon {
+    font-size: 1rem;
+    color: #555;
+}
+
+.ach-section-divider {
+    border: none;
+    margin: 10px 0 14px;
+}
+
+.print-ach-section-divider {
+    border: 2px solid #000;
+    margin: 10px 0 14px;
+    opacity: 1;
+}
+
+/* ── Shared info grid (used inside inline cards) ────────────────── */
+.ach-bank-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px 24px;
+    margin-bottom: 12px;
+}
+
+.ach-info-field--full {
+    margin-bottom: 4px;
+}
+
+.ach-info-label, .section-description {
+    display: block;
+    color: #000000;
+    margin-bottom: 2px;
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.ach-info-value {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.ach-confirmation-number-field {
+    margin-bottom: 16px;
+}
+
+/* ── Field validation error ─────────────────────────────────────── */
+.ach-field-error {
+    display: block;
+    color: #c0392b;
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+
+/* ── Confirmation step: print link + cancel button row ──────────── */
+.ach-confirmation-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ach-print-link {
+    color: #006bb7;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+    .ach-print-link:hover {
+        text-decoration: underline;
+    }
+
+/* ── Cancel button (Confirmation, Edit, Verify & Cancel steps) ───── */
+.ach-cancel-payment-btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 8px 20px;
+    border-radius: 4px;
+    white-space: nowrap;
+    color: #fff;
+    background-color: #C80600;
+}
+
+/* ── Edit step: cancel button floated to the right ──────────────── */
+.ach-edit-cancel-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+/* ── Authorization section (Verify & Authorize step) ────────────── */
+.fix-section-width, .ach-authorization-section, .ach-edit-cancel-row, .ach-print-actions, .ach-confirmation-actions, .nb-confirmation {
+    max-width: 684px;
+}
+.ach-authorization-text {
+    color: #000;
+    line-height: 1.6;
+    max-width: 640px;
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.ach-authorization-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+    .ach-authorization-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #003663;
+    }
+
+    .ach-authorization-checkbox label {
+        cursor: pointer;
+        font-family: Verdana;
+        font-weight: 700;
+        font-style: Bold;
+        font-size: 16px;
+        leading-trim: NONE;
+        line-height: 160%;
+        letter-spacing: 0%;
+        vertical-align: middle;
+    }
+
+/* ── Confirmation footer: PAYMENT HISTORY | EDIT PAYMENT ────────── */
+.ach-confirmation-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ach-footer-btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 8px 24px;
+    border-radius: 4px;
+    border: 2px solid #003663;
+    color: #003663;
+    background: #fff;
+}
+
+    .ach-footer-btn:hover {
+        background: #e8f0fe;
+    }
+
+.ach-edit-payment-btn {
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    color: #003663;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+
+    .ach-edit-payment-btn:hover {
+        text-decoration: underline;
+    }
+
+/* ── Cancel Confirmation footer ─────────────────────────────────── */
+.ach-cancel-confirmation-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ── Print Preview step ─────────────────────────────────────────── */
+.ach-print-actions {
+    margin-bottom: 20px;
+}
+
+.ach-print-btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 8px 24px;
+    border-radius: 4px;
+    background: #003663;
+    color: #fff;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+    .ach-print-btn:hover {
+        background: #00284d;
+    }
+
+.ach-collapse-btn {
+    border: none;
+}
+
+/* Print-only: hide browser chrome, show only the printable content */
+/*@media print {
+    .ach-print-actions,
+    .billing-footer {
+        display: none !important;
+    }
+
+    .ach-info-card--print {
+        border: 1px solid #000;
+        background: #fff !important;
+        break-inside: avoid;
+    }
+}*/
+
+@media print {
+    body > *:not(.print-section) {
+        display: none !important;
+    }
+
+    .print-section {
+        display: block !important;
+    }
+        .print-section .ach-section-divider{
+            border:none !important;
+        }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 575px) {
+    .ach-bank-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ach-confirmation-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ach-confirmation-footer {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+}
+
+.print-section {
+    max-width: 684px;
+    gap: 24px;
+    opacity: 1;
+    border: 2px solid #000000
+}
+
+.ach-print-section .ach-info-card {
+    border: none !important;
+    background-color: #fff !important;
+}
+
+.ach-print-section .ach-info-card-header-actions {
+    display: none !important;
+}
+
+.ach-print-nav-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+
+/* ── Accessible print definition list ──────────────────────────── */
+.ach-print-dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ach-print-dl-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.ach-print-dl-item--full {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+}
+
+/* dt inherits .ach-info-label styles, dd inherits .ach-info-value */
+.ach-print-dl dt {
+    font-weight: 400;
+    margin: 0;
+}
+
+.ach-print-dl dd {
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ── Hide print action button when printing ─────────────────────── */
+@media print {
+    .ach-no-print {
+        display: none !important;
+    }
+}
+
+@media (max-width: 575px) {
+    .ach-print-dl {
+        grid-template-columns: 1fr;
+    }
+}

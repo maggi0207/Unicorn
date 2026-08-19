@@ -1,0 +1,99 @@
+/* ── Container ── */
+.refund-confirmation-container {
+    max-width: 684px;
+    padding-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Page title / divider ── */
+.refund-confirmation-title {
+    font-family: 'Verdana';
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 133%;
+    color: var(--color-header-nav, #003663);
+    margin: 0;
+}
+
+.refund-confirmation-divider {
+    border: none;
+    border-top: 1px solid #ADADAD;
+    margin: 0;
+}
+
+/* ── Refund Information accordion ── */
+.accordion-panel {
+    background-color: #F3F3F3;
+    border: none;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.accordion-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+    .accordion-header:hover {
+        background-color: #ececec;
+    }
+
+    .accordion-header:focus {
+        outline: 2px solid var(--color-header-nav, #003663);
+        outline-offset: -2px;
+    }
+
+.accordion-body {
+    padding: 0 20px 20px;
+}
+
+.accordion-title {
+    font-family: 'Verdana';
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 116%;
+    color: #000000;
+}
+
+.accordion-caret {
+    transition: transform 0.15s ease;
+}
+
+.accordion-caret--collapsed {
+    transform: rotate(180deg);
+}
+
+.field-label {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.field-value {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 160%;
+    margin: 0;
+    color: #000000;
+}
+
+.refund-address-value {
+    white-space: pre-line;
+}
+
+/* ── Footer action ── */
+.refund-confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.refund-confirmation-actions ::deep .btn-component {
+    width: 317px;
+    max-width: 100%;
+}

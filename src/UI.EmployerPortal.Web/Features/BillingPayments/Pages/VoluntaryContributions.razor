@@ -1,0 +1,54 @@
+@page "/billing-payments/voluntary-contribution"
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models;
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services;
+@using UI.EmployerPortal.Web.Features.Dashboard;
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading voluntary contribution details, please wait..." />
+}
+else if (_isEligible)
+{
+    <VoluntaryContributionCalculator></VoluntaryContributionCalculator>
+}
+else
+{
+    <VoluntaryContributionIneligibeEmployer _isEligiblebyacc="_isEligible" _isAvailable="_isavailable"></VoluntaryContributionIneligibeEmployer>
+}
+
+@code {
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+    [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
+    [Inject] private IVoluntaryContributionServices VoluntaryContributionServices { get; set; } = default!;
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    public VoluntaryContributionIneligibe Model { get; set; } = new();
+    private EmployerAccount? _employerSK;
+
+    private bool _isEligible = false;
+    private bool _isavailable = true;
+    private bool _isLoading = true;
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        _employerSK = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+        var secureUserSK = UserAccountService.GetUserSKClaim();
+        var employerSk = _employerSK?.Id ?? 0;
+        var result = await VoluntaryContributionServices.GetVoluntaryContributionIneligible(employerSk, secureUserSK);
+        // _isavailable = await VoluntaryContributionServices.ShowVoluntaryInformation();
+        if (result != null)
+        {
+            Model.Eligible = result.Eligible;
+            _isEligible = Model.Eligible ?? false;           
+        }
+        _isLoading = false;
+    }
+}

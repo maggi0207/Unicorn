@@ -1,0 +1,104 @@
+.page_wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0 12px;
+}
+
+.bi-page-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 684px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+    border-bottom: 1px solid #E6E6E6;
+}
+
+.contact-header {
+    max-width: 993px;
+    width:100%;
+    height: auto;
+    gap: 24px;
+}
+.contact-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+.custom-divider {
+    height: 1px;
+    border-top: 1px solid #E6E6E6 !important;
+    max-width: 993px;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+.contact-frame1 {
+    max-width: 684px;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.contact-subtitle {
+    max-width: 362px;
+    width:100%;
+    height: auto;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+}
+.bi-fields-grid {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 24px;
+    width: 100%;
+}
+
+.bi-field {
+    display: flex;
+    flex-direction: column;
+}
+/* Phone / Zip + Extension row */
+
+.bi-zip-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    grid-column: span 1;
+}
+
+.bi-zip-field {
+    flex: 0 0 230px;
+}
+
+.bi-ext-field {
+    flex: 0 0 150px;
+}
+
+.bi-zip-dash {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #424242;
+    flex-shrink: 0;
+    padding-top: 16px;
+}

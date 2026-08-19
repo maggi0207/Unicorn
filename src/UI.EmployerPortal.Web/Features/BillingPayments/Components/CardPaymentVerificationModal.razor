@@ -1,0 +1,98 @@
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+@inject IJSRuntime JS
+
+<div id="orbipay-modal" class="payment-modal-overlay @(_isVisible ? "visible" : "hidden")" role="dialog" aria-modal="true" aria-labelledby="orbipay-modal-title">
+    <div class="payment-modal-backdrop" @onclick="HandleCloseClick"></div>
+    <div class="payment-modal-container">
+        <div class="payment-modal-header">
+            <h2 id="orbipay-modal-title" class="payment-modal-title">Complete Payment</h2>
+            <button type="button"
+                    class="payment-modal-close-btn"
+                    @onclick="Close"
+                    aria-label="Close payment dialog">
+                ×
+            </button>
+        </div>
+
+        <div class="payment-modal-body">
+            @if (_isLoading)
+            {
+                <div class="payment-loading">
+                    <p>Loading payment form...</p>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(_formHtml))
+            {
+                <div id="orbipay-form-wrapper">
+                    @((MarkupString)_formHtml)
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <div class="payment-error-display">
+                    <p>@_errorMessage</p>
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public OrbipaySessionResult? SessionResult { get; set; }
+
+    [Parameter]
+    public EventCallback OnPaymentCancelled { get; set; }
+
+    [Parameter]
+    public EventCallback OnPaymentCompleted { get; set; }
+
+    private bool _isVisible;
+    private bool _isLoading;
+    private string? _formHtml;
+    private string? _errorMessage;
+
+    public async Task OpenAsync(OrbipaySessionResult result)
+    {
+        SessionResult = result;
+        _isLoading = true;
+        _isVisible = true;
+        _errorMessage = null;
+        _formHtml = null;
+
+        StateHasChanged();
+
+        // Simulate form loading delay
+        await Task.Delay(500);
+
+        if (result.Success && !string.IsNullOrEmpty(result.HostedFormHtml))
+        {
+            _formHtml = result.HostedFormHtml;
+            _isLoading = false;
+        }
+        else
+        {
+            _errorMessage = result.ErrorMessage ?? "Failed to load payment form.";
+            _isLoading = false;
+        }
+
+        StateHasChanged();
+
+        // Initialize Orbipay form after rendering
+        await JS.InvokeVoidAsync("initializeOrbipayForm");
+    }
+
+    public void Close()
+    {
+        _isVisible = false;
+        StateHasChanged();
+        _ = OnPaymentCancelled.InvokeAsync();
+    }
+
+    private void HandleCloseClick()
+    {
+        Close();
+    }
+}

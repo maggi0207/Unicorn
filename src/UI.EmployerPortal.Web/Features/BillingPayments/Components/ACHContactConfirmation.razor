@@ -1,0 +1,38 @@
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.Shared.NotificationBanners
+<div class="section-page">
+    <h1 class="section-header fw-bold">Bank Information</h1>
+
+    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                        Title="Contact Information Confirmation"
+                        Visible="true" />
+
+    <div class="info-panel mt-3 mb-4">
+        <p class="fw-bold">The contact information has been successfully saved.</p>
+        </div>
+    <div class="accordion-body mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-1">Name:</p>
+                <p class="fw-bold">@model?.ContactName</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1">Phone Number Format:</p>
+                <p class="fw-bold">@model?.PhoneNumberFormat</p>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <p class="mb-1">Phone Number</p>
+                <p class="fw-bold">@model?.PhoneNumber</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1">Email Address</p>
+                <p class="fw-bold">@model?.Email</p>
+            </div>
+        </div>      
+    </div>
+ </div>
+ @code{
+    [Parameter] public ACHContactModel? model { get; set; }
+ }

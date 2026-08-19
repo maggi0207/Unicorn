@@ -1,0 +1,182 @@
+@page "/billing-payments/payment-history"
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Payment History</PageTitle>
+
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <h1 class="page-title">Payment History</h1>
+        <hr class="page-divider" />
+        <AnnouncementBanner AnnouncementType="AnnouncementType.PAYMENTPAGE"/>
+        <p class="page-description">
+            All electronic payments made on this system for the selected employer. Select the payment
+            confirmation number link to view details of that payment. Confirmation number links are only
+            shown for payments initiated under your login ID. You cannot view details of, edit, or cancel
+            payments initiated under another login ID.
+        </p>
+
+        <p class="page-description">
+            You can edit or cancel a payment with a future settlement date.
+        </p>
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading payment history, Please wait..." />
+        }
+        else if (!string.IsNullOrWhiteSpace(_loadError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> { _loadError })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+        }
+        else if (_payments.Count == 0)
+        {
+            <p class="empty-message">There are no payments to display.</p>
+        }
+        else
+        {
+            <div class="table-container">
+                <table class="payments-table" aria-label="Payment history">
+                    <caption class="visually-hidden">
+                        List of payments made by the selected employer
+                        (column headers with buttons are sortable).
+                    </caption>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell col-payment-type"
+                                aria-sort="@GetAriaSort("paymentType")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("paymentType"))">
+                                        <span class="header-label">Payment Type</span>
+                                        <span aria-hidden="true">@GetSortIcon("paymentType")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-settlement-date"
+                                aria-sort="@GetAriaSort("settlementDate")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("settlementDate"))">
+                                        <span class="header-label">Settlement Date</span>
+                                        <span aria-hidden="true">@GetSortIcon("settlementDate")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-amount"
+                                aria-sort="@GetAriaSort("amount")">
+                                <div class="header-content header-content-right">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("amount"))">
+                                        <span class="header-label">Amount</span>
+                                        <span aria-hidden="true">@GetSortIcon("amount")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-service-fee header-cell-static">
+                                <div class="header-content header-content-right"
+                                    aria-sort="@GetAriaSort("serviceFee")">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("serviceFee"))">
+                                        <span class="header-label">Service Fee</span>
+                                        <span aria-hidden="true">@GetSortIcon("serviceFee")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-confirmation"
+                                aria-sort="@GetAriaSort("confirmationId")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("confirmationId"))">
+                                        <span class="header-label">Confirmation #</span>
+                                        <span aria-hidden="true">@GetSortIcon("confirmationId")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-status"
+                                aria-sort="@GetAriaSort("status")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("status"))">
+                                        <span class="header-label">Status</span>
+                                        <span aria-hidden="true">@GetSortIcon("status")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-actions header-cell-static">
+                                <div class="header-content header-content-right">
+                                    <span class="header-label">Actions</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in GetSortedPayments())
+                        {
+                            <tr class="data-row">
+                                <td class="data-cell">@payment.PaymentType</td>
+                                <td class="data-cell">
+                                    @payment.SettlementDate.ToString("MM/dd/yyyy")
+                                </td>
+                                <td class="data-cell data-cell-right">
+                                    @payment.Amount.ToString("C")
+                                </td>
+                                <td class="data-cell data-cell-right">
+                                    @if (payment.ServiceFee.HasValue)
+                                    {
+                                        @payment.ServiceFee.Value.ToString("C")
+                                    }
+                                </td>
+                                <td class="data-cell">
+                                    @if (payment.IsCurrentUser)
+                                    {
+                                        <button type="button"
+                                                class="confirmation-link"
+                                                aria-label="View payment details for confirmation @payment.ConfirmationId"
+                                                @onclick="@(() => NavigateToPaymentDetails(payment.EftPaymentSk))">
+                                            @payment.ConfirmationId
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        @payment.ConfirmationId
+                                    }
+                                </td>
+                                <td class="data-cell">@payment.Status</td>
+                                <td class="data-cell data-cell-right">
+                                    @if (payment.IsEligibleForAction)
+                                    {
+                                        <div class="action-icons" role="group" aria-label="Actions for payment @payment.ConfirmationId">
+                                            <button type="button"
+                                                    class="action-btn"
+                                                    aria-label="Edit payment @payment.ConfirmationId"
+                                                    @onclick="@(() => NavigateToEditPayment(payment.EftPaymentSk))">
+                                                <img src="@Assets["icons/edit.svg"]" alt="" aria-hidden="true" class="icon-edit" />
+                                            </button>
+                                            <button type="button"
+                                                    class="action-btn"
+                                                    aria-label="Cancel payment @payment.ConfirmationId"
+                                                    @onclick="@(() => NavigateToCancelPayment(payment.EftPaymentSk))">
+                                                <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" class="icon-cancel" />
+                                            </button>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="button-bar">
+            <button type="button" class="btn-back" @onclick="HandleBack">
+                <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
+                BACK
+            </button>
+        </div>
+
+    </div>
+</div>

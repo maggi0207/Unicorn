@@ -1,0 +1,207 @@
+@page "/billing-payments/pay-by-check"
+@using System.Linq
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@inject IDashboardOrchestrator DashboardOrchestrator
+@inject IBankAccountOrchestrator BankAccountOrchestrator;
+ 
+<div class="section-page">
+    <PageTitle>Check Payment Coupon</PageTitle>
+ 
+    <h1 class="section-header fw-bold">Check Payment Coupon</h1>
+    <p class="section-description">Print out a payment coupon to mail with your payment.</p>
+    <br />
+ 
+    @* Print action — hidden from @@media print via check-no-print *@
+    <div>
+        <Button Variant="Button.ButtonVariant.Primary"
+                AriaLabel="PRINT COUPON"
+                type="button"
+                OnClick="ExecutePrint">
+            <span aria-hidden="true">&#128438;</span> PRINT COUPON
+        </Button>
+    </div>
+    <br />
+ 
+    @* Print Layout*@
+    <div class="print-section" id="print-section">
+        <div class=" cheque-coupon"
+             role="document" aria-label="Check Payment Coupon">
+ 
+            <div class="cheque-coupon-grid">
+ 
+                @* Left: DWD return address + employer address *@
+                <div class="cheque-coupon-addresses">
+                    <div class="cheque-coupon-block">
+                        Department of Workforce Development<br />
+                        Division of Unemployment Insurance<br />
+                        PO BOX 78960<br />
+                        Milwaukee, WI 53278-0960
+                    </div>
+                    <br />
+                    <div class="cheque-coupon-block cheque-coupon-employer">
+                        <span class="fw-bold">@_businessLegalName</span><br />
+                        @if (!string.IsNullOrWhiteSpace(_employerAddressLine1))
+                        {
+                            @_employerAddressLine1
+                            <br />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(_employerAddressLine2))
+                        {
+                            @_employerAddressLine2
+                            <br />
+                        }
+                        @_employerCityStateZip
+                    </div>
+                </div>
+ 
+                @* Right: remittance details *@
+                <div class="cheque-coupon-remittance">
+                    <img src="images/billing/dwd_logo_bw.svg" alt="State Of Wisconsin Department Of Workforce Development Logo"
+                         class="cheque-coupon-logo" />
+                    <br />
+                    <h2 class="cheque-coupon-title fw-bold">Payment Remittance Coupon</h2>
+ 
+                    <dl class="cheque-coupon-dl">
+                        <div class="cheque-coupon-dl-item">
+                            <dt>Account Number</dt>
+                            <dd>@_uiAccountNumber</dd>
+                        </div>
+                    </dl>
+ 
+                    @* Machine-readable scan line. *@
+                    <p class="cheque-coupon-scanline">@_scanLine</p>
+                    <br /> <br /> <br />
+                    <div class="cheque-coupon-mailto">
+                        Make checks payable and mail to:<br />
+                        Department of Workforce Development<br />
+                        Division of Unemployment Insurance<br />
+                        PO BOX 78960<br />
+                        Milwaukee, WI 53278-0960
+                    </div>
+                </div>
+            </div>
+            <br /> <br />
+ 
+            @* Amounts. Amount Enclosed is intentionally blank for the employer to write in by hand. *@
+            <table class="cheque-coupon-table">
+                <caption class="visually-hidden">Payment coupon amounts</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Minimum Payment</th>
+                        <th scope="col">Payment Coupon Date</th>
+                        <th scope="col">Amount Enclosed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@_amountToPay.ToString("C2")</td>
+                        <td>@_paymentCouponDate.ToString("MM/dd/yyyy")</td>
+                        <td>
+                            <span class="visually-hidden">To be completed by hand on the printed coupon</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+ 
+            <p class="cheque-coupon-formid">UCT-16317-E (R. 11/04/2009)</p>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <nav class="billing-footer" aria-label="Page actions">
+        <BillingButtonBar ShowBack="true"
+                          ShowContinue="false"
+                          OnBack="HandleBack">
+        </BillingButtonBar>
+    </nav>
+</div>
+ 
+@code {
+    private decimal _amountToPay;
+    private string _uiAccountNumber = "";
+    private string _businessLegalName = "";
+    private string _employerAddressLine1 = "";
+    private string _employerAddressLine2 = "";
+    private string _employerCityStateZip = "";
+    private decimal? _employerBalanceDue;
+    private DateTime _paymentCouponDate = DateTime.Today;
+    private EmployerAccount? _employerAccount;
+    private string _scanLine = string.Empty;
+    private string _returnUrl = "billing-payments"; // fallback only
+
+ 
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.CompletedTask;
+        var uri = new Uri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var returnUrl = query["returnUrl"];
+        if (!string.IsNullOrWhiteSpace(returnUrl))
+            _returnUrl = returnUrl + "?source=flow";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            var pending = await BankAccountOrchestrator.GetPaymentToSessionAsync();
+
+            if (_employerAccount is not null)
+            {
+                _uiAccountNumber = _employerAccount.UIAccountNo;
+                _businessLegalName = _employerAccount.LegalName;
+                _employerAddressLine1 = _employerAccount.AddressLine1;
+                _employerAddressLine2 = _employerAccount.AddressLine2;
+                _employerBalanceDue = _employerAccount.BalanceDue;
+                _employerCityStateZip = $"{_employerAccount.City}, {_employerAccount.State} {_employerAccount.Zip}";
+                _amountToPay = decimal.Parse(pending ?? _employerAccount.BalanceDue.ToString());
+                _scanLine = BuildScanLine(_uiAccountNumber, _amountToPay);
+            }
+                    
+            StateHasChanged();
+        }
+    }
+ 
+    /// <summary>Triggers the browser print dialog for the coupon.</summary>
+    private async Task ExecutePrint()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("printElement", ".cheque-coupon");
+        }
+        catch (TaskCanceledException)
+        {
+            // Expected - browser print dialog suspends JS execution
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected during print - safe to ignore
+        }
+    }
+    
+    private void HandleBack() => NavigateToOrigin();
+ 
+    /// <summary>Abandons the coupon and returns to origin</summary>
+    private void HandleCancel() => NavigateToOrigin();
+ 
+    private void NavigateToOrigin()
+    {
+        // Origin-aware navigation, mirroring MainLayout: new Uri(Nav.BaseUri) + relative path.
+        var target = new Uri(new Uri(Nav.BaseUri), _returnUrl).ToString();
+        Nav.NavigateTo(target);
+    }
+ 
+    // Scan line = *<10-digit account><9-digit amount in cents>* — plain 10-digit account
+    // (no barcode on these coupons, so not the 14-digit mailed variant). Per UIEP-634.
+    private static string BuildScanLine(string accountNumber, decimal amount)
+    {
+        var account = new string(accountNumber.Where(char.IsDigit).ToArray());
+        var cents = (long)Math.Round(amount * 100m, MidpointRounding.AwayFromZero);
+        return $"*{account}{cents:D9}*";
+    }
+}

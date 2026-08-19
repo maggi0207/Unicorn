@@ -1,0 +1,61 @@
+@page "/billing-payments/payment-options"
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using log4net
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IDashboardOrchestrator DashboardOrchestrator
+
+<PageTitle>Payment Options</PageTitle>
+<main id="main-content" aria-label="Billing and Payments">
+    <div class="billing-payments-container">
+        <BillingPaymentsHeader Amount="@_employerAccount?.BalanceDue" ReturnUrl="@ReturnUrl" />
+        <BillingPaymentsMain EmployerAccount="@_employerAccount"
+                             Source="@_navigationSource" ReturnUrl="@ReturnUrl" />
+    </div>
+</main>
+
+@code {
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+
+    [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
+
+    [SupplyParameterFromQuery(Name = "source")]
+    public string? Source { get; set; }
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    private NavigationSource _navigationSource =>
+        string.Equals(Source, "flow", StringComparison.OrdinalIgnoreCase)
+            ? NavigationSource.Flow
+            : NavigationSource.Menu;
+
+    private EmployerAccount? _employerAccount;
+    private static readonly ILog Log = LogManager.GetLogger(typeof(PaymentOptions));
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            ReturnUrl = "billing-payments/billing-detail";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Log.Info("Land on Payment option page.");
+        if (firstRender)
+        {
+            _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            if(string.IsNullOrWhiteSpace(Source) && _employerAccount != null)
+            {
+                await BankAccountOrchestrator.SavePaymentToSessionAsync(Convert.ToString(_employerAccount.BalanceDue),"Payment");
+            }
+            StateHasChanged();
+        }
+    }
+}

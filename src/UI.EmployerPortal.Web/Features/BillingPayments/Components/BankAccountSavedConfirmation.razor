@@ -1,0 +1,144 @@
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.Shared.NotificationBanners
+
+<div class="page-wrapper">
+    <div class="form-content">
+
+        <h1 class="page-title">Manage Bank Accounts</h1>
+        <hr class="page-divider" />
+
+        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                            Title="Bank Account information saved"
+                            Visible="true" />
+
+        <div class="info-panel">
+            <div class="info-panel-row">
+                <img src="@Assets["icons/information-notification.svg"]" class="info-panel-icon" width="16" height="16" aria-hidden="true" alt="" />
+                <div class="info-panel-text">
+                    <p class="fw-bold info-panel-title">Blocking Unauthorized EFT Payments from coming out of your bank account.</p>
+                    <p>Blocking Unauthorized ACH Payments from coming out of your bank account.</p>
+                    <p>
+                        If you have an ACH debit filter block on your bank account to prevent unauthorized
+                        ACH payments, you need to make sure that your financial institution will allow the ACH
+                        payment you make. Your financial institution may ask you for UI's Company
+                        Identification Number and Company Name.
+                    </p>
+                    <p class="company-id-text">
+                        The Company Identification Number is 1369006449 and the Company Name is Wisconsin UI Tax.
+                    </p>
+                    <p>
+                        Please provide this information to your financial institution if you have a debit filter
+                        block on your bank account and wish to make UI payment electronically.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <a href="#"
+               class="portal-link"
+               @onclick="HandleViewAccounts"
+               @onclick:preventDefault="true">
+            View Accounts
+        </a>
+
+        <div class="accordion-panel">
+            <div class="accordion-header d-flex justify-content-between align-items-center"
+                 role="button"
+                 tabindex="0"
+                 aria-expanded="@_expanded"
+                 aria-controls="bank-info-accordion-body"
+                 @onclick="ToggleAccordion"
+                 @onkeydown="HandleAccordionKeyDown">
+                <h2 class="mb-0 accordion-title">Bank Information</h2>
+                <img src="@Assets["icons/chevron_up.svg"]"
+                     class="accordion-caret @(_expanded ? "" : "accordion-caret--collapsed")"
+                     width="24" height="24" aria-hidden="true" alt="" />
+            </div>
+
+            @if (_expanded)
+            {
+                <div id="bank-info-accordion-body" class="accordion-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="field-label">Bank Account Nickname</p>
+                            <p class="field-value">@SavedAccount?.Nickname</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="field-label">Bank Name</p>
+                            <p class="field-value">@SavedAccount?.BankName</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p class="field-label">Bank Routing Number</p>
+                            <p class="field-value">@SavedAccount?.RoutingNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="field-label">Bank Account Number</p>
+                            <p class="field-value">@SavedAccount?.MaskedAccountNumber</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p class="field-label">Account Type</p>
+                            <p class="field-value">@SavedAccount?.AccountType</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="action-row" role="group" aria-label="Page actions">
+            <Button Variant="Button.ButtonVariant.Secondary"
+                    Size="Button.ButtonSize.Medium"
+                    AriaLabel="Go back"
+                    OnClick="HandleBack">
+                &lt; BACK
+            </Button>
+            <Button Variant="Button.ButtonVariant.Primary"
+                    Size="Button.ButtonSize.Medium"
+                    AriaLabel="Continue to billing payments"
+                    OnClick="HandleContinue">
+                CONTINUE <img src="@Assets["icons/chevron-right.svg"]" alt="" />
+            </Button>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public SavedBankAccount? SavedAccount { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public EventCallback OnContinue { get; set; }
+    [Parameter] public EventCallback OnViewAccounts { get; set; }
+
+    private bool _expanded = true;
+
+    private void ToggleAccordion()
+    {
+        _expanded = !_expanded;
+    }
+
+    private void HandleAccordionKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            ToggleAccordion();
+        }
+    }
+
+    private void HandleBack()
+    {
+        _ = OnBack.InvokeAsync();
+    }
+
+    private void HandleContinue()
+    {
+        _ = OnContinue.InvokeAsync();
+    }
+
+    private void HandleViewAccounts()
+    {
+        _ = OnViewAccounts.InvokeAsync();
+    }
+}

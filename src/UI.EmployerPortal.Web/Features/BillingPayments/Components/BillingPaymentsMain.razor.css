@@ -1,0 +1,186 @@
+.billing-main {
+    width: 100%;
+    max-width: 993px;
+    padding: 0 var(--spacing-md);
+    box-sizing: border-box;
+}
+
+/* Sections */
+.billing-section {
+    margin-bottom: var(--spacing-xl, 2rem);
+    max-width: 920px;
+}
+
+.billing-section-title {
+    border-bottom-width: 1px;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 133%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #003663;
+}
+
+.other-options-title {
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    color: #003663;
+}
+
+.section-description {
+    margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+    color: var(--color-text);
+}
+
+.section-divider,
+.option-divider {
+    border: none;
+    border-top: 1px solid #003663;
+    margin: var(--spacing-sm) 0;
+    gap: 16px;
+}
+
+/* Payment Option Cards — mirrors .dashboard-card */
+.payment-option-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-light);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+    .payment-option-card:hover,
+    .payment-option-card:focus {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        outline: none;
+    }
+
+    .payment-option-card.selected {
+        border-color: var(--color-header-nav);
+        box-shadow: 0 0 0 2px var(--color-header-nav);
+    }
+
+/* Card header — mirrors .card-header */
+.payment-option-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-gray-medium);
+}
+
+.payment-option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+/* Card title — mirrors .card-title */
+.payment-option-title {
+    font-size: var(--font-size-md);
+    color: var(--color-header-nav);
+    margin: 0;
+}
+
+.payment-option-description {
+    margin: 0;
+    color: var(--color-text);
+}
+
+/* Other Options */
+.other-option-item {
+    margin-bottom: var(--spacing-md);
+}
+
+.other-option-link {
+    color: #0261ED;
+    display: inline-block;
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    text-decoration: underline;
+    text-decoration-style: solid;
+    text-decoration-offset: 0%;
+    text-decoration-thickness: 0%;
+}
+
+    .other-option-link:hover {
+        text-decoration: underline;
+    }
+
+.other-option-description {
+    margin: 0;
+    color: var(--color-text);
+}    
+
+.inline-link {
+    color: var(--color-header-nav);
+    text-decoration: none;
+}
+
+    .inline-link:hover {
+        text-decoration: underline;
+    }
+
+.other-option-description strong.inline-link {
+    text-decoration: none;
+}
+    .other-option-description strong.inline-link:hover {
+        text-decoration: none;
+    }
+
+.external-link-icon {
+    font-size: 0.75rem;
+    vertical-align: super;
+}
+
+/* Footer — action bar */
+.billing-footer {
+    /*display: flex;*/
+    max-width:920px;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-gray-medium);
+    margin-top: var(--spacing-lg);
+}
+
+.footer-left {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+@media (max-width: 575px) {
+    .billing-main {
+        padding: 0 var(--spacing-sm);
+    }
+
+    .billing-footer {
+        flex-direction: column-reverse;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+
+    .footer-left {
+        justify-content: center;
+    }
+}

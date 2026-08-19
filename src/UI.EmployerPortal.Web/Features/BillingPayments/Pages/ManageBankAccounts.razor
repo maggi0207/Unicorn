@@ -1,0 +1,174 @@
+@page "/billing-payments/manage-bank-accounts"
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+        
+<PageTitle>Manage Bank Accounts</PageTitle>
+
+@if (_pageState == BankAccountPageState.AddForm)
+{
+    <BankInformationForm OnSaved="HandleSaved"
+                         OnBack="HandleBackToList"
+                         OnCancel="HandleBackToList"
+                         Showback="_canGoBack"/>
+}
+else if (_pageState == BankAccountPageState.EditForm)
+{
+    <BankInformationForm BankAccountSk="_editAccountSk"
+                         OnSaved="HandleSaved"
+                         OnBack="HandleBackToList"
+                         OnCancel="HandleBackToList"
+                         Showback="_canGoBack" />
+}
+else if (_pageState == BankAccountPageState.Confirmation)
+{
+    <BankAccountSavedConfirmation SavedAccount="_savedAccount"
+                                  OnBack="HandleBackToList"
+                                  OnContinue="HandleBackToList"
+                                  OnViewAccounts="HandleBackToList" />
+}
+else
+{
+    <div class="page-wrapper">
+        <div class="list-content">
+            <h1 class="page-title">Manage Bank Accounts</h1>
+            <hr class="page-divider" />
+            <section aria-label="Accounts">
+                <h2 class="section-title">Accounts</h2>
+                <hr class="section-divider" />
+
+                @if (_isLoading)
+                {
+                    <LoadingSpinner Message="Loading accounts, Please wait..."/>
+                }
+                else if (!string.IsNullOrWhiteSpace(_loadError))
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> {_loadError })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+                }
+                else
+                {
+                    <p class="page-subtitle">Select an account to edit</p>
+
+                    <table class="accounts-table"
+                           style="width: 100%"
+                           aria-label="Bank accounts">
+                        <thead>
+                            <tr class="header-row">
+                                <th scope="col" class="header-cell" 
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("nickname")"
+                                    @onclick="@(() => Sort("nickname"))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "nickname"))">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Account Nickname</span>
+                                        @GetSortIcon("nickname")
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell"
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("bankName")"
+                                    @onclick="@(() => Sort("bankName"))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "bankName"))">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Bank Name</span>
+                                        @GetSortIcon("bankName")
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell" 
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("accountType")"
+                                    @onclick="@(() => Sort("accountType"))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "accountType"))">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Type</span>
+                                        @GetSortIcon("accountType")
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell" 
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("accountNumber")"
+                                    @onclick="@(() => Sort("accountNumber"))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "accountNumber"))">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Account Number</span>
+                                        @GetSortIcon("accountNumber")
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell" 
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("routingNumber")"
+                                    @onclick="@(() => Sort("routingNumber"))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "routingNumber"))">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Routing Number</span>
+                                        @GetSortIcon("routingNumber")
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell header-cell-static" >
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold">Remove</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_accounts.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="6" class="no-accounts-message">No bank accounts on file.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var account in GetSortedAccounts())
+                                {
+                                    <tr class="data-row">
+                                        <td class="fw-normal">
+                                            <button type="button"
+                                                    class="account-link"
+                                                    aria-label="View or edit @account.Nickname"
+                                                    @onclick="() => HandleEditAccount(account.BankAccountSk)">
+                                                @account.Nickname
+                                            </button>
+                                        </td>
+                                        <td class="fw-normal">@account.BankName</td>
+                                        <td class="fw-normal">@account.AccountType</td>
+                                        <td class="fw-normal">@account.MaskedAccountNumber</td>
+                                        <td class="fw-normal">@account.RoutingNumber</td>
+                                        <td>
+                                            <button type="button"
+                                                    class="delete-btn"
+                                                    aria-label="Remove @account.Nickname"
+                                                    @onclick="() => OpenRemoveModal(account)">
+                                                <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="add-account-row">
+                        <button type="button"
+                                class="add-account-link"
+                                aria-label="Add a bank account"
+                                @onclick="HandleAddAccount">
+                            + Add Account
+                        </button>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+
+    <RemoveBankAccountModal IsVisible="_showRemoveModal"
+                     OnCancel="CancelRemove"
+                     OnConfirm="ConfirmRemove" />
+}

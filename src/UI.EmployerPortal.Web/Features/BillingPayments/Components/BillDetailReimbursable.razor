@@ -1,0 +1,148 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.Shared.Layout.Components
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading billing details, please wait..." />
+}
+else
+{
+    <div class="billing-container" role="region" aria-label="Billing Details Section">
+        <h2 id="billing-heading" class="billing-title"> Billing Details</h2>
+
+        <p class="billing-description">
+            This page reflects the amount due on the most recent monthly statement. Payments made this month will be reflected in the next billing statement.
+        </p>
+        @if (_showValidationSummary && _validationErrors.Any())
+        {
+            <div class="fix-section-width" style="max-width:684px;">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                MessageStyle="MessageStyle.MultiLine"
+                Messages="_validationErrors"
+                MessageFieldIds="_validationFieldIds"
+                DismissButton="false" />
+            </div>
+        }
+        <AnnouncementBanner AnnouncementType="AnnouncementType.REIMBURSABLEBILLDETAIL" />
+        <EditForm EditContext="_editContext"
+        OnValidSubmit="HandleContinue"
+        OnInvalidSubmit="OnInvalid" >
+            <DataAnnotationsValidator/>        
+            <ValidationSummary />
+
+            <div class="billing-summary" aria-labelledby="billing-heading">    
+                <div class="billing-row">
+                    <span class="label">Balance Due From Last Statement</span>
+                    <span class="value" aria-label="Balance Due">
+                        @Model.TotalOutstandingBalance.ToString("C")                       
+                    </span>
+                </div>
+
+                <div class="billing-row">
+                    <span class="label">Total Pending EFT Payments</span>
+                    <span class="value" aria-label="Total EFT Payments">
+                        @Model.TotalEFTPayments.ToString("C")                      
+                    </span>
+                </div>
+
+                <div class="billing-row">
+                    <label for="amount" class="label">Amount to Pay</label>
+                    <span class="value">
+                        <NumericTextBox Value="@Model.AmountToPay"
+                        Id="amount"
+                        AriaLabel="Amount to pay"
+                        IsReadonly="false"
+                        InputType="@InputDataTypes.Currency"
+                        ShowCurrencyIcon="false"
+                        DecimalPlaces="2"
+                        Min="0"
+                        Max="1000000000"
+                        CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
+                        AriaDescribedby="@(_amountHasError ? "amount-error" : null)"
+                        ValueChanged="OnAmountChanged" />
+                        @if (_amountHasError)
+                        {
+                            <ValidationError ErrorMessage="This field is required" ErrorId="amount-error" />
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <h3 id="payment-method-heading" class="section-title">
+                Payment Method
+            </h3>
+
+            <fieldset aria-labelledby="payment-method-heading"
+            class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
+            aria-invalid="@(_paymentMethodHasError ? "true" : "false")"
+            aria-describedby="@(_paymentMethodHasError ? "payment-method-error" : null)">
+                <legend class="sr-only">Payment Method Selection</legend>
+                @if (_paymentMethodHasError)
+                {
+                    <ValidationError ErrorMessage="This field is required" ErrorId="payment-method-error" />
+                }
+                <div class="option">
+                    <label for="ach">
+                        <input type="radio"
+                        id="ach"
+                        name="paymentMethod"
+                        value="ACH"
+                        checked="@(_selectedpayment == "ACH")"
+                        @onchange="OnpaymentChanged"
+                        aria-label="ACH payment method" />           
+                        <strong>ACH</strong>   <br/>
+                        <div class="description">
+                            Pay your UI taxes online directly from your bank account.
+                        </div>
+                    </label> 
+                </div>
+
+                <div class="option">
+                    <label for="card">
+                        <input type="radio"
+                        id="card"
+                        name="paymentMethod"
+                        value="Card"
+                        checked="@(_selectedpayment == "Card")"
+                        @onchange="OnpaymentChanged"
+                        aria-label="Credit or Debit Card payment method" />           
+                        <strong>Credit/Debit Card</strong>  <br />
+                        <div class="description">
+                            Make a payment by credit or debit card.
+                        </div>
+                    </label>
+                </div>
+
+                <div class="option">
+                    <label for="check">
+                        <input type="radio"
+                        id="check"
+                        name="paymentMethod"
+                        value="Check"
+                        checked="@(_selectedpayment == "Check")"
+                        @onchange="OnpaymentChanged"
+                        aria-label="Check payment method" />          
+                        <strong>Check</strong>   <br />
+                        <div class="description">
+                            Print out a payment coupon you can send in to us with your payment.
+                        </div>
+                    </label>
+                </div>
+            </fieldset>
+            <BillingButtonBar ShowBack="false"
+            ShowContinue="true"
+            ShowCancel="false"
+            OnContinue="PaymentAsync"
+            ContinueText="MAKE A PAYMENT"
+            ButtonWidth="200">
+            </BillingButtonBar>
+        </EditForm>
+    </div>
+}

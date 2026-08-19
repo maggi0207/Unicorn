@@ -1,0 +1,149 @@
+/* ── Card shell ─────────────────────────────────────────────────── */
+.ach-info-card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: #f3f3f3;
+}
+
+.ach-info-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ach-collapse-btn {
+    border: none;
+}
+
+.ach-info-card-title {
+    margin: 0;
+    color: #000;
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 25px;
+    leading-trim: NONE;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.ach-info-card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ach-collapse-icon {
+    font-size: 1rem;
+    color: #555;
+}
+
+.ach-section-divider {
+    border: none;
+    margin: 10px 0 14px;
+}
+
+/* ── Edit / Add links ───────────────────────────────────────────── */
+.ach-edit-link {
+    color: #003663;
+    text-decoration: none;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.ach-add-link {
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #006bb7;
+    text-decoration:none;
+}
+
+/* ── Bank Account Select ────────────────────────────────────────── */
+.ach-bank-account-select-group {
+    margin-bottom: 14px;
+}
+
+.ach-info-label {
+    display: block;
+    color: #000;
+    margin-bottom: 2px;
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.ach-select-wrapper {
+    position: relative;
+}
+
+.ach-select {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px 32px 8px 10px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    appearance: auto;
+    font-size: 0.95rem;
+    background: #fff;
+}
+
+/* ── Bank 2-col detail grid ─────────────────────────────────────── */
+.ach-bank-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px 24px;
+    margin-bottom: 12px;
+}
+
+.ach-info-field--full {
+    margin-bottom: 4px;
+}
+
+.ach-info-value {
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 16px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+@media (max-width: 575px) {
+    .ach-bank-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ach-select {
+        max-width: 100%;
+    }
+}
+
+.ach-print-section .ach-info-card {
+    border: none !important;
+    background-color: #fff !important;
+}
+
+.ach-print-section .ach-info-card-header-actions {
+    display: none !important;
+}

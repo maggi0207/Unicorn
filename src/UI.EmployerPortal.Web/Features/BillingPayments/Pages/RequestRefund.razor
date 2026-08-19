@@ -1,0 +1,194 @@
+@page "/billing-payments/request-refund"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.BillingPayments
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IRefundOrchestrator RefundOrchestrator
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Employer Refund Request</PageTitle>
+
+<main id="main-content" class="section-page" aria-label="Employer Refund Request">
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading refund details, please wait..." />
+    }
+    else
+    {
+        <div class="refund-request-container">
+            <h1 class="refund-request-title fw-bold">Employer Refund Request</h1>
+            @if (_showValidationSummary && _validationErrors.Any())
+            {
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_validationErrors"
+                                    DismissButton="false" />
+            }
+            <p class="refund-request-description">
+                Please enter your email address and any additional information you want to provide regarding the refund request.
+            </p>
+
+           
+
+            <section class="refund-info-panel" role="region" aria-label="Refund Information">
+                <h2 class="refund-info-panel-title">Refund Information</h2>
+
+                <div class="refund-info-row">
+                    <div class="refund-info-field">
+                        <p class="field-label">Refund Amount</p>
+                        <p class="field-value">@_model.RefundAmount.ToString("C")</p>
+                    </div>
+                    <div class="refund-info-field">
+                        <p class="field-label">Payee Name</p>
+                        <p class="field-value">@_model.PayeeName</p>
+                    </div>
+                </div>
+
+                <div class="refund-info-row">
+                    <div class="refund-info-field">
+                        <p class="field-label">Refund Address</p>
+                        <p class="field-value refund-address-value">@_model.RefundAddress</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="refund-email-field">
+                <OutlinedTextField Label="Email Address"
+                Id="refund-email"
+                Type="email"
+                Value="@_model.EmailAddress"
+                ValueChanged="OnEmailChanged"
+                OnBlur="OnEmailBlur"
+                Required="true"
+                MaxLength="100"
+                ForceError="@(_emailError is not null)"
+                ForceErrorMessage="@_emailError" />
+            </div>
+
+            <div class="refund-comments-field">
+                <OutlinedTextArea Label="Any additional information you wish to provide about your refund?"
+                Id="refund-comments"
+                Value="@_model.AdditionalInformation"
+                ValueChanged="@(v => _model.AdditionalInformation = v)"
+                Rows="5"
+                MaxLength="500" />
+            </div>
+
+                <BillingButtonBar ShowBack="true"
+                ShowCancel="true"
+                ShowContinue="true"
+                BackText="BACK"
+                CancelText="CANCEL"
+                ContinueText="SUBMIT REFUND REQUEST"
+                BackButtonWidth="113"
+                ButtonWidth="288"
+                ContinueEnabled="@(!_isSubmitting)"
+                OnBack="HandleBack"
+                OnCancel="HandleCancel"
+                OnContinue="HandleSubmit" />
+          
+            </div>       
+    }
+</main>
+
+@code {
+    [SupplyParameterFromQuery(Name = "amount")]
+    public string? AmountParam { get; set; }
+
+    private RefundRequestModel _model = new();
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+    private string? _emailError;
+    private bool _showValidationSummary;
+    private readonly List<string> _validationErrors = new();
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        var refundAmount = decimal.TryParse(AmountParam, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out var parsed) ? parsed : 0m;
+
+        _model = await RefundOrchestrator.BuildRefundRequestAsync(refundAmount);
+        _isLoading = false;
+    }
+
+    private async Task OnEmailChanged(string value)
+    {
+        _model.EmailAddress = value;
+        await Task.CompletedTask;
+    }
+
+    private async Task OnEmailBlur()
+    {
+        ValidateEmail();
+        await Task.CompletedTask;
+    }
+
+    private void ValidateEmail()
+    {
+        if (string.IsNullOrWhiteSpace(_model.EmailAddress))
+        {
+            _emailError = "Email Address is required";
+            return;
+        }
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(_model.EmailAddress, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+        {
+            _emailError = "Enter a valid email address";
+            return;
+        }
+
+        _emailError = null;
+    }
+
+    private async Task HandleSubmit()
+    {
+        ValidateEmail();
+        if (_emailError is not null)
+        {
+            _validationErrors.Clear();
+            _validationErrors.Add(_emailError);
+            _showValidationSummary = true;
+            await JS.InvokeVoidAsync("scrollToTop");
+            return;
+        }
+
+        _showValidationSummary = false;
+        _validationErrors.Clear();
+        _isSubmitting = true;
+
+        var result = await RefundOrchestrator.SubmitRefundRequestAsync(_model);
+
+        _isSubmitting = false;
+
+        if (!result.Success)
+        {
+            _validationErrors.Add(result.ErrorMessage ?? "Unable to submit your refund request. Please try again.");
+            _showValidationSummary = true;
+            await JS.InvokeVoidAsync("scrollToTop");
+            return;
+        }
+
+        await RefundOrchestrator.SaveRefundRequestToSessionAsync(_model);
+        Nav.NavigateTo(BuildPath("/billing-payments/refund-confirmation"));
+    }
+
+    private void HandleBack()
+    {
+        Nav.NavigateTo(BuildPath("/billing-payments/billing-detail"));
+    }
+
+    private void HandleCancel()
+    {
+        Nav.NavigateTo(BuildPath("/billing-payments/billing-detail"));
+    }
+
+    private string BuildPath(string relativePath)
+    {
+        var baseUri = new Uri(Nav.BaseUri);
+        var basePath = baseUri.AbsolutePath.TrimEnd('/');
+        return new PathString(basePath + relativePath);
+    }
+}

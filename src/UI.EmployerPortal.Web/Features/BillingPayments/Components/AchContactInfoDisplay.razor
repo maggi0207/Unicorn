@@ -1,0 +1,73 @@
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+
+<div class="ach-info-card">
+    <div class="ach-info-card-header">
+        <h2 class="ach-info-card-title fw-bold" id="contact-info-heading">Contact Information</h2>
+        <div class="ach-info-card-header-actions">
+            @if (_showEditLink && ContactInfo is not null)
+            {
+                <a href="billing-payments/manage-contact?showback=true"
+                       class="ach-edit-link"
+                       aria-label="Edit Contact Information">
+                    &#9998; Edit
+                </a>
+            }
+            <button type="button"
+                    class="ach-collapse-btn"
+                    aria-expanded="@_expanded.ToString().ToLower()"
+                    aria-controls="contact-info-body"
+                    aria-label="@(_expanded ? "Collapse Contact Information" : "Expand Contact Information")"
+                    @onclick="() => _expanded = !_expanded">
+                <span aria-hidden="true">@((MarkupString)(_expanded ? "&#8963;" : "&#8964;"))</span>
+            </button>
+        </div>
+    </div>
+    
+
+    <div id="contact-info-body"
+         role="region"
+         aria-labelledby="contact-info-heading"
+         hidden="@(!_expanded)">
+        <hr class="ach-section-divider" aria-hidden="true" />
+        @if (ContactInfo is not null)
+        {
+            <div class="ach-contact-grid">
+                <div class="ach-info-field">
+                    <span class="ach-info-label">Contact Name</span>
+                    <strong class="ach-info-value">@ContactInfo.ContactName</strong>
+                </div>
+                <div class="ach-info-field">
+                    <span class="ach-info-label">Phone Number</span>
+                    <strong class="ach-info-value">
+                        @ContactInfo.PhoneNumber
+                        @if(!string.IsNullOrWhiteSpace(ContactInfo.PhoneExt))
+                        {
+                            <span> Ext. @ContactInfo.PhoneExt</span>
+                        }
+                    </strong>
+                </div>
+            </div>
+            <div class="ach-info-field ach-info-field--full">
+                <span class="ach-info-label">Email Address</span>
+                <strong class="ach-info-value">@ContactInfo.Email</strong>
+            </div>
+        }
+        else if (!ReadOnly)
+        {
+            <a href="billing-payments/manage-contact?showback=true"
+                   class="ach-add-link"
+                   aria-label="Add Contact Information">
+                + Add Contact
+            </a>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public ACHContactModel? ContactInfo { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool? ShowEditLink { get; set; }
+
+    private bool _showEditLink => ShowEditLink ?? !ReadOnly;
+    private bool _expanded = true;
+}

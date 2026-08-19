@@ -1,0 +1,64 @@
+@page "/billing-payments/billing"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IDashboardOrchestrator DashboardOrchestrator
+@inject NavigationManager Nav
+
+<PageTitle>Billing Details</PageTitle>
+@*<div class="section-page">
+    <h1 class="section-header fw-bold">Billing</h1>
+    <p class="section-description">You are in the Billing section.</p>*@
+    @if (_istaxable)
+{
+    var baseUri = new Uri(Nav.BaseUri);
+    var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/') + "/billing-payments/billing-detail");
+     Nav.NavigateTo(pathBase);
+  
+}
+else
+{
+    <BillDetailReimbursable></BillDetailReimbursable>
+}
+@* <nav class="billing-footer" aria-label="Page actions">
+        <BillingButtonBar ShowBack="false"
+                          ShowContinue="true"
+                          ShowCancel="false"
+                          ContinueText="CONTINUE"
+                          ButtonWidth="150"
+                          OnContinue="HandleContinue">
+        </BillingButtonBar>
+    </nav> 
+</div>*@
+
+@code {
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+    private EmployerAccount? _employerAccount;
+    private bool _istaxable = false;
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            _istaxable = _employerAccount?.IsTaxable ?? false;
+
+            StateHasChanged();
+        }
+    }
+
+    // private void HandleContinue()
+    // {
+    //var baseUri = new Uri(Nav.BaseUri);
+    //var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/') + "/billing-payments/billing-detail");
+    //  Nav.NavigateTo(pathBase);
+    //}
+}

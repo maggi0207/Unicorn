@@ -1,0 +1,14 @@
+@page "/billing-payments/billing-reimbursable"
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+<BillDetailReimbursable></BillDetailReimbursable>
+
+@code {
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+    }
+}

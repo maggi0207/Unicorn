@@ -1,0 +1,104 @@
+/* ── Container ── */
+.refund-request-container {
+    max-width: 684px;
+    padding-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Page title / description ── */
+.refund-request-title {
+    font-family: 'Verdana';
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 133%;
+    color: var(--color-header-nav, #003663);
+    margin: 0;
+    border-bottom: 1px solid #ADADAD
+}
+
+.refund-request-divider {
+    border: none;
+    border-top: 1px solid #ADADAD;
+    margin: 0;
+}
+
+.refund-request-description {
+    font-family: 'Verdana';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+    margin: 0;
+}
+
+/* ── Refund Information panel (static, no accordion) ── */
+.refund-info-panel {
+    background-color: #F3F3F3;
+    border-radius: 6px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.refund-info-panel-title {
+    font-family: 'Verdana';
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+.refund-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.refund-info-field {
+    flex: 1 1 260px;
+    min-width: 200px;
+}
+
+.field-label {
+    font-family: 'Verdana';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+    margin: 0 0 4px;
+}
+
+.field-value {
+    font-family: 'Verdana';
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+    margin: 0;
+}
+
+.refund-address-value {
+    white-space: pre-line;
+}
+
+/* ── Email Address field ── */
+.refund-email-field {
+    width: 330px;
+    max-width: 100%;
+}
+
+/* ── Additional Information field ── */
+.refund-comments-field {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Footer ── */
+.refund-request-footer {
+    display: flex;
+    padding-top: 8px;
+}

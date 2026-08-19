@@ -1,0 +1,129 @@
+@page "/billing-payments/refund-confirmation"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.BillingPayments
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IRefundOrchestrator RefundOrchestrator
+@inject NavigationManager Nav
+
+<PageTitle>Refund Request Confirmation</PageTitle>
+
+<main id="main-content" class="section-page" aria-label="Refund Request Confirmation">
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading confirmation, please wait..." />
+    }
+    else
+    {
+        <div class="refund-confirmation-container">
+            <h1 class="refund-confirmation-title fw-bold">Refund Request Confirmation</h1>
+            <hr class="refund-confirmation-divider" aria-hidden="true" />
+
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+            Title="Refund request submitted"
+            Message="Your refund request has been submitted. You will receive an email if your request is denied."
+            Visible="true" />
+
+            <div class="accordion-panel">
+                <div class="accordion-header d-flex justify-content-between align-items-center"
+                     role="button"
+                     tabindex="0"
+                     aria-expanded="@_expanded"
+                     aria-controls="refund-info-accordion-body"
+                     @onclick="ToggleAccordion"
+                     @onkeydown="HandleAccordionKeyDown">
+                    <h2 class="mb-0 accordion-title">Refund Information</h2>
+                    <img src="@Assets["icons/chevron_up.svg"]"
+                         class="accordion-caret @(_expanded ? "" : "accordion-caret--collapsed")"
+                         width="24" height="24" aria-hidden="true" alt="" />
+                </div>
+
+                @if (_expanded)
+                {
+                    <div id="refund-info-accordion-body" class="accordion-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="field-label">Refund Amount</p>
+                                <p class="field-value">@(_model?.RefundAmount.ToString("C"))</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="field-label">Payee Name</p>
+                                <p class="field-value">@_model?.PayeeName</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p class="field-label">Refund Address</p>
+                                <p class="field-value refund-address-value">@_model?.RefundAddress</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="field-label">Email Address</p>
+                                <p class="field-value">@_model?.EmailAddress</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p class="field-label">Additional Information</p>
+                                <p class="field-value">@(string.IsNullOrWhiteSpace(_model?.AdditionalInformation) ? "—" : _model?.AdditionalInformation)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="refund-confirmation-actions" role="group" aria-label="Page actions">
+                <Button Variant="Button.ButtonVariant.Secondary"
+                        Size="Button.ButtonSize.Medium"
+                        AriaLabel="Return to Billing Details"
+                        OnClick="HandleReturnToBillingDetails">
+                    RETURN TO BILLING DETAILS
+                </Button>
+            </div>
+        </div>
+    }
+</main>
+
+@code {
+    private RefundRequestModel? _model;
+    private bool _isLoading = true;
+    private bool _expanded = true;
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        _model = await RefundOrchestrator.GetRefundRequestFromSessionAsync();
+
+        if (_model is null)
+        {
+            Nav.NavigateTo(BuildPath("/billing-payments/billing-detail"));
+            return;
+        }
+
+        _isLoading = false;
+    }
+
+    private void ToggleAccordion()
+    {
+        _expanded = !_expanded;
+    }
+
+    private void HandleAccordionKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            ToggleAccordion();
+        }
+    }
+
+    private void HandleReturnToBillingDetails()
+    {
+        Nav.NavigateTo(BuildPath("/billing-payments/billing-detail"));
+    }
+
+    private string BuildPath(string relativePath)
+    {
+        var baseUri = new Uri(Nav.BaseUri);
+        var basePath = baseUri.AbsolutePath.TrimEnd('/');
+        return new PathString(basePath + relativePath);
+    }
+}

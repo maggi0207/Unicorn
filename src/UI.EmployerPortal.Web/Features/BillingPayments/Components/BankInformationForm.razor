@@ -1,0 +1,321 @@
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Razor.SharedComponents;
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+
+<div class="page-wrapper">
+    <div class="form-content">
+
+        <h1 class="page-title">Manage Bank Accounts</h1>
+        <hr class="page-divider" />
+
+        @if (IsEditMode && _pendingPayments.Count > 0)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                Title="Pending Payments"
+                                Message="If you update your current bank account information, any pending payments for this bank account will be updated with the new bank account information."
+                                Visible="true" />
+
+            <table class="pending-table"
+                   style="table-layout: fixed; width: 100%;"
+                   aria-label="Pending payments">
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell"
+                            tabindex="0"
+                            aria-sort="@GetPendingAriaSort("settlementDate")"
+                            @onclick="@(() => SortPending("settlementDate"))"
+                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "settlementDate"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold">Pending Payments Settlement Date</span>
+                                @GetPendingSortIcon("settlementDate")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell"
+                            tabindex="0"
+                            aria-sort="@GetPendingAriaSort("confirmationNumber")"
+                            @onclick="@(() => SortPending("confirmationNumber"))"
+                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "confirmationNumber"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold">Confirmation Number</span>
+                                @GetPendingSortIcon("confirmationNumber")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell"
+                            tabindex="0"
+                            aria-sort="@GetPendingAriaSort("amount")"
+                            @onclick="@(() => SortPending("amount"))"
+                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "amount"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold">Payment Amount</span>
+                                @GetPendingSortIcon("amount")
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in GetSortedPendingPayments())
+                    {
+                        <tr class="data-row">
+                            <td class="fw-normal">@payment.SettlementDate.ToString("MM/dd/yyyy")</td>
+                            <td class="fw-normal">@payment.ConfirmationNumber</td>
+                            <td class="fw-normal">@payment.Amount.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_saveError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                Title="The following errors need to be fixed before you can continue:"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> {_saveError })"
+                                MessageFieldIds="@(new List<string> { "bank-nickname" })"
+                                Visible="true" />
+        }
+
+        @if (_showValidationSummary && _validationErrors.Any())
+        {
+            <div class="fix-section-width" style="max-width:684px;">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_validationErrors"
+                                    MessageFieldIds="_validationFieldIds"
+                                    DismissButton="false" />
+            </div>
+        }
+
+
+        <button type="button" class="help-trigger" aria-label="Open Bank Account Help" @onclick="HandleOpenHelp">
+            <img src="@Assets["icons/information-notification.svg"]" width="16" height="16" alt="" aria-hidden="true" />
+            Bank Account Help
+        </button>
+
+        @if (IsEditMode)
+        {
+            <div class="iat-authorization" role="region" aria-label="Authorization">
+                <p>
+                    I hereby authorize the State of Wisconsin Department of Workforce Development,
+                    Unemployment Insurance Division to update the pending payments listed below
+                    with the bank account information shown on this page. No change will be made to
+                    the settlement date and payment amount shown on this page for each payment. If
+                    you agree, please check the I Accept box and then click the Continue button on the
+                    bottom of the page.
+                </p>
+                <CheckboxInput Id="i-accept-checkbox"
+                               Label="I Accept"
+                               Value="_iAccept"
+                               ValueChanged="@(v => _iAccept = v)"
+                               HasError="@(_showIAcceptError && !_iAccept)"
+                               ErrorMessage="Please accept the checkbox to continue"
+                               Visible="_showIAcceptError" />
+            </div>
+        }
+
+        <p class="page-subtitle">All fields are required unless noted.</p>
+
+        @if (_loadFailed)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> { "Unable to load bank account. Please go back and try again." })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+        }
+
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit"
+                   OnInvalidSubmit="OnFormInvalid" aria-label="Bank Information Form">
+            <DataAnnotationsValidator />
+
+            <OutlinedTextField Label="Bank Account Nickname"
+                               Id="bank-nickname"
+                               @bind-Value="_model.Nickname"
+                               For="@(() => _model.Nickname)"
+                               Visible="_showValidation"
+                               MaxLength="50" />
+
+            <OutlinedTextField Label="Bank Routing Number"
+                               Id="bank-routing"
+                               @bind-Value="_model.RoutingNumber"
+                               For="@(() => _model.RoutingNumber)"
+                               Visible="_showValidation"
+                               InputMode="numeric"
+                               MaxLength="9"
+                               OnBlur="HandleRoutingBlur" />
+
+            <OutlinedTextField Label="Bank Account Number"
+                               Id="bank-account-number"
+                               @bind-Value="_model.AccountNumber"
+                               For="@(() => _model.AccountNumber)"
+                               Visible="_showValidation"
+                               InputMode="numeric"
+                               MaxLength="17" />
+
+            <OutlinedTextField Label="Re-Enter Account Number"
+                               Id="bank-confirm-account"
+                               @bind-Value="_model.ConfirmAccountNumber"
+                               For="@(() => _model.ConfirmAccountNumber)"
+                               Visible="_showValidation"
+                               InputMode="numeric"
+                               MaxLength="17" />
+
+            <div class="bank-name-region" role="region" aria-label="Bank Name">
+                <p class="bank-name-label" id="bank-name-label">Bank Name</p>
+                <p class="bank-name-value"
+                       aria-labelledby="bank-name-label"
+                       aria-live="polite"
+                       aria-atomic="true">
+                    @(_model.BankName ?? "—")
+                </p>
+            </div>
+
+            <OutlinedSelectField Label="Account Type"
+                                 Id="bank-account-type"
+                                 @bind-Value="_model.AccountType"
+                                 For="@(() => _model.AccountType)"
+                                 Options="_accountTypeOptions"
+                                 Placeholder="Select Account Type"
+                                 Visible="_showValidation" />
+
+            <div class="iat-region" role="region" aria-label="International ACH Transaction Information">
+                <p>
+                    There have been changes made to the rules for making electronic payments.
+                    In order to comply with those rules and make EFT payments on this web site we must
+                    ask you if the bank account used to make your electronic payment is funded by a
+                    transfer from a financial institution outside of the U.S. If the answer is yes please
+                    check the box below, otherwise leave unchecked. Should your answer change at any time
+                    in the future you must update your EFT bank account registration with the appropriate response.
+                </p>
+                <button type="button"
+                        class="portal-link"
+                        @onclick="HandleOpenIat">
+                    <img src="@Assets["icons/information-notification.svg"]" width="16" height="16" alt="" aria-hidden="true" />
+                    View Further Explanation
+                </button>
+            </div>
+
+            <CheckboxInput Id="iat-checkbox"
+                           Label="The bank account used to make my electronic payment is funded by a transfer from a financial institution outside of the U.S. (This is not common)"
+                           Value="_model.IsInternational"
+                           ValueChanged="HandleIatChanged" />
+
+            @if (_model.IsInternational)
+            {
+                <div class="iat-fields"
+                    role="region"
+                     aria-label="International Financial Institution Address"
+                     aria-live="polite"
+                     aria-describedby="iat-warning">
+                    <div id="iat-warning">
+                        <NotificationBanner NotificationType="NotificationType.Warning"
+                                            Message="Only complete if absolutely necessary."
+                                            Visible="true" />
+                    </div>
+
+                    <h2 class="iat-section-title">Physical Location of Business</h2>
+                    <p class="iat-section-description">
+                        You have indicated that the bank account used to make your electronic payment is funded by a
+                        financial institution outside of the U.S. In order to complete your bank account registration
+                        you must complete all fields below regarding the physical location of your business.
+                        A Post Office Box is not an acceptable address.
+                    </p>
+
+                    <OutlinedSelectField Label="Country"
+                                         Id="iat-country"
+                                         Value="@(_model.IatCountryCode == 0 ? "" : _model.IatCountryCode.ToString())"
+                                         ValueChanged="HandleCountryChanged"
+                                         Options="_countryOptions"
+                                         Placeholder="Select Country"
+                                         Visible="_showValidation"
+                                         For="@(() => _model.IatCountryCodeValue)"/>
+
+                    <OutlinedTextField Label="Street Address"
+                                       Id="iat-street"
+                                       @bind-Value="_model.IatStreetAddress"
+                                       For="@(() => _model.IatStreetAddress)"
+                                       Visible="_showValidation"
+                                       MaxLength="100" />
+
+                    <OutlinedTextField Label="City"
+                                       Id="iat-city"
+                                       @bind-Value="_model.IatCity"
+                                       For="@(() => _model.IatCity)"
+                                       Visible="_showValidation"
+                                       MaxLength="50" />
+
+                    @if (IsUsa)
+                    {
+                        <OutlinedSelectField Label="State"
+                                             Id="iat-state"
+                                             Value="@(_model.IatStateCode == 0 ? "" : _model.IatStateCode.ToString())"
+                                             ValueChanged="HandleStateChanged"
+                                             Options="_usStateOptions"
+                                             Placeholder="Select State"
+                                             For="@(() => _model.IatStateValue)"
+                                             Visible="_showValidation" />
+                    }
+                    else if (IsCanada)
+                    {
+                        <OutlinedSelectField Label="Province"
+                                             Id="iat-province"
+                                             Value="@(_model.IatProvinceCode == 0 ? "" : _model.IatProvinceCode.ToString())"
+                                             ValueChanged="HandleProvinceChanged"
+                                             Options="_canadaProvinceOptions"
+                                             Placeholder="Select Province"
+                                             For="@(() => _model.IatProvinceValue)"
+                                             Visible="_showValidation" />
+                    }
+
+                    <OutlinedTextField Label="@(IsUsa || IsCanada ? "Postal Code" : "Postal Code (optional)")"
+                                       Id="iat-postal"
+                                       @bind-Value="_model.IatPostalCode"
+                                       For="@(() => _model.IatPostalCode)"
+                                       Visible="_showValidation"
+                                       MaxLength="20" />
+                </div>
+            }
+
+            <div class="button-bar" role="group" aria-label="Form Actions">
+                <div class="button-group-right">
+                    @if (Showback)
+                    {
+                        <Button Variant="Button.ButtonVariant.Secondary"
+                                Size="Button.ButtonSize.Medium"
+                                AriaLabel="Go back"
+                                OnClick="HandleBack">
+                            &lt; BACK
+                        </Button>
+                    }
+                </div>
+
+                <div class="button-group-right">
+                    <Button Variant="Button.ButtonVariant.Primary"
+                            Type="submit"
+                            Size="Button.ButtonSize.Medium"
+                            AriaLabel="@(IsEditMode ? "Continue" : "Save bank account")"
+                            Disabled="@_isSaving">
+                        @if (_isSaving)
+                        {
+                            @(IsEditMode ? "Saving..." : "Saving...")
+                        }
+                        else if (IsEditMode)
+                        {
+                            <text>CONTINUE &gt;</text>
+                        }
+                        else
+                        {
+                            <text>SAVE</text>
+                        }
+                    </Button>
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
+</div>
+
+<BankAccountHelpDrawer IsOpen="_helpDrawerOpen" OnClose="HandleCloseHelp" />
+<IatInfoDrawer IsOpen="_iatDrawerOpen" OnClose="HandleCloseIat" />
+<IatVerificationModal IsVisible="_showIatVerificationModal" OnCancel="HandleIatVerificationCancel" OnConfirm="HandleIatVerificationConfirm" />

@@ -1,0 +1,19 @@
+@page "/billing-payments"
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Billing & Payments</PageTitle>
+<div class="section-page">
+    
+    <Billing/>
+</div>
+
+@code{
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+    }
+}

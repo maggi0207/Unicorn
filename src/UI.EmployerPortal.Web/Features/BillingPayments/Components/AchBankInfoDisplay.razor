@@ -1,0 +1,142 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+
+<div class="ach-info-card">
+    <div class="ach-info-card-header">
+        <h2 id="bank-info-heading" class="ach-info-card-title fw-bold">Bank Information</h2>
+        <div class="ach-info-card-header-actions">
+            @if (_showEditLink && BankAccount is not null)
+            {
+                <button type="button"
+                       class="ach-edit-link"
+                       aria-label="Edit Bank Information"
+                       @onclick="HandleEditClick">
+                    &#9998; Edit
+                </button>
+            }
+            <button type="button"
+                    class="ach-collapse-btn"
+                    aria-expanded="@_expanded.ToString().ToLower()"
+                    aria-controls="bank-info-body"
+                    aria-label="@(_expanded ? "Collapse Bank Information" : "Expand Bank Information")"
+                    @onclick="ToggleExpanded">
+                <span aria-hidden="true">@((MarkupString)(_expanded ? "&#8963;" : "&#8964;"))</span>
+            </button>
+        </div>
+    </div>
+    <hr class="ach-section-divider" aria-hidden="true" />
+
+    <div id="bank-info-body"
+         role="region"
+         aria-labelledby="bank-info-heading"
+         hidden="@(!_expanded)">
+        @if (BankAccounts is not null && BankAccounts.Count > 0)
+        {
+            @if (!ReadOnly)
+            {
+                <div class="ach-bank-account-select-group">
+                    <OutlinedSelectField Label="Bank Account"
+                                         Id="bankAccountSelect"
+                                         Value="@_selectedAccountNickname"
+                                         ValueChanged="OnAccountChanged"
+                                         Options="@BankAccountOptions"
+                                         Placeholder="Select Account Type"
+                                         DisableEmptyOption="true" />
+                </div>
+            }
+
+            if (_selectedAccount is not null)
+            {
+                <!-- 2-column detail grid -->
+                <div class="ach-bank-grid">
+                    <div class="ach-info-field">
+                        <span class="ach-info-label">Bank Account Nickname</span>
+                        <strong class="ach-info-value">@_selectedAccount.Nickname</strong>
+                    </div>
+                    <div class="ach-info-field">
+                        <span class="ach-info-label">Bank Name</span>
+                        <strong class="ach-info-value">@_selectedAccount.BankName</strong>
+                    </div>
+                    <div class="ach-info-field">
+                        <span class="ach-info-label">Bank Routing Number</span>
+                        <strong class="ach-info-value">@_selectedAccount.RoutingNumber</strong>
+                    </div>
+                    <div class="ach-info-field">
+                        <span class="ach-info-label">Bank Account Number</span>
+                        <strong class="ach-info-value">@_selectedAccount.MaskedAccountNumber</strong>
+                    </div>
+                </div>
+                <div class="ach-info-field ach-info-field--full">
+                    <span class="ach-info-label">Type</span>
+                    <strong class="ach-info-value">@_selectedAccount.AccountType</strong>
+                </div>
+            }
+            if (!ReadOnly)
+            {
+                <a href="billing-payments/manage-bank-accounts?showback=true&action=add"
+                       class="ach-add-link"
+                       aria-label="Add Bank Account">
+                    + Add Account
+                </a>
+            }
+        }
+        else if (!ReadOnly)
+        {
+            <a href="billing-payments/manage-bank-accounts?showback=true&action=add"
+                   class="ach-add-link"
+                   aria-label="Add Bank Account">
+                + Add Account
+            </a>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<SavedBankAccount>? BankAccounts { get; set; }
+    [Parameter] public SavedBankAccount? BankAccount { get; set; }
+    [Parameter] public EventCallback<SavedBankAccount> SelectedAccountChanged { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool? ShowEditLink { get; set; }
+    [Inject] private IBankAccountSessionStore SessionStorage { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    private bool _showEditLink => ShowEditLink ?? !ReadOnly;
+    private bool _expanded = true;
+
+    private SavedBankAccount? _selectedAccount;
+    private string? _selectedAccountNickname;
+
+    private List<SelectOption> BankAccountOptions => BankAccounts?.Select(a => new SelectOption
+    {
+        Value = a.Nickname,
+        Text = a.Nickname
+    }).ToList() ?? new();
+
+    protected override void OnParametersSet()
+    {
+        if (_selectedAccount is null)
+        {
+            _selectedAccount = BankAccount ?? BankAccounts?.FirstOrDefault();
+            _selectedAccountNickname = _selectedAccount?.Nickname;
+        }
+    }
+
+    private void ToggleExpanded() => _expanded = !_expanded;
+
+    private async Task OnAccountChanged(string? nickname)
+    {
+        _selectedAccountNickname = nickname;
+        _selectedAccount = BankAccounts?.FirstOrDefault(a => a.Nickname == nickname);
+        if (_selectedAccount is not null)
+        {
+            await SelectedAccountChanged.InvokeAsync(_selectedAccount);
+        }
+    }
+
+    private async Task HandleEditClick()
+    {
+        await SessionStorage.SetAsync(BankAccount!.BankAccountSk);
+        Nav.NavigateTo("billing-payments/manage-bank-accounts?showback=true&action=edit");
+    }
+}

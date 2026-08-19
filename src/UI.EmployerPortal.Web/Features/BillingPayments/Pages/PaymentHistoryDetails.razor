@@ -1,0 +1,258 @@
+@page "/billing-payments/payment-history-details/{EftPaymentSk:int}"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Payment Details</PageTitle>
+
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <h1 class="page-title">Payment Details</h1>
+        <hr class="page-divider" />
+
+        @if (_isLoading)
+        {
+            <p class="loading-text" aria-live="polite" aria-atomic="true">Loading payment details...</p>
+        }
+        else if (!string.IsNullOrWhiteSpace(_loadError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> { _loadError })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+        }
+        else if (_payment is not null)
+        {
+            @* ── Payment Information ── *@
+            <section class="detail-card" aria-labelledby="payment-info-heading">
+                <div class="detail-card-header">
+                    <h2 id="payment-info-heading" class="detail-card-title">Payment Information</h2>
+                    <button type="button"
+                            class="detail-collapse-btn"
+                            aria-expanded="@_paymentInfoExpanded.ToString().ToLower()"
+                            aria-controls="payment-info-body"
+                            aria-label="@(_paymentInfoExpanded ? "Collapse Payment Information" : "Expand Payment Information")"
+                            @onclick="() => _paymentInfoExpanded = !_paymentInfoExpanded">
+                        <span aria-hidden="true">@((MarkupString)(_paymentInfoExpanded ? "&#8963;" : "&#8964;"))</span>
+                    </button>
+                </div>
+                <div id="payment-info-body"
+                     class="detail-grid"
+                     role="region"
+                     aria-labelledby="payment-info-heading"
+                     hidden="@(!_paymentInfoExpanded)">
+                    <div class="detail-field">
+                        <span class="detail-label">Confirmation Number</span>
+                        <strong class="detail-value">@_payment.ConfirmationNumber</strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Transaction Date/Time</span>
+                        <strong class="detail-value">
+                            @(_payment.TransactionDateTime.HasValue
+                                ? _payment.TransactionDateTime.Value.ToString("MM/dd/yyyy hh:mm tt") + " CST"
+                                : "—")
+                        </strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Description</span>
+                        <strong class="detail-value">Payment</strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Payment Amount</span>
+                        <strong class="detail-value">
+                            @(_payment.Amount.HasValue ? _payment.Amount.Value.ToString("C") : "—")
+                        </strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Settlement Date</span>
+                        <strong class="detail-value">
+                            @(_payment.SettlementDate.HasValue ? _payment.SettlementDate.Value.ToString("MM/dd/yyyy") : "—")
+                        </strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Status</span>
+                        <strong class="detail-value">@_payment.Status</strong>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Cancel Date/Time</span>
+                        @if (_payment.CancellationDate.HasValue)
+                        {
+                            <strong class="detail-value">
+                                @_payment.CancellationDate.Value.ToString("MM/dd/yyyy hh:mm tt") CST
+                            </strong>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            @* ── Bank Information ── *@
+            <section class="detail-card" aria-labelledby="bank-info-heading">
+                <div class="detail-card-header">
+                    <h2 id="bank-info-heading" class="detail-card-title">Bank Information</h2>
+                    <button type="button"
+                            class="detail-collapse-btn"
+                            aria-expanded="@_bankInfoExpanded.ToString().ToLower()"
+                            aria-controls="bank-info-body"
+                            aria-label="@(_bankInfoExpanded ? "Collapse Bank Information" : "Expand Bank Information")"
+                            @onclick="() => _bankInfoExpanded = !_bankInfoExpanded">
+                        <span aria-hidden="true">@((MarkupString)(_bankInfoExpanded ? "&#8963;" : "&#8964;"))</span>
+                    </button>
+                </div>
+                <div id="bank-info-body"
+                     class="detail-grid"
+                     role="region"
+                     aria-labelledby="bank-info-heading"
+                     hidden="@(!_bankInfoExpanded)">
+                    @if (_payment.BankAccount is not null)
+                    {
+                        <div class="detail-field">
+                            <span class="detail-label">Bank Account Nickname</span>
+                            <strong class="detail-value">@_payment.BankAccount.Nickname</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Bank Name</span>
+                            <strong class="detail-value">@_payment.BankAccount.BankName</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Bank Routing Number</span>
+                            <strong class="detail-value">@_payment.BankAccount.RoutingNumber</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Bank Account Number</span>
+                            <strong class="detail-value">@_payment.BankAccount.MaskedAccountNumber</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Account Type</span>
+                            <strong class="detail-value">@_payment.BankAccount.AccountType</strong>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            @* ── Contact Information ── *@
+            <section class="detail-card" aria-labelledby="contact-info-heading">
+                <div class="detail-card-header">
+                    <h2 id="contact-info-heading" class="detail-card-title">Contact Information</h2>
+                    <button type="button"
+                            class="detail-collapse-btn"
+                            aria-expanded="@_contactInfoExpanded.ToString().ToLower()"
+                            aria-controls="contact-info-body"
+                            aria-label="@(_contactInfoExpanded ? "Collapse Contact Information" : "Expand Contact Information")"
+                            @onclick="() => _contactInfoExpanded = !_contactInfoExpanded">
+                        <span aria-hidden="true">@((MarkupString)(_contactInfoExpanded ? "&#8963;" : "&#8964;"))</span>
+                    </button>
+                </div>
+                <div id="contact-info-body"
+                     class="detail-grid"
+                     role="region"
+                     aria-labelledby="contact-info-heading"
+                     hidden="@(!_contactInfoExpanded)">
+                    @if (_payment.ContactInfo is not null)
+                    {
+                        <div class="detail-field">
+                            <span class="detail-label">Contact Name</span>
+                            <strong class="detail-value">@_payment.ContactInfo.ContactName</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Phone Number</span>
+                            <strong class="detail-value">@_payment.ContactInfo.PhoneNumberFormat</strong>
+                        </div>
+                        <div class="detail-field">
+                            <span class="detail-label">Email Address</span>
+                            <strong class="detail-value">@_payment.ContactInfo.Email</strong>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            @* ── Payment Activity ── *@
+            <section class="detail-card" aria-labelledby="activity-heading">
+                <div class="detail-card-header">
+                    <h2 id="activity-heading" class="detail-card-title">Payment Activity</h2>
+                    <button type="button"
+                            class="detail-collapse-btn"
+                            aria-expanded="@_activityExpanded.ToString().ToLower()"
+                            aria-controls="activity-body"
+                            aria-label="@(_activityExpanded ? "Collapse Payment Activity" : "Expand Payment Activity")"
+                            @onclick="() => _activityExpanded = !_activityExpanded">
+                        <span aria-hidden="true">@((MarkupString)(_activityExpanded ? "&#8963;" : "&#8964;"))</span>
+                    </button>
+                </div>
+                <div id="activity-body"
+                     role="region"
+                     aria-labelledby="activity-heading"
+                     hidden="@(!_activityExpanded)">
+                    @if (_payment.ActivityHistory.Count == 0)
+                    {
+                        <p class="no-activity-text">No payment activity to display.</p>
+                    }
+                    else
+                    {
+                        <table class="activity-table" aria-label="Payment activity history">
+                            <thead>
+                                <tr>
+                                    <th scope="col"
+                                        class="activity-header-cell col-date @(_activitySortColumn == "date" ? "col-active-sort" : "")"
+                                        tabindex="0"
+                                        aria-sort="@GetActivityAriaSort("date")"
+                                        @onclick="@(() => SortActivity("date"))"
+                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "date"))">
+                                        <div class="activity-header-content">
+                                            <span>Date/Time</span>
+                                            @GetActivitySortIcon("date")
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="activity-header-cell col-action @(_activitySortColumn == "action" ? "col-active-sort" : "")"
+                                        tabindex="0"
+                                        aria-sort="@GetActivityAriaSort("action")"
+                                        @onclick="@(() => SortActivity("action"))"
+                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "action"))">
+                                        <div class="activity-header-content">
+                                            <span>Action</span>
+                                            @GetActivitySortIcon("action")
+                                        </div>
+                                    </th>
+                                    <th scope="col"
+                                        class="activity-header-cell col-description @(_activitySortColumn == "description" ? "col-active-sort" : "")"
+                                        tabindex="0"
+                                        aria-sort="@GetActivityAriaSort("description")"
+                                        @onclick="@(() => SortActivity("description"))"
+                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "description"))">
+                                        <div class="activity-header-content">
+                                            <span>Description</span>
+                                            @GetActivitySortIcon("description")
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in GetSortedActivity())
+                                {
+                                    <tr>
+                                        <td class="activity-data-cell">
+                                            @item.Date.ToString("M/d/yyyy")<br />@item.Date.ToString("h:mm tt")
+                                        </td>
+                                        <td class="activity-data-cell">@item.Action</td>
+                                        <td class="activity-data-cell">@item.Description</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </section>
+        }
+
+        <div class="button-bar">
+            <button type="button" class="btn-back" @onclick="HandleBack">
+                <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
+                BACK
+            </button>
+        </div>
+
+    </div>
+</div>
