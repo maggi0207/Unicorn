@@ -101,8 +101,8 @@ public class ACHContactModel
             var digits = new string(phone.Where(char.IsDigit).ToArray());
             var isInternational = model.PhoneNumberFormat == "International";
             return digits.Length < 10
-                ? new ValidationResult("Phone Number must be at least 10 digits.")
-                : !isInternational && digits.Length > 10 ? new ValidationResult("Phone Number must be 10 digits.") : ValidationResult.Success;
+                ? new ValidationResult("Phone Number must be at least 10 digits.", new[] { validationContext.MemberName! })
+                : !isInternational && digits.Length > 10 ? new ValidationResult("Phone Number must be 10 digits.", new[] { validationContext.MemberName! }) : ValidationResult.Success;
         }
     }
 }
