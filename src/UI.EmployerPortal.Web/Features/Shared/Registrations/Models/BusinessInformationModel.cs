@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
@@ -37,22 +38,6 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     [MaxLength(255, ErrorMessage = "Email Address cannot exceed 255 characters")]
     public string? Email { get; set; }
 
-    /// <summary>
-    /// MailingPhoneNum
-    /// </summary>
-    public string? MailingPhoneNum { get; set; }
-    /// <summary>
-    /// MailingPhoneNumExt
-    /// </summary>
-    public string? MailingPhoneNumExt { get; set; }
-    /// <summary>
-    /// MailingPhoneNumAreaCode
-    /// </summary>
-    public string? MailingPhoneNumAreaCode { get; set; }
-    /// <summary>
-    /// MailingPhoneNumIntCode
-    /// </summary>
-    public string? MailingPhoneNumIntCode { get; set; }
     #endregion
 
     #region Mailing Address
@@ -111,11 +96,6 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.Main_Business_Mailing, out var mainBusinessMailing))
         {
             MailingAddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(mainBusinessMailing);
-            MailingAddress.PhoneNumber = MailingPhoneNumIntCode ?? MailingPhoneNum;
-            MailingAddress.PhoneExtension = MailingPhoneNumExt;
-            MailingAddress.PhoneCountryCode = MailingPhoneNumAreaCode;
-
-
         }
 
         if (IEmployerRegistrationModelSection.FindAddressesHelper(addresses, RegistrationAddressCode.Physical_Location, out var physicalLocations))
@@ -172,31 +152,32 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
         }
-        //Added Phone Number
+        // ── Phone number fields (same 3/7 split as AccountDetailsService) ─────
         if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneNumber))
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = MailingAddress.PhoneNumber });
+            string phoneDigits = new string(MailingAddress.PhoneNumber.Where(char.IsDigit).ToArray());
+            if (phoneDigits.Length == 10)
+            {
+                string areaCode = phoneDigits.Substring(0, 3);
+                string localNumber = phoneDigits.Substring(3, 7);
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_AREA_CD, _response = areaCode });
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = localNumber });
+            }
+            else
+            {
+                // International or non-standard length — send the raw digits as the number
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = phoneDigits });
+            }
         }
-        //Added Phone Number Extension
+
+        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneCountryCode))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_INT_PHN_CD, _response = MailingAddress.PhoneCountryCode.TrimStart('+') });
+        }
+
         if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneExtension))
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_EXTN_NUM, _response = MailingAddress.PhoneExtension });
-        }
-        else
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_EXTN_NUM, _response = string.Empty });
-        }
-
-        //Added Phone Number areacode
-        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneCountryCode))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_AREA_CD, _response = MailingAddress.PhoneCountryCode });
-
-        }
-        //Added Phone Number areacode
-        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneCountryCode) && !string.IsNullOrWhiteSpace(MailingAddress.PhoneNumber))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_INT_PHN_CD, _response = MailingAddress.PhoneNumber });
         }
 
         return responses;
@@ -219,21 +200,46 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         {
             Email = emailAddress.ReplyText;
         }
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_NUM, out var phonenum))
+        // ── Restore phone number fields ──────────────────────────────────────
+        string? loadedAreaCode = null;
+        string? loadedNumber = null;
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_AREA_CD, out var phoneAreaCode))
         {
-            MailingPhoneNum = phonenum.ReplyText;
+            loadedAreaCode = phoneAreaCode.ReplyText;
         }
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_EXTN_NUM, out var phonenumext))
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_NUM, out var phoneNumber))
         {
-            MailingPhoneNumExt = phonenumext.ReplyText;
+            loadedNumber = phoneNumber.ReplyText;
         }
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_AREA_CD, out var phonenumareacode))
+
+        if (!string.IsNullOrWhiteSpace(loadedAreaCode) && !string.IsNullOrWhiteSpace(loadedNumber))
         {
-            MailingPhoneNumAreaCode = phonenumareacode.ReplyText;
+            // Reconstruct formatted phone: 999-999-9999
+            string fullDigits = loadedAreaCode + loadedNumber;
+            if (fullDigits.Length == 10)
+            {
+                MailingAddress.PhoneNumber = $"{fullDigits.Substring(0, 3)}-{fullDigits.Substring(3, 3)}-{fullDigits.Substring(6, 4)}";
+            }
+            else
+            {
+                MailingAddress.PhoneNumber = fullDigits;
+            }
         }
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_INT_PHN_CD, out var internationalphone))
+        else if (!string.IsNullOrWhiteSpace(loadedNumber))
         {
-            MailingPhoneNumIntCode = internationalphone.ReplyText;
+            MailingAddress.PhoneNumber = loadedNumber;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_INT_PHN_CD, out var intPhoneCode))
+        {
+            MailingAddress.PhoneCountryCode = $"+{intPhoneCode.ReplyText.TrimStart('+')}";
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_EXTN_NUM, out var phoneExtension))
+        {
+            MailingAddress.PhoneExtension = phoneExtension.ReplyText;
         }
     }
 }
