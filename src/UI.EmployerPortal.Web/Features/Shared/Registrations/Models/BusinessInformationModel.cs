@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
@@ -155,11 +154,11 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         // ── Phone number fields (same 3/7 split as AccountDetailsService) ─────
         if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneNumber))
         {
-            string phoneDigits = new string(MailingAddress.PhoneNumber.Where(char.IsDigit).ToArray());
+            var phoneDigits = new string(MailingAddress.PhoneNumber.Where(char.IsDigit).ToArray());
             if (phoneDigits.Length == 10)
             {
-                string areaCode = phoneDigits.Substring(0, 3);
-                string localNumber = phoneDigits.Substring(3, 7);
+                var areaCode = phoneDigits[..3];
+                var localNumber = phoneDigits[3..];
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_AREA_CD, _response = areaCode });
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = localNumber });
             }
@@ -217,15 +216,10 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         if (!string.IsNullOrWhiteSpace(loadedAreaCode) && !string.IsNullOrWhiteSpace(loadedNumber))
         {
             // Reconstruct formatted phone: 999-999-9999
-            string fullDigits = loadedAreaCode + loadedNumber;
-            if (fullDigits.Length == 10)
-            {
-                MailingAddress.PhoneNumber = $"{fullDigits.Substring(0, 3)}-{fullDigits.Substring(3, 3)}-{fullDigits.Substring(6, 4)}";
-            }
-            else
-            {
-                MailingAddress.PhoneNumber = fullDigits;
-            }
+            var fullDigits = loadedAreaCode + loadedNumber;
+            MailingAddress.PhoneNumber = fullDigits.Length == 10
+                ? $"{fullDigits[..3]}-{fullDigits[3..6]}-{fullDigits[6..]}"
+                : fullDigits;
         }
         else if (!string.IsNullOrWhiteSpace(loadedNumber))
         {
