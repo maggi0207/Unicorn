@@ -171,7 +171,12 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
 
         if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneCountryCode))
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_INT_PHN_CD, _response = MailingAddress.PhoneCountryCode.TrimStart('+') });
+            responses.Add(new SurveyResponse() 
+            { 
+                _surveyResponseItemSk = (int) SurveyResponseItem.ER_INT_PHN_CD, 
+                _response = MailingAddress.PhoneCountryCode.TrimStart('+'),
+                _responseDisplay = MailingAddress.PhoneCountryCode 
+            });
         }
 
         if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneExtension))
