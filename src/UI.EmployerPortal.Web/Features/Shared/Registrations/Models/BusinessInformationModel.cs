@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
@@ -152,6 +153,34 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_EMAIL_ADR, _response = Email });
         }
 
+        // ── Phone number fields (same 3/7 split as AccountDetailsService) ─────
+        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneNumber))
+        {
+            string phoneDigits = new string(MailingAddress.PhoneNumber.Where(char.IsDigit).ToArray());
+            if (phoneDigits.Length == 10)
+            {
+                string areaCode = phoneDigits.Substring(0, 3);
+                string localNumber = phoneDigits.Substring(3, 7);
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_AREA_CD, _response = areaCode });
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = localNumber });
+            }
+            else
+            {
+                // International or non-standard length — send the raw digits as the number
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_NUM, _response = phoneDigits });
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneCountryCode))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_INT_PHN_CD, _response = MailingAddress.PhoneCountryCode.TrimStart('+') });
+        }
+
+        if (!string.IsNullOrWhiteSpace(MailingAddress.PhoneExtension))
+        {
+            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_EXTN_NUM, _response = MailingAddress.PhoneExtension });
+        }
+
         return responses;
     }
 
@@ -171,6 +200,48 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_EMAIL_ADR, out var emailAddress))
         {
             Email = emailAddress.ReplyText;
+        }
+
+        // ── Restore phone number fields ──────────────────────────────────────
+        string? loadedAreaCode = null;
+        string? loadedNumber = null;
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_AREA_CD, out var phoneAreaCode))
+        {
+            loadedAreaCode = phoneAreaCode.ReplyText;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_NUM, out var phoneNumber))
+        {
+            loadedNumber = phoneNumber.ReplyText;
+        }
+
+        if (!string.IsNullOrWhiteSpace(loadedAreaCode) && !string.IsNullOrWhiteSpace(loadedNumber))
+        {
+            // Reconstruct formatted phone: 999-999-9999
+            string fullDigits = loadedAreaCode + loadedNumber;
+            if (fullDigits.Length == 10)
+            {
+                MailingAddress.PhoneNumber = $"{fullDigits.Substring(0, 3)}-{fullDigits.Substring(3, 3)}-{fullDigits.Substring(6, 4)}";
+            }
+            else
+            {
+                MailingAddress.PhoneNumber = fullDigits;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(loadedNumber))
+        {
+            MailingAddress.PhoneNumber = loadedNumber;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_INT_PHN_CD, out var intPhoneCode))
+        {
+            MailingAddress.PhoneCountryCode = $"+{intPhoneCode.ReplyText.TrimStart('+')}";
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_EXTN_NUM, out var phoneExtension))
+        {
+            MailingAddress.PhoneExtension = phoneExtension.ReplyText;
         }
     }
 }
