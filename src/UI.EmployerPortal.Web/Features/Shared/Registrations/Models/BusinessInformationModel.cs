@@ -9,7 +9,7 @@ namespace UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
 
 /// <summary>
 /// Model for Step 3 (Business Information) of the employer registration wizard.
-/// Contains business details, mailing address, and physical location(s).
+/// Contains business details, mailing address and physical location(s).
 /// </summary>
 public class BusinessInformationModel : IEmployerRegistrationModelSection
 {
