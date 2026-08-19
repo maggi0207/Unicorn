@@ -94,7 +94,16 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     {
         if (IEmployerRegistrationModelSection.FindAddressHelper(addresses, RegistrationAddressCode.Main_Business_Mailing, out var mainBusinessMailing))
         {
+            // Save phone fields populated by LoadSurveyResponses since ConvertAddressResponseToModel creates a new AddressModel
+            var tempPhone = MailingAddress.PhoneNumber;
+            var tempCountryCode = MailingAddress.PhoneCountryCode;
+            var tempExtension = MailingAddress.PhoneExtension;
+
             MailingAddress = IEmployerRegistrationModelSection.ConvertAddressResponseToModel(mainBusinessMailing);
+
+            MailingAddress.PhoneNumber = tempPhone;
+            MailingAddress.PhoneCountryCode = tempCountryCode;
+            MailingAddress.PhoneExtension = tempExtension;
         }
 
         if (IEmployerRegistrationModelSection.FindAddressesHelper(addresses, RegistrationAddressCode.Physical_Location, out var physicalLocations))
