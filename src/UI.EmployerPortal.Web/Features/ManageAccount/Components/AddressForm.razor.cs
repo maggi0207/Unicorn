@@ -85,4 +85,55 @@ public partial class AddressForm : ComponentBase
     /// Select options for the Province dropdown (Canadian addresses).
     /// </summary>
     [Parameter] public List<SelectOption> ProvinceOptions { get; set; } = new();
+
+    /// <summary>
+    /// Handles the Country dropdown change event. Updates <see cref="AddressFormModel.CountryAddressFormatCodeSK"/>
+    /// immediately so the form layout switches to the correct fields, and clears
+    /// any field values that do not apply to the newly selected country.
+    /// </summary>
+    /// <param name="value">The selected country string value (1=US, 2=Canada, 3=Other International).</param>
+    private void HandleCountryChanged(string? value)
+    {
+        FormModel.CountryString = value;
+
+        if (!int.TryParse(value, out var countryCode))
+        {
+            return;
+        }
+
+        FormModel.CountryAddressFormatCodeSK = countryCode;
+
+        // Clear fields that don't apply to the new country
+        if (countryCode == 1)
+        {
+            // Switching to US — clear Canada / International fields
+            FormModel.ProvinceString = null;
+            FormModel.ProvinceCodeSK = null;
+            FormModel.CanadianPostalCode = null;
+            FormModel.LineThreeAddress = null;
+            FormModel.LineFourAddress = null;
+        }
+        else if (countryCode == 2)
+        {
+            // Switching to Canada — clear US / International fields
+            FormModel.StateString = null;
+            FormModel.StateCodeSK = null;
+            FormModel.ZipCode = null;
+            FormModel.ZipExtension = null;
+            FormModel.LineThreeAddress = null;
+            FormModel.LineFourAddress = null;
+        }
+        else
+        {
+            // Switching to Other International — clear US / Canada fields
+            FormModel.StateString = null;
+            FormModel.StateCodeSK = null;
+            FormModel.ProvinceString = null;
+            FormModel.ProvinceCodeSK = null;
+            FormModel.ZipCode = null;
+            FormModel.ZipExtension = null;
+            FormModel.CanadianPostalCode = null;
+            FormModel.CityName = null;
+        }
+    }
 }

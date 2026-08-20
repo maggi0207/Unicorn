@@ -30,7 +30,8 @@
         <div class="col-md-6 col-12">
             <OutlinedSelectField Label="Country"
                                  Id="AddressCountry"
-                                 @bind-Value="FormModel.CountryString"
+                                 Value="@FormModel.CountryString"
+                                 ValueChanged="@HandleCountryChanged"
                                  For="@(() => FormModel.CountryString)"
                                  Options="@CountryOptions" />
         </div>

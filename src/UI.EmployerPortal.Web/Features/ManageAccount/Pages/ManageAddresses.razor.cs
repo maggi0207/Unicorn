@@ -464,28 +464,32 @@ public partial class ManageAddresses
 
         try
         {
-            // Map form model to AddressModel for validation
-            var addressModel = new AddressModel
+            // Only US addresses go through Finalist address validation.
+            // Canada and Other International bypass validation entirely (per UIEP-2529).
+            if (_formModel.CountryAddressFormatCodeSK == 1)
             {
-                AddressLine1 = _formModel.LineOneAddress,
-                AddressLine2 = _formModel.LineTwoAddress,
-                City = _formModel.CityName,
-                State = _stateOptions.FirstOrDefault(s => { return s.Value == _formModel.StateString; })?.Text,
-                Zip = _formModel.ZipCode,
-                Extension = _formModel.ZipExtension,
-                Country = _countryOptions.FirstOrDefault(c => { return c.Value == _formModel.CountryString; })?.Text
-            };
+                var addressModel = new AddressModel
+                {
+                    AddressLine1 = _formModel.LineOneAddress,
+                    AddressLine2 = _formModel.LineTwoAddress,
+                    City = _formModel.CityName,
+                    State = _stateOptions.FirstOrDefault(s => { return s.Value == _formModel.StateString; })?.Text,
+                    Zip = _formModel.ZipCode,
+                    Extension = _formModel.ZipExtension,
+                    Country = "United States"
+                };
 
-            var label = _allAddressTypeOptions.FirstOrDefault(a => { return a.Value == _formModel.AddressTypeString; })?.Text ?? "Address";
+                var label = _allAddressTypeOptions.FirstOrDefault(a => { return a.Value == _formModel.AddressTypeString; })?.Text ?? "Address";
 
-            var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
+                var corrections = await AddressCorrectionHelper.CollectCorrectionsAsync(AddressValidator, [(label, addressModel)]);
 
-            if (corrections.Any())
-            {
-                _corrections = corrections;
-                _showCorrection = true;
-                _showForm = false;
-                return;
+                if (corrections.Count > 0)
+                {
+                    _corrections = corrections;
+                    _showCorrection = true;
+                    _showForm = false;
+                    return;
+                }
             }
 
             await ProceedToSaveAsync();
