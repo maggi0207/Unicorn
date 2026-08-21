@@ -238,7 +238,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory == Models.BusinessCategory.Commercial)
+        if (BusinessCategory is Models.BusinessCategory.Commercial or Models.BusinessCategory.NonProfit_Other)
         {
             if (HasEmployeesOutsideWisconsin.HasValue && HasEmployeesOutsideWisconsin.Value
                 && HasFutaLiabilityInOtherStates.HasValue) //6.10
@@ -658,8 +658,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory == Models.BusinessCategory.Commercial)
+        if (BusinessCategory is Models.BusinessCategory.Commercial or Models.BusinessCategory.NonProfit_Other)
         {
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CFTA_LBTY_FLG, out var cftaLiabilityFlagValue))
+            {
+                HasFutaLiabilityInOtherStates = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(cftaLiabilityFlagValue.ReplyText);
+            }
+
             // commercial employer has paid 1500 in quarter
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_PD_1500_FLG, out var commercialEmployerHasPaid1500InQuarter))
             {

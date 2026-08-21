@@ -447,7 +447,7 @@ public partial class UISubjectivity
         SubjectivityModel.PayWagesPerformWI = null;
         SubjectivityModel.AFL_XPCT_PY_WI_WGS_WHN_TXT = string.Empty;
         SubjectivityModel.ExpectToPayWagesPerformWI = null;
-        _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.HasEmployeesOutsideWisconsin501)));
+        _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.HasFutaLiabilityInOtherStates)));
     }
 
     private async Task OnPaidWagesOver1500EmployeesChange(bool? value)
