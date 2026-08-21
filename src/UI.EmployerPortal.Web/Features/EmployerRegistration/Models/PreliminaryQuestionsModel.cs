@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.FluentUI.AspNetCore.Components.Extensions;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.Shared.Extensions;
 using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
@@ -45,9 +46,14 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
     /// <summary>
     /// Checkbox: "I will supply required documentation at a later date."
-    /// Shown on all 501(c)(3) document upload paths as an alternative to uploading immediately.
+    /// Shown on  501(c)(3) document upload paths as an alternative to uploading immediately.
     /// </summary>
     public bool WillSupplyDocumentationLater { get; set; } = false;
+
+    /// <summary> WillSupplyArticlesLater </summary>
+    public bool WillSupplyArticlesLater { get; set; }
+    /// <summary> WillSupplyIrsAcceptanceLater </summary>
+    public bool WillSupplyIrsAcceptanceLater { get; set; }
 
     /// <summary>
     ///
@@ -168,6 +174,13 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     /// <summary> IRSAcceptanceLetterFilename </summary>
     public string? IRSAcceptanceLetterFilename { get; set; }
 
+    /// <summary> Clear the backend response when ruling doc is cleared </summary>
+    public bool RulingDocCleared { get; set; }
+    /// <summary> Clear the backend response when articles of incorporation doc is cleared </summary>
+    public bool ArticlesDocCleared { get; set; }
+    /// <summary> Clear the backend response when IRS acceptance letter doc is cleared </summary>
+    public bool IrsAcceptanceCleared { get; set; }
+
     /// <summary> RulingDocFileMIMEType </summary>
     public string? RulingDocFileMIMEType { get; set; }
 
@@ -271,7 +284,24 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                 if (HasRulingFrom501c3IRS.Value)
                 {
-                    if (WillSupplyDocumentationLater)
+                    if (!string.IsNullOrWhiteSpace(RulingDocFilename))
+                    {
+                        // 1.20
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_501C3_UPLD,
+                            _response = RulingDocFilename,
+                            _responseDisplay = Path.GetFileName(RulingDocFilename)?.RemoveGUID()
+                        });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_501C3_RULING,
+                            _response = "False",
+                            _responseDisplay = "No"
+                        });
+                    }
+
+                    else if (WillSupplyDocumentationLater)
                     {
                         // 1.21
                         responses.Add(new SurveyResponse()
@@ -281,13 +311,14 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             _responseDisplay = "Yes"
                         });
                     }
-                    else if (!string.IsNullOrWhiteSpace(RulingDocFilename))
+                    // Clear the path in backend when a file is removed
+                    if (string.IsNullOrWhiteSpace(RulingDocFilename) && RulingDocCleared)
                     {
-                        // 1.20
                         responses.Add(new SurveyResponse()
                         {
                             _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_501C3_UPLD,
-                            _response = RulingDocFilename,
+                            _response = null!,
+                            _responseDisplay = null
                         });
                     }
                 }
@@ -305,52 +336,96 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                     if (HasAppliedFor501c3WithIRS.Value)
                     {
-                        if (WillSupplyDocumentationLater)
+                        // --- Articles of Incorporation (1.22 / 1.23) ---
+                        if (!string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename))
                         {
-                            responses.AddRange(new List<SurveyResponse>()
+                            responses.Add(new SurveyResponse()
                             {
-                                // 1.23
-                                new()
-                                {
-                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_ARTCL_INCORP,
-                                    _response = "True",
-                                    _responseDisplay = "Yes",
-                                },
-                                // 1.25
-                                new()
-                                {
-                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_IRS_APP_ACCPT,
-                                    _response = "True",
-                                    _responseDisplay = "Yes",
-                                },
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
+                                _response = ArticlesOfIncorporationFilename,
+                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.RemoveGUID(),
+                            });
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_ARTCL_INCORP,
+                                _response = "False",
+                                _responseDisplay = "No",
                             });
                         }
-                        else
+
+                        else if (WillSupplyArticlesLater)
                         {
-                            if (!string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename))
+                            responses.Add(new SurveyResponse()
                             {
-                                // 1.22
-                                responses.Add(new()
-                                {
-                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
-                                    _response = ArticlesOfIncorporationFilename,
-                                });
-                            }
-                            if (!string.IsNullOrWhiteSpace(IRSAcceptanceLetterFilename))
-                            {
-                                // 1.24
-                                responses.Add(new()
-                                {
-                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_IRS_ACCPT,
-                                    _response = IRSAcceptanceLetterFilename,
-                                });
-                            }
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_ARTCL_INCORP,
+                                _response = "True",
+                                _responseDisplay = "Yes",
+                            });
                         }
+
+                        // Clear the path in backend when a file is removed
+                        if (string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename) && ArticlesDocCleared)
+                        {
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
+                                _response = null!,
+                                _responseDisplay = null
+                            });
+                        }
+
+                        // --- IRS Acceptance Letter (1.24 / 1.25) ---
+                        if (!string.IsNullOrWhiteSpace(IRSAcceptanceLetterFilename))
+                        {
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_IRS_ACCPT,
+                                _response = IRSAcceptanceLetterFilename,
+                                _responseDisplay = Path.GetFileName(IRSAcceptanceLetterFilename)?.RemoveGUID(),
+                            });
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_IRS_APP_ACCPT,
+                                _response = "False",
+                                _responseDisplay = "No",
+                            });
+                        }
+                        else if (WillSupplyIrsAcceptanceLater)
+                        {
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_IRS_APP_ACCPT,
+                                _response = "True",
+                                _responseDisplay = "Yes",
+                            });
+                        }
+                        // Clear the path in backend when a file is removed
+                        if (string.IsNullOrWhiteSpace(IRSAcceptanceLetterFilename) && IrsAcceptanceCleared)
+                        {
+                            responses.Add(new SurveyResponse()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_IRS_ACCPT,
+                                _response = null!,
+                                _responseDisplay = null
+                            });
+                        }
+
                     }
 
                     else if (!HasAppliedFor501c3WithIRS.Value)
                     {
-                        if (WillSupplyDocumentationLater)
+
+                        if (!string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename))
+                        {
+                            // 1.22
+                            responses.Add(new()
+                            {
+                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
+                                _response = ArticlesOfIncorporationFilename,
+                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.RemoveGUID(),
+                            });
+                        }
+                        else if (WillSupplyArticlesLater)
                         {
                             // 1.23
                             responses.Add(new()
@@ -360,13 +435,14 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                                 _responseDisplay = "Yes",
                             });
                         }
-                        else if (!string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename))
+                        // Clear the path in backend when a file is removed
+                        if (string.IsNullOrWhiteSpace(ArticlesOfIncorporationFilename) && ArticlesDocCleared)
                         {
-                            // 1.22
-                            responses.Add(new()
+                            responses.Add(new SurveyResponse()
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
-                                _response = ArticlesOfIncorporationFilename,
+                                _response = null!,
+                                _responseDisplay = null
                             });
                         }
                     }
@@ -464,7 +540,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             responses.Add(new SurveyResponse()
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
-                                _response = ((int) SelectedNoEmployeeReason.Value + 1).ToString(),
+                                _response = ((int) SelectedNoEmployeeReason.Value).ToString(),
                                 _responseDisplay = reasonDisplay
                             });
 
@@ -868,7 +944,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.LAST_PYRL_DT, out var lastPayrollDate)
                             && DateOnly.TryParse(lastPayrollDate.ReplyText, out var lastPayrollDateValue))
                         {
-                            LastEmploymentDate = lastPayrollDateValue;
+                            LastPayrollDate = lastPayrollDateValue;
                         }
                     }
                 }

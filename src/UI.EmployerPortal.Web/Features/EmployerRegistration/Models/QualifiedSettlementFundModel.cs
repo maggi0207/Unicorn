@@ -42,6 +42,11 @@ public class QualifiedSettlementFundModel
     /// <summary>
     /// UploadedFileName
     /// </summary>
+    public string? FileName { get; set; }
+
+    /// <summary>
+    /// UploadedFileName
+    /// </summary>
     public string? FilePath { get; set; }
 
     /// <summary>

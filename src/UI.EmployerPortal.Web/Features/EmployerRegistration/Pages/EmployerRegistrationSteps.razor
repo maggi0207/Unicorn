@@ -11,6 +11,7 @@
 <div class="page-content">
     @if (!_saveAndQuit)
     {
+        <h1 class="page-heading">New Employer Registration</h1>
         <Wizard Steps="@_wizardSteps"
                 @bind-CurrentStep="@_currentStep"
                 ShowCancelButton="false"
@@ -21,7 +22,8 @@
                 AutoNavigateOnAction="false"
                 AutoNavigateOnBack="false"
                 CssClass="@(_currentStep == 5 ? "wide-content" : "")"
-                DisableBackOnFirstStep="false">
+                DisableBackOnFirstStep="false"
+                UseTextStepper="true">
 
             <PageBlockingLoadingSpinner Message="Working..." IsLoading="@_processing" />
             <div class="notification-container">

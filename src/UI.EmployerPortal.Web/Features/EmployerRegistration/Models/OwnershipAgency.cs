@@ -18,6 +18,12 @@ public class OwnershipAgency
     /// UploadedFileName
     /// </summary>
     public string? Filepath { get; set; }
+
+    /// <summary>
+    /// Display file name with GUID stripped.
+    /// </summary>
+    public string? FileName { get; set; }
+
     /// <summary>
     /// 
     /// </summary>

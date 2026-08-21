@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+//using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -14,6 +15,8 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 /// </summary>
 public partial class PreliminaryQuestions
 {
+    [Inject] private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
+    private string UploadFolderPath => ModelStore.UploadFolderPath ?? string.Empty;
     private bool _formSubmitted = false;
     private EditContext _editContext = default!;
     private ValidationMessageStore _messageStore = default!;
@@ -23,10 +26,15 @@ public partial class PreliminaryQuestions
     private string? _lastEmploymentDateRaw;
     private string? _lastPayrollDateRaw;
 
+
+
     // Tracks whether a file has been uploaded in each 501(c)(3) upload section.
     // If false the user must check WillSupplyDocumentationLater to proceed.
-    private bool _rulingDocUploaded = false;
-    private bool _notAppliedDocUploaded = false;
+    private bool RulingDocUploaded => !string.IsNullOrWhiteSpace(Model.RulingDocFilename);
+    private bool ArticlesDocUploaded => !string.IsNullOrWhiteSpace(Model.ArticlesOfIncorporationFilename);
+    private bool IrsAcceptanceDocUploaded => !string.IsNullOrWhiteSpace(Model.IRSAcceptanceLetterFilename);
+
+
 
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
@@ -171,6 +179,55 @@ public partial class PreliminaryQuestions
         }
     }
 
+    private void ReceiveRulingDoc(string filePath)
+    {
+        //RulingDocUploaded = true;
+        Model.RulingDocFilename = filePath;
+        Model.WillSupplyDocumentationLater = false;
+        Model.RulingDocCleared = false;
+        ResetField(() => Model.WillSupplyDocumentationLater);
+        _editContext.NotifyFieldChanged(
+            _editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
+    }
+    private void RemoveRulingDoc()
+    {
+        //RulingDocUploaded = false;
+        Model.RulingDocFilename = null;
+        Model.RulingDocCleared = true;
+    }
+
+    private void ReceiveArticlesDoc(string filePath)
+    {
+        //ArticlesDocUploaded = true;
+        Model.ArticlesOfIncorporationFilename = filePath;
+        Model.WillSupplyArticlesLater = false;
+        Model.ArticlesDocCleared = false;
+        ResetField(() => Model.WillSupplyArticlesLater);
+        _editContext.NotifyFieldChanged(
+            _editContext.Field(nameof(Model.WillSupplyArticlesLater)));
+    }
+    private void RemoveArticlesDoc()
+    {
+        //ArticlesDocUploaded = false;
+        Model.ArticlesOfIncorporationFilename = null;
+        Model.ArticlesDocCleared = true;
+    }
+    private void ReceiveIrsAcceptanceDoc(string filePath)
+    {
+        //IrsAcceptanceDocUploaded = true;
+        Model.IRSAcceptanceLetterFilename = filePath;
+        Model.WillSupplyIrsAcceptanceLater = false;
+        Model.IrsAcceptanceCleared = false;
+        ResetField(() => Model.WillSupplyIrsAcceptanceLater);
+        _editContext.NotifyFieldChanged(
+            _editContext.Field(nameof(Model.WillSupplyIrsAcceptanceLater)));
+    }
+    private void RemoveIrsAcceptanceDoc()
+    {
+        //IrsAcceptanceDocUploaded = false;
+        Model.IRSAcceptanceLetterFilename = null;
+        Model.IrsAcceptanceCleared = true;
+    }
     // change handlers
     private void OnIsNonProfitOrgChanged(bool? value)
     {
@@ -410,24 +467,50 @@ public partial class PreliminaryQuestions
     {
         Model.HasRulingFrom501c3IRS = value;
         Model.HasAppliedFor501c3WithIRS = null;
+
         Model.WillSupplyDocumentationLater = false;
-        _rulingDocUploaded = false;
-        _notAppliedDocUploaded = false;
+        Model.WillSupplyArticlesLater = false;
+        Model.WillSupplyIrsAcceptanceLater = false;
+        //Model.RulingDocUploaded = false;
+        //Model.ArticlesDocUploaded = false;
+        //Model.IrsAcceptanceDocUploaded = false;
+        //_notAppliedDocUploaded = false;
         ResetField(() => Model.HasAppliedFor501c3WithIRS);
+        ResetField(() => Model.WillSupplyDocumentationLater);
+        ResetField(() => Model.WillSupplyArticlesLater);
+        ResetField(() => Model.WillSupplyIrsAcceptanceLater);
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasRulingFrom501c3IRS)));
     }
 
     private void OnHasAppliedFor501c3WithIRSChanged(bool? value)
     {
         Model.HasAppliedFor501c3WithIRS = value;
-        Model.WillSupplyDocumentationLater = false;
-        _notAppliedDocUploaded = false;
+        Model.WillSupplyArticlesLater = false;
+        Model.WillSupplyIrsAcceptanceLater = false;
+
+        //ArticlesDocUploaded = false;
+        //IrsAcceptanceDocUploaded = false;
+        //_notAppliedDocUploaded = false;
+        ResetField(() => Model.WillSupplyArticlesLater);
+        ResetField(() => Model.WillSupplyIrsAcceptanceLater);
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
     }
 
-    private void OnWillSupplyDocumentationLaterChanged()
+    private void OnWillSupplyDocumentationLaterChanged(bool value)
     {
+        Model.WillSupplyDocumentationLater = value;
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyDocumentationLater)));
+    }
+
+    private void OnWillSupplyArticlesLaterChanged(bool value)
+    {
+        Model.WillSupplyArticlesLater = value;
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyArticlesLater)));
+    }
+    private void OnWillSupplyIrsAcceptanceLaterChanged(bool value)
+    {
+        Model.WillSupplyIrsAcceptanceLater = value;
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.WillSupplyIrsAcceptanceLater)));
     }
 
     /// <summary>
@@ -530,20 +613,32 @@ public partial class PreliminaryQuestions
         // Require a file upload OR the "supply later" checkbox for each visible upload section
         var supplyLaterField = _editContext.Field(nameof(Model.WillSupplyDocumentationLater));
         const string UploadOrCheckboxMsg = "Please upload the required documentation or select 'I will supply required documentation at a later date'";
-        if (ShowRulingUpload && !_rulingDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.RulingDocFilename))
+        // Ruling doc (1.20 / 1.21)
+        if (ShowRulingUpload
+        && !RulingDocUploaded
+        && !Model.WillSupplyDocumentationLater)
         {
-            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
+            _messageStore.Add(
+                _editContext.Field(nameof(Model.WillSupplyDocumentationLater)),
+                UploadOrCheckboxMsg);
         }
+        // Articles of Incorporation (1.22 / 1.23)
         if (ShowAppliedUpload
-            && !Model.WillSupplyDocumentationLater
-            && (string.IsNullOrWhiteSpace(Model.ArticlesOfIncorporationFilename)
-                || string.IsNullOrWhiteSpace(Model.IRSAcceptanceLetterFilename)))
+        && !ArticlesDocUploaded
+        && !Model.WillSupplyArticlesLater)
         {
-            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
+            _messageStore.Add(
+                _editContext.Field(nameof(Model.WillSupplyArticlesLater)),
+                "Please upload the article of incorporation or select 'I will supply required documentation at a later date'");
         }
-        if (ShowNotAppliedText && !_notAppliedDocUploaded && !Model.WillSupplyDocumentationLater && string.IsNullOrEmpty(Model.ArticlesOfIncorporationFilename))
+        // IRS Acceptance Letter (1.24 / 1.25)
+        if (ShowAppliedUpload
+        && !IrsAcceptanceDocUploaded
+        && !Model.WillSupplyIrsAcceptanceLater)
         {
-            _messageStore.Add(supplyLaterField, UploadOrCheckboxMsg);
+            _messageStore.Add(
+                _editContext.Field(nameof(Model.WillSupplyIrsAcceptanceLater)),
+                "Please upload the IRS Acceptance Letter or select 'I will supply required documentation at a later date'");
         }
         // Acquired Existing Business
         if (IsVisible(() => Model.AcquiredExistingBusiness))
@@ -911,9 +1006,9 @@ public partial class PreliminaryQuestions
     {
         return fieldName switch
         {
-            nameof(Model.WillSupplyDocumentationLater) when ShowRulingUpload => "chk-supply-docs-ruling",
-            nameof(Model.WillSupplyDocumentationLater) when ShowAppliedUpload => "chk-supply-docs-applied",
-            nameof(Model.WillSupplyDocumentationLater) when ShowNotAppliedText => "chk-supply-docs-not-applied",
+            nameof(Model.WillSupplyDocumentationLater) => "chk-supply-docs-ruling",
+            nameof(Model.WillSupplyArticlesLater) => "chk-supply-docs-articles",
+            nameof(Model.WillSupplyIrsAcceptanceLater) => "chk-supply-docs-irs",
             nameof(Model.InformationIsAccurate) => "chk-info-accurate",
             _ => fieldName
         };

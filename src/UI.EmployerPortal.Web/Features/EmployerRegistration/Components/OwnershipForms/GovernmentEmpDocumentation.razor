@@ -2,7 +2,9 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.Shared.Extensions
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
 @using static UI.EmployerPortal.Web.Features.EmployerRegistration.Components.PreliminaryQuestions
 
 <div class="gov-frame">
@@ -20,7 +22,16 @@
     </p>
     <!-- File Upload -->
     <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument") ? "master-text-field--error" : "")">
-        <FileUpload Title="File upload" SelFileType="FileType.GOV" Model="Model" OnFileUpload="@ReceiveFilePath"></FileUpload>
+     
+        <FileUpload2 Title="File upload"
+                     OnFileUpload="@ReceiveFilePath"
+                     OnFileRemoved="@HandleFileRemoved"
+                     AllowMultiple="false"
+                     FileType="FileAcceptableType.Registration"
+                     FolderPath="@UploadFolderPath"
+                     SaveOnUpload="true"
+                     FileName="@(System.IO.Path.GetFileName(Model.Filepath)?.RemoveGUID())"
+                     FilePath="@Model.Filepath" />
     </div>
 
     <!-- Will provide documentation later checkbox -->
@@ -30,6 +41,7 @@
                        Label="I will provide documentation later."
                        Value="@Model.NoHasFile"
                        ValueChanged="OnProvideLaterChanged"
+                       Disabled="@(!string.IsNullOrEmpty(Model.Filepath))"
                        HasError="@(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument"))"
                        ErrorMessage="Please upload government agency creation documents or indicate you will provide documentation later"
                        Visible="@_showAllErrors"
@@ -44,10 +56,12 @@
     public EventCallback<OwnershipAgency> OnDataChanged { get; set; }
     [Parameter]
     public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
+    [Parameter]
+    public string UploadFolderPath { get; set; } = string.Empty;
     private HashSet<string> _invalidFields = [];
     private Dictionary<string, string> _fieldErrors = [];
     private List<ValidationItem> _validationItems = [];
-    private bool _showAllErrors; 
+    private bool _showAllErrors;
     private EditContext _editContext = default!;
     private OwnershipAgency? _previousModel;
 
@@ -74,6 +88,9 @@
         Model.NoHasFile = value;
         if (value)
         {
+            Model.HasFile = false;
+            Model.Filepath = null;
+            Model.FileName = null;
 
             if (_invalidFields.Contains("OwnershipEmpDocument"))
             {
@@ -88,6 +105,7 @@
     private Task ReceiveFilePath(string uploadedFilePath)
     {
         Model.Filepath = uploadedFilePath;
+        Model.FileName = uploadedFilePath?.RemoveGUID();
 
         if (!string.IsNullOrEmpty(Model.Filepath))
         {
@@ -98,8 +116,22 @@
             }
 
             Model.HasFile = true;
+            Model.NoHasFile = false;
         }
 
+        return Task.CompletedTask;
+    }
+
+    
+    /// <summary>
+    /// Handle the File removal actions.
+    /// </summary>
+    private Task HandleFileRemoved()
+    {
+        Model.Filepath = null;
+        Model.FileName = null;
+        Model.HasFile = false;
+        NotifyDataChanged();
         return Task.CompletedTask;
     }
 
@@ -131,7 +163,7 @@
         if (_showAllErrors)
         {
             ValidateSection();
-        }       
+        }
         _ = OnDataChanged.InvokeAsync(Model);
     }
 

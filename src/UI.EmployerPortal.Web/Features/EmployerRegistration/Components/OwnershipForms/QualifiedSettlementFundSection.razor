@@ -3,6 +3,8 @@
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@using UI.EmployerPortal.Web.Features.Shared.Extensions
 
 <div class="qsf-section">
     <p>
@@ -30,7 +32,7 @@
             <ValidationError ErrorMessage="Please select an option" />
         }
         <RadioGroup TValue="bool?"
-            LabelledById="payments-for-services-group-label"
+                    LabelledById="payments-for-services-group-label"
                     Value="Model.PaymentsForServices"
                     ValueChanged="OnPaymentsForServicesChanged"
                     ValueExpression="() => Model.PaymentsForServices"
@@ -61,24 +63,24 @@
             </div>
 
             <div class="qsf-id-row form-row">
-                    <ValidatedInput Id="qsf-federal-id"
-                                    Label="Federal ID Number"
-                                    Value="@Model.FederalIdNumber"
-                                    ValueChanged="OnFederalIdChanged"
-                                    HasError="@(_invalidFields.Contains("FederalIdNumber"))"
-                                    ErrorMessage="@_fieldErrors.GetValueOrDefault("FederalIdNumber")"
-                                    Visible="@_showAllErrors"
-                                    MaxLength="10"
-                                    HintId="qsf-federal-id-hint"
-                                    OnBlur="@(() => ValidateSection())"
-                                    Width="330" />
+                <ValidatedInput Id="qsf-federal-id"
+                                Label="Federal ID Number"
+                                Value="@Model.FederalIdNumber"
+                                ValueChanged="OnFederalIdChanged"
+                                HasError="@(_invalidFields.Contains("FederalIdNumber"))"
+                                ErrorMessage="@_fieldErrors.GetValueOrDefault("FederalIdNumber")"
+                                Visible="@_showAllErrors"
+                                MaxLength="10"
+                                HintId="qsf-federal-id-hint"
+                                OnBlur="@(() => ValidateSection())"
+                                Width="330" />
 
-                    <ValidatedInput Id="qsf-wi-ui-account"
-                                    Label="Wisconsin UI Account number (Optional)"
-                                    Value="@Model.WisconsinUiAccountNumber"
-                                    ValueChanged="OnWiUiAccountChanged"
-                                    HasError="false"
-                                    Width="330" />
+                <ValidatedInput Id="qsf-wi-ui-account"
+                                Label="Wisconsin UI Account number (Optional)"
+                                Value="@Model.WisconsinUiAccountNumber"
+                                ValueChanged="OnWiUiAccountChanged"
+                                HasError="false"
+                                Width="330" />
             </div>
 
             <p id="qsf-address-line1-hint"><strong>Wisconsin address where services were performed:</strong></p>
@@ -157,7 +159,7 @@
     <!-- No : Reason for payments -->
     @if (Model.PaymentsForServices == false)
     {
-        <br/>
+        <br />
         <div class="qsf-no-services">
             <ValidatedTextArea Id="qsf-payment-reason"
                                Label="Provide reason for payments below"
@@ -168,13 +170,23 @@
                                Visible="@_showAllErrors"
                                OnBlur="@(() => ValidateSection())"
                                OnKeyUp="@(() => ValidateSection())"
-                               Rows="3" />
+                               Rows="3"
+                               MaxLength="256" />
         </div>
     }
 
     <!-- File Upload -->
     <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">
-        <FileUpload Title="Court approved settlement agreement" Model="@typeof( object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
+        
+        <FileUpload2 Title="Court approved settlement agreement"
+                     OnFileUpload="@ReceiveFilePath"
+                     OnFileRemoved="@HandleFileRemoved"
+                     AllowMultiple="false"
+                     FileType="FileAcceptableType.Registration"
+                     FolderPath="@UploadFolderPath"
+                     SaveOnUpload="true"
+                     FileName="@(System.IO.Path.GetFileName(Model.FilePath)?.RemoveGUID())"
+                     FilePath="@Model.FilePath" />
     </div>
 
     <!-- Will provide documentation later checkbox -->
@@ -184,6 +196,7 @@
                        Label="I will provide documentation later."
                        Value="@Model.WillProvideDocumentationLater"
                        ValueChanged="OnProvideLaterChanged"
+                       Disabled="@(!string.IsNullOrEmpty(Model.FilePath))"
                        HasError="@(_showAllErrors && _invalidFields.Contains("SettlementAgreement"))"
                        ErrorMessage="Please upload Settlement Agreement or indicate you will provide it later"
                        Visible="@_showAllErrors"
@@ -201,6 +214,9 @@
     [Parameter]
     public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
 
+    [Parameter]
+    public string UploadFolderPath { get; set; } = string.Empty;
+
     private static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions =
     [
         new RadioOption<bool?> { Value = true, Label = "Yes" },
@@ -217,7 +233,7 @@
 
     protected override void OnParametersSet()
     {
-        if(!ReferenceEquals(Model, _previousModel))
+        if (!ReferenceEquals(Model, _previousModel))
         {
             _previousModel = Model;
             _editContext = new EditContext(Model);
@@ -267,8 +283,9 @@
         {
             Model.FederalIdNumber = intValue.ToString("##-#######");
         }
-        else {
-           Model.FederalIdNumber = value;
+        else
+        {
+            Model.FederalIdNumber = value;
         }
         NotifyDataChanged();
     }
@@ -286,10 +303,10 @@
     private void OnProvideLaterChanged(bool value)
     {
         Model.WillProvideDocumentationLater = value;
-        if(value)
+        if (value)
         {
             Model.FilePath = null;
-            if(_invalidFields.Contains("SettlementAgreement"))
+            if (_invalidFields.Contains("SettlementAgreement"))
             {
                 _invalidFields.Remove("SettlementAgreement");
                 _fieldErrors.Remove("SettlementAgreement");
@@ -304,7 +321,7 @@
         Model.FilePath = uploadedFilePath;
         if (!string.IsNullOrEmpty(Model.FilePath))
         {
-            if(_invalidFields.Contains("SettlementAgreement"))
+            if (_invalidFields.Contains("SettlementAgreement"))
             {
                 _invalidFields.Remove("SettlementAgreement");
                 _fieldErrors.Remove("SettlementAgreement");
@@ -312,6 +329,16 @@
             Model.WillProvideDocumentationLater = false;
         }
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Validates the section and returns validation items for the parent to aggregate.
+    /// </summary>
+    private void HandleFileRemoved()
+    {
+        Model.FilePath = null;
+        Model.FileName = null;
+        NotifyDataChanged();
     }
 
     /// <summary>
@@ -422,7 +449,7 @@
         }
 
         // "No" branch validations
-        if(Model.PaymentsForServices == false)
+        if (Model.PaymentsForServices == false)
         {
             if (string.IsNullOrWhiteSpace(Model.PaymentReason))
             {
@@ -435,13 +462,13 @@
         }
 
         // File uload validation
-        if(!Model.WillProvideDocumentationLater && string.IsNullOrEmpty(Model.FilePath))
+        if (!Model.WillProvideDocumentationLater && string.IsNullOrEmpty(Model.FilePath))
         {
             _invalidFields.Add("SettlementAgreement");
             _fieldErrors["SettlementAgreement"] = "Please upload Settlement Agreement or indicate you will provide it later";
-                _validationItems.Add(new ValidationItem(
-                    "Please upload Settlement Agreement or indicate you will provide it later",
-                    "qsf-provide-later-group"));
+            _validationItems.Add(new ValidationItem(
+                "Please upload Settlement Agreement or indicate you will provide it later",
+                "qsf-provide-later-group"));
         }
 
         StateHasChanged();

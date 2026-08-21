@@ -199,6 +199,9 @@
         await SessionManager.SetAsync(new SessionSelectedEmployerAccount
         { SelectedEmployerAccountValue = registerEmployerAccountValue });
 
+        RegistrationState.ClearForNewRegistration();
+        RegistrationInfo.ClearForNewRegistration();
+
         NavigationManager.NavigateTo("employer-dashboard", true);
     }
 

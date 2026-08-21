@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.Shared.Extensions;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
@@ -169,7 +170,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                 }
                 break;
             case OwnershipType.LP:
-                if (IEmployerRegistrationModelSection.FindContactsHelper(contacts, RegistrationIndividualCode.General_Partner, out var generalPartners))
+                if (IEmployerRegistrationModelSection.FindContactsHelper(contacts, RegistrationIndividualCode.General_Partner,
+                        out var generalPartners))
                 {
                     GeneralPartner = ConvertRegistrationIndividualProxyToOwnerMember(generalPartners.FirstOrDefault());
                 }
@@ -177,7 +179,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             case OwnershipType.Cooperative:
                 Officers = contacts.Select(c =>
                 {
-                    var hasContactCode = RegistrationIndividualCodeToOfficerRole.TryGetValue((RegistrationIndividualCode) c.RegistrationIndividualCodeSK, out var officerRole);
+                    var hasContactCode = RegistrationIndividualCodeToOfficerRole.TryGetValue((RegistrationIndividualCode)
+                                c.RegistrationIndividualCodeSK, out var officerRole);
 
                     var individual = ConvertRegistrationIndividualProxyToOwnerMember(c)!;
 
@@ -190,7 +193,8 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                 break;
             case OwnershipType.SoleProprietorship:
             case OwnershipType.Individual:
-                if (IEmployerRegistrationModelSection.FindContactsHelper(contacts, RegistrationIndividualCode.Sole_Proprietor, out var solePropietors))
+                if (IEmployerRegistrationModelSection.FindContactsHelper(contacts, RegistrationIndividualCode.Sole_Proprietor,
+                    out var solePropietors))
                 {
                     Owner = ConvertRegistrationIndividualProxyToOwnerMember(solePropietors.FirstOrDefault());
                 }
@@ -205,6 +209,22 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     PersonalRepresentative = ConvertRegistrationIndividualProxyToOwnerMember(personalReps.FirstOrDefault());
                 }
                 break;
+            case OwnershipType.Corporation:
+                Officers = contacts.Select(c =>
+                {
+                    var hasContactCode = RegistrationIndividualCodeToOfficerRole.TryGetValue((RegistrationIndividualCode)
+                        c.RegistrationIndividualCodeSK, out var officerRole);
+
+                    var individual = ConvertRegistrationIndividualProxyToOwnerMember(c)!;
+
+                    individual.Role = officerRole!;
+
+                    return hasContactCode ? individual : null;
+                })
+                  .OfType<OwnerMember>()
+                  .ToList();
+                break;
+
         }
     }
 
@@ -219,7 +239,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             ownerMember.LastName = individual.LastName;
             ownerMember.MiddleInitial = individual.MiddleName;
             ownerMember.OwnershipPercentage = hasOwnerShipPercentage ? ownerShipPercentageValue : 0;
-            ownerMember.SSN = individual.SocialSecurityNumber.Replace("-", string.Empty);
+            ownerMember.SSN = string.IsNullOrWhiteSpace(individual.SocialSecurityNumber) ? string.Empty : individual.SocialSecurityNumber.Replace("-", string.Empty);
 
             return ownerMember;
         }
@@ -254,12 +274,22 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
 
         if (OwnershipType != OwnershipType.None)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OWNR_CLS_CD_SK, _response = $"{(int) OwnershipType}", _responseDisplay = OwnershipType.GetDisplayName() });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.OWNR_CLS_CD_SK,
+                _response = $"{(int) OwnershipType}",
+                _responseDisplay = OwnershipType.GetDisplayName()
+            });
         }
 
         if (OwnershipType == OwnershipType.Corporation)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA) });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA)
+            });
 
             //responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.OUT_US, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsOutsideUSA), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsOutsideUSA) });
 
@@ -279,7 +309,11 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
 
             if (IsOutsideUSA && ForeignCountry != null)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_FGN_CTRY_NAM, _response = ForeignCountry });
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.ICRP_FGN_CTRY_NAM,
+                    _response = ForeignCountry
+                });
             }
         }
         if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP or OwnershipType.LLCCorporation
@@ -301,53 +335,103 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
         if (OwnershipType is OwnershipType.LLC or OwnershipType.LLCCorporation
             && MoreThanFive.HasValue)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_OVR_FIV_MBR_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(MoreThanFive.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(MoreThanFive.Value) });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.LLC_OVR_FIV_MBR_FLG,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(MoreThanFive.Value),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(MoreThanFive.Value)
+            });
         }
 
         if (OwnershipType == OwnershipType.LP
             && LimitedPartnershipName != null)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LMT_PTNR_NAM, _response = LimitedPartnershipName });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.LMT_PTNR_NAM,
+                _response = LimitedPartnershipName
+            });
         }
 
         if (OwnershipType == OwnershipType.Partnership
             && MoreThanFive.HasValue)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PTNRSP_OVR_FIV_PTNR_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(MoreThanFive.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(MoreThanFive.Value) });
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.PTNRSP_OVR_FIV_PTNR_FLG,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(MoreThanFive.Value),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(MoreThanFive.Value)
+            });
         }
 
-        if (OwnershipType != OwnershipType.QSF
-            && Owner != null)
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_LGL_NAM, _response = IEmployerRegistrationModelSection.ConcatenateLegalName(Owner.FirstName, Owner.MiddleInitial, Owner.LastName) });
-        }
-        if (OwnershipType == OwnershipType.CityGovernmentAgency)
+        if (OwnershipType is OwnershipType.CityGovernmentAgency or OwnershipType.CountyGovernmentAgency or
+           OwnershipType.FederalGovernmentAgency or OwnershipType.LocalGovernmentUnitNotListed or OwnershipType.SchoolDistrict or
+           OwnershipType.StateGovernmentAgency or OwnershipType.StateGovernmentUnitNotListed or OwnershipType.Township or
+           OwnershipType.Village or OwnershipType.IndianTribe
+           )
         {
             if (OwnershipAgencies != null)
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.GOV_EMP_DOC_UPLD, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(OwnershipAgencies.HasFile!), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(OwnershipAgencies.HasFile!) });
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.MISS_UPLD_GOV_EMP_DOC, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(OwnershipAgencies.NoHasFile!), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(OwnershipAgencies.NoHasFile!) });
+                if (!string.IsNullOrWhiteSpace(OwnershipAgencies.Filepath))
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.GOV_EMP_DOC_UPLD,
+                        _response = OwnershipAgencies.Filepath,
+                        _responseDisplay = Path.GetFileName(OwnershipAgencies.Filepath)?.RemoveGUID()
+                    });
+                }
+                else
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.GOV_EMP_DOC_UPLD,
+                        _response = string.Empty,
+                        _responseDisplay = "No"
+                    });
+                }
+
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.MISS_UPLD_GOV_EMP_DOC,
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(OwnershipAgencies.NoHasFile!),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(OwnershipAgencies.NoHasFile!)
+                });
             }
         }
 
-        if (OwnershipType == OwnershipType.LLCCorporation)
+        if (OwnershipType is OwnershipType.LLCCorporation or OwnershipType.Corporation)
         {
             // 3082-3084: Corporate Officer Services
             if (CorporateOfficerServices != null)
             {
                 if (CorporateOfficerServices.OfficersPerformServices.HasValue)
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_PRFM_SRVC, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(CorporateOfficerServices.OfficersPerformServices.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(CorporateOfficerServices.OfficersPerformServices.Value) });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_PRFM_SRVC,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(CorporateOfficerServices.OfficersPerformServices.Value),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(
+                            CorporateOfficerServices.OfficersPerformServices.Value)
+                    });
                 }
 
                 if (CorporateOfficerServices.OfficersPerformServices == true && CorporateOfficerServices.ApproximatePayDate.HasValue)
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_PAID_DT, _response = CorporateOfficerServices.ApproximatePayDate.Value.ToString("MM/dd/yyyy") });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_PAID_DT,
+                        _response = CorporateOfficerServices.ApproximatePayDate.Value.ToString("MM/dd/yyyy")
+                    });
                 }
 
-                if (CorporateOfficerServices.OfficersPerformServices == false && !string.IsNullOrEmpty(CorporateOfficerServices.NoPayExplanation))
+                if (CorporateOfficerServices.OfficersPerformServices == true && !string.IsNullOrEmpty(CorporateOfficerServices.NoPayExplanation))
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_NO_PAY_RSN, _response = CorporateOfficerServices.NoPayExplanation });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.CORP_OFC_NO_PAY_RSN,
+                        _response = CorporateOfficerServices.NoPayExplanation
+                    });
                 }
             }
 
@@ -357,18 +441,37 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                 // 3085: Do you have the required documentation available to upload?
                 if (LlcDocumentation.HasRequiredDocumentation.HasValue)
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLD_REQ_DOC_AVL, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(LlcDocumentation.HasRequiredDocumentation.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(LlcDocumentation.HasRequiredDocumentation.Value) });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.LLD_REQ_DOC_AVL,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(
+                            LlcDocumentation.HasRequiredDocumentation.Value),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(
+                            LlcDocumentation.HasRequiredDocumentation.Value)
+                    });
                 }
 
                 if (LlcDocumentation.HasRequiredDocumentation == true)
                 {
                     // 3086: I will supply required documentation at a later date.
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_DOC, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(LlcDocumentation.WillSupplyDocumentationLater), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(LlcDocumentation.WillSupplyDocumentationLater) });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_DOC,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(
+                            LlcDocumentation.WillSupplyDocumentationLater),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(
+                            LlcDocumentation.WillSupplyDocumentationLater)
+                    });
 
                     // 3090: Uploaded file
                     if (!string.IsNullOrEmpty(LlcDocumentation.FilePath))
                     {
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_UPLD, _response = LlcDocumentation.FilePath });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_UPLD,
+                            _response = LlcDocumentation.FilePath,
+                            _responseDisplay = Path.GetFileName(LlcDocumentation.FilePath)?.RemoveGUID()
+                        });
                     }
                 }
 
@@ -377,28 +480,200 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     // 3087: Reason documentation cannot be submitted
                     if (LlcDocumentation.NoDocumentationReason.HasValue)
                     {
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_DOC_RSN, _response = LlcDocumentation.NoDocumentationReason.Value.ToString() });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_DOC_RSN,
+                            _response = LlcDocumentation.NoDocumentationReason.Value.ToString()
+                        });
                     }
 
                     // 3088: When do you plan to submit your application to the IRS?
                     if (LlcDocumentation.PlannedSubmissionDate.HasValue)
                     {
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_PLAN_SBMT_DT, _response = LlcDocumentation.PlannedSubmissionDate.Value.ToString("MM/dd/yyyy") });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_PLAN_SBMT_DT,
+                            _response = LlcDocumentation.PlannedSubmissionDate.Value.ToString("MM/dd/yyyy")
+                        });
                     }
 
                     // 3089: What date was the application submitted to the IRS?
                     if (LlcDocumentation.ApplicationSubmittedDate.HasValue)
                     {
-                        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_APP_SBMT_DT, _response = LlcDocumentation.ApplicationSubmittedDate.Value.ToString("MM/dd/yyyy") });
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_APP_SBMT_DT,
+                            _response = LlcDocumentation.ApplicationSubmittedDate.Value.ToString("MM/dd/yyyy")
+                        });
                     }
 
                     // 3091: I acknowledge that I will submit the required documentation
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_LLC_ELEC_CORP, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(LlcDocumentation.AcknowledgeSubmitDocumentation), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(LlcDocumentation.AcknowledgeSubmitDocumentation) });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_LLC_ELEC_CORP,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(
+                            LlcDocumentation.AcknowledgeSubmitDocumentation),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(
+                            LlcDocumentation.AcknowledgeSubmitDocumentation)
+                    });
                 }
             }
         }
-
+        // OwnershipType.QSF even though the user selected QSF. The sub-model is reliable.
+        if (QualifiedSettlementFund is { } qsf)
+        {
+            AddQsfResponses(responses, qsf);
+        }
         return responses;
+    }
+
+    /// <summary>
+    /// Appends QSF-specific survey responses to the provided list.
+    /// </summary>
+    private static void AddQsfResponses(List<SurveyResponse> responses, QualifiedSettlementFundModel qsf)
+    {
+        // Were payments for services performed in Wisconsin?
+        if (qsf.PaymentsForServices.HasValue)
+        {
+            responses.Add(new SurveyResponse
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.PAY_SRVS_QSF,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(qsf.PaymentsForServices.Value),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(qsf.PaymentsForServices.Value)
+            });
+        }
+
+        if (qsf.PaymentsForServices == true)
+        {
+            // Legal name of the entity that received the services
+            if (!string.IsNullOrWhiteSpace(qsf.EntityLegalName))
+            {
+                responses.Add(new SurveyResponse
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_LGL_NAM,
+                    _response = qsf.EntityLegalName
+                });
+            }
+
+            // Federal ID Number (FEIN)
+            if (!string.IsNullOrWhiteSpace(qsf.FederalIdNumber))
+            {
+                responses.Add(new SurveyResponse
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_FEIN,
+                    _response = qsf.FederalIdNumber.Replace("-", string.Empty),
+                    _responseDisplay = qsf.FederalIdNumber
+                });
+            }
+
+            // Wisconsin UI Account Number (optional)
+            if (!string.IsNullOrWhiteSpace(qsf.WisconsinUiAccountNumber))
+            {
+                responses.Add(new SurveyResponse
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_UI_ACCT_NUM,
+                    _response = qsf.WisconsinUiAccountNumber.Replace("-", string.Empty),
+                    _responseDisplay = qsf.WisconsinUiAccountNumber
+                });
+            }
+
+            // Wisconsin address where services were performed — stored as a
+            // formatted text response (QSF_OWNR_WI_ADDRESS) so it appears in
+            // the verification page without requiring a new RegistrationAddressCode.
+            var addressDisplay = FormatQsfServiceAddress(qsf.ServiceAddress);
+            if (!string.IsNullOrWhiteSpace(addressDisplay))
+            {
+                responses.Add(new SurveyResponse
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_WI_ADDRESS,
+                    _response = addressDisplay,
+                    _responseDisplay = addressDisplay
+                });
+            }
+        }
+        else if (qsf.PaymentsForServices == false)
+        {
+            // Reason for payments when not for services in Wisconsin
+            if (!string.IsNullOrWhiteSpace(qsf.PaymentReason))
+            {
+                responses.Add(new SurveyResponse
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_PYMT_REASONS,
+                    _response = qsf.PaymentReason
+                });
+            }
+        }
+
+        // Court-approved settlement agreement — file uploaded or "provide later"
+        if (!string.IsNullOrWhiteSpace(qsf.FilePath))
+        {
+            responses.Add(new SurveyResponse
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT,
+                _response = qsf.FilePath,
+                _responseDisplay = System.IO.Path.GetFileName(qsf.FilePath)?.RemoveGUID()
+            });
+        }
+        else
+        {
+            responses.Add(new SurveyResponse
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT,
+                _response = string.Empty,
+                _responseDisplay = "No"
+            });
+        }
+        responses.Add(new SurveyResponse
+        {
+            _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_MISS_DOC_QSF_STL_AGR,
+            _response = qsf.WillProvideDocumentationLater ? "Yes" : "No",
+            _responseDisplay = qsf.WillProvideDocumentationLater ? "Yes" : "No"
+        });
+    }
+
+    /// <summary>
+    /// Formats the QSF service address fields into a single display string.
+    /// Returns an empty string if no address fields have been filled in.
+    /// </summary>
+    private static string FormatQsfServiceAddress(QsfServiceAddressModel address)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(address.AddressLine1))
+        {
+            parts.Add(address.AddressLine1);
+        }
+
+        if (!string.IsNullOrWhiteSpace(address.AddressLine2))
+        {
+            parts.Add(address.AddressLine2);
+        }
+
+        var cityStateParts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(address.City))
+        {
+            cityStateParts.Add(address.City);
+        }
+
+        if (!string.IsNullOrWhiteSpace(address.State))
+        {
+            cityStateParts.Add(address.State);
+        }
+
+        if (cityStateParts.Any())
+        {
+            var zip = address.ZipCode ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(address.ZipExtension))
+            {
+                zip += $"-{address.ZipExtension}";
+            }
+
+            parts.Add(string.IsNullOrWhiteSpace(zip)
+                ? string.Join(", ", cityStateParts)
+                : $"{string.Join(", ", cityStateParts)} {zip}");
+        }
+
+        return string.Join(", ", parts);
     }
 
     /// <inheritdoc/>
@@ -505,23 +780,127 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             Owner.LastName = ownerLastName ?? string.Empty;
         }
 
-        //if (OwnershipType == OwnershipType.CityGovernmentAgency)
-        //{
-        //    if (OwnershipAgencies != null)
-        //    {
-        //        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.GOV_EMP_DOC_UPLD, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(OwnershipAgencies.HasFile!) });
-        //        responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.MISS_UPLD_GOV_EMP_DOC, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(OwnershipAgencies.NoHasFile!) });
-        //    }
-        //}
-        if (OwnershipType == OwnershipType.CityGovernmentAgency
-            && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.GOV_EMP_DOC_UPLD, out var hasFileValue)
-            && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.MISS_UPLD_GOV_EMP_DOC, out var noHasFileValue))
+        var isQsf = OwnershipType == OwnershipType.QSF ||
+                    (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.OWNR_CLS_CD_SK, out var ownrCls) && ownrCls.ReplyText == "28") ||
+                    responses.Any(r => r.QuestionSetItemSK is ((int) SurveyResponseItem.PAY_SRVS_QSF) or
+                                        ((int) SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT) or
+                                        ((int) SurveyResponseItem.QSF_OWNR_FEIN) or
+                                        ((int) SurveyResponseItem.QSF_OWNR_WI_ADDRESS));
+
+        if (isQsf)
         {
-            OwnershipAgencies ??= new();
-            OwnershipAgencies.HasFile = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasFileValue.ReplyText);
-            OwnershipAgencies.NoHasFile = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(noHasFileValue.ReplyText);
+            QualifiedSettlementFund ??= new();
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PAY_SRVS_QSF, out var paySrvsQsf))
+            {
+                QualifiedSettlementFund.PaymentsForServices = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(paySrvsQsf.ReplyText);
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_LGL_NAM, out var qsfLegalNameQsf))
+            {
+                QualifiedSettlementFund.EntityLegalName = qsfLegalNameQsf.ReplyText;
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_FEIN, out var qsfFein))
+            {
+                QualifiedSettlementFund.FederalIdNumber = qsfFein.ReplyText;
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_UI_ACCT_NUM, out var qsfUiAcct))
+            {
+                QualifiedSettlementFund.WisconsinUiAccountNumber = qsfUiAcct.ReplyText;
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_PYMT_REASONS, out var qsfPymtReasons))
+            {
+                QualifiedSettlementFund.PaymentReason = qsfPymtReasons.ReplyText;
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT, out var qsfCourtApr)
+                && !string.IsNullOrWhiteSpace(qsfCourtApr.ReplyText))
+            {
+                QualifiedSettlementFund.FilePath = qsfCourtApr.ReplyText;
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_MISS_DOC_QSF_STL_AGR, out var qsfMissDoc))
+            {
+                QualifiedSettlementFund.WillProvideDocumentationLater = qsfMissDoc.ReplyText.Equals("Yes", StringComparison.OrdinalIgnoreCase) ||
+                                                                        IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(qsfMissDoc.ReplyText);
+            }
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.QSF_OWNR_WI_ADDRESS, out var qsfWiAddress))
+            {
+                var text = qsfWiAddress.ReplyText;
+                var parts = text.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                if (parts.Count > 0)
+                {
+                    var lastPart = parts.Last();
+                    var stateZip = lastPart.Split(' ');
+                    if (stateZip.Length >= 1)
+                    {
+                        var potentialState = stateZip[0];
+                        if (potentialState.Length == 2)
+                        {
+                            QualifiedSettlementFund.ServiceAddress.State = potentialState;
+                            if (stateZip.Length > 1)
+                            {
+                                var zipParts = stateZip[1].Split('-');
+                                QualifiedSettlementFund.ServiceAddress.ZipCode = zipParts[0];
+                                if (zipParts.Length > 1)
+                                {
+                                    QualifiedSettlementFund.ServiceAddress.ZipExtension = zipParts[1];
+                                }
+                            }
+                            parts.RemoveAt(parts.Count - 1);
+
+                            if (parts.Count > 0)
+                            {
+                                QualifiedSettlementFund.ServiceAddress.City = parts.Last();
+                                parts.RemoveAt(parts.Count - 1);
+                            }
+
+                            if (parts.Count > 0)
+                            {
+                                QualifiedSettlementFund.ServiceAddress.AddressLine1 = parts[0];
+                            }
+
+                            if (parts.Count > 1)
+                            {
+                                QualifiedSettlementFund.ServiceAddress.AddressLine2 = parts[1];
+                            }
+                        }
+                        else
+                        {
+                            QualifiedSettlementFund.ServiceAddress.AddressLine1 = text;
+                        }
+                    }
+                }
+            }
         }
 
+
+        if (OwnershipType is OwnershipType.CityGovernmentAgency or OwnershipType.CountyGovernmentAgency or OwnershipType.FederalGovernmentAgency or OwnershipType.LocalGovernmentUnitNotListed or OwnershipType.SchoolDistrict or OwnershipType.StateGovernmentAgency or OwnershipType.StateGovernmentUnitNotListed or OwnershipType.Township or OwnershipType.Village
+            )
+        {
+            OwnershipAgencies ??= new();
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.GOV_EMP_DOC_UPLD, out var hasFileValue)
+                && !string.IsNullOrWhiteSpace(hasFileValue.ReplyText))
+            {
+                OwnershipAgencies.Filepath = hasFileValue.ReplyText;
+            }
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.MISS_UPLD_GOV_EMP_DOC, out var noHasFileValue))
+            {
+                OwnershipAgencies.NoHasFile = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(noHasFileValue.ReplyText);
+            }
+
+        }
+
+        ////Adding corporation by sv
+        //if(OwnershipType == OwnershipType.Corporation)
+        //     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.RGST_PRIN_ACTV_CD_SK, out var has
+        //{
+
+        //}
         //if (OwnershipType == OwnershipType.LLCCorporation)
         //{
         if (OwnershipType == OwnershipType.LLCCorporation)
@@ -550,7 +929,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     CorporateOfficerServices.ApproximatePayDate = corporateOfficerPayDateValue;
                 }
 
-                if (!CorporateOfficerServices.OfficersPerformServices.Value
+                if (CorporateOfficerServices.OfficersPerformServices.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CORP_OFC_NO_PAY_RSN, out var corporateOfficerNoPayReason))
                 {
                     //if (CorporateOfficerServices.OfficersPerformServices == false && !string.IsNullOrEmpty(CorporateOfficerServices.NoPayExplanation))

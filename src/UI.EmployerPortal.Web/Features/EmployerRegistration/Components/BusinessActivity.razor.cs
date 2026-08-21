@@ -302,9 +302,25 @@ public partial class BusinessActivity : ComponentBase
             }
         }
 
+        var ownershipType = ModelStore.EmployerRegistrationModel.OwnershipSessionData.OwnershipType;
+        var isGovernmentOwnershipType = ownershipType is OwnershipType.CityGovernmentAgency or
+                                        OwnershipType.CountyGovernmentAgency or
+                                        OwnershipType.FederalGovernmentAgency or
+                                        OwnershipType.IndianTribe or
+                                        OwnershipType.LocalGovernmentUnitNotListed or
+                                        OwnershipType.SchoolDistrict or
+                                        OwnershipType.StateGovernmentAgency or
+                                        OwnershipType.StateGovernmentUnitNotListed or
+                                        OwnershipType.Township or
+                                        OwnershipType.Village;
+
         if (Model.PrincipalBusinessActivity == PrincipalBusinessActivityType.None)
         {
             AddFieldError("PrincipalBusinessActivity", "Principal Business Activity is required");
+        }
+        else if (isGovernmentOwnershipType && Model.PrincipalBusinessActivity != PrincipalBusinessActivityType.GovernmentAgency)
+        {
+            AddFieldError("PrincipalBusinessActivity", "Government employers must select a principal business activity of Government Agency");
         }
 
         if (string.IsNullOrWhiteSpace(Model.PrimaryBusinessActivityDescription))

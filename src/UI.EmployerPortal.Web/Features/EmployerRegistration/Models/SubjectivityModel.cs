@@ -101,8 +101,10 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     /// when
     /// </summary>
     public string WhenExpectToHaveWagesInAQuarter { get; set; } = String.Empty;
-
-
+    /// <summary>
+    /// Prev Value
+    /// </summary>
+    public DateTime? PlaceHolderDateFirstPaidWagesInWI { get; set; }
     /// <inheritdoc/>
     public List<SurveyResponse> GetSurveyResponses()
     {
@@ -110,15 +112,12 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
         if (BusinessCategory.HasValue)
         {
-            if (BusinessCategory.Value != Models.BusinessCategory.NonProfit_Other)
+            responses.Add(new SurveyResponse()
             {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
-                    _response = ((int) BusinessCategory.Value).ToString(),
-                    _responseDisplay = BusinessCategory.Value.GetDisplayName()
-                });
-            }
+                _surveyResponseItemSk = (int) SurveyResponseItem.BUS_CAT_TXT,
+                _response = ((int) BusinessCategory.Value).ToString(),
+                _responseDisplay = BusinessCategory.Value.GetDisplayName()
+            });
         }
 
         if (!string.IsNullOrWhiteSpace(FinancialInstitutionString))
@@ -321,7 +320,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
+        && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             if (ExpectToHaveWagesInAQuarter.HasValue) //6.42) // employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
             {
@@ -708,7 +707,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))

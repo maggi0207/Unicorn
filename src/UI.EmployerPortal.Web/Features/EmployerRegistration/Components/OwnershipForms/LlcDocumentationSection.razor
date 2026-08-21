@@ -3,7 +3,9 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using UI.EmployerPortal.Web.Features.Shared.Extensions
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
 
 <div class="llc-documentation-section">
     <h2 class="section-subtitle">Required Documentation</h2>
@@ -34,20 +36,27 @@
     @if (Model.HasRequiredDocumentation == true)
     {
         <div id="file-upload-group" class="file-upload-section">
-            <FileUpload Title="Notice of Acceptance issued to you by the IRS" Model="@typeof( object)" OnFileUpload="@ReceiveFilePath"></FileUpload>
+            
+            <FileUpload2 Title="Notice of Acceptance issued to you by the IRS"
+                         OnFileUpload="@ReceiveFilePath"
+                         OnFileRemoved="@HandleFileRemoved"
+                         AllowMultiple="false"
+                         FileType="FileAcceptableType.Registration"
+                         FolderPath="@UploadFolderPath"
+                         SaveOnUpload="true"
+                         FileName="@(Model.FilePath?.RemoveGUID())"
+                         FilePath="@Model.FilePath" />
             @if (_showAllErrors && _invalidFields.Contains("WillSupplyDocumentationLater"))
             {
                 <ValidationError ErrorMessage="Please You must upload the required document or indicate you will supply it at a later date" />
             }
             <div class="form-check">
-                <label class="form-check-label fw-bold" for="chk-supply-docs-later">
-                    <input type="checkbox"
-                           id="chk-supply-docs-later"
-                           class="form-check-input"
-                           @bind="Model.WillSupplyDocumentationLater"
-                           @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                    I will supply required documentation at a later date.
-                </label>
+                    <CheckboxInput Id="chk-supply-docs-later"
+                                   Label="I will supply required documentation at a later date."
+                                   Disabled="@(!string.IsNullOrEmpty(Model.FilePath))"
+                                   @bind-Value="Model.WillSupplyDocumentationLater"
+                                   @bind-Value:after="OnWillSupplyDocumentationLaterChanged" />
+                
             </div>
         </div>
     }
@@ -186,6 +195,9 @@
     [Parameter]
     public Action<Func<List<ValidationItem>>>? RegisterValidate { get; set; }
 
+    [Parameter]
+    public string UploadFolderPath { get; set; } = string.Empty;
+
     private static readonly IReadOnlyList<RadioOption<bool?>> YesNoRadioOptions =
     [
         new RadioOption<bool?> { Value = true, Label = "Yes" },
@@ -262,10 +274,23 @@
         NotifyDataChanged();
     }
 
-    // -- File upload ---
+    /// <summary>
+    /// Handle the File removal actions.
+    /// </summary>
     private Task ReceiveFilePath(string uploadedFilePath)
     {
         Model.FilePath = uploadedFilePath;
+        Model.WillSupplyDocumentationLater = false;
+        NotifyDataChanged();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Handle the File removal actions.
+    /// </summary>
+    private Task HandleFileRemoved()
+    {
+        Model.FilePath = null;
         NotifyDataChanged();
         return Task.CompletedTask;
     }
@@ -345,12 +370,12 @@
                         "Please enter the date the application was submitted to the IRS",
                         "application-submitted-date"));
                 }
-                else if (Model.ApplicationSubmittedDate.Value >= DateOnly.FromDateTime(DateTime.Today))
+                else if (Model.ApplicationSubmittedDate.Value >= DateOnly.FromDateTime(DateTime.Today.AddDays(1)))
                 {
                     _invalidFields.Add("ApplicationSubmittedDate");
-                    _fieldErrors["ApplicationSubmittedDate"] = "Application submission date must be a past date";
+                    _fieldErrors["ApplicationSubmittedDate"] = "Application submitted date cannot be a future date";
                     _validationItems.Add(new ValidationItem(
-                        "Application submitted date must be a past date",
+                        "Application submitted date cannot be a future date",
                         "application-submitted-date"));
                 }
             }

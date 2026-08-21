@@ -19,8 +19,8 @@
 
 <div class="page_wrapper">
     <div class="bi-page-content">
-        <h1 class="page-title" aria-label="buisness-information">Business Information</h1>
-        <p class="page-subtitle" aria-label="noted-required-fields">All fields are required unless noted</p>
+        <h2 class="page-title">Business Information</h2>
+        <p class="page-subtitle">All fields are required unless noted</p>
 
         <EditForm EditContext="@editContext" FormName="BusinessInformation" role="form">
 
@@ -130,7 +130,7 @@
                                       Legend="@physicalLocationLabel"
                                       Visible="@IsAddressVisible(physicalLocation)"
                                       Disabled="@(index == 0 && _physicalSameAsMailing)" />
-                    </div>                    
+                    </div>
                 </fieldset>
             }
 
@@ -244,7 +244,7 @@
 
         if (ownershipType == OwnershipType.SoleProprietorship
             || ownershipType == OwnershipType.Individual
-            || ownershipType == OwnershipType.LP)
+           )
         {
             var ownerList = ModelStore.EmployerRegistrationModel.OwnershipSessionData?.GetSurveyContacts().FirstOrDefault();
             if (ownerList != null)
@@ -253,7 +253,16 @@
                 legalName = Regex.Replace(legalName, @"\s+", " ");
                 Model.LegalName = legalName.Trim();
             }
-           
+
+        }
+        if (ownershipType == OwnershipType.LP)
+        {
+            var sessionData = ModelStore?.EmployerRegistrationModel?.OwnershipSessionData;
+ 
+            if (!string.IsNullOrWhiteSpace(sessionData?.LimitedPartnershipName))
+            {
+                Model.LegalName = sessionData.LimitedPartnershipName;
+            }
         }
     }
 

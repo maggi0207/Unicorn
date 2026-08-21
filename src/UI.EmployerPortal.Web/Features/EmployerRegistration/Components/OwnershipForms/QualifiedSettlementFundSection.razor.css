@@ -29,14 +29,31 @@
 }
 
 .bi-zip-dash {
-    align-self:flex-start;
-    margin-top: 28px;
-    font-size: 1rem;
-    line-height: 38px;
+    align-self: inherit;
+    margin-top: inherit;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 .bi-zip-field, .bi-ext-field {
     display: flex;
     flex-direction: column;
+    margin-left:7px;
 }
 
+::deep textarea.master-input{
+    width:684px !important;
+    height:116px;
+}
+
+::deep textarea, ::deep .master-text-field-full {
+    margin-top: 4px;
+}
+
+::deep .master-charcount {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-family: Verdana,sans-serif;
+}

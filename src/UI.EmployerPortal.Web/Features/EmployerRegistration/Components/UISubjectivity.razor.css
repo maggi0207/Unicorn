@@ -277,14 +277,24 @@
     line-height: 150%;
     color: #C82838;
 }
-.fI-control {
-    display: flex;
-    flex-direction: column;
-    width: 684px;
-    max-width: 100%;
- 
-    box-sizing: border-box;
-    font-family: Verdana, sans-serif;
-    font-size: 16px;
-   
+
+::deep textarea.master-input{
+    width:684px !important;
+    height:116px;
+}
+
+::deep textarea, ::deep .master-text-field-full {
+    margin-top: 4px;
+}
+
+::deep .master-charcount {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-family: Verdana,sans-serif;
+}
+
+::deep .form-control {
+    border-color: var(--color-input-border);
 }

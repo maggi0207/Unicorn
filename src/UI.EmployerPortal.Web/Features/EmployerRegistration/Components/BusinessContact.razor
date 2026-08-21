@@ -17,8 +17,8 @@
 <div class="page_wrapper">
     <div class="bi-page-content">
 
-        <h1 class="page-title" aria-label="buisness-contact">Business Contact</h1>
-        <p class="page-subtitle" aria-label="noted-required-fields">All fields are required unless noted</p>
+        <h2 class="page-title">Business Contact</h2>
+        <p class="page-subtitle">All fields are required unless noted</p>
 
         <!-- Validation Error Summary -->
         @if (_showValidationSummary && ValidationErrors.Any())
@@ -126,9 +126,9 @@
                     customValidator?.ClearErrors();
                     var errors = ValidateContactAddress();
                     if (errors.Any()) customValidator?.DisplayErrors(errors);
-                    
+
                     RefreshValidationSummary();
-                    
+
                     hasValidationErrors = editContext.GetValidationMessages().Any();
                     StateHasChanged();
                 });

@@ -30,7 +30,7 @@
             <br />
             <br />
         }
-        <h1 class="page-title">Unemployment Insurance Subjectivity</h1>
+        <h2 class="page-title">Unemployment Insurance Subjectivity</h2>
         <p class="page-subtitle">
             These answers will help us determine whether your business is covered under Wisconsin's Unemployment Insurance Law. All fields are required unless noted.
         </p>
@@ -134,13 +134,17 @@
                  </div>
             }
                          <div>
-                             <p><strong>Financial Institution through which you will maintain your business checking account.</strong>Provide the Name and Address (Optional). </p>
-                            <textarea id="FinancialInstitution"
-                                       class="fI-control"
-                                        rows="4"
-                                         @bind="@SubjectivityModel.FinancialInstitutionString">
-                             </textarea>
-                           
+                             <label for="primaryDescription">
+                                <strong>Financial Institution through which you will maintain your business checking account.</strong>
+                                Provide the Name and Address (Optional).
+                            </label>
+                             <ValidatedTextArea
+                                    Id="primaryDescription"
+                                    Value="@SubjectivityModel.FinancialInstitutionString"
+                                    Rows="4"
+                                    Width="750"
+                                    MaxLength="256"/>
+
                          </div>
 
             <div class="ui-radio-section">

@@ -66,7 +66,8 @@ internal class EmployerRegistrationServices : IEmployerRegistrationServices
             associatedregemp.Add(new RegisterEmployer()
             {
                 UIAccountNumber = registeredemployee.UIAccountNumber,
-                SuitesAccountNumber = registeredemployee.SUITESAccountNumber
+                SuitesAccountNumber = registeredemployee.SUITESAccountNumber,
+                SurveyNumber = registeredemployee.SurveyNumber
             });
 
         }

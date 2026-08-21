@@ -129,10 +129,14 @@ public partial class UISubjectivity
     protected override void OnInitialized()
     {
         _dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI;
+
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
-        if (SubjectivityModel.Wages.Count == 0)
+        if (SubjectivityModel.Wages.Count == 0 || _dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI)
         {
             SubjectivityModel.Wages = wages;
+            SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
+
+
         }
         _subjectivityContext = new EditContext(SubjectivityModel);
         _messageStore = new ValidationMessageStore(_subjectivityContext);
@@ -169,6 +173,7 @@ public partial class UISubjectivity
             SubjectivityModel.PayWagesPerformWI = null;
             SubjectivityModel.ExpectToPayWagesPerformWI = null;
             SubjectivityModel.Wages = wages;
+            SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
             ResetField(() => SubjectivityModel.HasEmployeesOutsideWisconsin501);
             ResetField(() => SubjectivityModel.HasEmployeesOutsideWisconsin);
             ResetField(() => SubjectivityModel.HasFutaLiabilityInOtherStates);
@@ -199,7 +204,7 @@ public partial class UISubjectivity
 
     private DateTime TwentiethWeekMinSaturday()
     {
-        var dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI ?? DateTime.Today;
+        var dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidEmployeesInWI ?? DateTime.Today;
         var dateFirstPaidWagesPlusTwentyWeeks = dateFirstPaidWages.AddDays(7 * 19);
         var dateFirstPaidWagesPlusTwentyWeeksNextSaturday = dateFirstPaidWagesPlusTwentyWeeks.AddDays((int) DayOfWeek.Saturday - (int) dateFirstPaidWagesPlusTwentyWeeks.DayOfWeek);
         if (dateFirstPaidWages.Year == dateFirstPaidWagesPlusTwentyWeeksNextSaturday.Year)
@@ -343,7 +348,7 @@ public partial class UISubjectivity
             BusinessCategory.Domestic => string.Empty,
             BusinessCategory.Agricultural => agricultural,
             BusinessCategory.NonProfit_501c3 => nonProfit,
-            BusinessCategory.NonProfit_Other => nonProfit,
+            BusinessCategory.NonProfit_Other => commercial,
             _ => string.Empty
         };
     }
@@ -358,7 +363,7 @@ public partial class UISubjectivity
             BusinessCategory.Domestic => string.Empty,
             BusinessCategory.Agricultural => agricultural,
             BusinessCategory.NonProfit_501c3 => nonProfit,
-            BusinessCategory.NonProfit_Other => nonProfit,
+            BusinessCategory.NonProfit_Other => commercial,
             _ => string.Empty
         };
     }
@@ -640,6 +645,7 @@ public partial class UISubjectivity
         if (IsVisible(() => SubjectivityModel.Week20EndDate) && Section10Visible)
         {
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.Week20EndDate));
+            var currentWeekSaturday = DateTime.Today.AddDays(DayOfWeek.Saturday - DateTime.Today.DayOfWeek);
             if (!SubjectivityModel.Week20EndDate.HasValue)
             {
                 _messageStore.Add(field, "Enter Week End Date. ");
@@ -653,6 +659,10 @@ public partial class UISubjectivity
                 if (SubjectivityModel.Week20EndDate.Value.DayOfWeek != DayOfWeek.Saturday)
                 {
                     _messageStore.Add(field, "Date 20th week ended must be a Saturday");
+                }
+                if (SubjectivityModel.Week20EndDate.Value > currentWeekSaturday)
+                {
+                    _messageStore.Add(field, "Date 20th week ended can't be a future date");
                 }
             }
         }

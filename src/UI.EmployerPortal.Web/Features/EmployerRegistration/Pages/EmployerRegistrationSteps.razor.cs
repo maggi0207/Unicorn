@@ -64,13 +64,13 @@ public partial class EmployerRegistrationSteps
 
     private readonly List<WizardStep> _wizardSteps = new()
     {
-        new() { StepNumber = 1, Icon = "icons/employer_reg_step_1.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 2, Icon = "icons/employer_reg_step_2.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 3, Icon = "icons/employer_reg_step_3.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 4, Icon = "icons/employer_reg_step_4.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 5, Icon = "icons/employer_reg_step_5.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 6, Icon = "icons/employer_reg_step_6.svg", ActionButtonText = "CONTINUE"      },
-        new() { StepNumber = 7, Icon = "icons/employer_reg_step_7.svg", ActionButtonText = "SUBMIT" , BackButtonText = "Return To Registration"}
+        new() { StepNumber = 1, Title="Preliminary Questions", Icon = "icons/employer_reg_step_1.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 2, Title="Ownership", Icon = "icons/employer_reg_step_2.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 3, Title="Business Info", Icon = "icons/employer_reg_step_3.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 4, Title="Business Contact", Icon = "icons/employer_reg_step_4.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 5, Title="Business Activity", Icon = "icons/employer_reg_step_5.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 6, Title="UI Subjectivity", Icon = "icons/employer_reg_step_6.svg", ActionButtonText = "CONTINUE"      },
+        new() { StepNumber = 7, Title="Verification", Icon = "icons/employer_reg_step_7.svg", ActionButtonText = "SUBMIT" , BackButtonText = "Return To Registration"}
     };
 
     /// ── Single source of truth for the page ───────────────────────────────────

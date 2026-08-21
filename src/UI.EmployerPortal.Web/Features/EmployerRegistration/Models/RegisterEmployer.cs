@@ -20,4 +20,8 @@ public sealed record RegisterEmployer
     /// UIAccountNumber
     /// </summary>
     public string UIAccountNumber { get; set; } = string.Empty;
+    /// <summary>
+    /// SurveyResponseSK
+    /// </summary>
+    public string? SurveyNumber { get; set; }
 }

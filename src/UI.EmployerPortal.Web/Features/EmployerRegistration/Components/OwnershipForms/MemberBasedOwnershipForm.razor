@@ -168,19 +168,31 @@
 
             if (ContinueData.Members is { Count: > 0 })
             {
-                Members.Clear();
-                foreach (var savedMember in ContinueData.Members)
+                int count = Math.Min(ContinueData.Members.Count,Members.Count);
+                for(int i =0; i< count;i++)
                 {
-                    Members.Add(new OwnerMember
-                    {
-                        Role = savedMember.Role,
-                        FirstName = savedMember.FirstName,
-                        MiddleInitial = savedMember.MiddleInitial,
-                        LastName = savedMember.LastName,
-                        SSN = savedMember.SSN,
-                        OwnershipPercentage = savedMember.OwnershipPercentage
-                    });
+                    Members[i].FirstName = ContinueData.Members[i].FirstName;
+                     Members[i].MiddleInitial = ContinueData.Members[i].MiddleInitial;
+                      Members[i].LastName = ContinueData.Members[i].LastName;
+                    Members[i].SSN = ContinueData.Members[i].SSN;
+                       Members[i].OwnershipPercentage = ContinueData.Members[i].OwnershipPercentage;
+                       
                 }
+
+
+                // Members.Clear();
+                // foreach (var savedMember in ContinueData.Members)
+                // {
+                //     Members.Add(new OwnerMember
+                //     {
+                //         Role = savedMember.Role,
+                //         FirstName = savedMember.FirstName,
+                //         MiddleInitial = savedMember.MiddleInitial,
+                //         LastName = savedMember.LastName,
+                //         SSN = savedMember.SSN,
+                //         OwnershipPercentage = savedMember.OwnershipPercentage
+                //     });
+                // }
             }
 
             _dataRestored = true;

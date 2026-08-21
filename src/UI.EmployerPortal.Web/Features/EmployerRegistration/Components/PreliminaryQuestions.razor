@@ -1,19 +1,21 @@
-@using System.ComponentModel.DataAnnotations
-@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using System.ComponentModel.DataAnnotations;
+@using UI.EmployerPortal.Razor.SharedComponents.Address;
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
-@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components;
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
+@using UI.EmployerPortal.Web.Features.Shared.Extensions;
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
-@using System.Linq.Expressions
+@using System.Linq.Expressions;
 @inject NavigationManager Nav;
 
 <PageTitle>Preliminary Questions</PageTitle>
 
 <div class="page_wrapper">
     <div class="bi-page-content">
-        <h1 class="page-title">Preliminary Questions</h1>
+        <h2 class="page-title">Preliminary Questions</h2>
         <p class="page-subtitle">All fields are required unless noted</p>
 
         <!-- Validation Error Summary -->
@@ -84,19 +86,22 @@
                 {
                     <!-- Q1.1 Yes: has ruling -->
                     <p data-questionid="1.1.1">Please upload a copy of your 501(c)(3) ruling from the IRS.</p>
-                    <FileUpload Title="501(c)(3) Ruling from IRS" Model="Model" SelFileType="FileType.Ruling"
-                                OnFileUpload="@(fileName => {_rulingDocUploaded = true; Model.RulingDocFilename = Path.GetFileName(fileName);})" />
-                    <div class="form-check">
-                        <label class="form-check-label fw-bold" for="chk-supply-docs-ruling">
-                            <input type="checkbox"
-                                   id="chk-supply-docs-ruling"
-                                   class="form-check-input"
-                                   @bind="Model.WillSupplyDocumentationLater"
-                                   @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                               
-                            I will supply required documentation at a later date.
-                        </label>
-                    </div>
+
+                    <FileUpload2 Title="501(c)(3) Ruling from IRS"
+                                 OnFileUpload="@ReceiveRulingDoc"
+                                 OnFileRemoved="@RemoveRulingDoc"
+                                 AllowMultiple="false"
+                                 FileType="FileAcceptableType.Registration"
+                                 FolderPath="@UploadFolderPath"
+                                 SaveOnUpload="true"
+                                 FileName="@(Model.RulingDocFilename?.RemoveGUID())"
+                                 FilePath="@Model.RulingDocFilename" />
+
+                    <CheckboxInput Id="chk-supply-docs-ruling"
+                                   Label= "I will supply required documentation at a later date."
+                                   Value= "@Model.WillSupplyDocumentationLater"
+                                   ValueChanged="OnWillSupplyDocumentationLaterChanged"
+                                   Disabled= "@RulingDocUploaded" />
                     <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <br />
                 }
@@ -119,23 +124,41 @@
                     {
                         <!-- Q1.1.2 Yes: applied -->
                         <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
-                        <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
-                                    OnFileUpload="@(fileName => {Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
-                        <FileUpload Title="IRS Acceptance Letter" SelFileType="FileType.IRS" Model="Model"
-                                    OnFileUpload="@(fileName => {Model.IRSAcceptanceLetterFilename = Path.GetFileName(fileName);})" />
-                        <div class="form-check">
-                            <label class="form-check-label fw-bold" for="chk-supply-docs-applied">
-                                <input type="checkbox"
-                                       id="chk-supply-docs-applied"
-                                       class="form-check-input"
-                                       @bind="Model.WillSupplyDocumentationLater"
-                                       @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                            
-                                I will supply required documentation at a later date.
-                            </label>
-                        </div>
-                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
-                        <br />
+                           <FileUpload2 Title="Articles of Incorporation"
+                                 OnFileUpload="@ReceiveArticlesDoc"
+                                 OnFileRemoved="@RemoveArticlesDoc"
+                                 AllowMultiple="false"
+                                 FileType="FileAcceptableType.Registration"
+                                 FolderPath="@UploadFolderPath"
+                                 SaveOnUpload="true"
+                                 FileName="@(Model.ArticlesOfIncorporationFilename?.RemoveGUID())"
+                                 FilePath="@Model.ArticlesOfIncorporationFilename" />
+
+                            <CheckboxInput Id="chk-supply-docs-articles"
+                                           Label="I will supply required documentation at a later date."
+                                           Value="@Model.WillSupplyArticlesLater"
+                                           ValueChanged="OnWillSupplyArticlesLaterChanged"
+                                           Disabled="@ArticlesDocUploaded" />
+
+                        <FieldError For="@(() => Model.WillSupplyArticlesLater)" Visible="@_formSubmitted" />
+
+                        <FileUpload2 Title="IRS Acceptance Letter"
+                                 OnFileUpload="@ReceiveIrsAcceptanceDoc"
+                                 OnFileRemoved="@RemoveIrsAcceptanceDoc"
+                                 AllowMultiple="false"
+                                 FileType="FileAcceptableType.Registration"
+                                 FolderPath="@UploadFolderPath"
+                                 SaveOnUpload="true"
+                                 FileName="@(Model.IRSAcceptanceLetterFilename?.RemoveGUID())"
+                                     FilePath="@Model.IRSAcceptanceLetterFilename" />
+
+                            <CheckboxInput Id="chk-supply-docs-irs"
+                                           Label="I will supply required documentation at a later date."
+                                           Value="@Model.WillSupplyIrsAcceptanceLater"
+                                           ValueChanged="OnWillSupplyIrsAcceptanceLaterChanged"
+                                           Disabled="@IrsAcceptanceDocUploaded" />
+                            <FieldError For="@(() => Model.WillSupplyIrsAcceptanceLater)" Visible="@_formSubmitted" />
+                            <br />
                     }
 
                     @if (ShowNotAppliedText)
@@ -148,19 +171,23 @@
                             Once your 501(c)(3) application has been accepted by the IRS, please submit a copy of
                             your application acceptance letter.
                         </p>
-                        <FileUpload Title="Articles of Incorporation" SelFileType="FileType.INC" Model="Model"
-                                    OnFileUpload="@(fileName => {_notAppliedDocUploaded = true; Model.ArticlesOfIncorporationFilename = Path.GetFileName(fileName);})" />
-                        <div class="form-check">
-                            <label class="form-check-label fw-bold" for="chk-supply-docs-not-applied">
-                                <input type="checkbox"
-                                       id="chk-supply-docs-not-applied"
-                                       class="form-check-input"
-                                       @bind="Model.WillSupplyDocumentationLater"
-                                       @bind:after="OnWillSupplyDocumentationLaterChanged" />
-                                I will supply required documentation at a later date.
-                            </label>
-                        </div>
-                        <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
+                        <FileUpload2 Title="Articles of Incorporation"
+                                 OnFileUpload="@ReceiveArticlesDoc"
+                                 OnFileRemoved="@RemoveArticlesDoc"
+                                 AllowMultiple="false"
+                                 FileType="FileAcceptableType.Registration"
+                                 FolderPath="@UploadFolderPath"
+                                 SaveOnUpload="true"
+                                 FileName="@(Model.ArticlesOfIncorporationFilename?.RemoveGUID())"
+                                 FilePath="@Model.ArticlesOfIncorporationFilename" />
+
+                            <CheckboxInput Id="chk-supply-docs-articles"
+                                           Label="I will supply required documentation at a later date."
+                                           Value="@Model.WillSupplyArticlesLater"
+                                           ValueChanged="OnWillSupplyArticlesLaterChanged"
+                                           Disabled="@ArticlesDocUploaded" />
+
+                        <FieldError For="@(() => Model.WillSupplyArticlesLater)" Visible="@_formSubmitted" />
                         <br />
                     }
                 }
@@ -333,9 +360,9 @@
                                 ValueChanged="OnNoEmployeReasonChanged"
                                 ValueExpression="() => Model.SelectedNoEmployeeReason"
                                 Options="@NoEmployeReasonOptions" />
-              
-                    
-                 
+
+
+
                     @if (Model.SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
                     {
                         <div class="peo-container">

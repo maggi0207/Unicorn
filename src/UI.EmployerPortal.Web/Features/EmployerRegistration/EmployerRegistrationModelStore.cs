@@ -30,6 +30,7 @@ internal class EmployerRegistrationModelStore
     private string? _uploadedFilePathRullingDoc;
     private string? _uploadedFilePathIrs;
     private string? _uploadedFilePathArticle;
+    public string? UploadFolderPath { get; }
 
     private bool _skipSubjectivity = false;
     private bool _notLiable = false;
@@ -43,7 +44,8 @@ internal class EmployerRegistrationModelStore
         IUploadServices uploadServices,
         IConfiguration configuration,
         NavigationManager navigationManager,
-        ISessionManager sessionManager)
+        ISessionManager sessionManager,
+        IUploadFolderResolver uploadFolderResolver)
     {
         _employerRegistrationService = employerRegistrationService;
         _userAccountService = userAccountService;
@@ -53,6 +55,7 @@ internal class EmployerRegistrationModelStore
         _sessionManager = sessionManager;
 
         _technicalDifficulties = configuration.GetValue<string>("Messages:TechnicalDifficulties") ?? "There was an error.";
+        UploadFolderPath = uploadFolderResolver.Resolve("FileUpload:EmployerRegistration:FolderPath") ?? string.Empty;
     }
 
     public List<SurveyResponse> GetResponses()
@@ -74,7 +77,7 @@ internal class EmployerRegistrationModelStore
     {
         if (_skipSubjectivity)
         {
-            var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
+            /*var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
 
             if (hasSurveyResponseSk)
             {
@@ -86,7 +89,8 @@ internal class EmployerRegistrationModelStore
                 }
 
                 return match.Value;
-            }
+            }*/
+            return _skipSubjectivity;
         }
 
         return _notLiable;
@@ -394,6 +398,7 @@ internal class EmployerRegistrationModelStore
             case "Canada":
                 var caRequest = new PortalRegistrationAddressRequestCanada()
                 {
+                    SecureUserSK = secureUserSK,
                     SurveyResponseSK = surveyResponseSK,
                     RegistrationAddressCodeSK = (int) addressCode,
                     LineTwoAddress = address.AddressLine1,
@@ -409,6 +414,7 @@ internal class EmployerRegistrationModelStore
             default:
                 var otherRequest = new PortalRegistrationAddressRequestOtherInternational()
                 {
+                    SecureUserSK = secureUserSK,
                     SurveyResponseSK = surveyResponseSK,
                     RegistrationAddressCodeSK = (int) addressCode,
                     LineOneAddress = address.AddressLine1,

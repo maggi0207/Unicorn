@@ -58,15 +58,11 @@ public partial class Ownership
     private bool ShowQsfSection => Model.OwnershipType == OwnershipType.QSF
                                                 && (!HasPaidEmployeesInWI || !ExpectsFuturePayroll);
 
-    private bool ShowOWASection => Model.OwnershipType == OwnershipType.CityGovernmentAgency;
-    private bool ShowOWACSection => Model.OwnershipType == OwnershipType.CountyGovernmentAgency;
-    private bool ShowOWAFSection => Model.OwnershipType == OwnershipType.FederalGovernmentAgency;
-    private bool ShowOWALSection => Model.OwnershipType == OwnershipType.LocalGovernmentUnitNotListed;
-    private bool ShowOWASCSection => Model.OwnershipType == OwnershipType.SchoolDistrict;
-    private bool ShowOWASTSection => Model.OwnershipType == OwnershipType.StateGovernmentAgency;
-    private bool ShowOWASTUSection => Model.OwnershipType == OwnershipType.StateGovernmentUnitNotListed;
-    private bool ShowOWATSection => Model.OwnershipType == OwnershipType.Township;
-    private bool ShowOWAVSection => Model.OwnershipType == OwnershipType.Village;
+    private bool ShowGovernmentEmpDocumentationSection => Model.OwnershipType is OwnershipType.CityGovernmentAgency or OwnershipType.CountyGovernmentAgency
+                                                        or OwnershipType.FederalGovernmentAgency or OwnershipType.LocalGovernmentUnitNotListed
+                                                        or OwnershipType.SchoolDistrict or OwnershipType.StateGovernmentAgency
+                                                        or OwnershipType.StateGovernmentUnitNotListed or OwnershipType.Township
+                                                        or OwnershipType.Village or OwnershipType.IndianTribe;
     private bool _isValidating = false;
     private List<ValidationItem>? _capturedChildItems;
     /// <inheritdoc/>
@@ -115,15 +111,7 @@ public partial class Ownership
             AggregateSectionErrors(ShowLlcDocumentationSection, _llcDocValidateCallback);
             AggregateSectionErrors(ShowCorporateOfficerServicesSection, _officerServicesValidateCallback);
             AggregateSectionErrors(ShowQsfSection, _qsfValidateCallback);
-            AggregateSectionErrors(ShowOWASection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWACSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWAFSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWALSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASCSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASTSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASTUSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWATSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWAVSection, _owagencyDocValidateCallback);
+            AggregateSectionErrors(ShowGovernmentEmpDocumentationSection, _owagencyDocValidateCallback);
 
             _showValidationSummary = !IsFormValid();
             await InvokeAsync(StateHasChanged);
@@ -179,15 +167,7 @@ public partial class Ownership
         AggregateSectionErrors(ShowLlcDocumentationSection, _llcDocValidateCallback);
         AggregateSectionErrors(ShowCorporateOfficerServicesSection, _officerServicesValidateCallback);
         AggregateSectionErrors(ShowQsfSection, _qsfValidateCallback);
-        AggregateSectionErrors(ShowOWASection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWACSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWAFSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWALSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWASCSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWASTSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWASTUSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWATSection, _owagencyDocValidateCallback);
-        AggregateSectionErrors(ShowOWAVSection, _owagencyDocValidateCallback);
+        AggregateSectionErrors(ShowGovernmentEmpDocumentationSection, _owagencyDocValidateCallback);
         StateHasChanged();
     }
 
@@ -447,10 +427,15 @@ public partial class Ownership
                         EventCallback.Factory.Create<EstateFormData>(this, OnFormDataChanged));
                     break;
                 case OwnershipType.CityGovernmentAgency:
-                    parameters.Add("OnDataChanged",
-                        EventCallback.Factory.Create<OwnershipAgency>(this, OnFormDataChanged));
-                    break;
                 case OwnershipType.CountyGovernmentAgency:
+                case OwnershipType.FederalGovernmentAgency:
+                case OwnershipType.LocalGovernmentUnitNotListed:
+                case OwnershipType.SchoolDistrict:
+                case OwnershipType.StateGovernmentAgency:
+                case OwnershipType.StateGovernmentUnitNotListed:
+                case OwnershipType.Township:
+                case OwnershipType.Village:
+                case OwnershipType.IndianTribe:
                     parameters.Add("OnDataChanged",
                         EventCallback.Factory.Create<OwnershipAgency>(this, OnFormDataChanged));
                     break;
@@ -485,15 +470,7 @@ public partial class Ownership
             AggregateSectionErrors(ShowLlcDocumentationSection, _llcDocValidateCallback);
             AggregateSectionErrors(ShowCorporateOfficerServicesSection, _officerServicesValidateCallback);
             AggregateSectionErrors(ShowQsfSection, _qsfValidateCallback);
-            AggregateSectionErrors(ShowOWASection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWACSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWAFSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWALSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASCSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASTSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWASTUSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWATSection, _owagencyDocValidateCallback);
-            AggregateSectionErrors(ShowOWAVSection, _owagencyDocValidateCallback);
+            AggregateSectionErrors(ShowGovernmentEmpDocumentationSection, _owagencyDocValidateCallback);
         }
         StateHasChanged();
     }
@@ -558,17 +535,21 @@ public partial class Ownership
                     }
                     break;
                 case OwnershipType.CityGovernmentAgency:
+                case OwnershipType.CountyGovernmentAgency:
+                case OwnershipType.FederalGovernmentAgency:
+                case OwnershipType.LocalGovernmentUnitNotListed:
+                case OwnershipType.SchoolDistrict:
+                case OwnershipType.StateGovernmentAgency:
+                case OwnershipType.StateGovernmentUnitNotListed:
+                case OwnershipType.Township:
+                case OwnershipType.Village:
+                case OwnershipType.IndianTribe:
                     if (_childFormData is OwnershipAgency ownershipAgency)
                     {
-                        Model.OwnershipAgencies?.HasFile = ownershipAgency.HasFile;
-                        Model.OwnershipAgencies?.NoHasFile = ownershipAgency.NoHasFile;
-                    }
-                    break;
-                case OwnershipType.CountyGovernmentAgency:
-                    if (_childFormData is OwnershipAgency cownershipAgency)
-                    {
-                        Model.OwnershipAgencies?.HasFile = cownershipAgency.HasFile;
-                        Model.OwnershipAgencies?.NoHasFile = cownershipAgency.NoHasFile;
+                        Model.OwnershipAgencies ??= new();
+                        Model.OwnershipAgencies.HasFile = ownershipAgency.HasFile;
+                        Model.OwnershipAgencies.NoHasFile = ownershipAgency.NoHasFile;
+                        Model.OwnershipAgencies.Filepath = ownershipAgency.Filepath;
                     }
                     break;
 

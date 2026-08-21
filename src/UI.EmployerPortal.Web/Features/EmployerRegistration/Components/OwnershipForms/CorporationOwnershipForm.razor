@@ -151,7 +151,7 @@
     {
         _previousISOutsideUSA = IsOutsideUSA;
         InitializeOfficers();
-        RestoreFromContinueData();
+        RestoreFromContinueData();      
         RegisterValidate?.Invoke(() => { _showAllErrors = true; ValidateForm(); return ValidationErrors; });
     }
 

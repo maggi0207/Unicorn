@@ -46,9 +46,9 @@
     <!-- Officers Perform Services Question -->
     <div id="officers-perform-services-group"
          class="@(_showAllErrors && _invalidFields.Contains("OfficersPerformServices") ? "master-text-field--error" : "")">
-        <p id="officers-perform-services-group-label"><strong>Do corporate officers perform services or plan to perform services in Wisconsin?</strong></p>        
+        <p id="officers-perform-services-group-label"><strong>Do corporate officers perform services or plan to perform services in Wisconsin?</strong></p>
         @if (_showAllErrors && _invalidFields.Contains("OfficersPerformServices"))
-        {   
+        {
             <ValidationError ErrorMessage="Please select an option" />
         }
         <RadioGroup TValue="bool?"
@@ -77,7 +77,7 @@
                                 ErrorMessage="@_fieldErrors.GetValueOrDefault("ApproximatePayDate")"
                                 OnBlur="@(() => ValidateSection())"
                                 Visible="_showAllErrors"/>
-            
+
             <!-- No Pay Explanation -->
             <ValidatedTextArea Id="no-pay-explanation"
                                Label="If you do not expect the officers to be paid, please explain:"
@@ -89,7 +89,8 @@
                                OnKeyUp="@(() => ValidateSection())"
                                OnBlur="@(() => ValidateSection())"
                                HintId="no-pay-explanation"
-                               Visible="_showAllErrors" />
+                               Visible="_showAllErrors"
+                               MaxLength="256" />
         </div>
     }
 </div>
