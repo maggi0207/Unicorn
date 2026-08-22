@@ -90,3 +90,5 @@ Add new rules to this file whenever:
 - **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates.
 - **IDE0046 ('if' statement can be simplified):** If an `if` statement can be simplified into a single return expression (e.g., returning a boolean condition directly instead of `if (x) return true; else return false;`), simplify it to satisfy the IDE rule, bypassing the "always use brackets for if statements" rule when applicable.
 - **IDE0028 (Simplify collection initialization):** Use C# 12 collection expressions (`[]` instead of `new()` or `new List<T>()`) to initialize lists, arrays, and sets.
+- **IDE0007 (Use 'var' instead of explicit type):** Use `var` for local variable declarations when the type is apparent or assigned from expressions (e.g., `var startYear = dateFirstPaidWages.Value.Year;`, `var entry = new YearQuartersPaidWages(...)`).
+- **IDE0048 (Add parentheses for clarity):** Add explicit parentheses around arithmetic, logical, or division sub-expressions for operator precedence clarity (e.g., `var startQuarter = ((month - 1) / 3) + 1;`).

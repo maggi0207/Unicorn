@@ -50,19 +50,19 @@ public class YearQuarterPaidWagesService : IYearQuarterPaidWagesService
             return GetYearQuartersPaidWages();
         }
 
-        int startYear = dateFirstPaidWages.Value.Year;
-        int startQuarter = (dateFirstPaidWages.Value.Month - 1) / 3 + 1;
+        var startYear = dateFirstPaidWages.Value.Year;
+        var startQuarter = ((dateFirstPaidWages.Value.Month - 1) / 3) + 1;
 
-        int endYear = EndDate.Year;
-        int endQuarter = (EndDate.Month - 1) / 3 + 1;
+        var endYear = EndDate.Year;
+        var endQuarter = ((EndDate.Month - 1) / 3) + 1;
 
-        int currentYear = startYear;
-        int currentQuarter = startQuarter;
+        var currentYear = startYear;
+        var currentQuarter = startQuarter;
 
         while (currentYear < endYear || (currentYear == endYear && currentQuarter <= endQuarter))
         {
-            string quarterStr = $"Q{currentQuarter}";
-            string yearStr = currentYear.ToString();
+            var quarterStr = $"Q{currentQuarter}";
+            var yearStr = currentYear.ToString();
 
             Add(yearStr, quarterStr);
 
@@ -86,7 +86,7 @@ public class YearQuarterPaidWagesService : IYearQuarterPaidWagesService
     {
         if (!_yearQuarterPaidWages.ContainsKey(year))
         {
-            YearQuartersPaidWages entry = new YearQuartersPaidWages(year, quarter)
+            var entry = new YearQuartersPaidWages(year, quarter)
             {
                 WageEntryRequired = WageEntryRequired
             };
