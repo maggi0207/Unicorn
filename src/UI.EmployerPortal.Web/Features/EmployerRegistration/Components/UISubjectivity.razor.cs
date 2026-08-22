@@ -129,15 +129,14 @@ public partial class UISubjectivity
     protected override void OnInitialized()
     {
         _dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI;
-
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
-        if (SubjectivityModel.Wages.Count == 0 || _dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI)
-        {
-            SubjectivityModel.Wages = wages;
-            SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
+        //if (SubjectivityModel.Wages.Count == 0 || _dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI)
+        //{
+        //    SubjectivityModel.Wages = wages;
+        //    SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
 
 
-        }
+        //}
         _subjectivityContext = new EditContext(SubjectivityModel);
         _messageStore = new ValidationMessageStore(_subjectivityContext);
         var isNonProfitFromStep1 = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.IsNonProfitOrg == true;
@@ -152,7 +151,7 @@ public partial class UISubjectivity
             BusinessCategoryScenario.LockedAgricultural => BusinessCategory.Agricultural,
             BusinessCategoryScenario.LockedDomestic => BusinessCategory.Domestic,
             BusinessCategoryScenario.LockedCommercial => BusinessCategory.Commercial,
-            BusinessCategoryScenario.FreeChoice => SubjectivityModel.BusinessCategory != null ? SubjectivityModel.BusinessCategory : BusinessCategory.Commercial,
+            BusinessCategoryScenario.FreeChoice => SubjectivityModel.BusinessCategory is BusinessCategory.Commercial or BusinessCategory.NonProfit_Other ? SubjectivityModel.BusinessCategory : BusinessCategory.Commercial,
             _ => BusinessCategory.Commercial,
         };
         if (SubjectivityModel.BusinessCategory != null && SubjectivityModel.BusinessCategory != lockedCategory)
@@ -188,6 +187,13 @@ public partial class UISubjectivity
         }
         SubjectivityModel.BusinessCategory = lockedCategory;
         BusinessCategory = (BusinessCategory) lockedCategory;
+        if (_dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI && SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
+        {
+            SubjectivityModel.Wages = wages;
+            SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
+
+
+        }
         _subjectivityContext.OnFieldChanged += (_, f) =>
         {
             _touchedFields.Add(f.FieldIdentifier);
@@ -238,7 +244,8 @@ public partial class UISubjectivity
     /// Determines the business category scenario for Step 6 based on Step 1 (non-profit answer)
     /// and Step 5 (principal business activity selection).
     /// </summary>
-    private static BusinessCategoryScenario ResolveScenario(bool isNonProfitFromStep1, PrincipalBusinessActivityType activity)
+    private static BusinessCategoryScenario
+        ResolveScenario(bool isNonProfitFromStep1, PrincipalBusinessActivityType activity)
     {
         if (isNonProfitFromStep1)
         {
