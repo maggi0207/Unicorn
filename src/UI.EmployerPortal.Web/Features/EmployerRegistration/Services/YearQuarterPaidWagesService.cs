@@ -43,26 +43,54 @@ public class YearQuarterPaidWagesService : IYearQuarterPaidWagesService
     /// <returns></returns>
     public List<YearQuartersPaidWages> GetYearsAndQuartersPaidWages(DateTime? dateFirstPaidWages)
     {
-        var currentDate = dateFirstPaidWages;
+        _yearQuarterPaidWages.Clear();
 
-        while (currentDate.HasValue && currentDate.Value < EndDate)
+        if (!dateFirstPaidWages.HasValue)
         {
-            var quarter = GetQuarter(currentDate.Value);
-            var year = currentDate.Value.Year.ToString();
+            return GetYearQuartersPaidWages();
+        }
 
-            Add(year, quarter);
+        int startYear = dateFirstPaidWages.Value.Year;
+        int startQuarter = (dateFirstPaidWages.Value.Month - 1) / 3 + 1;
 
-            currentDate = currentDate.Value.AddMonths(3);
+        int endYear = EndDate.Year;
+        int endQuarter = (EndDate.Month - 1) / 3 + 1;
+
+        int currentYear = startYear;
+        int currentQuarter = startQuarter;
+
+        while (currentYear < endYear || (currentYear == endYear && currentQuarter <= endQuarter))
+        {
+            string quarterStr = $"Q{currentQuarter}";
+            string yearStr = currentYear.ToString();
+
+            Add(yearStr, quarterStr);
+
+            currentQuarter++;
+            if (currentQuarter > 4)
+            {
+                currentQuarter = 1;
+                currentYear++;
+            }
         }
 
         return GetYearQuartersPaidWages();
     }
 
+    /// <summary>
+    /// Adds or updates a year and quarter entry in the quarterly wages dictionary.
+    /// </summary>
+    /// <param name="year">The year string.</param>
+    /// <param name="quarter">The quarter string (e.g. Q1, Q2, Q3, Q4).</param>
     private void Add(string year, string quarter)
     {
         if (!_yearQuarterPaidWages.ContainsKey(year))
         {
-            _yearQuarterPaidWages.Add(year, new YearQuartersPaidWages(year, quarter));
+            YearQuartersPaidWages entry = new YearQuartersPaidWages(year, quarter)
+            {
+                WageEntryRequired = WageEntryRequired
+            };
+            _yearQuarterPaidWages.Add(year, entry);
         }
         else
         {
