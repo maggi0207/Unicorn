@@ -27,6 +27,7 @@
             Contacts="@Contacts"
             Addresses="@Addresses"
             ShowEditSection="true"
+            OnNavigateToStep="@OnNavigateToStep"
             CurrentStep="CurrentStep"/>
 
         <div class="action-container">
@@ -61,6 +62,13 @@
 
     [Parameter]
     public EventCallback ContinueRegistration { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the user clicks an Edit button on a summary section.
+    /// Receives the step number (1-based) to navigate to.
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> OnNavigateToStep { get; set; }
 
     private List<EmployerRegistrationQuestionDataProxy> Questions { get; set; } = new();
 

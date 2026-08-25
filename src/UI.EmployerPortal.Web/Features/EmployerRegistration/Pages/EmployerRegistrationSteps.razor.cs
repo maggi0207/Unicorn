@@ -103,6 +103,7 @@ public partial class EmployerRegistrationSteps
 
     private async Task HandleVerificationEditClick(int stepNumber)
     {
+        _saveAndQuit = false;
         _currentStep = stepNumber;
         await JSRuntime.InvokeVoidAsync("scrollToTop");
     }
@@ -223,6 +224,8 @@ public partial class EmployerRegistrationSteps
     {
         _saveAndQuit = false;
     }
+
+
 
     private async Task<bool> Validate()
     {
