@@ -51,6 +51,13 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
     #region Physical Locations
 
     /// <summary>
+    /// Indicates whether the physical location address differs from the business mailing address.
+    /// Maps to QuestionSetItemSK 3170 (PHYS_LOC_ADR_DIFF).
+    /// Null means the user has not yet made a selection.
+    /// </summary>
+    public bool? IsPhysicalLocationDifferent { get; set; }
+
+    /// <summary>
     /// Physical business locations. At least one is required; maximum of three allowed.
     /// </summary>
     public List<AddressModel> PhysicalLocations { get; set; } = new()
@@ -193,6 +200,16 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_PHN_EXTN_NUM, _response = MailingAddress.PhoneExtension });
         }
 
+        if (IsPhysicalLocationDifferent.HasValue)
+        {
+            responses.Add(new SurveyResponse()
+            {
+                _surveyResponseItemSk = (int) SurveyResponseItem.PHYS_LOC_ADR_DIFF,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(IsPhysicalLocationDifferent.Value),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsPhysicalLocationDifferent.Value)
+            });
+        }
+
         return responses;
     }
 
@@ -248,6 +265,11 @@ public class BusinessInformationModel : IEmployerRegistrationModelSection
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_PHN_EXTN_NUM, out var phoneExtension))
         {
             MailingAddress.PhoneExtension = phoneExtension.ReplyText;
+        }
+
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PHYS_LOC_ADR_DIFF, out var physLocDiffers))
+        {
+            IsPhysicalLocationDifferent = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(physLocDiffers.ReplyText);
         }
     }
 }

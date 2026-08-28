@@ -49,7 +49,8 @@
                                        Id="LegalName"
                                        Maxlength="64"
                                        OnBlur="() => ValidateCustomFields(nameof(Model.LegalName))"
-                                       Visible="@IsVisible(() => Model.LegalName)" />
+                                       Visible="@IsVisible(() => Model.LegalName)"
+                                       ReadOnly="@isLegalNameReadOnly" />
                 </div>
                 <div class="bi-field">
                     <OutlinedTextField Label="Trade Name (Optional)"
@@ -162,6 +163,7 @@
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
     private bool _showValidationSummary = false;
+    private bool isLegalNameReadOnly = false;
 
     /// <summary>Returns true when either mailing address line contains "PO Box", disabling the copy-to-physical checkbox.</summary>
     private bool IsMailingPoBox
@@ -185,8 +187,15 @@
     protected override void OnInitialized()
     {
         if (RegistrationState.BusinessInfo is not null)
+        {
             Model = RegistrationState.BusinessInfo;
-        _physicalSameAsMailing = RegistrationState.PhysicalSameAsMailing;
+            _physicalSameAsMailing = RegistrationState.PhysicalSameAsMailing;
+        }
+        else if (Model.IsPhysicalLocationDifferent.HasValue)
+        {
+            _physicalSameAsMailing = !Model.IsPhysicalLocationDifferent.Value;
+        }
+        Model.IsPhysicalLocationDifferent = !_physicalSameAsMailing;
 
         editContext = new EditContext(Model);
         editContext.OnFieldChanged += (_, e) =>
@@ -199,6 +208,7 @@
                 if (_physicalSameAsMailing && IsMailingPoBox)
                 {
                     _physicalSameAsMailing = false;
+                    Model.IsPhysicalLocationDifferent = true;
                     ClearPhysicalLocation(0);
                     NotifyPhysicalLocationChanged(0);
                 }
@@ -258,10 +268,11 @@
         if (ownershipType == OwnershipType.LP)
         {
             var sessionData = ModelStore?.EmployerRegistrationModel?.OwnershipSessionData;
- 
+
             if (!string.IsNullOrWhiteSpace(sessionData?.LimitedPartnershipName))
             {
                 Model.LegalName = sessionData.LimitedPartnershipName;
+                isLegalNameReadOnly = true;
             }
         }
     }
@@ -279,12 +290,24 @@
 
         if (fieldName == nameof(Model.LegalName))
         {
-            if (ownershipType == OwnershipType.LLC &&
-                !string.IsNullOrWhiteSpace(Model.LegalName) &&
-                !Model.LegalName.TrimEnd().EndsWith("LLC", StringComparison.OrdinalIgnoreCase))
+            var legalName = Model.LegalName?.Trim();
+
+            // 1. Reject numeric-only Legal Name
+            if (!string.IsNullOrWhiteSpace(legalName) && Regex.IsMatch(legalName, @"^\d+$"))
             {
                 _customFieldErrors[fieldId] = new List<string>
-               { "Legal Name must end in LLC for a Limited Liability Company" };
+                { "Legal Name cannot contain only numbers." };
+                return;
+            }
+
+            // 2️. Validation for legal name ends with LLC
+             if (ownershipType == OwnershipType.LLC &&
+                !string.IsNullOrWhiteSpace(legalName) &&
+                !legalName.EndsWith("LLC", StringComparison.OrdinalIgnoreCase))
+            {
+                _customFieldErrors[fieldId] = new List<string>
+                { "Legal Name must end in LLC for a Limited Liability Company" };
+                return;
             }
         }
         // Trade Name validations (only if provided)
@@ -453,6 +476,7 @@
     private void OnPhysicalSameAsMailingChanged(ChangeEventArgs e)
     {
         _physicalSameAsMailing = e.Value is true;
+        Model.IsPhysicalLocationDifferent = !_physicalSameAsMailing;
         if (_physicalSameAsMailing)
             CopyMailingToPhysical(0);
         else
