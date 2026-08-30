@@ -493,15 +493,10 @@ public class CanadianPostalCodeFormatAttribute : ValidationAttribute
         var strValue = value?.ToString();
 
         // Empty/null is handled by RequiredIfCountryAttribute — skip format check here
-        if (string.IsNullOrWhiteSpace(strValue))
-        {
-            return ValidationResult.Success;
-        }
-
-        return !PostalCodePattern.IsMatch(strValue)
-            ? new ValidationResult(
+        return string.IsNullOrWhiteSpace(strValue) || PostalCodePattern.IsMatch(strValue)
+            ? ValidationResult.Success
+            : new ValidationResult(
                 ErrorMessage ?? "Canadian Postal Code format is incorrect. Please enter a valid postal code in the format ANA NAN, where 'A' represents a letter and 'N' represents a digit.",
-                new[] { context.MemberName! })
-            : ValidationResult.Success;
+                new[] { context.MemberName! });
     }
 }

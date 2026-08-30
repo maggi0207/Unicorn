@@ -87,7 +87,7 @@ Add new rules to this file whenever:
 
 - **IDE0044 (Make field readonly):** Any private field that is assigned only in the constructor or at declaration (e.g., `private readonly List<string> _errors = new();`) must be marked as `readonly`.
 - **IDE0042 (Variable declaration can be deconstructed):** When a method returns a tuple, deconstruct it directly into variables (e.g., `var (success, error) = await ...`) instead of assigning the tuple to a single variable.
-- **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates.
+- **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates. `private static readonly` fields must use `PascalCase` without a `_` prefix (e.g., `PostalCodePattern` not `_postalCodePattern`). Instance fields in non-static classes may keep the `_` prefix.
 - **IDE0046 ('if' statement can be simplified):** If an `if` statement can be simplified into a single return expression (e.g., returning a boolean condition directly instead of `if (x) return true; else return false;`), simplify it to satisfy the IDE rule, bypassing the "always use brackets for if statements" rule when applicable.
 - **IDE0028 (Simplify collection initialization):** Use C# 12 collection expressions (`[]` instead of `new()` or `new List<T>()`) to initialize lists, arrays, and sets.
 - **IDE0007 (Use 'var' instead of explicit type):** Use `var` for local variable declarations when the type is apparent or assigned from expressions (e.g., `var startYear = dateFirstPaidWages.Value.Year;`, `var entry = new YearQuartersPaidWages(...)`).
