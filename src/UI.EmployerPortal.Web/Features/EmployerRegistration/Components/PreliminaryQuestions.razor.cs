@@ -1059,7 +1059,7 @@ public partial class PreliminaryQuestions
             {
                 var fi = new FieldIdentifier(address, memberName);
 
-                if (_touchedFields.Contains(fi))
+                if (_formSubmitted || _touchedFields.Contains(fi))
                 {
                     _messageStore.Add(fi, result.ErrorMessage ?? "Invalid value.");
                 }

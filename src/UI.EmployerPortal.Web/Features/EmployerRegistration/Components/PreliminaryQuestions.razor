@@ -52,6 +52,7 @@
                                InputMode="numeric"
                                @bind-Value="Model.UIAccountNumber"
                                For="() => Model.UIAccountNumber"
+                               Visible="@IsVisible(()=>Model.UIAccountNumber)"
                                Mask="000000-000-0"
                                Placeholder="999999-999-9"/>
             <br />
@@ -228,6 +229,7 @@
                                        Id="AcquiredBusinessAccountNumber"
                                        @bind-Value="Model.AcquiredBusinessAccountNumber"
                                        For="() => Model.AcquiredBusinessAccountNumber"
+                                       Visible="@IsVisible(()=>Model.AcquiredBusinessAccountNumber)"
                                        Mask="000000-000-0"
                                        Placeholder="999999-999-9" />
                     <br />
@@ -240,6 +242,7 @@
                                        Id="AcquiredBusinessName"
                                        @bind-Value="Model.AcquiredBusinessName"
                                        For="() => Model.AcquiredBusinessName"
+                                       Visible="@IsVisible(()=>Model.AcquiredBusinessName)"
                                        MaxLength="128" />
                     <br />
 
