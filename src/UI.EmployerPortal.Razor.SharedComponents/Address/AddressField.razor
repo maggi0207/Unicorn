@@ -1,233 +1,257 @@
-@using Microsoft.AspNetCore.Components.Forms
+@using System.Linq.Expressions
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 
 <fieldset class="address-fieldset">
-<legend class="address-fieldset__legend">@Legend</legend>
-<div class="bi-fields-grid">
+    <legend class="address-fieldset__legend">@Legend</legend>
+    <div class="bi-fields-grid">
 
-    @* ── Country selector ───────────────────────────────────────── *@
-    @if (ShowName)
-    {
-        <OutlinedTextField Label="Name"
-                           @bind-Value="Address.Name"
-                           For="() => Address.Name"
-                           Disabled="Disabled"
-                           Visible="Visible" />
-
-        <div class="bi-field">
-            <OutlinedSelectField Label="Country"
-                                 @bind-Value="Address.Country"
-                                 Options="AddressModel.Countries"
-                                 For="() => Address.Country"
-                                 Disabled="Disabled"
-                                 Id="@($"{IdPrefix}Country")"
-                                 Visible="Visible" />
-        </div>
-    }
-    else
-    {
-        <div class="bi-field">
-            <OutlinedSelectField Label="Country"
-                                 Value="@Address.Country"
-                                 ValueChanged="OnCountryChanged"
-                                 Options="AddressModel.Countries"
-                                 For="() => Address.Country"
-                                 Visible="Visible"
-                                 Id="@($"{IdPrefix}Country")"
-                                 Disabled="Disabled" />
-        </div>
-        <div class="bi-field"></div>
-    }
-
-    @* ── Address fields — conditional on selected country ──────── *@
-    @if (Address.Country == "Other International")
-    {
-        @* Line 1 + Line 2 *@
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 1"
-                               @bind-Value="Address.AddressLine1"
-                               For="() => Address.AddressLine1"
+        @* ── Country selector ───────────────────────────────────────── *@
+        @if (ShowName)
+        {
+            <OutlinedTextField Label="Name"
+                               @bind-Value="Address.Name"
+                               For="() => Address.Name"
                                Disabled="Disabled"
-                               Id="@($"{IdPrefix}AddressLine1")"
                                Visible="Visible" />
-        </div>
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 2 (Optional)"
-                               @bind-Value="Address.AddressLine2"
-                               Disabled="Disabled" />
-        </div>
 
-        @* Line 3 + Line 4 *@
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 3"
-                               @bind-Value="Address.AddressLine3"
-                               For="() => Address.AddressLine3"
-                               Id="@($"{IdPrefix}AddressLine3")"
-                               Visible="Visible"
-                               Disabled="Disabled" />
-        </div>
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 4"
-                               @bind-Value="Address.AddressLine4"
-                               For="() => Address.AddressLine4"
-                               Id="@($"{IdPrefix}AddressLine4")"
-                               Visible="Visible"
-                               Disabled="Disabled" />
-        </div>
-    }
-    else if (Address.Country == "Canada")
-    {
-        @* Address Line 1 + Line 2 *@
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 1"
-                               @bind-Value="Address.AddressLine1"
-                               For="() => Address.AddressLine1"
-                               Disabled="Disabled"
-                               Id="@($"{IdPrefix}AddressLine1")"
-                               Visible="Visible" />
-        </div>
-        <div class="bi-field">
-            <OutlinedTextField Label="Address Line 2 (Optional)"
-                               @bind-Value="Address.AddressLine2"
-                               Disabled="Disabled" />
-        </div>
-
-        @* City + Province *@
-        <div class="bi-field">
-            <OutlinedTextField Label="City"
-                               @bind-Value="Address.City"
-                               For="() => Address.City"
-                               Disabled="Disabled"
-                               Id="@($"{IdPrefix}City")"
-                               Visible="Visible" />
-        </div>
-        <div class="bi-field">
-            <OutlinedSelectField Label="Province"
-                                 @bind-Value="Address.Province"
-                                 Options="CanadaProvinces"
-                                 Placeholder="-- Select --"
-                                 Disabled="Disabled"
-                                 For="() => Address.Province"
-                                 Id="@($"{IdPrefix}Province")"
-                                 Visible="Visible" />
-        </div>
-
-        @* Postal Code (single column) *@
-        <div class="bi-field">
-            <OutlinedTextField Label="Postal Code"
-                               @bind-Value="Address.PostalCode"
-                               For="() => Address.PostalCode"
-                               Disabled="Disabled"
-                               Id="@($"{IdPrefix}PostalCode")"
-                               Visible="Visible" />
-        </div>
-        <div class="bi-field"></div>
-    }
-    else
-    {
-        @* United States — Street Address + Suite/Apt *@
-        <div class="bi-field">
-            <OutlinedTextField Label="Street Address"
-                               @bind-Value="Address.AddressLine1"
-                               For="() => Address.AddressLine1"
-                               Placeholder="123 Main Street"
-                               Disabled="Disabled"
-                               Id="@($"{IdPrefix}AddressLine1")"
-                               Visible="Visible" />
-        </div>
-        <div class="bi-field">
-            <OutlinedTextField Label="Suite, Apt., Attn., etc (Optional)"
-                               Placeholder="Suite, Apt., Attn., etc"
-                               @bind-Value="Address.AddressLine2"
-                               Disabled="Disabled" />
-        </div>
-
-        @* City + State *@
-        <div class="bi-field">
-            <OutlinedTextField Label="City"
-                               @bind-Value="Address.City"
-                               For="() => Address.City"
-                               Disabled="Disabled"
-                               Id="@($"{IdPrefix}City")"
-                               Visible="Visible" />
-        </div>
-        <div class="bi-field">
-            <OutlinedSelectField Label="State"
-                                 @bind-Value="Address.State"
-                                 Options="UsStates"
-                                 Placeholder="-- Select --"
-                                 Disabled="Disabled"
-                                 For="() => Address.State"
-                                 Id="@($"{IdPrefix}State")"
-                                 Visible="Visible" />
-        </div>
-
-        @* Zip + 4 *@
-        <div class="bi-zip-row">
-            <div class="bi-zip-field">
-                <OutlinedTextField Label="Zip Code"
-                                   Id="@($"{IdPrefix}Zip")"
-                                   @bind-Value="Address.Zip"
-                                   For="() => Address.Zip"
-                                   InputMode="numeric"
-                                   Disabled="Disabled"
-                                   MaxLength="5"
-                                   Visible="Visible" />
+            <div class="bi-field">
+                <OutlinedSelectField Label="Country"
+                                     @bind-Value="Address.Country"
+                                     Options="AddressModel.Countries"
+                                     For="() => Address.Country"
+                                     Disabled="Disabled"
+                                     Id="@($"{IdPrefix}Country")"
+                                     Visible="Visible" />
             </div>
-            <span class="bi-zip-dash">—</span>
-            <div class="bi-ext-field">
-                <OutlinedTextField Label="+4 (Optional)"
-                                   InputMode="numeric"
-                                   Disabled="Disabled"
-                                   MaxLength="4"
-                                   @bind-Value="Address.Extension" />
-            </div>
-        </div>
-        <div class="bi-field"></div>
-    }
-
-    @* ── Phone section — same layout for all country modes ────── *@
-    @if (ShowPhone)
-    {
-        @* Phone Type dropdown *@
-        @if (Address.Country != "United States")
+        }
+        else
         {
             <div class="bi-field">
-                <OutlinedSelectField Label="Phone Type"
-                                     Value="@Address.PhoneType"
-                                     ValueChanged="OnPhoneTypeChanged"
+                <OutlinedSelectField Label="Country"
+                                     Value="@Address.Country"
+                                     ValueChanged="OnCountryChanged"
                                      Options="AddressModel.Countries"
-                                     Placeholder="-- Select --"
-                                     Disabled="Disabled"
-                                     For="() => Address.PhoneType"
-                                     Id="@($"{IdPrefix}PhoneType")"
-                                     Visible="Visible" />
+                                     For="() => Address.Country"
+                                     Visible="Visible"
+                                     Id="@($"{IdPrefix}Country")"
+                                     Disabled="Disabled" />
             </div>
             <div class="bi-field"></div>
         }
 
-        @* 3-column row: International Area Code | Phone Number | Ext. *@
-        <div class="bi-phone-row">
-            <PhoneNumberField Label="Phone Number"
-                              Id="@($"{IdPrefix}PhoneNumber")"
-                              CountryCodeId="@($"{IdPrefix}PhoneCountryCode")"
-                              Value="@Address.PhoneNumber"
-                              ValueChanged="OnPhoneNumberChanged"
-                              For="() => Address.PhoneNumber"
-                              ShowCountryCode="true"
-                              CountryCode="@Address.PhoneCountryCode"
-                              CountryCodeChanged="OnPhoneCountryCodeChanged"
-                              CountryCodeDisabled="@(Address.PhoneType != "Other International" || Disabled)"
-                              Extension="@Address.PhoneExtension"
-                              ExtensionChanged="OnPhoneExtensionChanged"
-                              Visible="Visible"
-                              Disabled="Disabled" />
-        </div>
-    }
+        @* ── Address fields — conditional on selected country ──────── *@
+        @if (Address.Country == "Other International")
+        {
+            @* Line 1 + Line 2 *@
+            <div class="bi-field">
+                <OutlinedTextField Label="Address Line 1"
+                                   @bind-Value="Address.AddressLine1"
+                                   For="() => Address.AddressLine1"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}AddressLine1")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                <OutlinedTextField Label="@AddressLine2Label"
+                                   @bind-Value="Address.AddressLine2"
+                                   Disabled="Disabled" />
+            </div>
 
-</div>
+            @* Line 3 + Line 4 *@
+            <div class="bi-field">
+                <OutlinedTextField Label="@AddressLine3InternationalLabel"
+                                   @bind-Value="Address.AddressLine3"
+                                   For="() => Address.AddressLine3"
+                                   Id="@($"{IdPrefix}AddressLine3")"
+                                   Visible="Visible"
+                                   Disabled="Disabled" />
+            </div>
+            <div class="bi-field">
+                <OutlinedTextField Label="@AddressLine4InternationalLabel"
+                                   @bind-Value="Address.AddressLine4"
+                                   For="() => Address.AddressLine4"
+                                   Id="@($"{IdPrefix}AddressLine4")"
+                                   Visible="Visible"
+                                   Disabled="Disabled" />
+            </div>
+        }
+        else if (Address.Country == "Canada")
+        {
+            @* Address Line 1 + Line 2 *@
+            <div class="bi-field">
+                <OutlinedTextField Label="Address Line 1"
+                                   @bind-Value="Address.AddressLine1"
+                                   For="() => Address.AddressLine1"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}AddressLine1")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                <OutlinedTextField Label="@AddressLine2Label"
+                                   @bind-Value="Address.AddressLine2"
+                                   Disabled="Disabled" />
+            </div>
+
+            @* City + Province *@
+            <div class="bi-field">
+                <OutlinedTextField Label="City"
+                                   @bind-Value="Address.City"
+                                   For="() => Address.City"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}City")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                <OutlinedSelectField Label="Province"
+                                     @bind-Value="Address.Province"
+                                     Options="CanadaProvinces"
+                                     Placeholder="-- Select --"
+                                     Disabled="Disabled"
+                                     For="() => Address.Province"
+                                     Id="@($"{IdPrefix}Province")"
+                                     Visible="Visible" />
+            </div>
+
+            @* Postal Code + Fax *@
+            <div class="bi-field">
+                <OutlinedTextField Label="Postal Code"
+                                   @bind-Value="Address.PostalCode"
+                                   For="() => Address.PostalCode"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}PostalCode")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                @if (ShowFax)
+                {
+                    <PhoneNumberField Label="Fax Number (optional)"
+                                      Id="@($"{IdPrefix}Fax")"
+                                      Value="@FaxNumber"
+                                      ValueChanged="OnFaxNumberChanged"
+                                      For="FaxFor"
+                                      Numeric="true"
+                                      Visible="Visible"
+                                      Disabled="Disabled" />
+                }
+            </div>
+        }
+        else
+        {
+            @* United States — Street Address + Suite/Apt *@
+            <div class="bi-field">
+                <OutlinedTextField Label="Street Address"
+                                   @bind-Value="Address.AddressLine1"
+                                   For="() => Address.AddressLine1"
+                                   Placeholder="123 Main Street"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}AddressLine1")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                <OutlinedTextField Label="@SuiteAptLabel"
+                                   Placeholder="Suite, Apt., Attn., etc"
+                                   @bind-Value="Address.AddressLine2"
+                                   Disabled="Disabled" />
+            </div>
+
+            @* City + State *@
+            <div class="bi-field">
+                <OutlinedTextField Label="City"
+                                   @bind-Value="Address.City"
+                                   For="() => Address.City"
+                                   Disabled="Disabled"
+                                   Id="@($"{IdPrefix}City")"
+                                   Visible="Visible" />
+            </div>
+            <div class="bi-field">
+                <OutlinedSelectField Label="State"
+                                     @bind-Value="Address.State"
+                                     Options="UsStates"
+                                     Placeholder="-- Select --"
+                                     Disabled="Disabled"
+                                     For="() => Address.State"
+                                     Id="@($"{IdPrefix}State")"
+                                     Visible="Visible" />
+            </div>
+
+            @* Zip + 4 *@
+            <div class="bi-zip-row">
+                <div class="bi-zip-field">
+                    <OutlinedTextField Label="Zip Code"
+                                       Id="@($"{IdPrefix}Zip")"
+                                       @bind-Value="Address.Zip"
+                                       For="() => Address.Zip"
+                                       InputMode="numeric"
+                                       Disabled="Disabled"
+                                       MaxLength="5"
+                                       Visible="Visible" />
+                </div>
+                <span class="bi-zip-dash">—</span>
+                <div class="bi-ext-field">
+                    <OutlinedTextField Label="@ZipExtensionLabel"
+                                       InputMode="numeric"
+                                       Disabled="Disabled"
+                                       MaxLength="4"
+                                       @bind-Value="Address.Extension" />
+                </div>
+            </div>
+            <div class="bi-field">
+                @if (ShowFax)
+                {
+                    <PhoneNumberField Label="Fax Number (optional)"
+                                      Id="@($"{IdPrefix}Fax")"
+                                      Value="@FaxNumber"
+                                      ValueChanged="OnFaxNumberChanged"
+                                      For="FaxFor"
+                                      Numeric="true"
+                                      Visible="Visible"
+                                      Disabled="Disabled" />
+                }
+            </div>
+        }
+
+        @* ── Phone section — same layout for all country modes ────── *@
+        @if (ShowPhone)
+        {
+            @* Phone Type dropdown *@
+            @if (Address.Country != "United States")
+            {
+                <div class="bi-field">
+                    <OutlinedSelectField Label="Phone Type"
+                                         Value="@Address.PhoneType"
+                                         ValueChanged="OnPhoneTypeChanged"
+                                         Options="AddressModel.Countries"
+                                         Placeholder="-- Select --"
+                                         Disabled="Disabled"
+                                         For="() => Address.PhoneType"
+                                         Id="@($"{IdPrefix}PhoneType")"
+                                         Visible="Visible" />
+                </div>
+                <div class="bi-field"></div>
+            }
+
+            @* 3-column row: International Area Code | Phone Number | Ext. *@
+            <div class="bi-phone-row">
+                <PhoneNumberField Label="Phone Number"
+                                  Id="@($"{IdPrefix}PhoneNumber")"
+                                  CountryCodeId="@($"{IdPrefix}PhoneCountryCode")"
+                                  Value="@Address.PhoneNumber"
+                                  ValueChanged="OnPhoneNumberChanged"
+                                  For="() => Address.PhoneNumber"
+                                  ShowCountryCode="true"
+                                  CountryCode="@Address.PhoneCountryCode"
+                                  CountryCodeChanged="OnPhoneCountryCodeChanged"
+                                  CountryCodeDisabled="@(Address.PhoneType != "Other International" || Disabled)"
+                                  Extension="@Address.PhoneExtension"
+                                  ExtensionChanged="OnPhoneExtensionChanged"
+                                  Visible="Visible"
+                                  Disabled="Disabled" />
+            </div>
+        }
+
+    </div>
 </fieldset>
 
 @code {
@@ -260,6 +284,52 @@
     /// address sections on the same page without duplicate ids (e.g. "Mailing", "Physical0").
     /// </summary>
     [Parameter] public string IdPrefix { get; set; } = "";
+
+    /// <summary>
+    /// Display label for the Address Line 2 field (Other International / Canada address modes).
+    /// Defaults to the original wording so existing consumers are unaffected.
+    /// </summary>
+    [Parameter] public string AddressLine2Label { get; set; } = "Address Line 2 (optional)";
+
+    /// <summary>
+    /// Display label for the Address Line 3 field (Other International address mode).
+    /// Defaults to the original wording so existing consumers are unaffected.
+    /// </summary>
+    [Parameter] public string AddressLine3InternationalLabel { get; set; } = "Address Line 3";
+
+    /// <summary>
+    /// Display label for the Address Line 4 field (Other International address mode).
+    /// Defaults to the original wording so existing consumers are unaffected.
+    /// </summary>
+    [Parameter] public string AddressLine4InternationalLabel { get; set; } = "Address Line 4";
+
+    /// <summary>
+    /// Display label for the Suite/Apt field (United States address mode only).
+    /// Defaults to the original wording so existing consumers are unaffected.
+    /// </summary>
+    [Parameter] public string SuiteAptLabel { get; set; } = "Suite, Apt., Attn., etc (optional)";
+
+    /// <summary>
+    /// Display label for the +4 field (United States address mode only).
+    /// Defaults to the original wording so existing consumers are unaffected.
+    /// </summary>
+    [Parameter] public string ZipExtensionLabel { get; set; } = "+4 (optional)";
+
+    /// <summary>
+    /// When true, renders a Fax Number field in the grid slot beside Zip Code/+4
+    /// (United States address mode only). Defaults to false so all existing
+    /// consumers of AddressField are unaffected.
+    /// </summary>
+    [Parameter] public bool ShowFax { get; set; }
+
+    /// <summary>The fax number value. Only used when <see cref="ShowFax"/> is true.</summary>
+    [Parameter] public string? FaxNumber { get; set; }
+
+    /// <summary>Callback invoked when the fax number value changes.</summary>
+    [Parameter] public EventCallback<string?> FaxNumberChanged { get; set; }
+
+    /// <summary>Expression used to identify the fax field for validation. Only used when <see cref="ShowFax"/> is true.</summary>
+    [Parameter] public Expression<Func<string?>>? FaxFor { get; set; }
 
     /// <summary>Canadian province codes used to filter <see cref="AddressModel.States"/>.</summary>
     private static readonly HashSet<string> _canadianProvinceCodes =
@@ -394,5 +464,15 @@
     private void OnPhoneExtensionChanged(string value)
     {
         Address.PhoneExtension = value;
+    }
+
+    /// <summary>
+    /// Updates <see cref="FaxNumber"/> and propagates the change. Only invoked when
+    /// <see cref="ShowFax"/> is true.
+    /// </summary>
+    private async Task OnFaxNumberChanged(string value)
+    {
+        FaxNumber = value;
+        await FaxNumberChanged.InvokeAsync(value);
     }
 }

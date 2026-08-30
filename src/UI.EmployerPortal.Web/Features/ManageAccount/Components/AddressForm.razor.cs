@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Components;
@@ -70,17 +71,17 @@ public partial class AddressForm : ComponentBase
     /// Select options for the Address Type dropdown.
     /// </summary>
     [Parameter] public List<SelectOption> AddressTypeOptions { get; set; } = new();
-    
+
     /// <summary>
     /// Select options for the Country dropdown.
     /// </summary>
     [Parameter] public List<SelectOption> CountryOptions { get; set; } = new();
-    
+
     /// <summary>
     /// Select options for the State dropdown (US addresses).
     /// </summary>
     [Parameter] public List<SelectOption> StateOptions { get; set; } = new();
-    
+
     /// <summary>
     /// Select options for the Province dropdown (Canadian addresses).
     /// </summary>

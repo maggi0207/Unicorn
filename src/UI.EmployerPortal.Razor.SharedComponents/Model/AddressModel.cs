@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
+using static UI.EmployerPortal.Razor.SharedComponents.Model.AddressLine1MaxLengthAttribute;
 
 namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 
@@ -10,23 +11,11 @@ namespace UI.EmployerPortal.Razor.SharedComponents.Model;
 public class AddressModel
 {
     /// <summary>
-    /// Existing employer-registration address identifier, used to update a previously saved address
-    /// instead of creating a duplicate entry when the user saves and quits.
-    /// </summary>
-    public int RegistrationAddressSk { get; set; }
-
-    /// <summary>
     /// Optional Name field.  Only required if 'IsNameVisible' is true.
     /// </summary>
     [RequiredIfNameVisible("IsNameVisible", ErrorMessage = "Name Required")]
     [MaxLength(255, ErrorMessage = "Name cannot exceed 255 characters")]
     public string? Name { get; set; }
-
-     /// <summary>
-    /// County name returned by the address validation service (Finalist).
-    /// Not collected from the user — populated silently when address validation succeeds.
-    /// </summary>
-    public string? CountyName { get; set; }
 
     /// <summary>
     /// Country name. Defaults to "United States".
@@ -55,6 +44,11 @@ public class AddressModel
     public string? AddressLine3 { get; set; }
 
     /// <summary>
+    /// On some screens this field is not required even if other international is set to true.
+    /// </summary>
+    public bool IsAddressLine3RequiredInCurrentScreen { get; set; } = true;
+
+    /// <summary>
     /// Fourth address line (Only for Other International).
     /// </summary>
     [RequiredIfCountry("Other International", ErrorMessage = "Address Line 4 is required")]
@@ -62,9 +56,14 @@ public class AddressModel
     public string? AddressLine4 { get; set; }
 
     /// <summary>
+    /// On some screens this field is not required even if other international is set to true.
+    /// </summary>
+    public bool IsAddressLine4RequiredInCurrentScreen { get; set; } = true;
+
+    /// <summary>
     /// City name.
     /// </summary>
-    [Required(ErrorMessage = "City is required")]
+    [RequiredUnlessCountry("Other International", ErrorMessage = "City is required")]
     [MaxLength(64, ErrorMessage = "City cannot exceed 64 characters")]
     public string? City { get; set; }
 
@@ -132,6 +131,11 @@ public class AddressModel
     /// If the Name field is visible, then it is required
     /// </summary>
     public bool IsNameVisible { get; set; } = false;
+
+    /// <summary>
+    /// On continue from save and quit, this value carries the unique Address Id so that we don't duplicate addresses.
+    /// </summary>
+    public int RegistrationAddressSk { get; set; } = 0;
 
     /// <summary>
     /// Shared list of US states, territories, Canadian provinces, and military APO/FPO addresses.
@@ -243,8 +247,12 @@ public class AddressModel
                 {
                     lines.Add(AddressLine1);
                 }
-                lines.Add($"{City} {State}, {Zip}{(!string.IsNullOrWhiteSpace(Extension) ? $"+{Extension}" : string.Empty)}");
+                lines.Add($"{City} {State}, {Zip}{(!string.IsNullOrWhiteSpace(Extension) ? $"-{Extension}" : string.Empty)}");
                 lines.Add(Country);
+                if (!string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                    lines.Add($"{PhoneNumber} {(!string.IsNullOrWhiteSpace(PhoneExtension) ? $"Ext. {PhoneExtension}" : string.Empty)}");
+                }
                 break;
             case "Canada":
                 if (!string.IsNullOrWhiteSpace(AddressLine2))
@@ -255,8 +263,12 @@ public class AddressModel
                 {
                     lines.Add(AddressLine1);
                 }
-                lines.Add($"{City} {Province}, {PostalCode}{(!string.IsNullOrWhiteSpace(Extension) ? $"+{Extension}" : string.Empty)}");
+                lines.Add($"{City} {Province}, {PostalCode}{(!string.IsNullOrWhiteSpace(Extension) ? $"-{Extension}" : string.Empty)}");
                 lines.Add(Country);
+                if (!string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                    lines.Add($"{PhoneNumber} {(!string.IsNullOrWhiteSpace(PhoneExtension) ? $"Ext. {PhoneExtension}" : string.Empty)}");
+                }
                 break;
             default:
                 if (!string.IsNullOrWhiteSpace(AddressLine2))
@@ -275,6 +287,10 @@ public class AddressModel
                 {
                     lines.Add(AddressLine4);
                 }
+                if (!string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                    lines.Add($"{PhoneCountryCode} {PhoneNumber} {(!string.IsNullOrWhiteSpace(PhoneExtension) ? $"Ext. {PhoneExtension}" : string.Empty)}");
+                }
                 break;
         }
         return lines;
@@ -290,7 +306,7 @@ public class RequiredIfNameVisibleAttribute : ValidationAttribute
     private readonly string _isNameVisible;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="isNameVisible"></param>
     public RequiredIfNameVisibleAttribute(string isNameVisible)
@@ -299,7 +315,7 @@ public class RequiredIfNameVisibleAttribute : ValidationAttribute
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="value"></param>
     /// <param name="context"></param>
@@ -326,6 +342,7 @@ public class RequiredIfNameVisibleAttribute : ValidationAttribute
 /// <summary>
 /// Requires a value if the selected country matches the specified criteria.
 /// </summary>
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class RequiredIfCountryAttribute : ValidationAttribute
 {
     private readonly string _country;
@@ -344,6 +361,18 @@ public class RequiredIfCountryAttribute : ValidationAttribute
     {
         var instance = context.ObjectInstance;
         var countryPropertyValue = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+
+        var isAddressLine3RequiredInCurrentScreenPropertyValue = (bool) (instance.GetType().GetProperty("IsAddressLine3RequiredInCurrentScreen")?.GetValue(instance) ?? true);
+        var isAddressLine4RequiredInCurrentScreenPropertyValue = (bool) (instance.GetType().GetProperty("IsAddressLine4RequiredInCurrentScreen")?.GetValue(instance) ?? true);
+
+        if (context.MemberName == "AddressLine3" && !isAddressLine3RequiredInCurrentScreenPropertyValue)
+        {
+            return ValidationResult.Success;
+        }
+        if (context.MemberName == "AddressLine4" && !isAddressLine4RequiredInCurrentScreenPropertyValue)
+        {
+            return ValidationResult.Success;
+        }
 
         if (countryPropertyValue == _country)
         {
@@ -396,5 +425,41 @@ public class AddressLine1MaxLengthAttribute : ValidationAttribute
             return new ValidationResult($"{label} cannot exceed {_length} characters", new[] { context.MemberName! });
         }
         return ValidationResult.Success;
+    }
+    /// <summary>
+    /// Requires a value unless the selected country matches the specified excluded value.
+    /// Used for fields required in every country mode except one (e.g., City is required
+    /// for United States and Canada, but not for Other International).
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class RequiredUnlessCountryAttribute : ValidationAttribute
+    {
+        private readonly string _excludedCountry;
+
+        /// <summary>
+        /// Creates a new instance of RequiredUnlessCountryAttribute.
+        /// </summary>
+        /// <param name="excludedCountry">The country for which this field is NOT required.</param>
+        public RequiredUnlessCountryAttribute(string excludedCountry)
+        {
+            _excludedCountry = excludedCountry;
+        }
+
+        /// <inheritdoc />
+        protected override ValidationResult? IsValid(object? value, ValidationContext context)
+        {
+            var instance = context.ObjectInstance;
+            var countryPropertyValue = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+
+            if (countryPropertyValue == _excludedCountry)
+            {
+                return ValidationResult.Success;
+            }
+
+            var strValue = value?.ToString();
+            return !string.IsNullOrWhiteSpace(strValue)
+                ? ValidationResult.Success
+                : new ValidationResult(ErrorMessage ?? $"{context.MemberName} is required", new[] { context.MemberName! });
+        }
     }
 }
