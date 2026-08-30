@@ -136,5 +136,7 @@ public partial class AddressForm : ComponentBase
             FormModel.CanadianPostalCode = null;
             FormModel.CityName = null;
         }
+
+        StateHasChanged();
     }
 }

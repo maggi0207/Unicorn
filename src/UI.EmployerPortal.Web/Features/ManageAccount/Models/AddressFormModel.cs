@@ -79,7 +79,7 @@ public class AddressFormModel : IValidatableObject
     public int? ProvinceCodeSK { get; set; }
 
     /// <summary>Canadian postal code (e.g. "K1A 0A9") — required for Canada.</summary>
-    [MaxLength(10)]
+    [MaxLength(7)]
     public string? CanadianPostalCode { get; set; }
 
     // ── Other International ─────────────────────────────────
@@ -165,6 +165,12 @@ public class AddressFormModel : IValidatableObject
             if (string.IsNullOrWhiteSpace(CanadianPostalCode))
             {
                 yield return new ValidationResult("Postal Code is required.", new[] { nameof(CanadianPostalCode) });
+            }
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(CanadianPostalCode, @"^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$"))
+            {
+                yield return new ValidationResult(
+                    "Canadian Postal Code format is incorrect. Please enter a valid postal code in the format ANA NAN, where 'A' represents a letter and 'N' represents a digit.",
+                    new[] { nameof(CanadianPostalCode) });
             }
         }
     }

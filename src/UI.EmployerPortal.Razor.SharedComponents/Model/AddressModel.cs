@@ -90,7 +90,8 @@ public class AddressModel
     /// Canadian Postal Code.
     /// </summary>
     [RequiredIfCountry("Canada", ErrorMessage = "Postal Code is required")]
-    [MaxLength(20, ErrorMessage = "Postal Code cannot exceed 20 characters")]
+    [MaxLength(7, ErrorMessage = "Postal Code cannot exceed 7 characters")]
+    [CanadianPostalCodeFormat]
     public string? PostalCode { get; set; }
 
     /// <summary>
@@ -461,5 +462,49 @@ public class AddressLine1MaxLengthAttribute : ValidationAttribute
                 ? ValidationResult.Success
                 : new ValidationResult(ErrorMessage ?? $"{context.MemberName} is required", new[] { context.MemberName! });
         }
+    }
+}
+
+/// <summary>
+/// Validates that a Canadian postal code matches the ANA NAN format,
+/// where 'A' represents a letter and 'N' represents a digit.
+/// The space between the two halves is optional (e.g. "K1A 0A9" and "K1A0A9" are both valid).
+/// Only enforced when the Country property on the model is set to "Canada".
+/// </summary>
+public class CanadianPostalCodeFormatAttribute : ValidationAttribute
+{
+    /// <summary>
+    /// Compiled regex pattern for validating Canadian postal codes in ANA NAN format.
+    /// </summary>
+    private static readonly System.Text.RegularExpressions.Regex _postalCodePattern =
+        new(@"^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$");
+
+    /// <inheritdoc />
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var instance = context.ObjectInstance;
+        var countryPropertyValue = instance.GetType().GetProperty("Country")?.GetValue(instance, null) as string;
+
+        if (countryPropertyValue != "Canada")
+        {
+            return ValidationResult.Success;
+        }
+
+        var strValue = value?.ToString();
+
+        // Empty/null is handled by RequiredIfCountryAttribute — skip format check here
+        if (string.IsNullOrWhiteSpace(strValue))
+        {
+            return ValidationResult.Success;
+        }
+
+        if (!_postalCodePattern.IsMatch(strValue))
+        {
+            return new ValidationResult(
+                ErrorMessage ?? "Canadian Postal Code format is incorrect. Please enter a valid postal code in the format ANA NAN, where 'A' represents a letter and 'N' represents a digit.",
+                new[] { context.MemberName! });
+        }
+
+        return ValidationResult.Success;
     }
 }
