@@ -71,10 +71,7 @@ public partial class PreliminaryQuestions
     /// 
     /// </summary>
     [Parameter] public string? Value { get; set; }
-    /// <summary>
-    /// 
-    /// </summary>
-    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
     /// <summary>
     /// 
     /// </summary>
@@ -622,6 +619,14 @@ public partial class PreliminaryQuestions
                 _editContext.Field(nameof(Model.WillSupplyDocumentationLater)),
                 UploadOrCheckboxMsg);
         }
+        if (ShowNotAppliedText
+&& !ArticlesDocUploaded
+&& !Model.WillSupplyArticlesLater)
+        {
+            _messageStore.Add(
+                _editContext.Field(nameof(Model.WillSupplyArticlesLater)),
+                "Please upload the article of incorporation or select 'I will supply required documentation at a later date'");
+        }
         // Articles of Incorporation (1.22 / 1.23)
         if (ShowAppliedUpload
         && !ArticlesDocUploaded
@@ -1037,6 +1042,8 @@ public partial class PreliminaryQuestions
     //        }
     //    }
     //}
+
+
 
     /// <summary>Runs DataAnnotations validation on the contact address model.</summary>
     private Dictionary<FieldIdentifier, List<string>> ValidateAddressAnnotations(AddressModel address)

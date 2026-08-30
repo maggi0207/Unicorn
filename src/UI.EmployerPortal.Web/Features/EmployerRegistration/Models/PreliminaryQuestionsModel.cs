@@ -8,7 +8,7 @@ using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 {
@@ -61,12 +61,12 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public bool? AcquiredExistingBusiness { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool? KnowAcquiredBusinessAccountNumber { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string AcquiredBusinessAccountNumber { get; set; } = string.Empty;
 
@@ -77,32 +77,32 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public string AcquiredBusinessName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public AddressModel? AcquiredBusinessAddress { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool? HavePaidEmployeesForWorkInWisconsin { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool? HaveEmployeesCurrentlyWorkingInWisconsin { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public DateOnly? LastEmploymentDate { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public DateOnly? LastPayrollDate { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool? ExpectFuturePayroll { get; set; } = null;
 
@@ -112,56 +112,56 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public bool InformationIsAccurate { get; set; } = false;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public FuturePayPeriod? ExpectedFuturePayrollPeriod { get; set; } = null;
 
     ///// <summary>
-    ///// 
+    /////
     ///// </summary>
     //public bool? HaveSoldOrTransferredBusiness { get; set; } = null;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? NoEmployeeExplanation { get; set; }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? PEOName { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? PEOUIAccountNumber { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? PEOFEIN { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public DateOnly? LeasingStartDate { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? FiscalAgentName { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? FiscalAgentUIAccountNumber { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string? OtherReason { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public NoEmployeeReason? SelectedNoEmployeeReason { get; set; } = null;
 
@@ -191,7 +191,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public string? IRSAcceptanceLetterFileMIMEType { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public FileUploadState? RulingDocUploadState { get; set; } = FileUploadState.Default;
 
@@ -291,7 +291,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                         {
                             _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_501C3_UPLD,
                             _response = RulingDocFilename,
-                            _responseDisplay = Path.GetFileName(RulingDocFilename)?.RemoveGUID()
+                            _responseDisplay = Path.GetFileName(RulingDocFilename)?.ToDisplayFileName()
                         });
                         responses.Add(new SurveyResponse()
                         {
@@ -343,7 +343,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
                                 _response = ArticlesOfIncorporationFilename,
-                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.RemoveGUID(),
+                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.ToDisplayFileName(),
                             });
                             responses.Add(new SurveyResponse()
                             {
@@ -381,7 +381,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_IRS_ACCPT,
                                 _response = IRSAcceptanceLetterFilename,
-                                _responseDisplay = Path.GetFileName(IRSAcceptanceLetterFilename)?.RemoveGUID(),
+                                _responseDisplay = Path.GetFileName(IRSAcceptanceLetterFilename)?.ToDisplayFileName(),
                             });
                             responses.Add(new SurveyResponse()
                             {
@@ -422,7 +422,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             {
                                 _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ARTCL_OF_CORP,
                                 _response = ArticlesOfIncorporationFilename,
-                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.RemoveGUID(),
+                                _responseDisplay = Path.GetFileName(ArticlesOfIncorporationFilename)?.ToDisplayFileName(),
                             });
                         }
                         else if (WillSupplyArticlesLater)
@@ -858,17 +858,27 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                                 //}
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NUM, out var peoUiAccountNumber))
                                 {
-                                    PEOUIAccountNumber = IEmployerRegistrationModelSection.FormatUiAccountNumberResponseString(peoUiAccountNumber.ReplyText);
+
+                                    var peonum = peoUiAccountNumber.ReplyText;
+                                    if (peonum?.Length > 9)
+                                    {
+                                        PEOUIAccountNumber = IEmployerRegistrationModelSection.FormatUiAccountNumberResponseString(peoUiAccountNumber.ReplyText);
+                                    }
+                                    else
+                                    {
+                                        PEOFEIN = IEmployerRegistrationModelSection.FormatFeinResponseString(peoUiAccountNumber.ReplyText);
+                                    }
+
                                 }
 
                                 //if (visibilityQ4 && !string.IsNullOrWhiteSpace(PEOFEIN))
                                 //{
                                 //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOFEIN.Replace("-", string.Empty) });
                                 //}
-                                if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NUM, out var peoFein))
-                                {
-                                    PEOFEIN = IEmployerRegistrationModelSection.FormatFeinResponseString(peoFein.ReplyText);
-                                }
+                                //if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NUM, out var peoFein))
+                                //{
+                                //    PEOFEIN = IEmployerRegistrationModelSection.FormatFeinResponseString(peoFein.ReplyText);
+                                //}
 
                                 //if (visibilityQ4 && LeasingStartDate.HasValue)
                                 //{
