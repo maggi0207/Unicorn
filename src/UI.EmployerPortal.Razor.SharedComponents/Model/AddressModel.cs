@@ -476,7 +476,7 @@ public class CanadianPostalCodeFormatAttribute : ValidationAttribute
     /// <summary>
     /// Compiled regex pattern for validating Canadian postal codes in ANA NAN format.
     /// </summary>
-    private static readonly System.Text.RegularExpressions.Regex _postalCodePattern =
+    private static readonly System.Text.RegularExpressions.Regex PostalCodePattern =
         new(@"^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$");
 
     /// <inheritdoc />
@@ -498,13 +498,10 @@ public class CanadianPostalCodeFormatAttribute : ValidationAttribute
             return ValidationResult.Success;
         }
 
-        if (!_postalCodePattern.IsMatch(strValue))
-        {
-            return new ValidationResult(
+        return !PostalCodePattern.IsMatch(strValue)
+            ? new ValidationResult(
                 ErrorMessage ?? "Canadian Postal Code format is incorrect. Please enter a valid postal code in the format ANA NAN, where 'A' represents a letter and 'N' represents a digit.",
-                new[] { context.MemberName! });
-        }
-
-        return ValidationResult.Success;
+                new[] { context.MemberName! })
+            : ValidationResult.Success;
     }
 }
