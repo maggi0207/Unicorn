@@ -51,6 +51,8 @@ public interface ICardPaymentService
         string digiSign,
         string customerAccountReference,
         int secureUserSk,
+        object payload,
+        string customerReference,
         OrbipayPaymentConfirmationRequest request);
 
     /// <summary>
@@ -61,7 +63,14 @@ public interface ICardPaymentService
     /// <returns></returns>
     Task<CardPaymentProfileModel> GetCardProfileAsync(int secureUserSK, int commonClientSk);
 
-
+    /// <summary>
+    /// GetCardProfileAsync
+    /// </summary>
+    /// <param name="secureUserSK"></param>
+    /// <param name="commonClientSk"></param>
+    /// <param name="cardPaymentReg"></param>
+    /// <returns></returns>
+    Task<int> SaveCardProfileAsync(int secureUserSK, int commonClientSk, CardPaymentProfileModel cardPaymentReg);
 }
 
 /// <summary>
@@ -272,15 +281,22 @@ internal sealed partial class CardPaymentService : ICardPaymentService
         string digiSign,
         string customerAccountReference,
         int secureUserSK,
+        object payload,
+        string customerReference,
         OrbipayPaymentConfirmationRequest request)
     {
         try
         {
+            var payLoadObject = JsonSerializer.Serialize(payload);
             var tokenPrefix = token?.Length > 8 ? token[..8] + "..." : "(short)";
+            var fullToken = $"token={token}&digisign={digiSign}&customer_account_reference={customerAccountReference}&customer_reference={customerReference}";
             Log.Info($"[STEP 1] ConfirmPaymentAsync invoked |" +
                 $"CustomerAccountReference={customerAccountReference}, " +
+                $"digiSign={digiSign}, " +
+                $"payload={payLoadObject}, " +
+                $"customerReference={customerReference}, " +
                 $"Amount={request.Amount:F2}, " +
-                $"TokenPrefix={tokenPrefix}");
+                $"FullToken={fullToken}");
             await WritePaymentLogAsync(
                 $"[STEP 1] ConfirmPaymentAsync invoked |" +
                 $"CustomerAccountReference={customerAccountReference}, " +
@@ -494,17 +510,17 @@ internal sealed partial class CardPaymentService : ICardPaymentService
             //var req = new StreamReader(Request.InputStream, Request.ContentEncoding);
             //string tokenstring = HttpUtility.UrlDecode(req.ReadToEnd());
             var requestJson = JsonSerializer.Serialize(request);
-            var tempToken = !string.IsNullOrWhiteSpace(token) ? token : "";
+            // var tempToken = !string.IsNullOrWhiteSpace(token) ? token : "";
             Log.Info($"SaveCardPaymentAsync | " +
-                        $"token={tempToken}, Request={requestJson}, SecureUserSk={secureUserSK}");
+                        $"token={fullToken}, Request={requestJson}, SecureUserSk={secureUserSK}, cardRegistrationSK={cardRegistrationSK}");
             await WritePaymentLogAsync(
                 $"SaveCardPaymentAsync | " +
-                $"Token={tempToken}, " +
+                $"Token={fullToken}, " +
                 $"Request={requestJson}, " +
                 $"CardRegistrationSK={cardRegistrationSK}, " +
                 $"SecureUserSk={secureUserSK}");
 
-            var paymentResponse = await SaveCardPaymentAsync(tempToken, request, secureUserSK, cardRegistrationSK);
+            var paymentResponse = await SaveCardPaymentAsync(fullToken, request, secureUserSK, cardRegistrationSK);
             //LogPaymentConfirmed(_logger, payment.ConfirmationNumber, amount);
             await WritePaymentLogAsync(
                 $"PaymentResponse: {paymentResponse}");
@@ -516,15 +532,15 @@ internal sealed partial class CardPaymentService : ICardPaymentService
             //    $"ConfirmationNumber={payment.ConfirmationNumber}");
             if (paymentResponse != null)
             {
-                var errorMessage = paymentResponse.RuleViolations.Length > 0 ? paymentResponse.RuleViolations[0].RuleViolation : "";
+                var errorMessage = paymentResponse.RuleViolations?.Length > 0 ? paymentResponse.RuleViolations[0].RuleViolation : "";
                 var confirmationNumber = string.IsNullOrWhiteSpace(paymentResponse.ConfirmationNumber) ? null : paymentResponse.ConfirmationNumber;
                 await WritePaymentLogAsync(
                             $"paymentResponse | " +
                             $"ConfirmationNumber={confirmationNumber}, " +
                             $"RuleViolation={errorMessage}, " +
-                            $"PhoneNumber={paymentResponse.CollectionsPhoneNumber}");
+                            $"PhoneNumber={paymentResponse?.CollectionsPhoneNumber}");
 
-                return paymentResponse.RuleViolations.Length > 0
+                return paymentResponse?.RuleViolations?.Length > 0
                     ? new OrbipayConfirmationResult
                     {
                         Success = false,
@@ -537,7 +553,7 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                     : new OrbipayConfirmationResult
                     {
                         Success = true,
-                        ConfirmationNumber = paymentResponse.ConfirmationNumber,
+                        ConfirmationNumber = paymentResponse?.ConfirmationNumber,
                         Amount = request.Amount,
                         PaymentMethod = "cc",
                         LastFourDigits = "9999",
@@ -679,6 +695,7 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 SecureUserSK = secureUserSK,
                 TokenRequestString = tokenString,
                 VoluntaryPayment = request.IsVoluntary
+
             };
             return await _cardPaymentSystem.SaveEmployerPortalCardPaymentAsync(paymentRequest);
         }
@@ -803,6 +820,43 @@ internal sealed partial class CardPaymentService : ICardPaymentService
         {
             return cardModal;
         }
+    }
+
+    public async Task<int> SaveCardProfileAsync(int secureUserSK, int commonClientSk, CardPaymentProfileModel cardPaymentReg)
+    {
+        var cardModal = new eBillRegistrationProxy();
+        try
+        {
+            if (Enum.TryParse<eBillRegistrationProxy.DebtorAccountType>(cardPaymentReg.AccountType, out var result))
+            {
+                cardModal.AccountType = result;
+            }
+            cardModal.RegistrationSK = cardPaymentReg.RegistrationSK;
+            cardModal.AccountNumber = cardPaymentReg.AccountNumber;
+            cardModal.AddressLine1 = cardPaymentReg.AddressLine1;
+            cardModal.AddressLine2 = cardPaymentReg.AddressLine2;
+            cardModal.City = cardPaymentReg.City;
+            cardModal.Company = cardPaymentReg.Company;
+            cardModal.Country = cardPaymentReg.Country;
+            cardModal.CustomerID = cardPaymentReg.CustomerId;
+            cardModal.Email = cardPaymentReg.Email;
+            cardModal.FirstName = cardPaymentReg.FirstName;
+            cardModal.LastName = cardPaymentReg.LastName;
+            cardModal.NonUSPostalCode = cardPaymentReg.NonUSPostalCode;
+            cardModal.Phone = cardPaymentReg.PhoneNumber;
+            cardModal.State = cardPaymentReg.State;
+            cardModal.RegistrationFound = cardPaymentReg.RegistrationFound;
+            cardModal.ISOCountryCode3 = cardPaymentReg.ISOCountryCode3;
+            cardModal.Zip = cardPaymentReg.ZipCode;
+
+            var resultSk = await _cardPaymentSystem.SavePortalRegistrationAsync(cardModal, secureUserSK, commonClientSk);
+            return resultSk.RegistrationSK;
+        }
+        catch (Exception ex)
+        {
+            LogErrorSavingPaymentToSuites(_logger, "SaveCardProfileAsync", ex);
+        }
+        return 0;
     }
 
     private static string Truncate(string? value, int maxLength)

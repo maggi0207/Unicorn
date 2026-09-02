@@ -86,8 +86,15 @@
         </div>
 
         <div class="other-option-item">
-            <a href="billing-payments/pay-by-check?returnUrl=billing-payments/payment-options" class="other-option-link fw-bold" aria-describedby="desc-check">Pay by Check</a>
-            <p id="desc-check" class="other-option-description">Print out a payment coupon you can send in to us with your payment.</p>
+            @if (ElectronicPayRequired)
+            {
+                <span class="other-option-disabled-text fw-bold">This Employer is Required To Pay Electronically</span>
+            }
+            else
+            {
+                <a href="billing-payments/pay-by-check?returnUrl=billing-payments/payment-options" class="other-option-link fw-bold" aria-describedby="desc-check">Pay by Check</a>
+                <p id="desc-check" class="other-option-description">Print out a payment coupon you can send in to us with your payment.</p>
+            }
         </div>
 
         <div class="other-option-item">
@@ -125,7 +132,7 @@
         </div>
 
         <div class="other-option-item">
-            <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank"
+            <a href="https://dwd.wisconsin.gov/uitax/taxcolquest.htm" target="_blank"
                    rel="noreferrer"
                    aria-describedby="desc-block-plan"
                    aria-label="Payment Plan for Delinquent UI Tax"
@@ -160,6 +167,7 @@
     [Parameter] public EmployerAccount? EmployerAccount { get; set; }
     [Parameter] public NavigationSource Source { get; set; } = NavigationSource.Menu;
     [Parameter] public string? ReturnUrl { get; set; }
+    [Parameter] public bool ElectronicPayRequired { get; set; }
 
     private bool IsFlowEntry => Source == NavigationSource.Flow;
 

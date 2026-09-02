@@ -67,8 +67,8 @@
  
                     <dl class="cheque-coupon-dl">
                         <div class="cheque-coupon-dl-item">
-                            <dt>Account Number</dt>
-                            <dd>@_uiAccountNumber</dd>
+                            <dt>Account Number:</dt>
+                            <dd>@FormatUiAccountNumber(_uiAccountNumber)</dd>
                         </div>
                     </dl>
  
@@ -166,6 +166,11 @@
             StateHasChanged();
         }
     }
+
+    private static string FormatUiAccountNumber(string acct) =>
+   string.IsNullOrWhiteSpace(acct) || acct.Length != 10
+       ? acct
+       : $"{acct[..6]}-{acct[6..9]}-{acct[9..]}";
  
     /// <summary>Triggers the browser print dialog for the coupon.</summary>
     private async Task ExecutePrint()

@@ -36,6 +36,11 @@ public partial class VoluntaryContributionCalculator
     /// <summary>_showValidationSummary</summary>
     public bool _paymentMethodHasError = false;
 
+    private bool _payrollHasError = false;
+    private List<string> _bannerFieldIds = new();
+    private const string PayrollErrorMessage = "Estimated taxable payroll cannot be negative.";
+    private const string AmountErrorMessage = "Amount to pay is required and must be greater than $0.00";
+    private const string PaymentMethodErrorMessage = "Payment method selection is required";
 
     /// <summary>OnInitialized</summary>
     protected override void OnInitialized()
@@ -70,11 +75,10 @@ public partial class VoluntaryContributionCalculator
             Model.Lowerrate = result.Lowerrate;
         }
         // await BankAccountOrchestrator.SavePaymentToSessionAsync("0");
-        var sessionData = await BankAccountOrchestrator.GetPaymentToSessionAsync();
+        var sessionData = await BankAccountOrchestrator.GetVCPaymentToSessionAsync();
         if (!string.IsNullOrEmpty(sessionData))
         {
             Model.PaymentAmount = decimal.Parse(sessionData);
-            _selectedpayment = sessionData;
         }
 
         _editContext = new EditContext(Model);
@@ -91,6 +95,12 @@ public partial class VoluntaryContributionCalculator
         _touchedFields.Add(FieldIdentifier.Create(() => Model.PaymentAmount));
         ValidateForBanner();
     }
+    private void OnPayrollChanged(decimal? value)
+    {
+        Model.EstimatedTaxablePayroll = value ?? 0m;
+        _touchedFields.Add(FieldIdentifier.Create(() => Model.EstimatedTaxablePayroll));
+        ValidateForBanner();
+    }
     private async Task PaymentAsync()
     {
         _showValidationSummary = true;
@@ -102,19 +112,21 @@ public partial class VoluntaryContributionCalculator
         if (_selectedpayment == "ACH")
         {
             Model.SelectedPaymentMethod = _selectedpayment;
+            await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
             await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
             Nav.NavigateTo($"billing-payments/bank-account-payment-ach?returnUrl={Uri.EscapeDataString(returnUrl)}");
         }
         else if (_selectedpayment == "Card")
         {
             Model.SelectedPaymentMethod = _selectedpayment;
+            await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
             await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
             Nav.NavigateTo($"billing-payments/card-payment?returnUrl={Uri.EscapeDataString(returnUrl)}");
         }
         else if (_selectedpayment == "Check")
         {
             Model.SelectedPaymentMethod = _selectedpayment;
-            await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+            await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.VcRequired.ToString(), "Voluntary Contribution");
             Nav.NavigateTo("billing-payments/pay-by-check-voluntary");
         }
     }
@@ -192,32 +204,71 @@ public partial class VoluntaryContributionCalculator
     }
 
     private bool ValidateForBanner()
+
     {
+
         _validationErrors.Clear();
+        var fieldIds = new List<string>();
+        _payrollHasError = false;
         _amountHasError = false;
         _paymentMethodHasError = false;
 
-        if (Model.PaymentAmount <= 0)
+        if (Model.EstimatedTaxablePayroll < 0)
         {
-            if (_touchedFields.Contains(FieldIdentifier.Create(() => Model.PaymentAmount)) || _showValidationSummary)
+            if (_touchedFields.Contains(FieldIdentifier.Create(() => Model.EstimatedTaxablePayroll)) || _showValidationSummary)
             {
-                _amountHasError = true;
-                _validationErrors.Add("Amount to pay is required and must be greater than $0.00");
+                _payrollHasError = true;
+                _validationErrors.Add(PayrollErrorMessage);
+                fieldIds.Add("amount");
             }
         }
-        if (string.IsNullOrWhiteSpace(_selectedpayment))
+
+        if (Model.PaymentAmount <= 0)
+
         {
-            if (_touchedFields.Contains(FieldIdentifier.Create(() => _selectedpayment)) || _showValidationSummary)
+
+            if (_touchedFields.Contains(FieldIdentifier.Create(() => Model.PaymentAmount)) || _showValidationSummary)
+
             {
-                _paymentMethodHasError = true;
-                _validationErrors.Add("Payment method selection is required");
+
+                _amountHasError = true;
+
+                _validationErrors.Add(AmountErrorMessage);
+
+                fieldIds.Add("vamount");
+
             }
 
         }
+
+        if (string.IsNullOrWhiteSpace(_selectedpayment))
+
+        {
+
+            if (_touchedFields.Contains(FieldIdentifier.Create(() => _selectedpayment)) || _showValidationSummary)
+
+            {
+
+                _paymentMethodHasError = true;
+
+                _validationErrors.Add(PaymentMethodErrorMessage);
+
+                fieldIds.Add("paymentMethodFieldset");
+
+            }
+
+        }
+
+        _bannerFieldIds = fieldIds;
+
         _showValidationSummary = _validationErrors.Count > 0;
+
         StateHasChanged();
+
         return !_showValidationSummary;
+
     }
+
     private void GoBack()
     {
 

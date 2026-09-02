@@ -95,30 +95,35 @@ internal class RefundOrchestrator : IRefundOrchestrator
         var employerSk = await GetEmployerSkAsync();
         if (employerSk is null)
         {
-            return new RefundSubmissionResult(false, "No employer account selected");
+            return new RefundSubmissionResult(false, "No employer account selected", "");
         }
 
         var secureUserSk = _userAccountService.GetUserSKClaim();
-
         try
         {
+            var refundRequest = new CreditRefundRequest()
+            {
+                EmailAddress = model.EmailAddress,
+                EmployerSK = employerSk.Value,
+                RefundComments = model.AdditionalInformation ?? string.Empty,
+                SecureUserSK = secureUserSk
+            };
             var response = await _retryPolicy.ExecuteAsync(() =>
             {
-                return _accountMaintenanceService.RequestRefundAsync(
-                    employerSk.Value, model.EmailAddress, model.AdditionalInformation ?? string.Empty, secureUserSk);
+                return _accountMaintenanceService.RequestRefundAsync(refundRequest);
             });
 
             return response?.RuleViolations is { Length: > 0 }
-                ? new RefundSubmissionResult(false, response.RuleViolations[0].RuleViolation)
-                : new RefundSubmissionResult(true, null);
+                ? new RefundSubmissionResult(false, response.RuleViolations[0].RuleViolation, "")
+                : new RefundSubmissionResult(true, null, response != null ? response.ConfirmationNumber : "");
         }
         catch (CommunicationException)
         {
-            return new RefundSubmissionResult(false, "Service is temporarily unavailable. Please try again.");
+            return new RefundSubmissionResult(false, "Service is temporarily unavailable. Please try again.", "");
         }
         catch (Exception)
         {
-            return new RefundSubmissionResult(false, "An unexpected error occurred. Please try again.");
+            return new RefundSubmissionResult(false, "An unexpected error occurred. Please try again.", "");
         }
     }
 

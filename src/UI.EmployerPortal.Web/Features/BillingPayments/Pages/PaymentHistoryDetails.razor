@@ -2,6 +2,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Auth
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Payment Details</PageTitle>
@@ -52,7 +53,7 @@
                         <span class="detail-label">Transaction Date/Time</span>
                         <strong class="detail-value">
                             @(_payment.TransactionDateTime.HasValue
-                                ? _payment.TransactionDateTime.Value.ToString("MM/dd/yyyy hh:mm tt") + " CST"
+                                ? _payment.TransactionDateTime.Value.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")
                                 : "—")
                         </strong>
                     </div>
@@ -158,7 +159,7 @@
                         </div>
                         <div class="detail-field">
                             <span class="detail-label">Phone Number</span>
-                            <strong class="detail-value">@_payment.ContactInfo.PhoneNumberFormat</strong>
+                            <strong class="detail-value">@_payment.ContactInfo.PhoneNumber</strong>
                         </div>
                         <div class="detail-field">
                             <span class="detail-label">Email Address</span>
@@ -182,6 +183,7 @@
                     </button>
                 </div>
                 <div id="activity-body"
+                     class="table-container"
                      role="region"
                      aria-labelledby="activity-heading"
                      hidden="@(!_activityExpanded)">
@@ -192,40 +194,34 @@
                     else
                     {
                         <table class="activity-table" aria-label="Payment activity history">
+                            <caption class="visually-hidden">
+                                Column headers with buttons are sortable.
+                            </caption>
                             <thead>
                                 <tr>
                                     <th scope="col"
                                         class="activity-header-cell col-date @(_activitySortColumn == "date" ? "col-active-sort" : "")"
-                                        tabindex="0"
-                                        aria-sort="@GetActivityAriaSort("date")"
-                                        @onclick="@(() => SortActivity("date"))"
-                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "date"))">
-                                        <div class="activity-header-content">
+                                        aria-sort="@GetActivityAriaSort("date")">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("date"))">
                                             <span>Date/Time</span>
-                                            @GetActivitySortIcon("date")
-                                        </div>
+                                            <span aria-hidden="true">@GetActivitySortIcon("date")</span>
+                                        </button>
                                     </th>
                                     <th scope="col"
                                         class="activity-header-cell col-action @(_activitySortColumn == "action" ? "col-active-sort" : "")"
-                                        tabindex="0"
-                                        aria-sort="@GetActivityAriaSort("action")"
-                                        @onclick="@(() => SortActivity("action"))"
-                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "action"))">
-                                        <div class="activity-header-content">
+                                        aria-sort="@GetActivityAriaSort("action")">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("action"))">
                                             <span>Action</span>
-                                            @GetActivitySortIcon("action")
-                                        </div>
+                                            <span aria-hidden="true">@GetActivitySortIcon("action")</span>
+                                        </button>
                                     </th>
                                     <th scope="col"
                                         class="activity-header-cell col-description @(_activitySortColumn == "description" ? "col-active-sort" : "")"
-                                        tabindex="0"
-                                        aria-sort="@GetActivityAriaSort("description")"
-                                        @onclick="@(() => SortActivity("description"))"
-                                        @onkeydown="@(e => HandleActivityHeaderKeyDown(e, "description"))">
-                                        <div class="activity-header-content">
+                                        aria-sort="@GetActivityAriaSort("description")">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("description"))">
                                             <span>Description</span>
-                                            @GetActivitySortIcon("description")
-                                        </div>
+                                            <span aria-hidden="true">@GetActivitySortIcon("description")</span>
+                                        </button>
                                     </th>
                                 </tr>
                             </thead>

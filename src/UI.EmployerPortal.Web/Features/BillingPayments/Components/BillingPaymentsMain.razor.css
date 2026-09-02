@@ -129,7 +129,17 @@
 .other-option-description {
     margin: 0;
     color: var(--color-text);
-}    
+}
+
+.other-option-disabled-text {
+    display: inline-block;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    color: #0261ED;
+    text-decoration:none;
+}
 
 .inline-link {
     color: var(--color-header-nav);

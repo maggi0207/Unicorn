@@ -1,0 +1,523 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IBillingDetailService BillingDetailService
+@inject IDashboardOrchestrator DashboardOrchestrator
+@inject IUserAccountService UserAccountService
+@inject NavigationManager Nav
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading billing details, please wait..." />
+}
+else
+{
+
+    <main id="main-content" class="section-page" aria-label="Billing Details">
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading billing details, please wait..." />
+        }
+        else
+        {
+            <div class="billing-detail-container">
+                <h1 class="billing-detail-title fw-bold">Billing Details</h1>
+                <hr class="billing-detail-header-divider" aria-hidden="true" />
+
+                <p class="billing-detail-description">
+                    This page reflects all current outstanding liabilities and any existing credits.
+                </p>
+
+                @if (_showValidationSummary && _validationErrors.Any())
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                    MessageStyle="MessageStyle.MultiLine"
+                    Messages="_validationErrors"
+                    DismissButton="false" />
+                }
+
+                <AnnouncementBanner AnnouncementType="AnnouncementType.TAXABLEBILLINGDETAIL" />
+
+                @* ── Current Liability ── *@
+                <section class="billing-detail-section" aria-labelledby="current-liability-heading">
+                    <h2 id="current-liability-heading" class="billing-detail-section-heading">Current Liability</h2>
+                    <hr class="billing-detail-divider" aria-hidden="true" />
+                    <p class="billing-detail-liability-amount">@CurrentLiability.ToString("C")</p>
+                </section>
+
+                @* ── Billing Detail Table ── *@
+                <div class="billing-detail-table-wrapper" role="region" aria-label="Billing detail table">
+                    <table class="billing-detail-table">
+                        <caption class="visually-hidden">
+                            View billing details (column headers with buttons are sortable).
+                        </caption>
+                        <thead>
+                            <tr>
+                                @foreach (var col in BillColumns)
+                                {
+                                    <th scope="col"
+                                    class="billing-detail-th"
+                                    aria-sort="@GetAriaSort(col.Key, _billSortColumn, _billSortAscending)">
+                                        <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
+                                            <button type="button"
+                                            class="billing-detail-sort-btn"
+                                            @onclick="() => SortBills(col.Key)">
+                                                <span class="header-label">@col.Label</span>
+                                                <span aria-hidden="true">@GetSortIcon(col.Key, _billSortColumn, _billSortAscending)</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bill in SortedBills)
+                            {
+                                <tr>
+                                    <td>@bill.Year</td>
+                                    <td>@bill.Quarter</td>
+                                    <td>@bill.BillTypeDescription</td>
+                                    <td>@(bill.DueDate?.ToString("MM/dd/yyyy") ?? string.Empty)</td>
+                                    <td>@((bill.BalanceWithoutInterest ?? 0m).ToString("C"))</td>
+                                    <td>@((bill.InterestDueAmount ?? 0m).ToString("C"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="billing-detail-total-row">
+                                <td colspan="4" class="fw-bold">Total</td>
+                                <td class="fw-bold">@(_model.Bills.Sum(b => b.BalanceWithoutInterest ?? 0m).ToString("C"))</td>
+                                <td class="fw-bold">@(_model.Bills.Sum(b => b.InterestDueAmount ?? 0m).ToString("C"))</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                @* ── Credits Section — only when credits exist ── *@
+                @if (_model.Credits.Any())
+                {
+                    <hr class="billing-detail-section-divider" aria-hidden="true">
+                    <section class="billing-detail-section" aria-labelledby="credits-heading">
+                        <h2 id="credits-heading" class="billing-detail-section-heading">Credits</h2>
+                        <hr class="billing-detail-divider" aria-hidden="true" />
+                        <p class="billing-detail-credits-amount"> @_model.TotalCredits.ToString("C") </p>
+
+                        <div class="billing-detail-table-wrapper" role="region" aria-label="Credits table">
+                            <table class="billing-detail-table">
+                                <caption class="visually-hidden">
+                                    View credit details (column headers with buttons are sortable).
+                                </caption>
+                                <thead>
+                                    <tr>
+                                        @foreach (var col in CreditColumns)
+                                        {
+                                            <th scope="col"
+                                            class="billing-detail-th"
+                                            aria-sort="@GetAriaSort(col.Key, _creditSortColumn, _creditSortAscending)">
+                                                <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
+                                                    <button type="button" class="billing-detail-sort-btn" @onclick="() => SortCredits(col.Key)">
+                                                        <span class="header-label">@col.Label</span>
+                                                        <span aria-hidden="true">@GetSortIcon(col.Key, _creditSortColumn, _creditSortAscending)</span>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var credit in SortedCredits)
+                                    {
+                                        <tr>
+                                            <td>@(credit.DueDate?.ToString("MM/dd/yyyy") ?? string.Empty)</td>
+                                            <td>@credit.Year</td>
+                                            <td>@credit.Quarter</td>
+                                            <td>@((credit.Balance ?? 0m).ToString("C"))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="billing-detail-total-row">
+                                        <td colspan="3" class="fw-bold">Total</td>
+                                        <td class="fw-bold">@(_model.Credits.Sum(c => c.Balance ?? 0m).ToString("C"))</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        @if (_isEligibleForRefund)
+                        {
+                            <div class="billing-detail-refund-action">
+                                <Button Variant="Button.ButtonVariant.Secondary"
+                                Size="Button.ButtonSize.Medium"
+                                AriaLabel="Request a refund"
+                                OnClick="HandleRequestRefund">
+                                    REQUEST A REFUND
+                                </Button>
+                            </div>
+                        }
+                    </section>
+                }
+                @* ── Payment Summary ── *@
+                @if (!_model.Credits.Any())
+                {
+                    <hr class="billing-detail-section-divider" aria-hidden="true" />
+                }
+                <section class="billing-detail-section" aria-labelledby="payment-summary-heading">
+                    <h2 id="payment-summary-heading" class="billing-detail-section-heading">Payment</h2>
+                    <hr class="billing-detail-divider" aria-hidden="true" />
+
+                    <div class="billing-detail-summary" aria-label="Payment summary values" role="region">
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Tax Due</span>
+                            <span class="billing-detail-summary-value">@_model.TaxDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Interest Due</span>
+                            <span class="billing-detail-summary-value">@_model.InterestDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Penalty Due</span>
+                            <span class="billing-detail-summary-value">@_model.PenaltyDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Collection Costs Due</span>
+                            <span class="billing-detail-summary-value">@_model.CollectionCostsDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">NSF Fees Due</span>
+                            <span class="billing-detail-summary-value">@_model.NsfFeesDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Assessment Due</span>
+                            <span class="billing-detail-summary-value">@_model.AssessmentDue.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Credit</span>
+                            <span class="billing-detail-summary-value">@_model.TotalCredits.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label fw-bold">Total Outstanding Balance</span>
+                            <span class="billing-detail-summary-value fw-bold">@_model.TotalOutstandingBalance.ToString("C")</span>
+                        </div>
+                        <div class="billing-detail-summary-row">
+                            <span class="billing-detail-summary-label">Total Pending EFT Payments</span>
+                            <span class="billing-detail-summary-value">@_model.TotalEftPayments.ToString("C")</span>
+                        </div>
+
+                        @* Amount to Pay — editable *@
+                        <div class="billing-detail-summary-row billing-detail-amount-to-pay-row">
+                            <label for="amount-to-pay" class="billing-detail-summary-label fw-bold">Amount to Pay</label>
+                            <div class="billing-detail-amount-input">
+                                <OutlinedTextField Label=""
+                                Id="amount-to-pay"
+                                Type="text"
+                                InputMode="decimal"
+                                Value="@_displayAmount"
+                                ValueChanged="OnAmountChanged"
+                                OnBlur="OnAmountBlur"
+                                Required="true"
+                                Placeholder="0.00"
+                                ForceError="@(_amountError is not null)"
+                                ForceErrorMessage="@_amountError" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <nav class="billing-footer" aria-label="Page actions">
+                    <BillingButtonBar ShowBack="false"
+                    ShowContinue="true"
+                    ShowCancel="false"
+                    ContinueText="SELECT PAYMENT OPTIONS"
+                    ButtonWidth="300"
+                    OnContinue="HandleContinue" />
+                </nav>
+            </div>
+        }
+    </main>
+
+    @code {
+
+    [Inject]
+    private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+    [Inject]
+    private IRefundOrchestrator RefundOrchestrator { get; set; } = default!;
+    private BillingDetailViewModel _model = new();
+    private bool _isEligibleForRefund;
+    private bool _showValidationSummary;
+    private readonly List<string> _validationErrors = new();
+    private bool _isLoading = true;
+    private string _displayAmount = string.Empty;
+    private string? _amountError;
+    private decimal _amount;
+    private const decimal MinAmount = 0.01m;
+    private const decimal MaxAmount = 999_999_999.99m;
+
+    private string _billSortColumn = string.Empty;
+    private bool _billSortAscending = true;
+    private string _creditSortColumn = string.Empty;
+    private bool _creditSortAscending = true;
+    private ReimbursableBillingDetail _bpayment = new();
+
+
+    private static readonly (string Key, string Label)[] BillColumns =
+    [
+        ("year",     "Year"),
+        ("quarter",  "Quarter"),
+        ("type",     "Type"),
+        ("duedate",  "Date Due"),
+        ("balance",  "Amount"),
+        ("interest", "Interest"),
+    ];
+
+    private static readonly (string Key, string Label)[] CreditColumns =
+    [
+        ("duedate",  "Effective Date"),
+        ("year",     "Year"),
+        ("quarter",  "Quarter"),
+        ("balance",  "Amount"),
+    ];
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+        if (!(employer?.IsTaxable ?? true))
+        {
+            Nav.NavigateTo(BuildPath("/billing-payments/billing"));
+            return;
+        }
+        var secureUserSK = UserAccountService.GetUserSKClaim();
+        var employerSK = employer?.Id ?? 0;
+
+        var request = new UI.EmployerPortal.Generated.ServiceClients.BillDetailService.EmployerRequest
+        {
+            EmployerSK = employerSK,
+            SecureUserSK = secureUserSK
+        };
+
+        var billingTask = BillingDetailService.GetTaxableBillingDetail(request);
+        var creditsTask = BillingDetailService.GetCreditRowsAsync(employerSK, secureUserSK);
+        var eligibilityTask = RefundOrchestrator.IsEligibleForRefundAsync();
+
+        await Task.WhenAll(billingTask, creditsTask, eligibilityTask);
+
+        var billingResult = await billingTask;
+        var creditRows = await creditsTask;
+        _isEligibleForRefund = await eligibilityTask;
+
+        if (billingResult != null)
+        {
+            _model = billingResult;
+            _model.Credits = creditRows;
+            _amount = _model.AmountToPay;
+            _displayAmount = _model.AmountToPay.ToString("C");
+            _isLoading = false;
+        }
+        var (sessionAmount, IsCalculated) = await BankAccountOrchestrator.GetPaymentToSessionWithStatusAsync();
+
+        if (!string.IsNullOrWhiteSpace(sessionAmount) )
+        {
+            if (!IsCalculated)
+            {
+                var calculatedAmount = Convert.ToDecimal(sessionAmount) - Math.Abs(_model.TotalEftPayments);
+                await BankAccountOrchestrator.UpdatePaymentSessionAsync();
+                if (calculatedAmount < 0)
+                {
+                    _displayAmount = (0).ToString("C");
+                }
+                else
+                {
+                    _displayAmount = calculatedAmount.ToString("C");
+                }
+            }
+            else
+            {
+                _displayAmount = Convert.ToDecimal(sessionAmount).ToString("C");
+            }
+        }
+    }
+
+    private decimal CurrentLiability =>
+        _model.Bills.Sum(b => b.BalanceWithoutInterest ?? 0m) + _model.Bills.Sum(b => b.InterestDueAmount ?? 0m);
+
+    private static bool IsNumericColumn(string col)
+    {
+        return col is "balance" or "interest";
+    }
+
+    private IEnumerable<BillLineItem> SortedBills =>
+            ApplySort(_model.Bills, _billSortColumn, _billSortAscending);
+
+    private IEnumerable<BillLineItem> SortedCredits =>
+        ApplySort(_model.Credits, _creditSortColumn, _creditSortAscending);
+
+    private static IEnumerable<BillLineItem> ApplySort(List<BillLineItem> items, string col, bool ascending)
+    {
+        Func<BillLineItem, object?> key = col switch
+        {
+            "year" => x => (object?)x.Year,
+            "quarter" => x => x.Quarter,
+            "type" => x => x.BillTypeDescription,
+            "duedate" => x => x.DueDate,
+            "balance" => x => x.BalanceWithoutInterest,
+            "interest" => x => x.InterestDueAmount,
+            _ => x => x.Year
+        };
+        return ascending ? items.OrderBy(key) : items.OrderByDescending(key);
+    }
+
+    private void SortBills(string column)
+    {
+        if (_billSortColumn == column)
+            _billSortAscending = !_billSortAscending;
+        else
+        {
+            _billSortColumn = column;
+            _billSortAscending = true;
+        }
+    }
+
+    private void SortCredits(string column)
+    {
+        if (_creditSortColumn == column)
+            _creditSortAscending = !_creditSortAscending;
+        else
+        {
+            _creditSortColumn = column;
+            _creditSortAscending = true;
+        }
+    }
+
+    private static string GetAriaSort(string col, string sortCol, bool ascending)
+    {
+        if (col != sortCol) return "none";
+        return ascending ? "ascending" : "descending";
+    }
+
+    private MarkupString GetSortIcon(string col, string sortCol, bool ascending)
+    {
+        string path;
+        string altText;
+
+        if (col == sortCol)
+        {
+            path = ascending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            altText = ascending ? "Sorted ascending" : "Sorted descending";
+        }
+        else
+        {
+            path = "images/sort/sort-icon.svg";
+            altText = "Not sorted";
+        }
+
+        return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' alt='{altText}' />");
+    }
+
+    private async Task OnAmountChanged(string raw)
+    {
+        _displayAmount = raw;
+        var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
+        if (!string.IsNullOrWhiteSpace(cleaned)
+            && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out var v)
+            && v >= MinAmount && v <= MaxAmount)
+        {
+            _amountError = null;
+        }
+        await Task.CompletedTask;
+    }
+
+    private async Task OnAmountBlur()
+    {
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(cleaned);
+        if (_amountError is null)
+            _displayAmount = _amount.ToString("C");
+        await Task.CompletedTask;
+    }
+
+    private void ValidateAmount(string cleaned)
+    {
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            _amountError = "Payment Amount is required";
+            _amount = 0;
+            return;
+        }
+
+        if (!decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out var value))
+        {
+            _amountError = "Payment Amount must be numeric and in a valid format";
+            _amount = 0;
+            return;
+        }
+
+        if (value <= 0)
+        {
+            _amountError = "Payment Amount must be greater than $0.00";
+            _amount = 0;
+            return;
+        }
+
+        if (value > MaxAmount)
+        {
+            _amountError = $"Payment Amount cannot exceed {MaxAmount:C}";
+            _amount = 0;
+            return;
+        }
+
+        _amount = value;
+        _amountError = null;
+    }
+
+    private bool Validate()
+    {
+        _validationErrors.Clear();
+
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(cleaned);
+        if (_amountError is not null)
+            _validationErrors.Add(_amountError);
+
+        _showValidationSummary = _validationErrors.Any();
+        return !_showValidationSummary;
+    }
+
+    private async Task HandleContinue()
+    {
+        if (!Validate())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        _bpayment.AmountToPay = decimal.TryParse(_displayAmount.Replace("$", "").Replace(",", "").Trim(), out var val) ? val : 0;
+        await BankAccountOrchestrator.SavePaymentToSessionAsync(_bpayment.AmountToPay.ToString(),"Payment");
+        Nav.NavigateTo(BuildPath($"/billing-payments/payment-options") + "?source=flow&returnUrl=billing-payments/billing-detail");
+    }
+
+    private void HandleRequestRefund()
+    {
+        var amount = Math.Abs(_model.TotalCredits).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        Nav.NavigateTo(BuildPath("/billing-payments/request-refund") + $"?amount={amount}");
+    }
+
+    private string BuildPath(string relativePath)
+    {
+        var baseUri = new Uri(Nav.BaseUri);
+        var basePath = baseUri.AbsolutePath.TrimEnd('/');
+        return new PathString(basePath + relativePath);
+    }
+}
+}

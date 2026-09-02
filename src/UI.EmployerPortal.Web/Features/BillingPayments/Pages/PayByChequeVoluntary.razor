@@ -9,7 +9,7 @@
 @inject IBankAccountOrchestrator BankAccountOrchestrator;
  
 <div class="section-page">
-    <PageTitle>Check Payment Coupon</PageTitle>
+    <PageTitle>Voluntary Contribution Coupon</PageTitle>
  
     <h1 class="section-header fw-bold">
         Check Payment Coupon
@@ -30,8 +30,8 @@
  
     @* Print Layout*@
     <div class="print-section" id="print-section">
-        <div class=" cheque-coupon"
-             role="document" aria-label="Check Payment Coupon">
+        <div class="cheque-coupon"
+             role="document" aria-label="Voluntary Remittance Coupon">
  
             <div class="cheque-coupon-grid">
  
@@ -69,14 +69,14 @@
  
                     <dl class="cheque-coupon-dl">
                         <div class="cheque-coupon-dl-item">
-                            <dt>Account Number</dt>
-                            <dd>@_uiAccountNumber</dd>
+                            <dt>Account Number:</dt>
+                            <dd>@FormatUiAccountNumber(_uiAccountNumber)</dd>
                         </div>
                     </dl>
  
                     @* Machine-readable scan line. *@
                     <p class="cheque-coupon-scanline">@_scanLine</p>
-                    <br /> <br /> <br />
+                    <br /> <br /> 
                     <div class="cheque-coupon-mailto">
                         Make checks payable and mail to:<br />
                         Department of Workforce Development<br />
@@ -90,8 +90,10 @@
 
             
             <div class="cheque-coupon-voluntary_title fw-bold">YOUR VOLUNTARY CONTRIBUTION MUST BE RECEIVED BY NOVEMBER 30</div>
+            <br />
             @* Amounts. Amount Enclosed is intentionally blank for the employer to write in by hand. *@
-            <table class="cheque-coupon-table">
+            <div>
+                <table class="cheque-coupon-table">
                 <caption class="visually-hidden">Payment coupon amounts</caption>
                 <thead>
                     <tr>
@@ -110,10 +112,10 @@
                     </tr>
                 </tbody>
             </table>
- 
-            <p class="cheque-coupon-formid">UCT-16317-E (R. 11/04/2009)</p>
+            </div>
         </div>
     </div>
+    <br />
     @* Footer actions — hidden from print *@
     <Button Variant="Button.ButtonVariant.Secondary"
             type="button"
@@ -168,6 +170,11 @@
             StateHasChanged();
         }
     }
+
+    private static string FormatUiAccountNumber(string acct) =>
+   string.IsNullOrWhiteSpace(acct) || acct.Length != 10
+       ? acct
+       : $"{acct[..6]}-{acct[6..9]}-{acct[9..]}";
  
     /// <summary>Triggers the browser print dialog for the coupon.</summary>
     private async Task ExecutePrint()

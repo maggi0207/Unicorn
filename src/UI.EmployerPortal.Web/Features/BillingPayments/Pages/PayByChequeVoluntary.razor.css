@@ -34,7 +34,7 @@
 
 .cheque-coupon {
     max-width: 998px;
-    height: 1027px;
+    min-height: 1027px;
     margin: 16px 0;
     padding: 24px;
     border: none; /*1px solid #000; /* coupon is a bordered remittance form */
@@ -126,7 +126,6 @@
 
 /* Amounts table */
 .cheque-coupon-table {
-    margin-top: 24px;
     border-collapse: collapse;
     width: 80%;
     min-width: 360px;
@@ -169,8 +168,14 @@
 @media print {
     .cheque-coupon {
         position: absolute;
-        width: 100%;
         top: 24px;
         left: 0;
     }
+
+    .check_coupon_remittance {
+        justify-content: flex-start;
+        gap: 8px
+    }
+}
+
 }

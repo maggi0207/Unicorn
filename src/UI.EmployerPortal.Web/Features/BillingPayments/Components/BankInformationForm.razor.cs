@@ -242,7 +242,7 @@ public partial class BankInformationForm
         _showValidation = true;
         _showValidationSummary = false;
 
-        if (IsEditMode && !_iAccept)
+        if (IsEditMode && _pendingPayments.Count > 0 && !_iAccept)
         {
             _showIAcceptError = true;
             return;

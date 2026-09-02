@@ -24,4 +24,7 @@ public class RefundRequestModel
     /// <summary>Optional additional information/comments to include with the refund request.</summary>
     [MaxLength(500, ErrorMessage = "Additional Information cannot exceed 500 characters")]
     public string? AdditionalInformation { get; set; }
+
+    /// <summary>Refund confirmation number</summary>
+    public string ConfirmationNumber { get; set; } = string.Empty;
 }

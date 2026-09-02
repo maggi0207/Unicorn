@@ -130,7 +130,7 @@
                                     }
                                 </td>
                                 <td class="data-cell">
-                                    @if (payment.IsCurrentUser)
+                                    @if (payment.IsCurrentUser && !payment.PaymentType.Contains("Credit Card/Debit Card"))
                                     {
                                         <button type="button"
                                                 class="confirmation-link"

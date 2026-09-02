@@ -6,17 +6,7 @@
 @using UI.EmployerPortal.Web.Features.Shared.Layout.Components
 
 <div class="voluntary-Container" role="region" aria-label="Voluntary Contribution">
- @if (_showValidationSummary && _validationErrors.Any())
-{
-    <div class="fix-section-width" style="max-width:684px;">       
-        <NotificationBanner NotificationType="NotificationType.Alert"
-                            MessageStyle="MessageStyle.MultiLine"
-                            Messages="_validationErrors"
-                            DismissButton="false" />
-        
 
-    </div>
-}
 <EditForm EditContext="_editContext"
           OnValidSubmit="HandleContinue"
           OnInvalidSubmit="OnInvalid">
@@ -24,6 +14,18 @@
     <ValidationSummary />
 
     <h2 class="title-heading">Voluntary Contribution Calculator</h2>
+
+     @if (_showValidationSummary && _validationErrors.Any())
+    {
+        <div class="fix-section-width" style="max-width:684px;">       
+       <NotificationBanner NotificationType="NotificationType.Alert"
+                               MessageStyle="MessageStyle.MultiLine"
+                                   Messages="_validationErrors"
+                            MessageFieldIds="@_bannerFieldIds"
+                              DismissButton="false" />
+        </div>
+        <br />
+        }
     <p class="title-smallheading">
         Voluntary contributions are an optional means by which employers can lower their rate by one rate bracket.
     </p>
@@ -67,115 +69,115 @@
                 </button>
  
                 <div class="value">
-                    <NumericTextBox Value="@Model.EstimatedTaxablePayroll"
-                                    Id="amount"
-                                    AriaLabel="Estimate Amount to pay"
-                                    IsReadonly="false"
-                                    InputType="@InputDataTypes.Currency"
-                                    ShowCurrencyIcon="false"
-                                    DecimalPlaces="2"
-                                    Min="0"
-                                    Max="1000000000"
-                                    CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")" />
-                    <ValidationMessage For="@(() => Model.EstimatedTaxablePayroll)" />
+                   <NumericTextBox Value="@Model.EstimatedTaxablePayroll"
+   Id="amount"
+   AriaLabel="Estimate Amount to pay"
+   IsReadonly="false"
+   InputType="@InputDataTypes.Currency"
+   ShowCurrencyIcon="false"
+   DecimalPlaces="2" Min="0" Max="1000000000"
+   CssClass="@($"form-control amount-input {(_payrollHasError ? "numeric-input--error" : string.Empty)}")"
+   ValueChanged="OnPayrollChanged" />
+
+          
                 </div>
             </div>        
         </div>
         <div class="custom-divider"></div>
+
+        @if (_payrollHasError)
+{
+<span style="padding-left:355px" class="field-error-message">@PayrollErrorMessage</span>
+}
                 
-  <table class="table" aria-label="Contribution Tax Details">
+  <table class="table tblnomargin" aria-label="Contribution Tax Details">
         <tbody>
             
             <tr>
                 <th scope="row" class="col1">Tax Savings Based On estimated payroll</th>
-                <th scope="row" class="col2">@Model.EstimatedTaxablePayroll.ToString("C")</th>
+                <th scope="row" class="col2">@Model.TaxSavingsBasedOnEstimatedPayroll.ToString("C")</th>
             </tr>
             <tr>
                 <th scope="row" class="col1">Voluntary contribution required to lower your @(DateTime.Now.Year +1) rate</th>
-                    <th scope="row" class="col2">@Model.VcRequired.ToString("C")</th>
+                <th scope="row" class="col2 col2-highlight">@Model.VcRequired.ToString("C")</th>
             </tr>
             <tr>
                 <th scope="row" class="col1">Net tax savings for @(DateTime.Now.Year +1)</th>
                     <th scope="row" class="col2">@Model.NetTaxSavings.ToString("C")</th>
             </tr>
             <tr>
-
-            </tr>
-            <tr>
                 <th scope="row" class="col1">Voluntary Contribution Payment Amount</th>
-                    <th scope="row" class="col2">
+                    <th scope="row" class="col2 numeric-cell">
                         <span class="value">
-                            <NumericTextBox Value="@Model.PaymentAmount"
-                                            Id="amount"
-                                            AriaLabel="Contribution Amount to pay"
-                                            IsReadonly="false"
-                                            InputType="@InputDataTypes.Currency"
-                                            ShowCurrencyIcon="false"
-                                            DecimalPlaces="2"
-                                            Min="0"
-                                            Max="1000000000"
-                                            CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
-                                            ValueChanged="OnAmountChanged" />
-                            <ValidationMessage For="@(() => Model.PaymentAmount)" />
+                           <NumericTextBox Value="@Model.PaymentAmount"
+                                              Id="vamount"
+                                       AriaLabel="Contribution Amount to pay"
+                                      IsReadonly="false"
+                                       InputType="@InputDataTypes.Currency"
+                                ShowCurrencyIcon="false"
+                                   DecimalPlaces="2" Min="0" Max="1000000000"
+                                        CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
+                                    ValueChanged="OnAmountChanged" />
+                                            
+ 
                         </span>
                     </th>
          </tr>
         </tbody>
-    </table>   
+    </table>
+    <div class="custom-divider payment-table-divider"></div>
+     @if (_amountHasError)
+    {
+            <span style="padding-left:400px" class="field-error-message">@AmountErrorMessage</span>
+    }
         <h3 id="payment-method-heading" class="payment">
             Payment Method
         </h3>
-    <fieldset aria-labelledby="payment-method-heading"
-                  class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
-                  aria-invalid="@(_paymentMethodHasError ? "true" : "false")">
-            <div class="option">
-            <label for="ach">
-            <input type="radio"
-                   id="ach"
-                   name="paymentMethod"
-                   value="ACH"
-                   checked="@(_selectedpayment == "ACH")"
-                   @onchange="OnpaymentChanged"
-                   aria-label="ACH payment method" />           
-                <strong>ACH</strong>   <br/>
-                 <div class="description">
-                      Pay your UI taxes online directly from your bank account.
-                </div>
-            </label> 
-        </div>
- 
-        <div class="option">
-            <label for="card">
-            <input type="radio"
-                   id="card"
-                   name="paymentMethod"
-                   value="Card"
-                   checked="@(_selectedpayment == "Card")"
-                   @onchange="OnpaymentChanged"
-                   aria-label="Credit or Debit Card payment method" />           
-                <strong>Credit/Debit Card</strong>  <br />
-                <div class="description">
-                    Make a payment by credit or debit card.
-                </div>
-            </label>
-        </div>
- 
-        <div class="option">
-            <label for="check">
-            <input type="radio"
-                   id="check"
-                   name="paymentMethod"
-                   value="Check"
-                   checked="@(_selectedpayment == "Check")"
-                   @onchange="OnpaymentChanged"
-                   aria-label="Check payment method" />          
-                <strong>Check</strong>   <br />
-                <div class="description">
-                    Print out a payment coupon you can send in to us with your payment.
-                </div>
-            </label>
-        </div>
-    </fieldset>
+        @if (_paymentMethodHasError)
+        {
+            <span class="field-error-message">@PaymentMethodErrorMessage</span>
+        }
+       <fieldset id="paymentMethodFieldset" tabindex="-1"
+   aria-labelledby="payment-method-heading"
+   class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
+   aria-invalid="@(_paymentMethodHasError ? "true" : "false")">
+<div class="option">
+<label for="ach">
+<input type="radio"
+               id="ach"
+               name="paymentMethod"
+               value="ACH"
+               checked="@(_selectedpayment == "ACH")"
+               @onchange="OnpaymentChanged"
+               aria-label="ACH payment method" />
+<strong>ACH</strong>
+</label>
+</div>
+<div class="option">
+<label for="card">
+<input type="radio"
+               id="card"
+               name="paymentMethod"
+               value="Card"
+               checked="@(_selectedpayment == "Card")"
+               @onchange="OnpaymentChanged"
+               aria-label="Credit or Debit Card payment method" />
+<strong>Credit/Debit Card</strong>
+</label>
+</div>
+<div class="option">
+<label for="check">
+<input type="radio"
+               id="check"
+               name="paymentMethod"
+               value="Check"
+               checked="@(_selectedpayment == "Check")"
+               @onchange="OnpaymentChanged"
+               aria-label="Check payment method" />
+<strong>Check</strong>
+</label>
+</div>
+</fieldset>
         <BillingButtonBar ShowBack="true"
                           ShowContinue="true"
                           ShowCancel="false"
@@ -185,7 +187,7 @@
                           OnBack="GoBack">
         </BillingButtonBar>
 
-        <h3 id="payment-method-heading" class="section-title">
+        <h3 id="disclaimer-heading" class="section-title">
             Disclaimer
         </h3>
         <p class="section-paragraph">

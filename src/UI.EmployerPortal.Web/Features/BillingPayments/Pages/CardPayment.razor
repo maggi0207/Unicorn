@@ -36,152 +36,152 @@
                ════════════════════════════════════════════════════════ *@
             @if (_step == CardStep.Registration)
             {
-                <BillingPaymentsHeader Amount="@_employer?.BalanceDue" ReturnUrl="@ReturnUrl"/>
+                <BillingPaymentsHeader Amount="@_employer?.BalanceDue" ReturnUrl="@ReturnUrl" />
 
                 <h1 class="page-title fw-bold">Credit/Debit Card Registration Profile</h1>
                 <div class="fix-section-width" style="max-width:684px;">
-                @if (_showValidationSummary && _validationErrors.Any())
-                {
-                    <div class="fix-section-width" style="max-width:684px;">
-                        <NotificationBanner NotificationType="NotificationType.Alert"
-                                            MessageStyle="MessageStyle.MultiLine"
-                                            Messages="_validationErrors"
-                                            MessageFieldIds="_validationFieldIds"
-                                            DismissButton="false" />
-                    </div>
-                }
-
-                <EditForm EditContext="_editContext"
-                          OnValidSubmit="GoToVerification"
-                          OnInvalidSubmit="OnFormInvalid">
-                    <DataAnnotationsValidator />
-
-                    <p class="card-service-fee-notice">
-                        A non-refundable 2% service fee is assessed on the amount of the card payment.
-                        In order to make your card payment, please complete the information below.
-                        If the information listed is not correct, update the applicable fields.
-                    </p>
-
-                    <div class="card-accepted-logos" aria-label="Accepted card types">
-                            <img src="images/billing/cards.svg" alt="cards" height="28" />
-                    </div>
-
-                    <p class="card-all-required-note">All fields are required.</p>
-
-                    @* ── Name ── *@
-                    <p class="card-section-label fw-bold">
-                        First and last name of the person making the payment online.
-                    </p>
-
-                    @* Figma: First Name and Last Name are stacked vertically, full-width *@
-                    <OutlinedTextField Label="First Name"
-                                       Id="card-first-name"
-                                       @bind-Value="_profile.FirstName"
-                                       For="@(() => _profile.FirstName)"
-                                       Visible="_showValidation"
-                                       MaxLength="50" />
-
-                    <OutlinedTextField Label="Last Name"
-                                       Id="card-last-name"
-                                       @bind-Value="_profile.LastName"
-                                       For="@(() => _profile.LastName)"
-                                       Visible="_showValidation"
-                                       MaxLength="50" />
-
-                    @* ── Billing Address ── *@
-                    <p class="card-section-label fw-bold">
-                        Billing address for the card being used to make a payment.
-                    </p>
-
-                    <OutlinedSelectField Label="Country"
-                                         Id="card-country"
-                                         Value="@_profile.Country"
-                                         ValueChanged="OnCountryChanged"
-                                         Options="_countryOptions"
-                                         Placeholder="Select Country"
-                                         For="@(() => _profile.Country)"
-                                         Visible="_showValidation" />
-
-                    <OutlinedTextField Label="Address Line 1"
-                                       Id="card-address1"
-                                       @bind-Value="_profile.AddressLine1"
-                                       For="@(() => _profile.AddressLine1)"
-                                       Visible="_showValidation"
-                                       MaxLength="100" />
-
-                    <OutlinedTextField Label="Address Line 2 (Optional)"
-                                       Id="card-address2"
-                                       @bind-Value="_profile.AddressLine2"
-                                       Visible="_showValidation"
-                                       MaxLength="100" />
-
-                    <OutlinedTextField Label="City"
-                                       Id="card-city"
-                                       @bind-Value="_profile.City"
-                                       For="@(() => _profile.City)"
-                                       Visible="_showValidation"
-                                       MaxLength="60" />
-
-                    @* State — only visible when United States is selected *@
-                    @if (_showState)
+                    @if (_showValidationSummary && _validationErrors.Any())
                     {
-                        <OutlinedSelectField Label="State"
-                                             Id="card-state"
-                                             Value="@_profile.State"
-                                             ValueChanged="v => _profile.State = v"
-                                             Options="_stateOptions"
-                                             Placeholder="Select State"
-                                             Visible="_showValidation" />
+                        <div class="fix-section-width" style="max-width:684px;">
+                            <NotificationBanner NotificationType="NotificationType.Alert"
+                                                MessageStyle="MessageStyle.MultiLine"
+                                                Messages="_validationErrors"
+                                                MessageFieldIds="_validationFieldIds"
+                                                DismissButton="false" />
+                        </div>
                     }
-                    <div class="bi-zip-row">
-                        <div class="bi-zip-field">
-                            <OutlinedTextField Label="Zip Code"
-                                               Id="card-zip"
-                                               @bind-Value="_profile.ZipCode"
-                                               For="@(() => _profile.ZipCode)"
-                                               Visible="_showValidation"
-                                               InputMode="numeric"
-                                               MaxLength="5" />
-                        </div>
-                        <span class="bi-zip-dash" aria-hidden="true">-</span>
-                        <div class="bi-ext-field">
-                            <OutlinedTextField Label="Ext. (Optional)"
-                                               Id="card-zip-ext"
-                                               @bind-Value="_profile.ZipExt"
-                                               Visible="_showValidation"
-                                               InputMode="numeric"
-                                               MaxLength="4" />
-                        </div>
-                    </div>
 
-                    @* ── Phone ── *@
-                    <p class="card-section-label fw-bold">
-                        Telephone number of the person making the payment online.
-                    </p>
-                    <PhoneNumberField @bind-Value="_profile.PhoneNumber"
-                                      For="() => _profile.PhoneNumber"
-                                      Visible="true"
+                    <EditForm EditContext="_editContext"
+                              OnValidSubmit="GoToVerification"
+                              OnInvalidSubmit="OnFormInvalid">
+                        <DataAnnotationsValidator />
+
+                        <p class="card-service-fee-notice">
+                            A non-refundable 2% service fee is assessed on the amount of the card payment.
+                            In order to make your card payment, please complete the information below.
+                            If the information listed is not correct, update the applicable fields.
+                        </p>
+
+                        <div class="card-accepted-logos" aria-label="Accepted card types">
+                            <img src="images/billing/cards.svg" alt="cards" height="28" />
+                        </div>
+
+                        <p class="card-all-required-note">All fields are required.</p>
+
+                        @* ── Name ── *@
+                        <p class="card-section-label fw-bold">
+                            First and last name of the person making the payment online.
+                        </p>
+
+                        @* Figma: First Name and Last Name are stacked vertically, full-width *@
+                        <OutlinedTextField Label="First Name"
+                                           Id="card-first-name"
+                                           @bind-Value="_profile.FirstName"
+                                           For="@(() => _profile.FirstName)"
+                                           Visible="_showValidation"
+                                           MaxLength="50" />
+
+                        <OutlinedTextField Label="Last Name"
+                                           Id="card-last-name"
+                                           @bind-Value="_profile.LastName"
+                                           For="@(() => _profile.LastName)"
+                                           Visible="_showValidation"
+                                           MaxLength="50" />
+
+                        @* ── Billing Address ── *@
+                        <p class="card-section-label fw-bold">
+                            Billing address for the card being used to make a payment.
+                        </p>
+
+                        <OutlinedSelectField Label="Country"
+                                             Id="card-country"
+                                             Value="@_profile.Country"
+                                             ValueChanged="OnCountryChanged"
+                                             Options="_countryOptions"
+                                             Placeholder="Select Country"
+                                             For="@(() => _profile.Country)"
+                                             Visible="_showValidation" />
+
+                        <OutlinedTextField Label="Address Line 1"
+                                           Id="card-address1"
+                                           @bind-Value="_profile.AddressLine1"
+                                           For="@(() => _profile.AddressLine1)"
+                                           Visible="_showValidation"
+                                           MaxLength="100" />
+
+                        <OutlinedTextField Label="Address Line 2 (Optional)"
+                                           Id="card-address2"
+                                           @bind-Value="_profile.AddressLine2"
+                                           Visible="_showValidation"
+                                           MaxLength="100" />
+
+                        <OutlinedTextField Label="City"
+                                           Id="card-city"
+                                           @bind-Value="_profile.City"
+                                           For="@(() => _profile.City)"
+                                           Visible="_showValidation"
+                                           MaxLength="60" />
+
+                        @* State — only visible when United States is selected *@
+                        @if (_showState)
+                        {
+                            <OutlinedSelectField Label="State"
+                                                 Id="card-state"
+                                                 Value="@_profile.State"
+                                                 ValueChanged="v => _profile.State = v"
+                                                 Options="_stateOptions"
+                                                 Placeholder="Select State"
+                                                 Visible="_showValidation" />
+                        }
+                        <div class="bi-zip-row">
+                            <div class="bi-zip-field">
+                                <OutlinedTextField Label="Zip Code"
+                                                   Id="card-zip"
+                                                   @bind-Value="_profile.ZipCode"
+                                                   For="@(() => _profile.ZipCode)"
+                                                   Visible="_showValidation"
+                                                   InputMode="numeric"
+                                                   MaxLength="5" />
+                            </div>
+                            <span class="bi-zip-dash" aria-hidden="true">-</span>
+                            <div class="bi-ext-field">
+                                <OutlinedTextField Label="Ext. (Optional)"
+                                                   Id="card-zip-ext"
+                                                   @bind-Value="_profile.ZipExt"
+                                                   Visible="_showValidation"
+                                                   InputMode="numeric"
+                                                   MaxLength="4" />
+                            </div>
+                        </div>
+
+                        @* ── Phone ── *@
+                        <p class="card-section-label fw-bold">
+                            Telephone number of the person making the payment online.
+                        </p>
+                        <PhoneNumberField @bind-Value="_profile.PhoneNumber"
+                                          For="() => _profile.PhoneNumber"
+                                          Visible="true"
                                           Numeric="true"
-                                      ShowCountryCode="false"
-                                      CountryCodeDisabled="true" />
+                                          ShowCountryCode="false"
+                                          CountryCodeDisabled="true" />
 
-                    @* ── Email ── *@
-                    <p class="card-section-label fw-bold">
-                        Email address to which we should send payment confirmation.
-                    </p>
-                    <OutlinedTextField Label="Email Address"
-                                       Id="card-email"
-                                       @bind-Value="_profile.Email"
-                                       For="@(() => _profile.Email)"
-                                       Visible="_showValidation"
-                                       MaxLength="100" />
+                        @* ── Email ── *@
+                        <p class="card-section-label fw-bold">
+                            Email address to which we should send payment confirmation.
+                        </p>
+                        <OutlinedTextField Label="Email Address"
+                                           Id="card-email"
+                                           @bind-Value="_profile.Email"
+                                           For="@(() => _profile.Email)"
+                                           Visible="_showValidation"
+                                           MaxLength="100" />
 
-                    <p class="card-effective-date-note">
-                        Note that the payment is effective as of the date you make it. It can take up to
-                        two business days after the settlement date to post to your account.
-                    </p>
+                        <p class="card-effective-date-note">
+                            Note that the payment is effective as of the date you make it. It can take up to
+                            two business days after the settlement date to post to your account.
+                        </p>
 
-                </EditForm>
+                    </EditForm>
                 </div>
             }
             else if (_step == CardStep.Verification)
@@ -301,7 +301,7 @@
                                       ShowContinue="true"
                                       OnContinue='() => Nav.NavigateTo("billing-payments/payment-history")'
                                       ContinueText="PAYMENT HISTORY"
-                                      ButtonWidth="210"/>
+                                      ButtonWidth="210" />
                 }
             </nav>
         }
@@ -332,6 +332,7 @@
 
     private decimal _paymentAmount;
     private string _confirmationNumber = string.Empty;
+    private int _registrationSk;
 
     private bool _isLoading = true;
     private bool _showValidation;
@@ -348,9 +349,12 @@
     private int _unitedStatesCodeSK = -1;
     private string _customerAccountReference = string.Empty;
     private UI.EmployerPortal.Web.Features.Shared.Accounts.Models.EmployerAccount? _employer;
+    // private bool _showState =>
+    //     !string.IsNullOrEmpty(_profile.Country) &&
+    //     _profile.Country == _unitedStatesCodeSK.ToString();
     private bool _showState =>
         !string.IsNullOrEmpty(_profile.Country) &&
-        _profile.Country == _unitedStatesCodeSK.ToString();
+        _profile.Country.Equals("US", StringComparison.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
@@ -374,8 +378,9 @@
         //_paymentAmount = sessionTask.Result?.AmountToPay ?? 0m;
         var countries = countryTask.Result;
         _countryOptions = countries
-            .Select(c => new SelectOption { Value = c.CodeSK.ToString(), Text = ToTitleCase(c.LongDescription) })
-            .ToList();
+                            .Where(c => !string.IsNullOrWhiteSpace(c.ShortDescription))
+                            .Select(c => new SelectOption { Value = c.ShortDescription.ToString(), Text = ToTitleCase(c.LongDescription) })
+                            .ToList();
 
         _countryCodeMap = countries
                        .Where(c => !string.IsNullOrWhiteSpace(c.ShortDescription))
@@ -390,7 +395,8 @@
         if (us is not null)
         {
             _unitedStatesCodeSK = us.CodeSK;
-            _profile.Country = _unitedStatesCodeSK.ToString();
+            //_profile.Country = _unitedStatesCodeSK.ToString();
+            _profile.Country = us.ShortDescription;
         }
 
         _stateOptions = stateTask.Result
@@ -398,7 +404,7 @@
             .ToList();
 
         var wisconsin = stateTask.Result.FirstOrDefault(s => s.CodeSK == 58);
-        if(wisconsin is not null)
+        if (wisconsin is not null)
         {
             _profile.State = wisconsin.ShortDescription;
         }
@@ -411,19 +417,30 @@
 
             //_profile = await CardPaymentService.GetCardProfileAsync(10021377, 7174161);
             _profile = await CardPaymentService.GetCardProfileAsync(userSk, empSk);
-            if (string.IsNullOrWhiteSpace(_profile.Country) && _unitedStatesCodeSK > 0)
+            //if (string.IsNullOrWhiteSpace(_profile.Country) && _unitedStatesCodeSK > 0)
+            if (string.IsNullOrWhiteSpace(_profile.Country) && us is not null)
             {
-                _profile.Country = _unitedStatesCodeSK.ToString();
+                //_profile.Country = _unitedStatesCodeSK.ToString();
+                _profile.Country = us.ShortDescription;
             }
             else
             {
-                var countrySelection = countries.FirstOrDefault(c =>
-                    c.ShortDescription.Equals(_profile.Country, StringComparison.OrdinalIgnoreCase));
-                if (countrySelection is not null)
+                // var countrySelection = countries.FirstOrDefault(c =>
+                //     c.ShortDescription.Equals(_profile.Country, StringComparison.OrdinalIgnoreCase));
+                // if (countrySelection is not null)
+                // {
+                //     _profile.Country = countrySelection.CodeSK.ToString();
+                // }
+                if (int.TryParse(_profile.Country, out int codeSk))
                 {
-                    _profile.Country = countrySelection.CodeSK.ToString();
+                    var countrySelection = countries.FirstOrDefault(c => c.CodeSK == codeSk);
+                    if(countrySelection is not null)
+                    {
+                        _profile.Country = countrySelection.ShortDescription;
+                    }
                 }
             }
+            _registrationSk = _profile.RegistrationSK;
             _customerAccountReference = !string.IsNullOrWhiteSpace(Convert.ToString(_profile.RegistrationSK))
                ? Convert.ToString(_profile.RegistrationSK)
                : empSk.ToString(CultureInfo.InvariantCulture);
@@ -474,6 +491,50 @@
             return;
         }
 
+        //save card registration
+        try
+        {
+            _isLoading = true;
+            StateHasChanged();
+            var userSk = UserAccountService.GetUserSKClaim();
+            var empSk = _employer?.Id ?? 0;
+
+            var regToSave = new CardPaymentProfileModel
+            {
+                RegistrationSK = _registrationSk,
+                FirstName = _profile.FirstName,
+                LastName = _profile.LastName,
+                AccountNumber = empSk.ToString(),//_profile.AccountNumber,
+                AddressLine1 = _profile.AddressLine1,
+                AddressLine2 = _profile.AddressLine2,
+                City = _profile.City,
+                Company = _profile.Company,
+                Country = _profile.Country,
+                CustomerId = _profile.CustomerId,
+                Email = _profile.Email,
+                ZipCode = _profile.ZipCode,
+                NonUSPostalCode = _profile.NonUSPostalCode,
+                PhoneNumber = _profile.PhoneNumber,
+                State = _profile.State,
+                RegistrationFound = _profile.RegistrationFound,
+                ISOCountryCode3 = _profile.ISOCountryCode3                
+            };
+            _registrationSk = await CardPaymentService.SaveCardProfileAsync(userSk, empSk, regToSave);
+        }
+        catch(Exception ex)
+        {
+            Logger.LogError(ex,"Failed to save card registration profile.");
+            _validationFieldIds.Add("An error occured while saving your registration. Please try again.");
+            _showValidationSummary = true;
+            _isLoading = false;
+            StateHasChanged();
+            return;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
         await NavigateToStep(CardStep.Verification,
             "Payment Verification step. Please review your information");
     }
@@ -511,7 +572,7 @@
                 await NavigateToStep(CardStep.Registration, "Returned to Registration step");
                 break;
             case CardStep.Registration:
-                if(!string.IsNullOrWhiteSpace(ReturnUrl))
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
                 {
                     Nav.NavigateTo(ReturnUrl);
                 }
@@ -592,7 +653,7 @@
     }
 
     [JSInvokable]
-    public async Task OnPaymentTokenReceived(string token, string digiSign, string customerAccountReference)
+    public async Task OnPaymentTokenReceived(string token, string digiSign, string customerAccountReference, string customerReference, object payload)
     {
         _isSubmitting = true;
         _cardPaymentError = null;
@@ -605,6 +666,8 @@
                 digiSign,
                 customerAccountReference,
                 userSk,
+                payload,
+                customerReference,
                 new OrbipayPaymentConfirmationRequest
                 {
                     Amount = _paymentAmount,
@@ -616,7 +679,7 @@
                     Zip = _profile.ZipCode,
                     Country = _profile.Country,
                     EmployerSk = _employer?.Id ?? 0,
-                    //RegistrationSk = _employer?.,
+                    RegistrationSk = _registrationSk,
                     EmployerLegalName = _employer?.LegalName ?? string.Empty,
                     EmployerAccountNumber = _employer?.EmployerAccountNumber ?? string.Empty,
                     UIAccountNumber = _employer?.UIAccountNo ?? string.Empty,
@@ -690,7 +753,7 @@
             var m when m.Contains("City", StringComparison.OrdinalIgnoreCase) => "card-city",
             var m when m.Contains("State", StringComparison.OrdinalIgnoreCase) => "card-state",
             var m when m.Contains("Zip", StringComparison.OrdinalIgnoreCase) => "card-zip",
-            _=>string.Empty
+            _ => string.Empty
         };
     }
 
@@ -706,10 +769,10 @@
     {
         try
         {
-           await JS.InvokeVoidAsync("paymentModal.disposePaymentCallback");
+            await JS.InvokeVoidAsync("paymentModal.disposePaymentCallback");
         }
         catch
-        {}
+        { }
         _paymentCallbackRef?.Dispose();
     }
 }

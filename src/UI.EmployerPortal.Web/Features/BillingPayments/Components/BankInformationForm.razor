@@ -93,12 +93,12 @@
             Bank Account Help
         </button>
 
-        @if (IsEditMode)
+        @if (IsEditMode && _pendingPayments.Count > 0)
         {
             <div class="iat-authorization" role="region" aria-label="Authorization">
                 <p>
                     I hereby authorize the State of Wisconsin Department of Workforce Development,
-                    Unemployment Insurance Division to update the pending payments listed below
+                    Unemployment Insurance Division to update the pending payments listed above
                     with the bank account information shown on this page. No change will be made to
                     the settlement date and payment amount shown on this page for each payment. If
                     you agree, please check the I Accept box and then click the Continue button on the

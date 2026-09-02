@@ -1,6 +1,7 @@
 @page "/billing-payments/bank-account-payment-ach"
 
 @using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Models
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Auth
 @using UI.EmployerPortal.Web.Features.BillingPayments.Components
@@ -10,6 +11,7 @@
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
 @using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 @inject IJSRuntime JS
 @inject NavigationManager Nav
@@ -269,8 +271,8 @@
                         </div>
                         <AchPaymentInformation @ref="_paymentInfoRef"
                                                InitialAmount="_confirmedAmount"
-                                               Draft="_paymentDraft"
                                                InitialSettlementDate="_confirmedSettlementDate"
+                                               Draft="_paymentDraft"                                              
                                                AmountChanged="OnAmountChanged"
                                                SettlementDateChanged="OnSettlementDateChanged"
                                                OnAmountInput="OnPaymentAmountInput"
@@ -392,7 +394,7 @@
                                     </div>
                                     <div class="ach-print-dl-item">
                                         <dt class="ach-info-label">Transaction Date/Time</dt>
-                                        <dd class="ach-info-value">@_transactionDateTime.ToString("MM/dd/yyyy hh:mm tt") CST</dd>
+                                        <dd class="ach-info-value">@_transactionDateTime.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")</dd>                                          
                                     </div>
                                     <div class="ach-print-dl-item">
                                         <dt class="ach-info-label">Description</dt>
@@ -517,7 +519,7 @@
                             </div>
                             <div class="ach-info-field">
                                 <span class="ach-info-label">Transaction Date/Time</span>
-                                <strong class="ach-info-value">@_transactionDateTime.ToString("MM/dd/yyyy hh:mm tt") CST</strong>
+                                <strong class="ach-info-value">@_transactionDateTime.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")</strong>
                             </div>
                             <div class="ach-info-field">
                                 <span class="ach-info-label">Description</span>
@@ -791,14 +793,10 @@
         switch (_step)
         {
             case AchStep.Entry:
-                // if(_rempayment != null){
-                //     Nav.NavigateTo("billing-payments/billing");
-                // }else{
-                //     Nav.NavigateTo("billing-payments/payment-options?source=flow");
-                // }
-                if(!string.IsNullOrWhiteSpace(ReturnUrl))
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
                 {
-                    Nav.NavigateTo(ReturnUrl);
+                    var separator = ReturnUrl.Contains('?') ? "&" : "?";
+                    Nav.NavigateTo($"{ReturnUrl}{separator}source=flow");
                 }
                 else
                 {
@@ -807,6 +805,7 @@
                 break;
             case AchStep.VerifyAuthorize:
                 _authorized = false;
+                _authorizeErrors.Clear();
                 NavigateToStep(_cameFromEdit ? AchStep.Edit : AchStep.Entry,
                                _cameFromEdit ? "Returned to Edit Payment step" : "Returned to Entry step");
                 _cameFromEdit = false;
@@ -850,13 +849,14 @@
             switch (_step)
             {
                 case AchStep.Entry:
-                    if (!ValidateEntry())
+                    if (!await ValidateEntryAsync())
                     {
                         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
                         return;
                     }
 
-                    _confirmedAmount = _paymentInfoRef!.GetAmount();
+                    _confirmedAmount = _paymentInfoRef!.GetAmount();                  
+
                     _confirmedSettlementDate = _paymentInfoRef.GetSettlementDate();
                     _cameFromEdit = false;
                     NavigateToStep(AchStep.VerifyAuthorize, "Proceeding to verify and Authorize step");
@@ -871,10 +871,11 @@
                         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
                         return;
                     }
+                    var paymentType = Enum.TryParse<PaymentType>(_description.Replace(" ",""), true, out var parsedType) ? (int)parsedType : (int)PaymentType.Payment;
                     EftPaymentRequest eFTPaymentRequest = new EftPaymentRequest();
                     eFTPaymentRequest.PaymentAmount = _confirmedAmount;
                     eFTPaymentRequest.PaymentSettlementDate = (DateTime)_confirmedSettlementDate.ToDateTime(TimeOnly.MinValue);
-                    eFTPaymentRequest.PaymentType = (int)PaymentType.Payment;
+                    eFTPaymentRequest.PaymentType = paymentType;
                     eFTPaymentRequest.BankAccountSK = _bankAccount != null ? _bankAccount.BankAccountSk : 0;
                     eFTPaymentRequest.SecureUserSK = secureUserSK;
                     eFTPaymentRequest.EmployerSK = employerSk;
@@ -898,7 +899,8 @@
                     }
                     break;
                 case AchStep.Edit:
-                    if (!ValidateEntry())
+                    _authorizeErrors.Clear();
+                    if (!await ValidateEntryAsync())
                     {
                         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
                         return;
@@ -962,7 +964,7 @@
         NavigateToStep(AchStep.Edit, "You are now on the Edit Payment step");
     }
 
-    private bool ValidateEntry()
+    private async Task<bool> ValidateEntryAsync()
     {
         _validationErrors.Clear();
 
@@ -972,7 +974,7 @@
         if (_bankAccount is null)
             _validationErrors.Add("Bank Information is required. Please add a bank account");
 
-        if (_paymentInfoRef is not null && !_paymentInfoRef.Validate())
+        if (_paymentInfoRef is not null && !await _paymentInfoRef.ValidateAsync())
         {
             if (_paymentInfoRef.AmountError is not null)
                 _validationErrors.Add(_paymentInfoRef.AmountError);
@@ -1028,7 +1030,7 @@
                         </div>
                         <div class="ach-info-field">
                             <span class="ach-info-label">Transaction Date/Time</span>
-                            <strong class="ach-info-value">@_transactionDateTime.ToString("MM/dd/yyyy hh:mm tt") CST</strong>
+                            <strong class="ach-info-value">@_transactionDateTime.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")</strong>
                         </div>
                         <div class="ach-info-field">
                             <span class="ach-info-label">Description</span>

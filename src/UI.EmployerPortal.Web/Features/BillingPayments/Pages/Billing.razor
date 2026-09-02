@@ -12,12 +12,9 @@
 @*<div class="section-page">
     <h1 class="section-header fw-bold">Billing</h1>
     <p class="section-description">You are in the Billing section.</p>*@
-    @if (_istaxable)
+@if (_isLoading)
 {
-    var baseUri = new Uri(Nav.BaseUri);
-    var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/') + "/billing-payments/billing-detail");
-     Nav.NavigateTo(pathBase);
-  
+    <BillingDetailTaxable></BillingDetailTaxable>    
 }
 else
 {
@@ -38,21 +35,21 @@ else
     [Inject]
     private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
     private EmployerAccount? _employerAccount;
-    private bool _istaxable = false;
+    private bool _isLoading = true;
 
     protected override async Task OnAuthorizedInitAsync()
     {
-    }
+        _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
-            _istaxable = _employerAccount?.IsTaxable ?? false;
+        // if (_employerAccount?.IsTaxable ?? false)
+        // {
+        //     var baseUri = new Uri(Nav.BaseUri);
+        //     var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/') + "/billing-payments/billing-detail");
+        //     Nav.NavigateTo(pathBase);
+        //     return;
+        // }
 
-            StateHasChanged();
-        }
+        _isLoading = _employerAccount?.IsTaxable ?? false;
     }
 
     // private void HandleContinue()

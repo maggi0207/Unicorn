@@ -31,8 +31,6 @@
                 Please enter your email address and any additional information you want to provide regarding the refund request.
             </p>
 
-           
-
             <section class="refund-info-panel" role="region" aria-label="Refund Information">
                 <h2 class="refund-info-panel-title">Refund Information</h2>
 
@@ -171,6 +169,7 @@
             return;
         }
 
+        _model.ConfirmationNumber = result?.ConfirmationNumber ?? string.Empty;
         await RefundOrchestrator.SaveRefundRequestToSessionAsync(_model);
         Nav.NavigateTo(BuildPath("/billing-payments/refund-confirmation"));
     }

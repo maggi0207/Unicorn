@@ -168,7 +168,7 @@
     font-size: 16px;
     font-family: inherit;
     background-color: #ffffff;
-    border: 1px solid #adadad;
+    border: 1px solid var(--color-input-border);
     border-radius: 4px;
     outline: none;
     box-sizing: border-box;

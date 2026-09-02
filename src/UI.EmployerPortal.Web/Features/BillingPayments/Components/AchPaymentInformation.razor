@@ -1,8 +1,8 @@
-@using UI.EmployerPortal.Web.Features.BillingPayments.Services
-@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Services
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using Microsoft.AspNetCore.Components.Forms
-@inject IFederalReserveHolidayService HolidayService
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 
@@ -34,29 +34,12 @@
                 Amount Due Details
             </a>
         </div>
+        @* ── Settlement Date ── *@
+        <AchSettlementDateInput @ref="_settlementDateInput"
+                            Draft="Draft"
+                            InitialSettlementDate="InitialSettlementDate"
+                            SettlementDateChanged="SettlementDateChanged" />
     </EditForm>
-
-    @* ── Settlement Date ── *@
-    <div class="ach-settlement-date-field">
-        <OutlinedTextField Label="Settlement Date"
-                           Id="@_dateInputId"
-                           Value="@_formModel.SettlementDate"
-                           ValueChanged="OnDateInputChanged"
-                           Required="true"
-                           Placeholder="MM/DD/YYYY"
-                           For="() => _formModel.SettlementDate"
-                           ForceError="@(DateError is not null)"
-                           ForceErrorMessage="@DateError" />
-    </div>
-
-    @* ── Hint text ── *@
-    <p id="settlementDateHint" class="ach-settlement-hint">
-        The settlement date is the date the funds are withdrawn from your bank account.
-        The next possible settlement date is the next business day and is updated each
-        business day at 07:00 PM. You may select a settlement date up to 365 calendar
-        days in the future. Weekends and Federal Reserve Holidays are not valid settlement
-        days. The settlement date selected does not change your UI tax due date.
-    </p>
 </div>
 
 @code {
@@ -69,34 +52,27 @@
     [Parameter] public string? ReturnUrl { get; set; }
 
     public string? AmountError { get; private set; }
-    public string? DateError { get; private set; }
+    public string? DateError => _settlementDateInput?.DateError;
 
     private const decimal MinAmount = 0.01m;
     private const decimal MaxAmount = 999_999_999.99m;
 
     private AchPaymentFormModel _formModel => Draft;
     private EditContext _editContext = default!;
+    private AchSettlementDateInput _settlementDateInput = default!;
 
     private decimal _amount;
     private string _displayAmount = string.Empty;
-    private DateOnly _settlementDate;
-    private DateOnly _minDate;
-    private DateOnly _maxDate;
-    private readonly string _dateInputId = $"settlement-date-{Guid.NewGuid():N}";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (string.IsNullOrWhiteSpace(ReturnUrl))
         {
             ReturnUrl = "billing-payments/billing";
         }
         _editContext = new EditContext(Draft);
-        await HolidayService.LoadAsync();
         _editContext = new EditContext(_formModel);
-
-        _minDate = HolidayService.FirstAvailableSettlementDate;
-        _maxDate = DateOnly.FromDateTime(DateTime.Today).AddDays(365);
-
+        
         if(Draft.ValidatedAmount is > 0)
         {
             _amount = Draft.ValidatedAmount.Value;
@@ -110,75 +86,33 @@
             Draft.Amount = _displayAmount;
             Draft.ValidatedAmount = _amount;
         }
-
-        var restoredDate = Draft.ValidatedSettlementDate
-                        ?? (InitialSettlementDate >= _minDate
-                        ? InitialSettlementDate : null);
-
-        // Use provided initial date if valid, otherwise default to next valid business day
-        _settlementDate = restoredDate.HasValue && restoredDate.Value >= _minDate
-            ? restoredDate.Value
-            : NextValidSettlementDate(DateOnly.FromDateTime(DateTime.Today));
-
-        // if (InitialAmount is > 0)
-        // {
-        //     _amount = InitialAmount.Value;
-        //     _displayAmount = FormatAmount(_amount);
-        //     _formModel.Amount = _displayAmount;
-        // }
-        Draft.SettlementDate = _settlementDate.ToString("MM/dd/yyyy");
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await HolidayService.LoadAsync();
-
-            _minDate = HolidayService.FirstAvailableSettlementDate;
-            if(_minDate == default)
-            {
-                _minDate = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
-            }
-            _maxDate = DateOnly.FromDateTime(DateTime.Today).AddDays(365);
-
-            var disabledDates = HolidayService
-                .GetInvalidDatesInRange(_minDate, _maxDate)
-                .Where(d => d.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday) // holidays only; weekends handled by JS
-                .Select(d => d.ToString("yyyy/MM/dd"))
-                .ToArray();
-
-
-            await JS.InvokeVoidAsync("initAchDatePicker",
-                _dateInputId,
-                _minDate.ToString("yyyy/MM/dd"),
-                _maxDate.ToString("yyyy/MM/dd"),
-                disabledDates,
-                _settlementDate.ToString("yyyy/MM/dd"));
-        }
     }
 
     /// <summary>Public API: called by parent page to validate before proceeding.</summary>
-    public bool Validate()
+    public async Task<bool> ValidateAsync()
     {
         var rawForValidation = string.IsNullOrWhiteSpace(_displayAmount)
                                 ? string.Empty
                                 : _displayAmount.Replace("$", "").Replace(",","").Trim();
         ValidateAmount(rawForValidation);
-        ValidateDate(_settlementDate);
 
         _formModel.Amount = string.IsNullOrWhiteSpace(_displayAmount)
                                 ? null
                                 : _displayAmount;
         _editContext.Validate();
 
+        bool isDateValid = true;
+        if(_settlementDateInput != null)
+        {
+            isDateValid = await _settlementDateInput.ValidateAsync();
+        }
+
         StateHasChanged();
-        return AmountError is null && DateError is null;
-        //return !_editContext.GetValidationMessages().Any() && DateError is null;
+        return AmountError is null && isDateValid;
     }
 
-    public decimal GetAmount() => _amount;
-    public DateOnly GetSettlementDate() => _settlementDate;
+    public decimal GetAmount() => _amount > 0 ? _amount : (InitialAmount ?? 0);
+    public DateOnly GetSettlementDate() => _settlementDateInput?.GetSettlementDate() ?? default;
 
     /// <summary>Callback from OutlinedTextField @onblur — reformat amount on blur.</summary>
     private async Task OnAmountBlur()
@@ -225,40 +159,6 @@
         //return Task.CompletedTask;
     }
 
-    private async Task OnDateInputChanged(string raw)
-    {
-        var formats = new[] { "M/d/yyyy", "MM/dd/yyyy" };
-        if (DateOnly.TryParseExact(raw, formats, null,
-                        System.Globalization.DateTimeStyles.None, out var parsed))
-        {
-            if(parsed < _minDate)
-            {
-                Draft.SettlementDate = _settlementDate.ToString("MM/dd/yyyy");
-                DateError = null;
-                StateHasChanged();
-                return;
-            }
-            Draft.SettlementDate = raw;
-            Draft.ValidatedSettlementDate = parsed;
-            _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.SettlementDate)));
-            _settlementDate = parsed;
-            ValidateDate(_settlementDate);
-            if(DateError is null)
-            {
-                await SettlementDateChanged.InvokeAsync(_settlementDate);
-            }
-        }
-        else
-        {
-            Draft.SettlementDate = string.IsNullOrWhiteSpace(raw) ? null : raw;
-            Draft.ValidatedSettlementDate = null;
-            _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.SettlementDate)));
-            DateError = string.IsNullOrWhiteSpace(raw) ? null : "Please enter a valid settlement date (MM/DD/YYYY)";
-        }
-        StateHasChanged();
-    }
-
- 
     private void ValidateAmount(string raw)
     {
         var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
@@ -297,54 +197,6 @@
 
         _amount = value;
         AmountError = null;
-    }
-
-    private void ValidateDate(DateOnly date)
-    {
-        var today = DateOnly.FromDateTime(DateTime.Today);
-
-        if (date < today)
-        {
-            DateError = "Settlement Date must not be a past date";
-            return;
-        }
-
-        if (date == today)
-        {
-            DateError = "Settlement Date must be a future business day";
-            return;
-        }
-
-        if (date > _maxDate)
-        {
-            DateError = "Settlement Date cannot be more than 365 days in the future";
-            return;
-        }
-
-        if (date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
-        {
-            DateError = "Settlement Date cannot fall on a weekend";
-            return;
-        }
-
-        if (HolidayService.IsFederalReserveHoliday(date))
-        {
-            DateError = "Settlement Date cannot fall on a Federal Reserve Holiday";
-            return;
-        }
-
-        DateError = null;
-    }
-
-    private DateOnly NextValidSettlementDate(DateOnly from)
-    {
-        var candidate = from.AddDays(1);
-        while (candidate.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
-               || HolidayService.IsFederalReserveHoliday(candidate))
-        {
-            candidate = candidate.AddDays(1);
-        }
-        return candidate;
     }
 
     private static string FormatAmount(decimal value) => $"$ {value:N2}";

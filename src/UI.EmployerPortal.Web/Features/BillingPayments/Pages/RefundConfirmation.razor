@@ -21,7 +21,7 @@
             <hr class="refund-confirmation-divider" aria-hidden="true" />
 
             <NotificationBanner NotificationType="NotificationType.Confirmation"
-            Title="Refund request submitted"
+            Title="@_headerMessage"
             Message="Your refund request has been submitted. You will receive an email if your request is denied."
             Visible="true" />
 
@@ -72,7 +72,7 @@
                 }
             </div>
 
-            <div class="refund-confirmation-actions" role="group" aria-label="Page actions">
+            <div class="refund-confirmation-actions align-items-center text-center" role="group" aria-label="Page actions">
                 <Button Variant="Button.ButtonVariant.Secondary"
                         Size="Button.ButtonSize.Medium"
                         AriaLabel="Return to Billing Details"
@@ -88,6 +88,7 @@
     private RefundRequestModel? _model;
     private bool _isLoading = true;
     private bool _expanded = true;
+    private string _headerMessage = "";
 
     protected override async Task OnAuthorizedInitAsync()
     {
@@ -98,7 +99,7 @@
             Nav.NavigateTo(BuildPath("/billing-payments/billing-detail"));
             return;
         }
-
+        _headerMessage = $"Confirmation Number: {_model.ConfirmationNumber}";
         _isLoading = false;
     }
 

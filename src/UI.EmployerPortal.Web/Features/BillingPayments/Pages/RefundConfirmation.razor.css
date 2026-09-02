@@ -93,7 +93,6 @@
     justify-content: flex-end;
 }
 
-.refund-confirmation-actions ::deep .btn-component {
-    width: 317px;
+.refund-confirmation-actions ::deep .btn-component {    
     max-width: 100%;
 }

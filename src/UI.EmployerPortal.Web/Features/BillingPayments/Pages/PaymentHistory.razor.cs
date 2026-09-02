@@ -16,10 +16,10 @@ public partial class PaymentHistory
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
     private IReadOnlyList<PaymentHistoryItem> _payments = [];
-    private bool _isLoading;
+    private bool _isLoading = true;
     private string? _loadError;
     private string _sortColumn = "settlementDate";
-    private bool _sortAscending = true;
+    private bool _sortAscending = false;
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -155,6 +155,6 @@ public partial class PaymentHistory
 
     private void HandleBack()
     {
-        NavigationManager.NavigateTo("billing-payments");
+        NavigationManager.NavigateTo("billing-payments/make-ach-payment");
     }
 }

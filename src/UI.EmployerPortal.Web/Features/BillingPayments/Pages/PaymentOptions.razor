@@ -1,9 +1,11 @@
 @page "/billing-payments/payment-options"
+@using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
 @using UI.EmployerPortal.Web.Auth
 @using UI.EmployerPortal.Web.Features.BillingPayments.Components
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Web.Features.Dashboard
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
 @using log4net
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 @inject IDashboardOrchestrator DashboardOrchestrator
@@ -13,7 +15,8 @@
     <div class="billing-payments-container">
         <BillingPaymentsHeader Amount="@_employerAccount?.BalanceDue" ReturnUrl="@ReturnUrl" />
         <BillingPaymentsMain EmployerAccount="@_employerAccount"
-                             Source="@_navigationSource" ReturnUrl="@ReturnUrl" />
+                             Source="@_navigationSource" ReturnUrl="@ReturnUrl"
+                             ElectronicPayRequired="@_electronicPayRequired" />
     </div>
 </main>
 
@@ -22,6 +25,10 @@
     private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
 
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
+
+    [Inject] private IAccountSummaryService AccountSummaryService { get; set; } = default!;
+
+    [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
 
     [SupplyParameterFromQuery(Name = "source")]
     public string? Source { get; set; }
@@ -35,6 +42,7 @@
             : NavigationSource.Menu;
 
     private EmployerAccount? _employerAccount;
+    private bool _electronicPayRequired;
     private static readonly ILog Log = LogManager.GetLogger(typeof(PaymentOptions));
 
     protected override async Task OnAuthorizedInitAsync()
@@ -55,6 +63,18 @@
             {
                 await BankAccountOrchestrator.SavePaymentToSessionAsync(Convert.ToString(_employerAccount.BalanceDue),"Payment");
             }
+
+            if (_employerAccount != null)
+            {
+                var request = new EmployerRequest
+                {
+                    EmployerSK = _employerAccount.Id,
+                    SecureUserSK = UserAccountService.GetUserSKClaim()
+                };
+                var fullEmployer = await AccountSummaryService.GetEmployerAsync(request);
+                _electronicPayRequired = fullEmployer?.Employer?.ElectronicPayRequired ?? false;
+            }
+
             StateHasChanged();
         }
     }
