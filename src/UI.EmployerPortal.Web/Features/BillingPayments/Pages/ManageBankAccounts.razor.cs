@@ -47,7 +47,7 @@ public partial class ManageBankAccounts
     private bool _showRemoveModal = false;
     private SavedBankAccount? _accountToRemove;
 
-    private bool _isPendingPaymentError => string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase);
+    private bool IsPendingPaymentError => string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc/>
     protected override async Task OnAuthorizedInitAsync()

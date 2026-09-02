@@ -43,7 +43,7 @@ else
                 {
                     <LoadingSpinner Message="Loading accounts, Please wait..."/>
                 }
-                else if (_isPendingPaymentError)
+                else if (IsPendingPaymentError)
                 {
                     <NotificationBanner NotificationType="NotificationType.Alert"
                                         Message="@_loadError"
