@@ -20,3 +20,7 @@ Follow these manual steps to refresh and generate the latest WCF service client 
    - Open PowerShell.
    - Navigate to the service client folder (`generated\UI.EmployerPortal.Generated.ServiceClients`).
    - Run the generation script by typing `.\ge` and pressing `Tab` to autocomplete (this will run `.\generate-clients.ps1`).
+
+We have completed the front-end changes for UIEP-2638, implementing the updated modal text and rendering the new Back and Payment History buttons when a bank account cannot be deleted. Currently, the UI detects this condition by checking if the backend error message contains "pending payment", which allows the new UI to work with both the current error text and the upcoming copy from UIEP-3184.
+
+However, relying on string matching in UI logic is fragile and could break if backend wording or formatting changes in the future. We propose adding an explicit ErrorCode (such as "PENDING_PAYMENT_EXISTS") to BankAccountInactivateResponse as part of UIEP-3184. This will cleanly decouple UI control flow from display copy, ensuring future text updates won't affect front-end functionality.
