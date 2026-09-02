@@ -13,6 +13,7 @@ namespace UI.EmployerPortal.Web.Features.BillingPayments.Pages;
 public partial class ManageBankAccounts
 {
     private const string AchOriginUrl = "billing-payments/bank-account-payment-ach?source=flow";
+    private const string PendingPaymentErrorMessage = "You can't delete a bank account with a pending payment. Review your pending payment(s) on Payment History.";
 
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
@@ -45,6 +46,8 @@ public partial class ManageBankAccounts
 
     private bool _showRemoveModal = false;
     private SavedBankAccount? _accountToRemove;
+
+    private bool _isPendingPaymentError => string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc/>
     protected override async Task OnAuthorizedInitAsync()
@@ -261,6 +264,17 @@ public partial class ManageBankAccounts
         }
         _showRemoveModal = false;
         _accountToRemove = null;
+    }
+
+    private async Task HandleClearError()
+    {
+        _loadError = null;
+        await LoadAccountsAsync();
+    }
+
+    private void HandleGoToPaymentHistory()
+    {
+        NavigationManager.NavigateTo("billing-payments/payment-history");
     }
 }
 

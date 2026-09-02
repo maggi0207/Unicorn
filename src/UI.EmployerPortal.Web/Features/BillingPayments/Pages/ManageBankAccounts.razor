@@ -43,13 +43,32 @@ else
                 {
                     <LoadingSpinner Message="Loading accounts, Please wait..."/>
                 }
+                else if (_isPendingPaymentError)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        Message="@_loadError"
+                                        Visible="true" />
+
+                    <div class="action-row" role="group" aria-label="Page actions">
+                        <Button Variant="Button.ButtonVariant.Secondary"
+                                Size="Button.ButtonSize.Medium"
+                                AriaLabel="Go back to bank accounts"
+                                OnClick="HandleClearError">
+                            &lt; BACK
+                        </Button>
+                        <Button Variant="Button.ButtonVariant.Primary"
+                                Size="Button.ButtonSize.Medium"
+                                AriaLabel="Go to Payment History"
+                                OnClick="HandleGoToPaymentHistory">
+                            PAYMENT HISTORY
+                        </Button>
+                    </div>
+                }
                 else if (!string.IsNullOrWhiteSpace(_loadError))
                 {
                     <NotificationBanner NotificationType="NotificationType.Alert"
-                                MessageStyle="MessageStyle.MultiLine"
-                                Messages="@(new List<string> {_loadError })"
-                                MessageFieldIds="@(new List<string> { "_" })"
-                                Visible="true" />
+                                        Message="@_loadError"
+                                        Visible="true" />
                 }
                 else
                 {
