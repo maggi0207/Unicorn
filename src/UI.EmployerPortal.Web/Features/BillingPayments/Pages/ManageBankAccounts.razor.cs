@@ -14,6 +14,7 @@ public partial class ManageBankAccounts
 {
     private const string AchOriginUrl = "billing-payments/bank-account-payment-ach?source=flow";
     private const string PendingPaymentErrorMessage = "You can't delete a bank account with a pending payment. Review your pending payment(s) on Payment History.";
+    private const string LegacyPendingPaymentErrorMessage = "A bank account cannot be removed until all the pending payments have been processed or cancelled.";
 
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
@@ -47,7 +48,10 @@ public partial class ManageBankAccounts
     private bool _showRemoveModal = false;
     private SavedBankAccount? _accountToRemove;
 
-    private bool IsPendingPaymentError => string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase);
+    private bool IsPendingPaymentError => !string.IsNullOrWhiteSpace(_loadError) &&
+        (string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase) ||
+         string.Equals(_loadError, LegacyPendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase) ||
+         _loadError.Contains("pending payment", StringComparison.OrdinalIgnoreCase));
 
     /// <inheritdoc/>
     protected override async Task OnAuthorizedInitAsync()
