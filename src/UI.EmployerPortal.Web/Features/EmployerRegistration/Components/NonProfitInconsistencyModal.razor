@@ -1,6 +1,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using Microsoft.AspNetCore.Components.Web
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
 
 @if (IsVisible)
 {
@@ -24,26 +25,12 @@
                     In step 1, you reported that you are not a non-profit organization as described in
                     s.501(c)(3) of the IRS code. You must take one of these actions.
                 </p>
-                <div class="modal-options">
-                    <label class="modal-option">
-                        <input type="radio"
-                               name="nonprofit-modal-choice"
-                               id="nonprofit-return-step1"
-                               value="returnToStep1"
-                               checked="@(_selectedOption == ModalOption.ReturnToStep1)"
-                               @onchange="@(() => _selectedOption = ModalOption.ReturnToStep1)" />
-                        Option 1: Return to Step 1 and correct your answer.
-                    </label>
-                    <label class="modal-option">
-                        <input type="radio"
-                               name="nonprofit-modal-choice"
-                               id="nonprofit-stay-step6"
-                               value="stayOnStep6"
-                               checked="@(_selectedOption == ModalOption.StayOnStep6)"
-                               @onchange="@(() => _selectedOption = ModalOption.StayOnStep6)" />
-                        Option 2: Stay on step 6 and change your answer to no.
-                    </label>
-                </div>
+                <RadioGroup TValue="ModalOption?"
+                            LabelledById="nonprofit-modal-body"
+                            Value="_selectedOption"
+                            ValueChanged="@(val => _selectedOption = val ?? ModalOption.ReturnToStep1)"
+                            ValueExpression="() => _selectedOption"
+                            Options="@ModalOptions" />
             </div>
             <div class="modal-footer">
                 <Button Variant="Button.ButtonVariant.Primary"
@@ -57,7 +44,13 @@
 }
 
 @code {
-    private enum ModalOption { ReturnToStep1, StayOnStep6 }
+    public enum ModalOption { ReturnToStep1, StayOnStep6 }
+
+    private static readonly IReadOnlyList<RadioOption<ModalOption?>> ModalOptions = new[]
+    {
+        new RadioOption<ModalOption?> { Value = ModalOption.ReturnToStep1, Label = "Option 1: Return to Step 1 and correct your answer." },
+        new RadioOption<ModalOption?> { Value = ModalOption.StayOnStep6,   Label = "Option 2: Stay on step 6 and change your answer to no." },
+    };
 
     [Parameter] public bool IsVisible { get; set; }
 
@@ -65,7 +58,7 @@
 
     [Parameter] public EventCallback OnStayOnStep6 { get; set; }
 
-    private ModalOption _selectedOption = ModalOption.ReturnToStep1;
+    private ModalOption? _selectedOption = ModalOption.ReturnToStep1;
     private ElementReference _modalRef;
     private bool _wasVisible;
 
