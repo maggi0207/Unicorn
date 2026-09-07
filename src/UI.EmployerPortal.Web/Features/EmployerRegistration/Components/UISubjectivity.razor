@@ -122,15 +122,14 @@
             {
                 <div id="section_2" class="ui-radio-section">
                     <p class="page-subtitle" id="HasAppliedFor501c3Status" tabindex="-1">Have you applied for 501(c)(3) status with the IRS?</p>
-                    <br />
-                    <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
-                                Visible="_formSubmitted" />
                     <RadioGroup TValue="bool?"
                                 LabelledById="HasAppliedFor501c3Status"
                                 Value="SubjectivityModel.HasAppliedFor501c3Status"
                                 ValueChanged="OnHasAppliedFor501c3StatusChange"
                                 ValueExpression="() => SubjectivityModel.HasAppliedFor501c3Status"
                                 Options="@YesNoRadioOptions" />
+                    <FieldError For="@(() => SubjectivityModel.HasAppliedFor501c3Status)"
+                                Visible="_formSubmitted" />
                  </div>
             }
                          <div>
@@ -461,3 +460,7 @@
 
     </div>
 </div>
+
+<NonProfitInconsistencyModal IsVisible="_showNonProfitModal"
+                              OnReturnToStep1="HandleReturnToStep1"
+                              OnStayOnStep6="HandleStayOnStep6" />

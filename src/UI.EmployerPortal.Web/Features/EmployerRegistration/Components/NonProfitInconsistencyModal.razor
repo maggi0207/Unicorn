@@ -1,0 +1,108 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using Microsoft.AspNetCore.Components.Web
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" role="presentation">
+        <div class="modal-container"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="nonprofit-modal-title"
+             aria-describedby="nonprofit-modal-body"
+             @onkeydown="HandleKeyDown"
+             tabindex="-1"
+             @ref="_modalRef">
+            <div class="modal-header">
+                <h3 id="nonprofit-modal-title" class="modal-title">Inconsistent Non-Profit Designation</h3>
+                <button class="modal-close" @onclick="OnStayOnStep6">
+                    <img src="icons/close_x_blue.svg" />
+                </button>
+            </div>
+            <div id="nonprofit-modal-body" class="modal-body">
+                <p>
+                    In step 1, you reported that you are not a non-profit organization as described in
+                    s.501(c)(3) of the IRS code. You must take one of these actions.
+                </p>
+                <div class="modal-options">
+                    <label class="modal-option">
+                        <input type="radio"
+                               name="nonprofit-modal-choice"
+                               id="nonprofit-return-step1"
+                               value="returnToStep1"
+                               checked="@(_selectedOption == ModalOption.ReturnToStep1)"
+                               @onchange="@(() => _selectedOption = ModalOption.ReturnToStep1)" />
+                        Option 1: Return to Step 1 and correct your answer.
+                    </label>
+                    <label class="modal-option">
+                        <input type="radio"
+                               name="nonprofit-modal-choice"
+                               id="nonprofit-stay-step6"
+                               value="stayOnStep6"
+                               checked="@(_selectedOption == ModalOption.StayOnStep6)"
+                               @onchange="@(() => _selectedOption = ModalOption.StayOnStep6)" />
+                        Option 2: Stay on step 6 and change your answer to no.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <Button Variant="Button.ButtonVariant.Primary"
+                        type="button"
+                        OnClick="HandleContinue">
+                    CONTINUE
+                </Button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private enum ModalOption { ReturnToStep1, StayOnStep6 }
+
+    [Parameter] public bool IsVisible { get; set; }
+
+    [Parameter] public EventCallback OnReturnToStep1 { get; set; }
+
+    [Parameter] public EventCallback OnStayOnStep6 { get; set; }
+
+    private ModalOption _selectedOption = ModalOption.ReturnToStep1;
+    private ElementReference _modalRef;
+    private bool _wasVisible;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Move focus into modal on open so screen readers announce it immediately
+        if (IsVisible && !_wasVisible)
+        {
+            _wasVisible = true;
+            await _modalRef.FocusAsync();
+        }
+        else if (!IsVisible && _wasVisible)
+        {
+            _wasVisible = false;
+            // Reset default selection for next open
+            _selectedOption = ModalOption.ReturnToStep1;
+        }
+    }
+
+    private async Task HandleContinue()
+    {
+        if (_selectedOption == ModalOption.ReturnToStep1)
+        {
+            await OnReturnToStep1.InvokeAsync();
+        }
+        else
+        {
+            await OnStayOnStep6.InvokeAsync();
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        // Escape key dismissal — treat as "Stay on Step 6"
+        if (e.Key == "Escape")
+        {
+            await OnStayOnStep6.InvokeAsync();
+        }
+    }
+}
