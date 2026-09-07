@@ -1,0 +1,148 @@
+
+@page "/esp/data-exchange/response-files"
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Data Exchange Response Files</PageTitle>
+
+<div class="page-content">
+    <h1 class="page-header">Data Exchange Response Files</h1>    
+
+    <p class="page-description">
+        Download Data Exchange Response files that have been processed. The response files are kept up to 60 days.
+    </p>
+
+    @if (_allData == null)
+    {
+        <p role="status" aria-live="polite">Loading...</p>
+    }
+    else if (!_allData.Any())
+    {
+        <p role="status">No data exchange response files found.</p>
+    }
+    else
+    {
+        <p class="results-count">@_totalItems of @_totalItems Files</p>
+
+        <div class="table-container">
+            <table class="table" aria-label="Uploaded tax report files">
+                <caption class="visually-hidden">
+                    List of previously data exchange response uploaded files
+                </caption>
+
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell" style="width:168px" tabindex="0"
+                            aria-sort="@GetAriaSort("requestfileName")"
+                            @onclick="@(() => Sort("requestfileName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "requestfileName"))">
+                            <div class="header-content">
+                                <span class="header-label">Request File Name</span>
+                                @GetSortIcon("requestfileName")
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width:148px" tabindex="0"
+                            aria-sort="@GetAriaSort("uploadDate")"
+                            @onclick="@(() => Sort("uploadDate"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "uploadDate"))">
+                            <div class="header-content">
+                                <span class="header-label">Upload Date/Time</span>
+                                @GetSortIcon("uploadDate")
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width:84px" tabindex="0"
+                            aria-sort="@GetAriaSort("recordCount")"
+                            @onclick="@(() => Sort("recordCount"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "recordCount"))">
+                            <div class="header-content">
+                                <span class="header-label">Record Count</span>
+                                @GetSortIcon("recordCount")
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width:171px" tabindex="0"
+                            aria-sort="@GetAriaSort("confirmation")"
+                            @onclick="@(() => Sort("confirmation"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "confirmation"))">
+                            <div class="header-content">
+                                <span class="header-label">Confirmation ID</span>
+                                @GetSortIcon("confirmation")
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width:168px" tabindex="0"
+                            aria-sort="@GetAriaSort("responsefileName")"
+                            @onclick="@(() => Sort("responsefileName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "responsefileName"))">
+                            <div class="header-content">
+                                <span class="header-label">Response File Name</span>
+                                @GetSortIcon("responsefileName")
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width:168px" tabindex="0">
+                            <div class="header-content">
+                                
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var file in _gridData)
+                    {
+                        <tr class="custom-row">
+                            <td>@file.RequestFileName</td>
+                            <td>@file.UploadDateTime.ToString("MM/dd/yyyy hh:mm:ss tt")</td>
+                            <td>@file.RecordCount </td>
+                            <td>@file.ConfirmationID</td>
+                            <td>@file.ResponseFileName</td>
+                                                    
+                            <td>
+                                <a href="#"
+                                       @onclick="@(() => DownloadFile(file))"
+                                       @onclick:preventDefault="true"
+                                       class="file-link">
+                                    <img src="@Assets["icons/cloud_download.svg"]" alt="" class="svg-icon" />
+                                </a>
+                                
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="pagination-footer">
+                <div class="rows-per-page">
+                    <label for="rowsPerPage">Rows per page</label>
+                    <select id="rowsPerPage" value="@_pageSize" @onchange="OnPageSizeChanged">
+                        @foreach (var size in PageSizeOptions)
+                        {
+                            <option value="@size">@size</option>
+                        }
+                    </select>
+                </div>
+
+                <span class="page-range">@PageRangeStart-@PageRangeEnd of @_totalItems</span>
+
+                <div class="page-arrows">
+                    <button type="button" class="page-arrow" @onclick="GoToFirstPage" disabled="@(_currentPage == 1)" aria-label="First page">
+                        @GetPagingIcon("page-first", _currentPage == 1)
+                    </button>
+                    <button type="button" class="page-arrow" @onclick="GoToPreviousPage" disabled="@(_currentPage == 1)" aria-label="Previous page">
+                        @GetPagingIcon("page-prev", _currentPage == 1)
+                    </button>
+                    <button type="button" class="page-arrow" @onclick="GoToNextPage" disabled="@(_currentPage == TotalPages)" aria-label="Next page">
+                        @GetPagingIcon("page-next", _currentPage == TotalPages)
+                    </button>
+                    <button type="button" class="page-arrow" @onclick="GoToLastPage" disabled="@(_currentPage == TotalPages)" aria-label="Last page">
+                        @GetPagingIcon("page-last", _currentPage == TotalPages)
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

@@ -1,0 +1,128 @@
+@page "/esp/make-ach-payment"
+@using UI.EmployerPortal.Web.Features.ESP.Models
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Make ACH Payment</PageTitle>
+
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <h1 class="page-title">Make ACH Payment</h1>
+        <hr class="page-divider" />
+
+        <p class="page-description">
+            The following tax report file uploads have passed review with a payment amount included in the
+            file. The current file status is pending initiation of EFT payment. None of the reports in these
+            files will post until an ACH debit payment is submitted and settled for the file.
+        </p>
+
+        <p class="page-description">
+            To make a payment or cancel processing of a file, select the View link.
+        </p>
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading pending file uploads, please wait..." />
+        }
+        else if (!string.IsNullOrWhiteSpace(_loadError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> { _loadError })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+        }
+        else if (_files.Count == 0)
+        {
+            <p class="empty-message">There are no tax report file uploads pending payment at this time.</p>
+        }
+        else
+        {
+            <div class="table-container">
+                <table class="files-table" aria-label="Tax report file uploads pending EFT payment">
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell col-upload-date"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("uploadDate")"
+                                @onclick="@(() => Sort("uploadDate"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "uploadDate"))">
+                                <div class="header-content">
+                                    <span class="header-label">Upload Date/Time</span>
+                                    @GetSortIcon("uploadDate")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-file-name"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("fileName")"
+                                @onclick="@(() => Sort("fileName"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "fileName"))">
+                                <div class="header-content">
+                                    <span class="header-label">File Name</span>
+                                    @GetSortIcon("fileName")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-confirmation"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("confirmationId")"
+                                @onclick="@(() => Sort("confirmationId"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "confirmationId"))">
+                                <div class="header-content">
+                                    <span class="header-label">Confirmation ID</span>
+                                    @GetSortIcon("confirmationId")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-reports"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("reportsWithoutErrors")"
+                                @onclick="@(() => Sort("reportsWithoutErrors"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "reportsWithoutErrors"))">
+                                <div class="header-content header-content-right">
+                                    <span class="header-label">Reports Without Errors</span>
+                                    @GetSortIcon("reportsWithoutErrors")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-amount"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("paymentAmount")"
+                                @onclick="@(() => Sort("paymentAmount"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "paymentAmount"))">
+                                <div class="header-content header-content-right">
+                                    <span class="header-label">Payment Amount</span>
+                                    @GetSortIcon("paymentAmount")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-actions header-cell-static">
+                                <div class="header-content">
+                                    <span class="header-label">Action</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var file in GetSortedFiles())
+                        {
+                            <tr class="data-row">
+                                <td class="data-cell">@file.UploadDate.ToString("MM/dd/yyyy hh:mm:ss tt")</td>
+                                <td class="data-cell">@file.FileName</td>
+                                <td class="data-cell">@file.ConfirmationId</td>
+                                <td class="data-cell data-cell-right">@file.ReportsWithoutErrors</td>
+                                <td class="data-cell data-cell-right">@file.PaymentAmount.ToString("C")</td>
+                                <td class="data-cell">
+                                    <a href="#"
+                                       class="view-link"
+                                       @onclick="@(() => HandleViewFile(file))"
+                                       @onclick:preventDefault="true"
+                                       aria-label="View file @file.FileName to make a payment or cancel processing">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>

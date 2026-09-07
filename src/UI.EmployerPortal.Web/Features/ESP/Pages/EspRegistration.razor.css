@@ -1,0 +1,48 @@
+.esp-registration-page {
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+}
+
+.page-title {
+    font-weight: 700;
+    font-size: 28px;
+    color: #000;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #adadad;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.esp-edit-bar {
+    margin-bottom: 16px;
+}
+
+.esp-button-bar {
+    display: flex;
+    align-items: center;
+    margin-top: 32px;
+}
+
+.esp-button-bar--end {
+    justify-content: flex-end;
+}
+
+.esp-button-bar--split {
+    justify-content: space-between;
+}
+
+.esp-btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.esp-btn-icon {
+    width: 14px;
+    height: 14px;
+}

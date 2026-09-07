@@ -1,0 +1,67 @@
+.esp-registration-entry {
+    width: 100%;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.section-header {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    margin-top: 32px;
+    margin-bottom: 30px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #003663;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: #333;
+    margin-top: -16px;
+    margin-bottom: 24px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 330px 330px;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.form-field-half {
+    min-width: 0;
+}
+
+.form-field-full {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+/* City | State | Zip | Ext. row */
+.esp-city-row {
+    grid-template-columns: 250px 250px 110px 130px;
+    align-items: start;
+}
+
+.esp-city-field,
+.esp-state-field,
+.esp-zip-field,
+.esp-ext-field {
+    min-width: 0;
+}
+
+@media (max-width: 767px) {
+    .form-row,
+    .esp-city-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .form-field-full {
+        grid-column: auto;
+    }
+}

@@ -1,0 +1,120 @@
+@using UI.EmployerPortal.Web.Features.ESP.Models
+@using UI.EmployerPortal.Web.Features.ESP.Services
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Services
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+
+@inject IConfiguration Configuration
+@inject IDataExchangeFileUploadService DataExchangeFileUploadService
+@inject IUploadFolderResolver UploadFolderResolver
+@inject IUserAccountService UserAccountService
+
+<div class="tax-file-upload-entry">
+
+    <CascadingValue Value="_editContext" IsFixed="false">
+        <ValidationErrorSummary ShowSummary="_showErrors"
+                                FieldIds="_fieldIds"
+                                SummaryId="tax-file-upload-validation-summary" />
+    </CascadingValue>
+
+    <div class="upload-section">
+        <FileUpload2 @ref="_fileUploadRef"
+                     Title="Data File"
+                     OnFileUpload="@HandleFileUploaded"
+                     OnFileRemoved="@HandleFileRemoved"
+                     AllowMultiple="false"
+                     FileType="FileAcceptableType.WageReport"
+                     FolderPath="@_folderPath"
+                     SaveOnUpload="false"
+                     FileName="@Model.DataExchangeFileData.FileName"
+                     ValidationMessages="@Model.DataExchangeFileData.ValidationMessages"
+                     HasBlockingErrors="@Model.DataExchangeFileData.HasBlockingErrors"
+                     HasWarnings="@Model.DataExchangeFileData.HasWarnings" />
+    </div>
+
+    @if (_isValidating)
+    {
+        <div class="validating-banner">
+            <LoadingSpinner Message="Validating file..." />
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter] public DataExchangeFileUploadReportModel Model { get; set; } = new();
+
+    private FileUpload2? _fileUploadRef;
+    private bool _isValidating;
+    private bool _showErrors;
+    private string _folderPath = string.Empty;
+    private EditContext _editContext = default!;
+    private ValidationMessageStore? _messageStore;
+    private readonly Dictionary<string, string> _fieldIds = new();
+
+    protected override void OnInitialized()
+    {
+        _folderPath = UploadFolderResolver.Resolve("FileUpload:DataExchangeFileUpload:FolderPath") ?? string.Empty;
+        _editContext = new EditContext(Model);
+    }
+
+    public bool IsValid()
+    {
+        _messageStore?.Clear();
+        _messageStore = new ValidationMessageStore(_editContext);
+
+        if (!Model.DataExchangeFileData.IsUploaded)
+            _messageStore.Add(_editContext.Field(string.Empty), "Please upload a data exchange file.");
+
+        if (Model.DataExchangeFileData.HasBlockingErrors)
+            _messageStore.Add(_editContext.Field(string.Empty), "Please fix file errors before continuing.");
+
+        _editContext.NotifyValidationStateChanged();
+        var isValid = !_editContext.GetValidationMessages().Any();
+        _showErrors = !isValid;
+        StateHasChanged();
+        return isValid;
+    }
+
+    public async Task<string?> SaveFileAsync()
+    {
+        if(_fileUploadRef != null)
+        {
+            Model.DataExchangeFileData.RecordCount = await _fileUploadRef.GetRecordCountAsync();
+            return await _fileUploadRef.SavePendingFileAsync() ;
+        }
+        return null;
+    }
+
+    private async Task HandleFileUploaded(string filePath)
+    {
+        //We dont have backend method for validate content so no need to handle anything here. 
+        var serverFileName = System.IO.Path.GetFileName(filePath);
+        var ext = System.IO.Path.GetExtension(serverFileName);
+        var nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(serverFileName);
+        var originalName = nameWithoutExt.Length > 33 && nameWithoutExt[^33] == '_'
+            ? nameWithoutExt[..^33] + ext
+            : serverFileName;
+
+        Model.DataExchangeFileData.UploadedFilePath = filePath;
+        Model.DataExchangeFileData.FileName = originalName;
+        Model.DataExchangeFileData.IsUploaded = true;
+        Model.DataExchangeFileData.ValidationMessages.Clear();
+        Model.DataExchangeFileData.HasBlockingErrors = false;
+        Model.DataExchangeFileData.HasWarnings = false;
+        Model.DataExchangeFileData.ValidationMessages = [];
+
+        _isValidating = true;
+        StateHasChanged();
+        _isValidating = false;
+    }
+
+    private void HandleFileRemoved()
+    {
+        Model.DataExchangeFileData = new DataExchangeFileUploadModel();
+    }
+}

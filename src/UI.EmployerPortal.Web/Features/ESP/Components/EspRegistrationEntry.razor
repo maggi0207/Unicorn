@@ -1,0 +1,120 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.ESP.Models
+
+<div class="esp-registration-entry">
+    <p class="page-subtitle">Registering as an ESP will allow you to share client accounts with multiple members of your team.</p>
+    <p class="page-subtitle"><a href="https://dwd.wisconsin.gov/uitax/esp-resource-page.htm">Learn more about ESP Registration.</a></p>
+    <p class="page-subtitle">All fields are required unless noted.</p>
+
+    <CascadingValue Value="@_editContext" IsFixed="true">
+        <DataAnnotationsValidator />
+        <ValidationErrorSummary ShowSummary="@(_formSubmitted && _hasValidationErrors)"
+                                FieldIds="_fieldIds"
+                                FieldResolver="ResolveField"
+                                SummaryId="esp-registration-validation-summary" />
+
+        @* ───────────────────────── Business Information ───────────────────────── *@
+        <h2 class="section-header">Business Information</h2>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Legal Name"
+                                   Id="esp-legal-name"
+                                   @bind-Value="Model.LegalName"
+                                   For="() => Model.LegalName" />
+            </div>
+            <div class="form-field-half">
+                <FEINField Label="FEIN"
+                           Id="esp-fein"
+                           @bind-Value="Model.Fein"
+                           For="() => Model.Fein" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <PhoneNumberField Label="Phone Number"
+                                  Id="esp-phone"
+                                  @bind-Value="Model.PhoneNumber"
+                                  For="() => Model.PhoneNumber"
+                                  Numeric="true" />
+            </div>
+            <div class="form-field-half">
+                <PhoneNumberField Label="Fax Number (optional)"
+                                  Id="esp-fax"
+                                  @bind-Value="Model.FaxNumber"
+                                  For="() => Model.FaxNumber"
+                                  Numeric="true" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-full">
+                <OutlinedTextField Label="Website (optional)"
+                                   Id="esp-website"
+                                   @bind-Value="Model.Website"
+                                   For="() => Model.Website" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Email"
+                                   Id="esp-email"
+                                   Type="email"
+                                   @bind-Value="Model.Email"
+                                   For="() => Model.Email"
+                                   OnBlur="HandleEmailBlur" />
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Email Confirm"
+                                   Id="esp-confirm-email"
+                                   Type="email"
+                                   @bind-Value="Model.ConfirmEmail"
+                                   For="() => Model.ConfirmEmail"
+                                   OnBlur="HandleEmailBlur" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="SIDES Number (optional)"
+                                   Id="esp-sides"
+                                   @bind-Value="Model.SidesNumber"
+                                   For="() => Model.SidesNumber" />
+            </div>
+        </div>
+
+        @* ─────────────────────── Business Mailing Address ─────────────────────── *@
+        <h2 class="section-header">Business Mailing Address</h2>
+
+        <div class="address-wrapper">
+            <AddressField Address="Model.MailingAddress"
+                          Legend="Business Mailing Address"
+                          IdPrefix="esp-"
+                          Visible="@IsAddressVisible(Model.MailingAddress)" />
+        </div>
+
+        @* ───────────────────────────── General Contact ─────────────────────────── *@
+        <h2 class="section-header">General Contact</h2>
+        <p class="section-subtitle">List the contact person for general inquiries about this Employer Service Provider.</p>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="First Name"
+                                   Id="esp-first-name"
+                                   @bind-Value="Model.FirstName"
+                                   For="() => Model.FirstName" />
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Last Name"
+                                   Id="esp-last-name"
+                                   @bind-Value="Model.LastName"
+                                   For="() => Model.LastName" />
+            </div>
+        </div>
+    </CascadingValue>
+</div>

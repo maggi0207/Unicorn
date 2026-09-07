@@ -1,0 +1,116 @@
+@if (IsOpen)
+{
+    <div class="iat-drawer-overlay" @onclick="HandleClose" aria-hidden="true"></div>
+
+    <aside class="iat-drawer"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="iat-drawer-title"
+           @onkeydown="HandleKeyDown"
+           tabindex="-1">
+
+        <div class="iat-drawer-header">
+            <div class="iat-drawer-title-row">
+                <img src="@Assets["icons/information-notification.svg"]" width="18" height="18" alt="" aria-hidden="true" />
+                <h2 id="iat-drawer-title" class="iat-drawer-title">International ACH Transactions (IAT) - Important Information</h2>
+            </div>
+            <button type="button" class="iat-drawer-cancel" aria-label="Close IAT information panel" @onclick="HandleClose">
+                Cancel <img src="@Assets["icons/close_x_blue.svg"]" width="14" height="14" alt="" aria-hidden="true" />
+            </button>
+        </div>
+
+        <div class="iat-drawer-content">
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">New Banking Industry Rules</h3>
+                <p>
+                    On September 18, 2009 the banking industry rules affecting electronic payments
+                    made through the Automated Clearing House (ACH) network were changed. The new
+                    rules impose new requirements on the originators of outgoing electronic payments
+                    ("ACH-Credits") and on the originators of incoming electronic payments
+                    ("ACH-Debits"). State of Wisconsin agencies originate ACH-Credits to pay a
+                    variety of Receivers such as vendors, employees, annuitants, benefit recipients
+                    and many others. State of Wisconsin agencies also originate ACH-Debits to collect
+                    money from a variety of Payers including individual and business taxpayers,
+                    licensees, and others. The new rules require state agencies to identify any
+                    ACH-Credit payments where the entire payment amount is subsequently transferred
+                    to a financial institution outside the US. The rules also require state agencies
+                    to identify any ACH-Debit payments that are funded by a transfer from a financial
+                    institution outside the US. The new rules are referred to as the "International
+                    ACH Transaction (IAT) rules" and are pursuant to requirements of the Office of
+                    Foreign Assets Control (OFAC).
+                </p>
+            </section>
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">Purpose of the IAT Rules</h3>
+                <p>
+                    Under US Law, banks are required to screen all ACH payments to ascertain if the
+                    funds associated with a payment are being remitted to (or being received from)
+                    any party subject to OFAC sanctions. OFAC administers and enforces economic and
+                    trade sanctions based on US foreign policy and national security goals against
+                    targeted foreign countries and regimes, international narcotics traffickers, those
+                    engaged in activities related to the proliferation of weapons of mass destruction,
+                    and other threats to the national security, foreign policy or economy of the
+                    United States. OFAC acts under Presidential national emergency powers, as well as
+                    authority granted by specific legislation, to impose controls on transactions and
+                    freeze assets under US jurisdiction. The IAT rules are intended to assist the
+                    banking industry in performing this screening process.
+                </p>
+            </section>
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">State of Wisconsin's Responsibility to Comply with the IAT Rules</h3>
+                <p>
+                    In order for the State to comply with the IAT rules and the applicable US Law,
+                    Receivers of state agency-originated ACH-Credit payments, and Payers of state
+                    agency-originated ACH-Debit payments are being notified of the new rules, and
+                    their requirement to identify any transaction where a financial institution outside
+                    of the US is ultimately receiving or funding the payment amount. State agency forms
+                    used to collect ACH payment information from Receivers and Payers have been revised
+                    to include questions regarding the transfer of payments to/from financial
+                    institutions outside the US. For those payments identified as IAT, state agencies
+                    are required to submit all future electronic payments to the Receiver's/Payer's
+                    bank in a special format. If the Receiver/Payer does not provide the state agency
+                    with the information necessary for this special format, the agency must send a
+                    paper check to the Receiver or require that the Payer submit a paper check for the
+                    payment. In the case of vendors designated as an IAT Receiver, the State has
+                    elected to only remit payments to the vendor via paper check. The small number of
+                    IAT vendors does not justify the added cost the State would incur to create and
+                    submit the specially-formatted ACH file.
+                </p>
+            </section>
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">Receiver's Responsibility to Comply with the IAT Rules</h3>
+                <p>
+                    Receivers of state agency-originated ACH-Credit payments must indicate on the
+                    state agency's ACH authorization form (provided in paper or on the Internet)
+                    whether the entire amount of the payment is being forwarded to a financial
+                    institution outside the US.
+                </p>
+            </section>
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">Payer's Responsibility to Comply with the IAT Rules</h3>
+                <p>
+                    Payers of state agency-originated ACH-Debit payments must indicate on the state
+                    agency's ACH authorization form (provided in paper or on the Internet) whether
+                    the payment is funded through a transfer from a financial institution outside the US.
+                </p>
+            </section>
+
+            <section class="iat-section">
+                <h3 class="iat-section-title">Questions</h3>
+                <p>All questions should be directed to the state agency that originates your payment.</p>
+            </section>
+
+            <div class="iat-drawer-footer">
+                <p>For additional help</p>
+                <p>Call (608) 266-5793</p>
+                <p>E-mail: <a href="mailto:TAXNET@dwd.wisconsin.gov" class="iat-email-link">TAXNET@dwd.wisconsin.gov</a></p>
+            </div>
+
+        </div>
+    </aside>
+}

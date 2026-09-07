@@ -1,0 +1,75 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using Microsoft.AspNetCore.Components.Web
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" role="presentation">
+        <div class="modal-container"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="remove-bank-modal-title"
+             aria-describedby="remove-bank-modal-body"
+             @onkeydown="HandleKeyDown"
+             tabindex="-1"
+             @ref="_modalRef">
+            <div class="modal-header">
+                <h3 id="remove-bank-modal-title" class="modal-title">Delete Bank Account Information</h3>
+                <button class="modal-close" @onclick="OnCancel">
+                    <img src="icons/close_x_blue.svg" />
+                </button>
+            </div>
+            <div id="remove-bank-modal-body" class="modal-body">
+                <p>
+                    You have requested to remove Bank Account information from User Payments. If the account is no longer in operation, please check that transactions in progress will not be impacted.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <Button Variant="Button.ButtonVariant.Secondary"
+                        type="button"
+                        ShowBorder="false"
+                        OnClick="OnCancel">
+                    CANCEL
+                </Button>
+                <Button Variant="Button.ButtonVariant.Secondary"
+                        type="button"
+                        OnClick="OnConfirm">
+                    CONFIRM
+                </Button>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    private ElementReference _modalRef;
+    private bool _wasVisible;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //Move focus into modal on open so screen readers announce it immediately
+
+        if (IsVisible && !_wasVisible)
+        {
+            _wasVisible = true;
+            await _modalRef.FocusAsync();
+        }
+        else if (!IsVisible && _wasVisible)
+        {
+            _wasVisible = false;
+        }
+    }
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        //Escape key dismissal
+        if (e.Key == "Escape")
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}
+

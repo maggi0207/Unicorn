@@ -1,0 +1,164 @@
+.confirmation-page {
+    max-width: 990px;
+}
+
+.confirmation-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000;
+    margin: 0 0 8px;
+    margin-top:24px;
+}
+
+.title-divider {
+    border: none;
+    border-top: 1px solid #ADADAD;
+    margin: 0 0 24px;
+}
+
+.confirmation-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.success-icon {
+    flex-shrink: 0;
+}
+
+.success-text {
+    color: #1A8922;
+    font-size: 25px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.upload-message {
+    font-size: 16px;
+    line-height: 160%;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.upload-message strong{
+    max-width:990px;
+    margin: 0 auto 24px;
+}
+
+.summary-card {
+    background: #F3F3F3;
+    border-radius: 6px;
+    width:643px;
+    max-width: 100%;
+    margin: 0 auto 32px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 32px;
+}
+
+.summary-item {
+    margin: 0;
+}
+
+    .summary-item label {
+        display: block;
+        font-size: 14px;
+        color: #000;
+        margin-bottom: 6px;
+    }
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+}
+
+.next-title {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.next-message {
+    text-align: center;
+    font-size: 16px;
+    line-height: 160%;
+    margin-bottom: 16px;
+}
+
+.note {
+    text-align: center;
+    font-size: 16px;
+    line-height: 160%;
+    margin-bottom: 32px;
+}
+
+    .note strong {
+        font-weight: 700;
+    }
+
+.button-area {
+    display: flex;
+    justify-content: center;
+}
+
+/* ----- Save Page Link ----- */
+.save-page-section {
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.save-page-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    color: #0D6EFD;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .save-page-link:hover {
+        text-decoration: underline;
+    }
+
+    .save-page-link:focus {
+        outline: 2px solid #0d6efd;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+.save-icon {
+    display: inline-flex;
+    align-items: center;
+}
+
+
+@media (max-width:768px) {
+    .summary-card {
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .success-text {
+        font-size: 20px;
+    }
+
+    .confirmation-title {
+        font-size: 28px;
+    }
+
+    .next-title {
+        font-size: 22px;
+    }
+}

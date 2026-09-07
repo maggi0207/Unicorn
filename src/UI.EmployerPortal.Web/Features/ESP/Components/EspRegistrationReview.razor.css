@@ -1,0 +1,78 @@
+.esp-review {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.esp-review-card {
+    background-color: #e6e6e6;
+    border-radius: 6px;
+    padding: 20px 24px;
+}
+
+.esp-review-card-title {
+    font-weight: 700;
+    font-size: 20px;
+    color: #000;
+    margin: 0 0 16px 0;
+}
+
+.esp-review ::deep .accordion-header {
+    justify-content: space-between;
+    padding-left: 7px;
+}
+
+.esp-review ::deep .accordion-icon {
+    order: 1;
+}
+
+.esp-review ::deep .accordion-title {
+    order: 0;
+    margin-right: auto;
+}
+
+.esp-review ::deep .accordion-body {
+    padding-left: 16px;
+}
+
+.esp-review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 48px;
+}
+
+.esp-review-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.esp-review-label {
+    font-size: 14px;
+    color: #333;
+}
+
+.esp-review-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    word-break: break-word;
+}
+
+.esp-review-address {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+    .esp-review-address .esp-review-value {
+        font-weight: 400;
+    }
+
+@media (max-width: 575px) {
+    .esp-review-grid {
+        grid-template-columns: 1fr;
+    }
+}

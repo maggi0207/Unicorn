@@ -1,0 +1,152 @@
+@page "/esp/account/clients"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.ESP.Components
+
+<PageTitle>Manage Client Accounts</PageTitle>
+<AnnouncementBanner AnnouncementType="AnnouncementType.ESPHOME" />
+<div class="page-content">
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading client accounts..." />
+    }
+    else if (_hasError)
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages='new List<string> { "Unable to load the client accounts." }' />
+    }
+    else
+    {
+        <h1 class="page-title fw-bold">Manage Client Accounts</h1>
+        <p class="page-subtext fw-normal fs-md">
+            Review client access in the list below. Select the trash can button to remove inactive clients.
+        </p>
+
+        @if (!string.IsNullOrWhiteSpace(_flashMessage))
+        {
+            <div class="flash-banner-wrapper">
+                <NotificationBanner @key="_flashKey"
+                                    NotificationType="NotificationType.Confirmation"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Title="@_flashTitle"
+                                    Message="@_flashMessage"
+                                    DismissButton="true" />
+            </div>
+        }
+
+        <div class="add-client-row">
+            <a href="esp/account/clients/add" class="add-client-link fw-bold">+ Add ESP Client</a>
+        </div>
+
+        <div class="client-list-header">
+            <div class="search-wrapper">
+                <label for="client-search" class="visually-hidden">Search by account name or UI account number</label>
+                <input type="text"
+                       id="client-search"
+                       class="search-input"
+                       style="--icon-bg: url('@Assets["icons/searchIconBlack.svg"]')"
+                       placeholder="Search"
+                       value="@_searchText"
+                       @oninput="HandleSearchInput"
+                       aria-label="Search by account name or UI account number" />
+            </div>
+        </div>
+
+        <div class="results-row">
+            <p class="results-count fw-normal fs-sm" aria-live="polite">@_resultsText</p>
+        </div>
+
+        <div class="table-container">
+            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Client accounts">
+                <caption class="visually-hidden">List of client accounts with UI account number and actions</caption>
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell"
+                            @onclick="@(() => Sort("accountName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "accountName"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("accountName")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Account Name</span>
+                                @GetSortIcon("accountName")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell"
+                            @onclick="@(() => Sort("uiAccountNumber"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "uiAccountNumber"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("uiAccountNumber")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">UI Account No.</span>
+                                @GetSortIcon("uiAccountNumber")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell actions-cell" hidden="@(!IsEspUserManager())">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Actions</span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var client in PagedClients)
+                    {
+                        <tr class="data-row">
+                            <td class="fw-bold fs-md">@client.AccountName</td>
+                            <td class="fw-normal fs-md">@FormatUiAccountNumber(client.UIAccountNumber)</td>
+                            <td hidden="@(!IsEspUserManager())">
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm p-1 action-btn" title="Remove client" @onclick="() => HandleDeleteClick(client)">
+                                        <img src="@Assets["icons/trash.svg"]" alt="Remove" class="action-icon" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (FilteredClients.Count > _pageSize)
+            {
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-container fw-normal fs-md">
+                        <div class="rows-per-page">
+                            <label for="page-size-select" class="me-2">Rows per page</label>
+                            <select id="page-size-select" class="form-select form-select-sm page-size-select" @onchange="HandlePageSizeChanged">
+                                <option value="10" selected="@(_pageSize == 10)">10</option>
+                                <option value="25" selected="@(_pageSize == 25)">25</option>
+                                <option value="50" selected="@(_pageSize == 50)">50</option>
+                            </select>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="page-info">@PaginationStart-@PaginationEnd of @FilteredClients.Count</span>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="FirstPage" title="First">
+                                <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="First" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="PreviousPage" title="Previous">
+                                <img src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" alt="Previous" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="NextPage" title="Next">
+                                <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" alt="Next" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="LastPage" title="Last">
+                                <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" alt="Last" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<RemoveClientModal IsOpen="_showRemoveModal"
+                   IsBusy="_isRemoving"
+                   ErrorMessage="@_removeError"
+                   ClientDisplayName="@(_clientToRemove?.AccountName ?? string.Empty)"
+                   OnCancel="CloseRemoveModal"
+                   OnConfirm="ConfirmRemoveAsync" />

@@ -1,0 +1,25 @@
+@page "/esp-home"
+@using Microsoft.AspNetCore.WebUtilities
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using UI.EmployerPortal.Web.Features.Shared.Layout
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@inject ILayoutOrchestator LayoutOrchestator
+@inject ILayoutOrchestator LayoutOrchestator
+@inject ISessionManager SessionManager
+@inject NavigationManager NavigationManager
+<LoadingSpinner Message="Loading..." />
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await LayoutOrchestator.SetCurrentSessionAsESPExperience();
+
+        await LayoutOrchestator.ClearEmployerSelectionAsync();
+
+        await LayoutOrchestator.MarkPostLoginEntryAsync();
+
+        NavigationManager.NavigateTo("esp-dashboard", true);
+        return;
+    }
+}

@@ -1,0 +1,73 @@
+@if (IsOpen)
+{
+    <div class="help-drawer-overlay" @onclick="HandleClose" aria-hidden="true"></div>
+
+    <aside class="help-drawer"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="help-drawer-title"
+           @onkeydown="HandleKeyDown"
+           tabindex="-1">
+
+        <div class="help-drawer-header">
+            <div class="help-drawer-title-row">
+                <img src="@Assets["icons/information-notification.svg"]" width="18" height="18" alt="" aria-hidden="true" />
+                <h2 id="help-drawer-title" class="help-drawer-title">Bank Account Help</h2>
+            </div>
+            <button type="button" class="help-drawer-cancel" aria-label="Close Bank Account Help panel" @onclick="HandleClose">
+                Cancel <img src="@Assets["icons/close_x_blue.svg"]" width="14" height="14" alt="" aria-hidden="true" />
+            </button>
+        </div>
+
+        <div class="help-drawer-content">
+
+            <section class="help-section">
+                <h3 class="help-section-title">Bank Account Nickname</h3>
+                <p>
+                    The Bank Account Nickname is created by you to help associate your bank
+                    account information (bank routing number, bank account number &amp; type of
+                    account) with your account at your financial institution. For example, if you
+                    bank at U.S. Bank and you want your payment deducted from your checking account
+                    you could enter U.S. Bank Checking as your nickname. Customers that make
+                    payments out of more than one bank account find the nickname useful when
+                    selecting the bank account to pay their taxes. The nickname can be anything you
+                    want to call it and in no way affects the transaction sent to the bank.
+                </p>
+            </section>
+
+            <section class="help-section">
+                <h3 class="help-section-title">Using a Bank Routing Number from a Deposit Ticket</h3>
+                <p>
+                    Many Financial Institutions use a special bank routing number on deposit tickets
+                    for internal use only. Those special bank routing numbers usually start with the
+                    number 5. This is not a valid bank routing number for making EFT payments.
+                    You should use the bank routing number from your check when creating your EFT
+                    bank account. If you are unsure of what numbers to use to set up your EFT bank
+                    account with us contact your financial institution.
+                </p>
+            </section>
+
+            <section class="help-section">
+                <h3 class="help-section-title">How to locate your Bank Routing Number and Account Number on a Check</h3>
+                <p>
+                    On the bottom of your check there are three sets of numbers. These numbers
+                    consist of your bank routing number, bank account number and your check number.
+                    Your check number is also located in the upper right hand corner of your check
+                    so you should be able to identify the check number. Your check number should
+                    not be entered as part of your EFT bank account information. The bank routing
+                    number is always a 9 digit number and identifies the location of your bank. Now
+                    that you have identified the check number and routing number, the last number is
+                    your bank account number.
+                </p>
+                 <img src="images\billing\bankaccounthelp.jpg" class="help-check-image" alt="Sample check showing routing number, account number, and check number locations" />
+            </section>
+
+            <div class="help-drawer-footer">
+                <p>For additional help</p>
+                <p>Call (608) 266-5793</p>
+                <p>E-mail: <a href="mailto:TAXNET@dwd.wisconsin.gov" class="help-email-link">TAXNET@dwd.wisconsin.gov</a></p>
+            </div>
+
+        </div>
+    </aside>
+}

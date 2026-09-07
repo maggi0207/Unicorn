@@ -1,0 +1,68 @@
+@using UI.EmployerPortal.Web.Features.ESP.Models
+@using UI.EmployerPortal.Web.Features.ESP.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inject IJSRuntime JS
+<div class="confirmation-page">
+    <h1 class="confirmation-title">Confirmation</h1>
+    <hr class="title-divider" />
+
+    <div class="confirmation-content">
+        <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+     
+        <span class="success-text">Your Data Exchange Request File has been submitted.</span>
+    </div>
+
+    <p class="upload-message">
+        The upload file <strong>@Confirmation?.FileName</strong> has been accepted and will be processed.
+    </p>
+    <div class="summary-card">
+        <div class="summary-item">
+            <label>File Name</label>
+            <div class="summary-value">@Confirmation?.FileName</div>
+        </div>
+        <div class="summary-item">
+            <label>Upload Date/Time</label>
+            <div class="summary-value">@Confirmation?.UploadDate?.ToString("MM/dd/yyyy hh:mm:ss tt")</div>
+        </div>
+        <div class="summary-item">
+            <label>Number of Records in File</label>
+            <div class="summary-value">@Confirmation?.RecordCount</div>
+        </div>
+        <div class="summary-item">
+            <label>Upload Confirmation Number</label>
+            <div class="summary-value">@Confirmation?.ConfirmationNumber</div>
+        </div>
+    </div>
+
+    <h2 class="next-title">
+        What's Next?
+    </h2>
+    <p class="next-message">Your response file will be available for download within 1 or 2 business days.</p>
+    <p class="note">
+        <strong>Note:</strong>
+        This is <strong>not</strong> a Payment Confirmation Number.
+    </p>
+
+    <div class="save-page-section">
+        <button type="button" class="save-page-link" @onclick="HandleSavePageClicked">
+            <span class="save-icon">
+                <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            </span>
+            Click here to save this page for your records.
+        </button>
+    </div>
+</div>
+
+   
+@code {
+    /// <summary>
+    /// Gets or sets the confirmation number received from the submit response.
+    /// </summary>
+    [Parameter] public DataExchangeConfirmationResult? Confirmation { get; set; }
+
+    private async Task HandleSavePageClicked()
+    {
+        await JS.InvokeVoidAsync("printElement", ".confirmation-page");
+    }
+    
+}

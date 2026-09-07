@@ -1,0 +1,129 @@
+@page "/esp-dashboard"
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+
+<div class="esp-dashboard">
+    <h1 class="visually-hidden">Service Provider Dashboard</h1>
+    <AnnouncementBanner AnnouncementType="AnnouncementType.ESPHOME" />
+
+    @* File Quarterly Tax & Wage Reports *@
+    <section class="esp-card">
+        <div class="esp-card-header">
+            <span class="esp-card-icon">
+                <img src="@Assets["images/dashboard/quarterly-tax.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <h2 class="esp-card-title fw-bold fs-title">File Quarterly Tax &amp; Wage Reports</h2>
+        </div>
+        <p class="esp-card-description">File your client's quarterly tax (UCT-101) and wage reports electronically.</p>
+        <div class="esp-card-columns">
+            <div class="esp-col">
+                <h3 class="esp-group-title fw-bold">Tax Reports</h3>
+                <ul class="esp-link-list">
+                    <li><a href="quarterly-tax/tax-file-upload">Tax File Upload</a></li>
+                    <li><a href="quarterly-tax/tax-file-upload-summary">Tax File Upload Summary</a></li>
+                </ul>
+                <h3 class="esp-group-title fw-bold">Wage Reports</h3>
+                <ul class="esp-link-list">
+                    <li><a href="quarterly-tax/wage-upload">Wage File Upload</a></li>
+                    <li><a href="quarterly-tax/upload-summary">Wage File Upload Summary</a></li>
+                </ul>
+                <h3 class="esp-group-title fw-bold">Test Environment</h3>
+                <ul class="esp-link-list">
+                    <li><a href="quarterly-tax/tax-file-upload?source=test-environment">Test Tax File Upload</a></li>
+                    <li><a href="quarterly-tax/tax-file-upload-summary?source=test-environment">Test Tax File Upload Summary</a></li>
+                    <li><a href="quarterly-tax/wage-upload?source=test-environment">Test Wage File Upload</a></li>
+                    <li><a href="quarterly-tax/upload-summary?source=test-environment">Test Wage File Upload Summary</a></li>
+                </ul>
+            </div>
+            <div class="esp-col">
+                <h3 class="esp-group-title fw-bold">File Upload Information</h3>
+                <ul class="esp-link-list">
+                    <li><a href="https://dwd.wisconsin.gov/uitax/serv-providers.htm" target="_blank">About Tax Reporting</a></li>
+                    <li><a href="https://dwd.wisconsin.gov/uitax/taxreportfilelayout.htm" target="_blank">Tax Report File Layout</a></li>
+                    <li><a href="quarterly-tax/tax-report-error-list">Tax Report Error Messages</a></li>
+                    <li><a href="https://dwd.wisconsin.gov/uitax/serv-providers-wage.htm" target="_blank">About Wage Reporting</a></li>
+                    <li><a href="https://dwd.wisconsin.gov/ui201/w3201.htm" target="_blank">Wage Report File Layout</a></li>
+                    <li><a href="quarterly-tax/wage-report-file-upload-error-list">Wage Report Error Messages</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    @* Payment Options *@
+    <section class="esp-card">
+        <div class="esp-card-header">
+            <span class="esp-card-icon">
+                <img src="@Assets["images/dashboard/billing-payments.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <h2 class="esp-card-title fw-bold fs-title">Payment Options</h2>
+        </div>
+        <p class="esp-card-description">Submit payment for file upload and manage payment details.</p>
+        <div class="esp-card-columns">
+            <div class="esp-col">
+                <h3 class="esp-group-title fw-bold">File Upload Payments</h3>
+                <ul class="esp-link-list">
+                    <li><a href="esp/make-ach-payment">Make ACH Payment for a File Upload</a></li>
+                    <li><a href="esp/payment-history">File Upload Payment History</a></li>
+                </ul>
+            </div>
+            <div class="esp-col">
+                <h3 class="esp-group-title fw-bold">Manage ACH Information</h3>
+                <ul class="esp-link-list">
+                    <li><a href="esp/manage-bank-accounts">Manage Bank Accounts</a></li>
+                    <li><a href="esp/payment/esp-contact">Manage ACH Contact Information</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    @* ESP Account Management *@
+    <section class="esp-card">
+        <div class="esp-card-header">
+            <span class="esp-card-icon">
+                <img src="@Assets["images/dashboard/manage-account.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <h2 class="esp-card-title fw-bold fs-title">ESP Account Management</h2>
+        </div>
+        <p class="esp-card-description">View and manage account details.</p>
+        <div class="esp-card-columns">
+            <div class="esp-col">
+                <ul class="esp-link-list">
+                    @if (!IsEspUser())
+                    {
+                        <li><a href="esp/account/register">Register as an ESP</a></li>
+                        <li><a href="esp/account/get-access">Get ESP Access</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="esp/account/clients">Manage Client Accounts</a></li>
+                        if (IsEspUserManager())
+                        {
+                            <li><a href="esp/account/profile">Manage ESP Profile</a></li>
+                            <li><a href="manage-account/account-users">Manage ESP Users</a></li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    @* Data Transfer *@
+    <section class="esp-card">
+        <div class="esp-card-header">
+            <span class="esp-card-icon">
+                <img src="@Assets["images/dashboard/refresh.svg"]" alt="" width="18" height="18" aria-hidden="true" />
+            </span>
+            <h2 class="esp-card-title fw-bold fs-title">Data Transfer</h2>
+        </div>
+        <div class="esp-card-columns">
+            <div class="esp-col">
+                <h3 class="esp-group-title fw-bold">Data File Exchange</h3>
+                <ul class="esp-link-list">
+                    <li><a href="esp/data-exchange/upload">Data Exchange File Upload</a></li>
+                    <li><a href="esp/data-exchange/response-files">Data Exchange Response Files</a></li>
+                    <li><a href="esp/data-exchange/register-ftps">Register for FTPS Access</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,190 @@
+.page-content {
+    max-width: 1138px;
+}
+
+.page-header {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-bottom: 8px;
+}
+
+.page-description {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 160%;
+    margin-bottom: 24px;
+}
+
+.results-count {
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.header-row {
+    height: 56px;
+}
+
+.header-cell {
+    background: #E6E6E6;
+    border-bottom: 1px solid #ADADAD;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-align: left;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+    .header-cell:hover {
+        background: #d9d9d9;
+    }
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-label {
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 150%;
+}
+
+.sort-icon {
+    margin-left: 6px;
+    width: 12px;
+}
+
+td {
+    height: 56px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-bottom: 1px solid #ADADAD;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+th {
+    text-align: left;
+}
+
+tr:hover {
+    background-color: #F9F9F9;
+}
+
+.custom-row:hover {
+    background: #F3F3F3;
+}
+
+.file-link {
+    color: #003663;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+    .file-link:hover, .file-link:focus {
+        color: #00508F;
+        outline: 2px solid #003663;
+        outline-offset: 2px;
+    }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.pagination-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 12px 16px;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000000;
+}
+
+.rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 26px;
+}
+
+    .rows-per-page label {
+        white-space: nowrap;
+    }
+
+    .rows-per-page select {
+        padding: 4px 8px;
+        border: 1px solid #ADADAD;
+        border-radius: 4px;
+        font-family: Verdana, sans-serif;
+        font-size: 16px;
+    }
+
+.page-range {
+    width: 85px;
+    height: 26px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.page-arrows {
+    display: flex;
+    gap: 4px;
+}
+
+.page-arrow {
+    background: none;
+    border: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .page-arrow:disabled {
+        cursor: not-allowed;
+    }
+
+    .page-arrow:not(:disabled):hover {
+        opacity: 0.7;
+    }
+
+.page-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+@media(max-width:768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+}

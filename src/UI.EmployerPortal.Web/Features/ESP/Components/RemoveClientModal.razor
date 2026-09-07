@@ -1,0 +1,53 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@if (IsOpen)
+{
+    <div class="remove-client-backdrop">
+        <div class="remove-client-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-client-title">
+
+            @* ── Header ── *@
+            <div class="remove-client-header">
+                <h3 id="remove-client-title" class="remove-client-title">
+                    <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
+                    Remove Client
+                </h3>
+                <button type="button" class="remove-client-close" @onclick="HandleCancel" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
+            </div>
+
+            @* ── Body ── *@
+            <div class="remove-client-body">
+                @if (IsBusy)
+                {
+                    <LoadingSpinner Message="Removing client..." />
+                }
+                else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <p class="remove-client-text remove-client-text-error">@ErrorMessage</p>
+                }
+                else
+                {
+                    <p class="remove-client-text">
+                        You are removing @ClientDisplayName&rsquo;s access. If you want to reinstate this
+                        client&rsquo;s access at a later date, you will need to add the ESP client again.
+                    </p>
+                }
+            </div>
+
+            @* ── Footer ── *@
+            <div class="remove-client-footer">
+                @if (!IsBusy)
+                {
+                    <Button Text="DO NOT REMOVE CLIENT"
+                            Variant="ButtonVariant.Secondary"
+                            ShowBorder="false"
+                            OnClick="HandleCancel" />
+                    <Button Text="REMOVE CLIENT"
+                            Variant="ButtonVariant.Secondary"
+                            OnClick="HandleConfirm" />
+                }
+            </div>
+
+        </div>
+    </div>
+}

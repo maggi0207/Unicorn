@@ -1,0 +1,184 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Services
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using Microsoft.AspNetCore.Components.Forms
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="ach-payment-info-section" role="group" aria-labelledby="payment-info-heading">
+    
+    <h4 id="payment-info-heading" class="ach-payment-info-title fw-bold">Payment Information</h4>
+    <hr class="ach-section-divider" aria-hidden="true" />
+
+    <EditForm EditContext="_editContext">
+        <DataAnnotationsValidator />
+        <div class="ach-contact-grid">
+            <div class="ach-info-field">
+                <span class="ach-info-label">Payment Amount</span>
+                <strong class="ach-info-value">@(FormatAmount(_amount > 0 ? _amount : (InitialAmount ?? 0)))</strong>
+            </div>
+        </div>
+        <br />
+        @* ── Settlement Date ── *@
+        <AchSettlementDateInput @ref="_settlementDateInput"
+                                Draft="Draft"
+                                InitialSettlementDate="InitialSettlementDate"
+                                SettlementDateChanged="SettlementDateChanged" />
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public decimal? InitialAmount { get; set; }
+    [Parameter] public DateOnly? InitialSettlementDate { get; set; }
+    [Parameter] public EventCallback<decimal> AmountChanged { get; set; }
+    [Parameter] public EventCallback<DateOnly> SettlementDateChanged { get; set; }
+    [Parameter] public EventCallback OnAmountInput { get; set; }
+    [Parameter] public AchPaymentFormModel Draft { get; set; } = new();
+
+    public string? AmountError { get; private set; }
+    public string? DateError => _settlementDateInput?.DateError;
+
+    private const decimal MinAmount = 0.01m;
+    private const decimal MaxAmount = 999_999_999.99m;
+
+    private AchPaymentFormModel _formModel => Draft;
+    private EditContext _editContext = default!;
+    private AchSettlementDateInput _settlementDateInput = default!;
+
+    private decimal _amount;
+    private string _displayAmount = string.Empty;
+    
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(Draft);
+        _editContext = new EditContext(_formModel);
+
+        if (Draft.ValidatedAmount is > 0)
+        {
+            _amount = Draft.ValidatedAmount.Value;
+            _displayAmount = FormatAmount(_amount);
+            Draft.Amount = _displayAmount;
+        }
+        else if (InitialAmount is > 0)
+        {
+            _amount = InitialAmount.Value;
+            _displayAmount = FormatAmount(_amount);
+            Draft.Amount = _displayAmount;
+            Draft.ValidatedAmount = _amount;
+        }
+    }
+
+    /// <summary>Public API: called by parent page to validate before proceeding.</summary>
+    public async Task<bool> ValidateAsync()
+    {
+        var rawForValidation = string.IsNullOrWhiteSpace(_displayAmount)
+                                ? string.Empty
+                                : _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(rawForValidation);
+
+        _formModel.Amount = string.IsNullOrWhiteSpace(_displayAmount)
+                                ? null
+                                : _displayAmount;
+        _editContext.Validate();
+
+        bool isDateValid = true;
+        if(_settlementDateInput != null)
+        {
+            isDateValid = await _settlementDateInput.ValidateAsync();
+        }
+
+        StateHasChanged();
+        return AmountError is null && isDateValid;
+    }
+
+    public decimal GetAmount() => _amount > 0 ? _amount : (InitialAmount ?? 0);
+    public DateOnly GetSettlementDate() => _settlementDateInput?.GetSettlementDate() ?? default;
+
+    /// <summary>Callback from OutlinedTextField @onblur — reformat amount on blur.</summary>
+    private async Task OnAmountBlur()
+    {
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(cleaned);
+
+        if (AmountError is null)
+        {
+            _displayAmount = FormatAmount(_amount);
+            Draft.Amount = _displayAmount;
+            Draft.ValidatedAmount = _amount;
+            //_formModel.Amount = _displayAmount;
+            await AmountChanged.InvokeAsync(_amount);
+        }
+        else
+        {
+            _amount = 0;
+            Draft.ValidatedAmount = null;
+            Draft.Amount = string.IsNullOrWhiteSpace(cleaned) ? null : _displayAmount;
+            //_formModel.Amount = string.IsNullOrWhiteSpace(cleaned) ? null : _displayAmount;
+        }
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.Amount)));
+        StateHasChanged();
+    }
+
+    /// <summary>Callback from OutlinedTextField ValueChanged — validate on input.</summary>
+    private async Task OnAmountChanged(string raw)
+    {
+        _displayAmount = raw;
+        _formModel.Amount = string.IsNullOrWhiteSpace(raw) ? null : raw;
+
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        if (!string.IsNullOrWhiteSpace(cleaned)
+            && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out var liveValue)
+            && liveValue >= MinAmount
+            && liveValue <= MaxAmount)
+        {
+            AmountError = null;
+        }
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.Amount)));
+        await OnAmountInput.InvokeAsync();
+        //return Task.CompletedTask;
+    }
+
+    private void ValidateAmount(string raw)
+    {
+        var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
+
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            AmountError = "Payment Amount is required";
+            _amount = 0;
+            return;
+        }
+
+        if (!decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+        {
+            AmountError = "Payment Amount must include 2 decimal places. It must be numeric and in a valid format";
+            _amount = 0;
+            return;
+        }
+
+        if (value < MinAmount)
+        {
+            AmountError = value <= 0
+                            ? $"Payment Amount must be greater than $0.00"
+                            : $"Payment Amount must be at least {FormatAmount(MinAmount)}";
+            _amount = 0;
+            return;
+        }
+
+        if (value > MaxAmount)
+        {
+            AmountError = $"Payment Amount cannot exceed {FormatAmount(MaxAmount)}";
+            _amount = 0;
+            return;
+        }
+
+        _amount = value;
+        AmountError = null;
+    }
+
+    private static string FormatAmount(decimal value) => $"$ {value:N2}";
+}

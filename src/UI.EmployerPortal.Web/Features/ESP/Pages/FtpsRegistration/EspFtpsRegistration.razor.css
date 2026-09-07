@@ -1,0 +1,61 @@
+.primary-page-content {
+    padding: var(--spacing-lg);
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+}
+
+::deep .page-header {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: #000;
+    border-bottom: 1px solid var(--color-gray-medium);
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+}
+
+::deep .sub-section-header {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-header-nav);
+    border-bottom: 1px solid var(--color-header-nav);
+    margin-bottom: var(--spacing-lg);
+}
+
+::deep .secondary-content {
+    max-width: 716px;
+}
+
+::deep p {
+    font-size: var(--font-size-md);
+}
+
+::deep input[type="checkbox"] {
+    transform:scale(1.5);
+    transform-origin: left;
+    margin-right: var(--spacing-sm);
+}
+
+.esp-button-bar {
+    display: flex;
+    align-items: center;
+    margin-top: 32px;
+}
+
+.esp-button-bar--end {
+    justify-content: flex-end;
+}
+
+.esp-button-bar--split {
+    justify-content: space-between;
+}
+
+.esp-btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.esp-btn-icon {
+    width: 14px;
+    height: 14px;
+}

@@ -1,0 +1,77 @@
+﻿@* EspFtpsRegistration.razor - Request an Employer Service Provider (ESP) FTPS account *@
+@*
+- Composed of a parent page and child components: certify, entry, and confirm
+- Requires the user to certify that they have read the acceptable use policy before advancing
+  to the entry page, where the request form will be loaded with any existing FTPS registration
+  for the user.
+- The user can either enter a new request or modify an existing one.
+- Upon valid submission, the confirmation page is shown, with a link to the ESP Dashboard.
+*@
+@page "/esp/data-exchange/register-ftps"
+
+@namespace UI.EmployerPortal.Web.Features.ESP.Pages.FtpsRegistration
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ESP.Components.FtpsRegistration
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<div class="primary-page-content">
+    @switch (_pageState)
+    {
+        case PageState.Certify:
+            <EspFtpsRegistrationCertify OnCertifiedChanged="HandleCertifiedChanged" />
+            <div class="esp-button-bar esp-button-bar--split">
+                <Button Text="CONTINUE"
+                        Variant="ButtonVariant.Primary"
+                        Disabled="@(!_userAcknowledgedAcceptedUsePolicy)"
+                        OnClick="() => _pageState = PageState.Entry"
+                        AriaLabel="Continue">
+                    CONTINUE
+                    <img src="@Assets["icons/chevron-right.svg"]" alt="" aria-hidden="true" />
+                </Button>
+            </div>
+            break;
+        case PageState.Entry:
+            if (_isServiceError && !_isEntryLoading) {
+                <NotificationBanner
+                    NotificationType="NotificationType.Alert"
+                    Title="Something went wrong"
+                    Message="Your information could not be saved due to a system error. Please try again later. If this problem persists, please contact DWD support."
+                    Visible="true" />
+            }
+            <EspFtpsRegistrationEntry @ref="_entryRef" @bind-Model="_model" @bind-IsLoading="_isEntryLoading" />
+
+            @if (!_isEntryLoading) {
+                <div class="esp-button-bar esp-button-bar--split">
+                    <Button Text="BACK"
+                            Variant="ButtonVariant.Secondary"
+                            OnClick="() => _pageState = PageState.Certify"
+                            AriaLabel="Cancel registration">
+                        <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
+                        BACK
+                    </Button>
+                    <Button Text="SUBMIT"
+                            Variant="ButtonVariant.Primary"
+                            OnClick="HandleSubmit"
+                            AriaLabel="Submit registration">
+                        SUBMIT
+                        <img src="@Assets["icons/chevron-right.svg"]" alt="" aria-hidden="true" />
+                    </Button>
+                </div>
+            }
+            break;
+        case PageState.Confirm:
+            <EspFtpsRegistrationConfirm />
+            <div class="esp-button-bar esp-button-bar--split">
+                <Button Text="ESP DASHBOARD"
+                        Variant="ButtonVariant.Primary"
+                        OnClick="HandleGoToDashboard"
+                        AriaLabel="Go to the ESP Dashboard">
+                    ESP DASHBOARD
+                    <img src="@Assets["icons/chevron-right.svg"]" alt="" aria-hidden="true" />
+                </Button>
+            </div>
+            break;
+    }
+</div>

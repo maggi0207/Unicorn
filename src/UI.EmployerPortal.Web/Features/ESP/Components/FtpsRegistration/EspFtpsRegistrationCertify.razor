@@ -1,0 +1,35 @@
+﻿@using UI.EmployerPortal.Razor.SharedComponents.Navigation;
+
+@namespace UI.EmployerPortal.Web.Features.ESP.Components.FtpsRegistration
+
+<div class="primary-content">
+    <h1 class="page-header">FTPS Registration</h1>
+
+    <div class=secondary-content>
+        <p>Select Continue to request FTPS access. FTPS will allow submissions of data exchange, tax, and wage files.
+            You will also be able to download response files.
+        </p>
+
+        <ExternalLink
+            Url="https://www.dwd.wisconsin.gov/uitax/DWDUIServiceProvider-FTPSpecificationsV5.pdf"
+            Text="FTPS Specifications Document" />
+    </div>
+
+    <h2 class="sub-section-header">Disclaimer</h2>
+
+    <div class=secondary-content>
+        <p>The secure FTPS site has been established by the State of Wisconsin, Department of Workforce Development
+            for limited use by expressly authorized users for the purposes of unemployment insurance data exchange.
+            Unauthorized use of, or access to, this system may subject you to state and federal criminal prosecution
+            and penalties as well as civil penalties.
+        </p>
+
+        <input type="checkbox" @onchange="e => OnCertifiedChanged.InvokeAsync((bool)e.Value!)" />
+        <span class="checkbox-label fw-bold fs-md">I certify that I have read the above information.</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required EventCallback<bool> OnCertifiedChanged { get; set; }
+}

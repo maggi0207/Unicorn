@@ -1,0 +1,152 @@
+/* ── Header (mirrors GetAccountAccessPage) ────────────────────────────────── */
+.gca-page-container {
+    box-sizing: border-box;
+    padding-left: min(15rem, 16%);
+    padding-right: min(4rem, 6%);
+}
+
+.account-header {
+    width: 100%;
+    /*min-height: 152px;*/
+    margin: 0 auto;
+    /*padding: 2rem 0px 0px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 10px rgba(0, 0, 0, 0.12);
+    */
+    box-sizing: border-box;
+}
+
+.account-details {
+    width: 100%;
+    max-width: 920px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--color-text);
+}
+
+.account-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.detail-item {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Tablet styles */
+@media (max-width: 1023px) {
+    .account-header {
+        padding: var(--spacing-md) 0px 0px;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 575px) {
+    .account-header {
+        padding: var(--spacing-sm) 0px 0px;
+    }
+
+    .account-name {
+        font-size: var(--font-size-lg);
+    }
+
+    .account-info {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .detail-item {
+        flex-wrap: wrap;
+    }
+}
+
+/* ── Section bar ──────────────────────────────────────────────────────────── */
+.gca-section-bar {
+    color: var(--color-header-nav);
+    font-family: var(--font-primary);
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    padding: 10px 0px 0px;
+    border-bottom: solid 0.5px;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.gca-body {
+    padding: 20px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 52rem;
+}
+
+.gca-main-body {
+    padding: 20px 0px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.gca-description {
+    margin: 0;
+    font-family: var(--font-primary);
+    font-size: 16px;
+    color: var(--color-text);
+}
+
+::deep .master-text-field {
+    max-width: 80%;
+}
+
+::deep .nb-alert, ::deep .nb-confirmation, ::deep .nb-alert-multiline {
+    max-width: 80%;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.gca-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 6rem 0px 0px;
+}
+
+.gca-btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gca-btn-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+    .gca-page-container {
+        padding-left: var(--spacing-md);
+        padding-right: var(--spacing-md);
+    }
+}
+
+@media (max-width: 575px) {
+    .gca-page-container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
+
+    .gca-footer {
+        padding-top: 3rem;
+    }
+
+    ::deep .master-text-field,
+    ::deep .nb-alert,
+    ::deep .nb-confirmation,
+    ::deep .nb-alert-multiline {
+        max-width: 100%;
+    }
+}

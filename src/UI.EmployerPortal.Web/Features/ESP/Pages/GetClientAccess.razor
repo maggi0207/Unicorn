@@ -1,0 +1,80 @@
+@page "/esp/account/clients/add"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<PageTitle>Get Client Access</PageTitle>
+<div class="gca-page-container">
+    @* ── Header ── *@
+    <div class="account-header">
+        <div class="account-details fs-xl">
+            <div class="account-info">
+                <span class="detail-item account-name">
+                    <span class="detail-label">Get Client Access</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="gca-body">
+        @if (_successMessage != null)
+        {
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                Message="@_successMessage" />
+        }
+        @if (_ruleViolationMessages.Count > 0)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="_ruleViolationMessages" />
+        }
+        @* ── Section bar ── *@
+        <div class="gca-section-bar">Enter Access Key</div>
+
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleContinue">
+            <DataAnnotationsValidator />
+            <div class="gca-main-body">
+                <p class="gca-description">Enter your access key and the associated UI Account Number.</p>
+                <OutlinedTextField Label="Access Key"
+                                   Id="gca-key"
+                                   @bind-Value="_form.AccessKey"
+                                   For="@(() => _form.AccessKey)"
+                                   Placeholder="Enter Access Key"
+                                   FormatText="Access key is case sensitive."
+                                   Disabled="@_isLoading"
+                                   Required="true" />
+
+                <OutlinedTextField Label="UI Account Number"
+                                   Id="gca-account"
+                                   @bind-Value="_form.UIAccountNumber"
+                                   For="@(() => _form.UIAccountNumber)"
+                                   Placeholder="Enter Account Number"
+                                   Mask="000000-000-0"
+                                   InputMode="numeric"
+                                   Disabled="@_isLoading"
+                                   Required="true" />
+            </div>
+
+            @* ── Footer ── *@
+            <div class="gca-footer">
+                <Button Variant="ButtonVariant.Secondary"
+                        Disabled="@_isLoading"
+                        OnClick="HandleBack">
+                    <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                    BACK
+                </Button>
+
+                <Button Type="submit"
+                        Disabled="@_isLoading">
+                    @if (_isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    }
+                    <span class="gca-btn-content">
+                        CONTINUE
+                        <img src="@Assets["icons/button-next.svg"]" alt="" aria-hidden="true" class="gca-btn-icon" />
+                    </span>
+                </Button>
+            </div>
+        </EditForm>
+    </div>
+</div>

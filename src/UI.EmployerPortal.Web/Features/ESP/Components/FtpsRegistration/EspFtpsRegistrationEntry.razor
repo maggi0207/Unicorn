@@ -1,0 +1,185 @@
+﻿@using Microsoft.AspNetCore.Components;
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation;
+
+@namespace UI.EmployerPortal.Web.Features.ESP.Components.FtpsRegistration
+
+@if (IsLoading) {
+    <LoadingSpinner Message="Loading..." />
+}
+else {
+    <div class="primary-content">
+        <h1 class="page-header">FTPS Registration</h1>
+        <p class="page-subtitle">Complete this form to request FTPS access.</p>
+        <ExternalLink Url="https://www.dwd.wisconsin.gov/uitax/DWDUIServiceProvider-FTPSpecificationsV5.pdf"
+                    Text="FTPS Specifications Document" />
+        <p class="page-subtitle">All fields are required unless noted.</p>
+
+        <CascadingValue Value="@_editContext" IsFixed="true">
+            <DataAnnotationsValidator />
+            <ValidationErrorSummary ShowSummary="@(_formSubmitted && _hasValidationErrors)" FieldIds="_fieldIds"
+                                    SummaryId="esp-ftps-registration-validation-summary" />
+
+            <h2 class="sub-section-header">Business Uploading the File</h2>
+
+            <div class="secondary-content">
+                <div class="form-row">
+                    <div class="form-field-half">
+                        <OutlinedTextField Label="Business Name" Id="esp-ftps-business-name"
+                                        @bind-Value="Model.BusinessName" For="() => Model.BusinessName" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field-half">
+                        <OutlinedSelectField Label="Country" Id="esp-ftps-country" @bind-Value="Model.Country" @bind-Value:after="HandleCountryChange"
+                                            Options="CountryOptions" For="() => Model.Country" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field-half">
+                        <OutlinedTextField Label="Street Address" Id="esp-ftps-address-line1"
+                                        @bind-Value="Model.AddressLine1" For="() => Model.AddressLine1" />
+                    </div>
+                    <div class="form-field-half">
+                        <OutlinedTextField Label="Suite, Apt., Attn., etc (optional)" Id="esp-ftps-address-line2"
+                                        @bind-Value="Model.AddressLine2" For="() => Model.AddressLine2" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="esp-city-field">
+                        <OutlinedTextField Label="City" Id="esp-ftps-city" @bind-Value="Model.City"
+                                        For="() => Model.City" />
+                    </div>
+                    @if (Model.Country == UnitedStates || Model.Country == Canada) {
+                        <div class="esp-state-field">
+                            <OutlinedSelectField Label="@(Model.Country == UnitedStates ? "State" : "Province")"
+                                                    Id="esp-ftps-state" @bind-Value="Model.State"
+                                                    Options="StateOrProvinceOptions"
+                                                    Placeholder="-- Select --"
+                                                    For="() => Model.State" />
+                        </div>
+                    }
+                </div>
+                <div class="form-row">
+                    @if (Model.Country == UnitedStates) {
+                        <div class="input-range">
+                            <OutlinedTextField Label="Zip Code" Id="esp-ftps-zip" @bind-Value="Model.ZipCode"
+                                            For="() => Model.ZipCode" InputMode="numeric" MaxLength="5" />
+                            <span>&mdash;</span>
+                            <OutlinedTextField Label="+4 (optional)" Id="esp-ftps-zip-ext" @bind-Value="Model.ZipExt"
+                                            For="() => Model.ZipExt" InputMode="numeric" MaxLength="4" />
+                        </div>
+                    }
+                    else if (Model.Country == Canada) {
+                        <div class="esp-ca-postal-code-field">
+                            <OutlinedTextField Label="Postal Code" Id="esp-ftps-ca-postal-code" @bind-Value="Model.CanadianPostalCode"
+                                            For="() => Model.CanadianPostalCode" />
+                        </div>
+                    }
+                    <div class="esp-fax-field">
+                        <OutlinedTextField
+                            Label="Fax Number (optional)"
+                            Id="esp-ftps-fax"
+                            Mask="000-000-0000"
+                            @bind-Value="Model.FaxNumber"
+                            For="() => Model.FaxNumber" />
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="sub-section-header">File Upload Contact</h2>
+
+            <div class="secondary-content">
+                <div class="contact-info">
+                    <div class="form-row">
+                        <div class="form-field-half">
+                            <OutlinedTextField Label="Contact Name" Id="esp-ftps-upload-name" )"
+                                            @bind-Value="Model.UploadContactName" For="() => Model.UploadContactName" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field-half">
+                            <div class="input-range">
+                                <OutlinedTextField
+                                    Label="Phone Number"
+                                    Id="esp-ftps-upload-phone" )"
+                                    Mask="000-000-0000"
+                                    @bind-Value="Model.UploadContactPhoneNumber"
+                                    For="() => Model.UploadContactPhoneNumber" />
+                                <span>&mdash;</span>
+                                <OutlinedTextField Label="Ext. (optional)" Id="esp-ftps-upload-extension" )"
+                                                @bind-Value="Model.UploadContactExtension" For="() => Model.UploadContactExtension" InputMode="numeric" MaxLength="6" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field-half">
+                            <OutlinedTextField Label="Email Address" Id="esp-ftps-upload-email" )" Type="email"
+                                            @bind-Value="Model.UploadContactEmail" For="() => Model.UploadContactEmail" />
+                        </div>
+                        <div class="form-field-half">
+                            <OutlinedTextField Label="Email Address Confirm" Id="esp-ftps-upload-confirm-email" )"
+                                            Type="email" @bind-Value="Model.UploadContactConfirmEmail"
+                                            For="() => Model.UploadContactConfirmEmail" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="sub-section-header">Contact Information for Records (after the file has been processed)</h2>
+
+            <div class="secondary-content">
+                <input type="checkbox" checked="@Model.IsSameAsFileUploadContact" @onchange="e => HandleIsSameAsFileUploadContact((bool)e.Value!)" />
+                <span class="checkbox-label fw-bold fs-md">Same as File Upload Contact</span>
+
+                @if (!Model.IsSameAsFileUploadContact)
+                {
+                    <div class="secondary-content">
+                        <div class="contact-info">
+                            <div class="form-row">
+                                <div class="form-field-half">
+                                    <OutlinedTextField Label="Contact Name" Id="esp-ftps-questions-name" )"
+                                                    @bind-Value="Model.QuestionsContactName" For="() => Model.QuestionsContactName" />
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field-half">
+                                    <div class="input-range">
+                                        <OutlinedTextField
+                                            Label="Phone Number"
+                                            Id="esp-ftps-questions-phone" )"
+                                            Mask="000-000-0000"
+                                            @bind-Value="Model.QuestionsContactPhoneNumber"
+                                            For="() => Model.QuestionsContactPhoneNumber" />
+                                        <span>&mdash;</span>
+                                        <OutlinedTextField Label="Ext. (optional)" Id="esp-ftps-questions-extension" )"
+                                                        @bind-Value="Model.QuestionsContactExtension"
+                                                        For="() => Model.QuestionsContactExtension" InputMode="numeric" MaxLength="6" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field-half">
+                                    <OutlinedTextField Label="Email Address" Id="esp-ftps-questions-email" )" Type="email"
+                                                    @bind-Value="Model.QuestionsContactEmail" For="() => Model.QuestionsContactEmail" />
+                                </div>
+                                <div class="form-field-half">
+                                    <OutlinedTextField Label="Email Address Confirm" Id="esp-ftps-questions-confirm-email" )"
+                                                    Type="email" @bind-Value="Model.QuestionsContactConfirmEmail"
+                                                    For="() => Model.QuestionsContactConfirmEmail" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </CascadingValue>
+    </div>
+}

@@ -1,0 +1,73 @@
+@page "/esp/account/profile"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ESP.Components
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<div class="page-content esp-registration-page">
+    <h1 class="page-title">Manage Employer Service Provider Profile</h1>
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="@_loadingMessage" />
+    }
+    else if (_pageState == PageState.Submitted)
+    {
+        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                            Message="You have successfully updated the Employer Service Provider profile" />
+    }
+    else
+    {
+        @if (_ruleViolationMessages.Count > 0)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_ruleViolationMessages" />
+        }
+
+        @if (_pageState == PageState.Entry)
+        {
+            <EspRegistrationEntry Model="_model" @ref="_entryRef" />
+
+            <div class="esp-button-bar esp-button-bar--end">
+                <Button Text="CONTINUE"
+                        Variant="ButtonVariant.Primary"
+                        OnClick="HandleContinue"
+                        AriaLabel="Continue to review">
+                    <span class="esp-btn-content">
+                        CONTINUE
+                        <img src="@Assets["icons/button-next.svg"]" alt="" aria-hidden="true" class="esp-btn-icon" />
+                    </span>
+                </Button>
+            </div>
+        }
+        else if (_pageState == PageState.Review)
+        {
+            <p class="page-subtitle">Carefully review all the information and Update to save after changes.</p>
+
+            <div class="esp-edit-bar">
+                <Button Variant="ButtonVariant.Secondary"
+                        OnClick="HandleEdit"
+                        AriaLabel="Edit profile details">
+                    <span class="esp-btn-content">
+                        <img src="@Assets["icons/edit-icon.svg"]" alt="" aria-hidden="true" class="esp-btn-icon" />
+                        EDIT
+                    </span>
+                </Button>
+            </div>
+
+            <EspRegistrationReview Model="_model" />
+
+            <div class="esp-button-bar esp-button-bar--split">
+                <Button Text="CANCEL"
+                        Variant="ButtonVariant.Secondary"
+                        OnClick="HandleCancel"
+                        AriaLabel="Cancel" />
+                <Button Text="UPDATE"
+                        Variant="ButtonVariant.Primary"
+                        OnClick="HandleUpdate"
+                        AriaLabel="Update profile" />
+            </div>
+        }
+    }
+</div>

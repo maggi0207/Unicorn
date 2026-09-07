@@ -1,0 +1,141 @@
+@page "/esp/payment-history"
+@using UI.EmployerPortal.Web.Features.ESP.Models
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Payment History</PageTitle>
+
+<div class="page-wrapper">
+    <div class="page-content">
+
+        <h1 class="page-title">Payment History</h1>
+        <hr class="page-divider" />
+
+        <p class="page-description">
+            The below lists all ACH payments made for tax report files uploaded under your login ID.
+            Select the Confirmation # to view details. To edit or cancel a pending payment, select the
+            pencil or trash can icon.
+        </p>
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading payment history, Please wait..." />
+        }
+        else if (!string.IsNullOrWhiteSpace(_loadError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="@(new List<string> { _loadError })"
+                                MessageFieldIds="@(new List<string> { "_" })"
+                                Visible="true" />
+        }
+        else if (_payments.Count == 0)
+        {
+            <p class="empty-message">There are no payments to display.</p>
+        }
+        else
+        {
+            <div class="table-container">
+                <table class="payments-table" aria-label="Payment history">
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell col-settlement-date"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("settlementDate")"
+                                @onclick="@(() => Sort("settlementDate"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "settlementDate"))">
+                                <div class="header-content">
+                                    <span class="header-label">Settlement Date</span>
+                                    @GetSortIcon("settlementDate")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-amount"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("amount")"
+                                @onclick="@(() => Sort("amount"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "amount"))">
+                                <div class="header-content header-content-right">
+                                    <span class="header-label">Amount</span>
+                                    @GetSortIcon("amount")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-confirmation header-cell-static">
+                                <div class="header-content">
+                                    <span class="header-label">Confirmation #</span>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-status"
+                                tabindex="0"
+                                aria-sort="@GetAriaSort("status")"
+                                @onclick="@(() => Sort("status"))"
+                                @onkeydown="@(e => HandleHeaderKeyDown(e, "status"))">
+                                <div class="header-content">
+                                    <span class="header-label">Status</span>
+                                    @GetSortIcon("status")
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell col-actions header-cell-static">
+                                <div class="header-content header-content-right">
+                                    <span class="header-label">Actions</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in GetSortedPayments())
+                        {
+                            <tr class="data-row">
+                                <td class="data-cell">
+                                    @(payment.SettlementDate.HasValue ? payment.SettlementDate.Value.ToString("MM/dd/yyyy") : "—")
+                                </td>
+                                <td class="data-cell data-cell-right">
+                                    @payment.Amount.ToString("C")
+                                </td>
+                                <td class="data-cell">
+                                    <button type="button"
+                                            class="confirmation-link"
+                                            aria-label="View payment details for confirmation @payment.ConfirmationId"
+                                            @onclick="@(() => NavigateToPaymentDetails(payment.EftPaymentSk))">
+                                        @payment.ConfirmationId
+                                    </button>
+                                </td>
+                                <td class="data-cell data-cell-status">@payment.Status</td>
+                                <td class="data-cell data-cell-right">
+                                    @if (payment.IsEligibleForAction)
+                                    {
+                                        <div class="action-icons" role="group" aria-label="Actions for payment @payment.ConfirmationId">
+                                            <button type="button"
+                                                    class="action-btn"
+                                                    aria-label="Edit payment @payment.ConfirmationId"
+                                                    @onclick="@(() => NavigateToEditPayment(payment.EftPaymentSk))">
+                                                <img src="@Assets["icons/edit.svg"]" alt="" aria-hidden="true" class="icon-edit" />
+                                            </button>
+                                            <button type="button"
+                                                    class="action-btn"
+                                                    aria-label="Cancel payment @payment.ConfirmationId"
+                                                    @onclick="@(() => NavigateToCancelPayment(payment.EftPaymentSk))">
+                                                <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" class="icon-cancel" />
+                                            </button>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="button-bar" role="group" aria-label="Payment history actions">
+            <button type="button" class="btn-back" @onclick="HandleBack">
+                <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
+                BACK
+            </button>
+            <button type="button" class="btn-cancel" @onclick="HandleCancel">
+                CANCEL
+            </button>
+        </div>
+
+    </div>
+</div>

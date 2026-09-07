@@ -1,0 +1,74 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Accordion.Accordion
+@using UI.EmployerPortal.Web.Features.ESP.Models
+
+<div class="esp-review">
+
+    @* ───────────────────────── Business Information ───────────────────────── *@
+@*     <section class="esp-review-card">
+        <h2 class="esp-review-card-title">Business Information</h2> *@
+    <Accordion Title="Business Information" InitiallyExpanded="true" style="background-color: #e6e6e6;">
+        <div class="esp-review-grid">
+            <div class="esp-review-item">
+                <span class="esp-review-label">Legal Name</span>
+                <span class="esp-review-value">@Display(Model.LegalName)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">FEIN</span>
+                <span class="esp-review-value">@Display(Model.Fein)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">Phone Number</span>
+                <span class="esp-review-value">@Display(Model.PhoneNumber)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">Fax Number</span>
+                <span class="esp-review-value">@Display(Model.FaxNumber)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">Website</span>
+                <span class="esp-review-value">@Display(Model.Website)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">Email</span>
+                <span class="esp-review-value">@Display(Model.Email)</span>
+            </div>
+            <div class="esp-review-item">
+                <span class="esp-review-label">SIDES Number</span>
+                <span class="esp-review-value">@Display(Model.SidesNumber)</span>
+            </div>
+        </div>
+        </Accordion>
+    @* </section> *@
+
+    @* ─────────────────────── Business Mailing Address ─────────────────────── *@
+@*     <section class="esp-review-card">
+        <h2 class="esp-review-card-title">Business Mailing Address</h2> *@
+        <Accordion Title="Business Mailing Address" InitiallyExpanded="true" style="background-color: #e6e6e6;">
+        <div class="esp-review-address">
+            @foreach (var line in Model.MailingAddress.GetDisplayLines())
+            {
+                <div class="esp-review-value">@line</div>
+            }
+        </div>
+    </Accordion>
+@*     </section> *@
+
+    @* ───────────────────────────── General Contact ─────────────────────────── *@
+   @*  <section class="esp-review-card">
+        <h2 class= "esp-review-card-title">General Contact</h2>*@
+        <Accordion Title="General Contact" InitiallyExpanded="true" style="background-color: #e6e6e6;">
+        <div class="esp-review-value">@($"{Model.FirstName} {Model.LastName}".Trim())</div>
+        </Accordion>
+    @* </section> *@
+</div>
+
+@code {
+    /// <summary>The registration model to display in read-only form.</summary>
+    [Parameter]
+    public required EspRegistrationModel Model { get; set; }
+
+    private static string Display(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+}

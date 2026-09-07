@@ -1,0 +1,52 @@
+@page "/esp/data-exchange/upload"
+@using UI.EmployerPortal.Web.Features.ESP.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.TaxUpload
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.WageUpload
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+<div class="page-content">
+    @if (_isSubmitted)
+    {
+        <DataFileExchangeConfirmation Confirmation="@_confirmation"/>
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else
+    {
+        <section class="primary-content">
+            <h1 class="page-header">Data Exchange File Upload</h1>
+            <div class="other-option-item instruction-link">
+                <a href="https://dwd.wisconsin.gov/uitax/aboutdatafileexchange.pdf" class="other-option-link fw-bold" target="_blank">
+                    Data File Exchange Instructions
+                </a>
+            </div>
+            <p class="description">
+                All fields are required unless noted.
+            </p>
+        </section>
+        <CascadingValue Value="_editContext" IsFixed="false">
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary"
+                                    FieldIds="@_fieldIds"
+                                    SummaryId="tax-upload-validation-summary" />
+        </CascadingValue>
+        <ContactInformationEntry Model="@_reportData.ContactData"
+        ShowHeader="false"
+                                 @ref="_contactInfoRef" />
+        <DataExchangeFileUploadEntry Model="@_reportData"
+                            @ref="_taxFileUploadEntryRef" />
+        <div class="button-bar">
+            <Button Text="BACK"
+                    Variant="ButtonVariant.Secondary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleBackClick"
+                    AriaLabel="Go back" />
+            <Button Text="SUBMIT"
+                    Variant="ButtonVariant.Primary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleSubmitClick"
+                    AriaLabel="Submit tax report" />
+        </div>
+    }
+</div>

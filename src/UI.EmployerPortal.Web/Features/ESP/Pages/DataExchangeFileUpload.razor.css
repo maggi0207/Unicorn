@@ -1,0 +1,68 @@
+.page-content {
+    width: 100%;
+    max-width: 990px;
+    margin: 0
+}
+
+.primary-content {
+    width: 990px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.button-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-top: 24px;
+    border-top: 1px solid #e6e6e6;
+}
+
+/*PAGE HEADER */
+.page-header {
+    width: 990px;
+    height: 46px;
+    font-family: Verdana,sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: var(--color-text-body-black, #000);
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+}
+
+/*PAGE DESCRIPTION*/
+.description {
+    width: 286px;
+    margin: 0;
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #000;
+}
+
+.other-option-item {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 6px;
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.other-option-link {
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 160%;
+    text-decoration: underline;
+}
+
+
+.instruction-link {
+    width: fit-content;
+}
