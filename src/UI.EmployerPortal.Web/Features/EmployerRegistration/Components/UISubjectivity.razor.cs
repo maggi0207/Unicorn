@@ -16,6 +16,7 @@ public partial class UISubjectivity
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
     private bool _formSubmitted = false;
+    private bool _showNonProfitModal = false;
 
     private bool _insufficientQuarterlyWageEntered = false;
     private bool _wageCheckflag = false;
@@ -581,8 +582,28 @@ public partial class UISubjectivity
         RunValidation();
         _subjectivityContext.NotifyValidationStateChanged();
         StateHasChanged();
+
+        // If the 501(c)(3) inconsistency exists, show modal instead of blocking with inline error.
+        if (SubjectivityModel.HasAppliedFor501c3Status == true && Section2Visible())
+        {
+            _showNonProfitModal = true;
+            StateHasChanged();
+            return false;
+        }
+
         return !_subjectivityContext.GetValidationMessages().Any();
     }
+    private void HandleReturnToStep1()
+    {
+        _showNonProfitModal = false;
+        Nav.NavigateTo("/employer-registration/preliminary-questions");
+    }
+
+    private void HandleStayOnStep6()
+    {
+        _showNonProfitModal = false;
+    }
+
     private void ResetField<T>(Expression<Func<T>> fieldExpression)
     {
         var field = FieldIdentifier.Create(fieldExpression);
@@ -630,11 +651,7 @@ public partial class UISubjectivity
         }
         if (SubjectivityModel.HasAppliedFor501c3Status == true && Section2Visible())
         {
-            var field = _subjectivityContext.Field(nameof(SubjectivityModel.HasAppliedFor501c3Status));
-            if (SubjectivityModel.HasAppliedFor501c3Status == true)
-            {
-                _messageStore.Add(field, "Please return to step one to correct your answer regarding your 501(c)(3) designation.");
-            }
+            // Handled by the NonProfitInconsistencyModal — no inline field error needed.
         }
         if (IsVisible(() => SubjectivityModel.HasFutaLiabilityInOtherStates) && Section6Visible)
         {
