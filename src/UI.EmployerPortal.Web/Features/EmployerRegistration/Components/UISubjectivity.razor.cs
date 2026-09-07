@@ -16,7 +16,6 @@ public partial class UISubjectivity
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
     private bool _formSubmitted = false;
-    private bool _showNonProfitModal = false;
 
     private bool _insufficientQuarterlyWageEntered = false;
     private bool _wageCheckflag = false;
@@ -131,13 +130,7 @@ public partial class UISubjectivity
     {
         _dateFirstPaidWages = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidWagesInWI;
         var wages = PaidWagesService.GetYearsAndQuartersPaidWages(_dateFirstPaidWages);
-        //if (SubjectivityModel.Wages.Count == 0 || _dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI)
-        //{
-        //    SubjectivityModel.Wages = wages;
-        //    SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
 
-
-        //}
         _subjectivityContext = new EditContext(SubjectivityModel);
         _messageStore = new ValidationMessageStore(_subjectivityContext);
         var isNonProfitFromStep1 = ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.IsNonProfitOrg == true;
@@ -188,11 +181,20 @@ public partial class UISubjectivity
         }
         SubjectivityModel.BusinessCategory = lockedCategory;
         BusinessCategory = (BusinessCategory) lockedCategory;
-        if (_dateFirstPaidWages != SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI && SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
+        if ((wages.Count != SubjectivityModel.Wages.Count) && SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
         {
             SubjectivityModel.Wages = wages;
-            SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = _dateFirstPaidWages;
 
+        }
+        else if (SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
+        {
+            for (var i = 0; i < wages.Count; i++)
+            {
+                SubjectivityModel.Wages[i].Q1Disabled = wages[i].Q1Disabled;
+                SubjectivityModel.Wages[i].Q2Disabled = wages[i].Q2Disabled;
+                SubjectivityModel.Wages[i].Q3Disabled = wages[i].Q3Disabled;
+                SubjectivityModel.Wages[i].Q4Disabled = wages[i].Q4Disabled;
+            }
 
         }
         _subjectivityContext.OnFieldChanged += (_, f) =>
@@ -579,28 +581,8 @@ public partial class UISubjectivity
         RunValidation();
         _subjectivityContext.NotifyValidationStateChanged();
         StateHasChanged();
-
-        // If the 501(c)(3) inconsistency exists, show modal instead of blocking with inline error.
-        if (SubjectivityModel.HasAppliedFor501c3Status == true && Section2Visible())
-        {
-            _showNonProfitModal = true;
-            StateHasChanged();
-            return false;
-        }
-
         return !_subjectivityContext.GetValidationMessages().Any();
     }
-    private void HandleReturnToStep1()
-    {
-        _showNonProfitModal = false;
-        Nav.NavigateTo("/employer-registration/preliminary-questions");
-    }
-
-    private void HandleStayOnStep6()
-    {
-        _showNonProfitModal = false;
-    }
-
     private void ResetField<T>(Expression<Func<T>> fieldExpression)
     {
         var field = FieldIdentifier.Create(fieldExpression);
@@ -648,7 +630,11 @@ public partial class UISubjectivity
         }
         if (SubjectivityModel.HasAppliedFor501c3Status == true && Section2Visible())
         {
-            // Handled by the NonProfitInconsistencyModal — no inline field error needed.
+            var field = _subjectivityContext.Field(nameof(SubjectivityModel.HasAppliedFor501c3Status));
+            if (SubjectivityModel.HasAppliedFor501c3Status == true)
+            {
+                _messageStore.Add(field, "Please return to step one to correct your answer regarding your 501(c)(3) designation.");
+            }
         }
         if (IsVisible(() => SubjectivityModel.HasFutaLiabilityInOtherStates) && Section6Visible)
         {
