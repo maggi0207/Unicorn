@@ -13,6 +13,8 @@ namespace UI.EmployerPortal.Web.Features.ESP.Pages;
 public partial class ManageESPBankAccounts
 {
     private const string AchOriginUrl = "esp/esp-make-payment-ach-information?source=flow";
+    private const string PendingPaymentErrorMessage = "You can't delete a bank account with a pending payment. Review your pending payment(s) on Payment History.";
+    private const string LegacyPendingPaymentErrorMessage = "A bank account cannot be removed until all the pending payments have been processed or cancelled.";
 
 
     /// <summary>
@@ -46,6 +48,11 @@ public partial class ManageESPBankAccounts
 
     private bool _showRemoveModal = false;
     private SavedBankAccount? _accountToRemove;
+
+    private bool IsPendingPaymentError => !string.IsNullOrWhiteSpace(_loadError) &&
+        (string.Equals(_loadError, PendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase) ||
+         string.Equals(_loadError, LegacyPendingPaymentErrorMessage, StringComparison.OrdinalIgnoreCase) ||
+         _loadError.Contains("pending payment", StringComparison.OrdinalIgnoreCase));
 
     /// <inheritdoc/>
     protected override async Task OnAuthorizedInitAsync()
@@ -262,6 +269,17 @@ public partial class ManageESPBankAccounts
         }
         _showRemoveModal = false;
         _accountToRemove = null;
+    }
+
+    private async Task HandleClearError()
+    {
+        _loadError = null;
+        await LoadAccountsAsync();
+    }
+
+    private void HandleGoToPaymentHistory()
+    {
+        NavigationManager.NavigateTo("esp/payment-history");
     }
 }
 
