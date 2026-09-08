@@ -486,8 +486,7 @@
                 <EditForm Model="_modalFormModel">
                     <RadioGroup TValue="ModalOption?"
                                 LabelledById="nonprofit-modal-body"
-                                Value="_modalFormModel.SelectedOption"
-                                ValueChanged="@((ModalOption? val) => _modalFormModel.SelectedOption = val)"
+                                @bind-Value="_modalFormModel.SelectedOption"
                                 Options="@ModalRadioOptions" />
                 </EditForm>
             </div>
