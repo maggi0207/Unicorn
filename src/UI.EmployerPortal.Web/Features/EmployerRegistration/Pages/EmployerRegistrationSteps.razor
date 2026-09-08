@@ -72,7 +72,8 @@
             @if (_currentStep == 6)
             {
                 <UISubjectivity @ref="_uiSubjectivityRef"
-                                SubjectivityModel="@ModelStore.EmployerRegistrationModel.SubjectivityModel"/>
+                                SubjectivityModel="@ModelStore.EmployerRegistrationModel.SubjectivityModel"
+                                OnNavigateToStep="HandleVerificationEditClick" />
             }
             else if (_currentStep == 7)
             {

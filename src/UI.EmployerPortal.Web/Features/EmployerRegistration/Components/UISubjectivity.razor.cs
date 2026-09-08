@@ -16,6 +16,12 @@ public partial class UISubjectivity
     private IYearQuarterPaidWagesService PaidWagesService { get; set; } = default!;
     [Inject]
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
+    /// <summary>
+    /// Callback to navigate to a specific wizard step.
+    /// </summary>
+    [Parameter]
+    public EventCallback<int> OnNavigateToStep { get; set; }
+
     private bool _formSubmitted = false;
     private bool _showNonProfitModal = false;
 
@@ -32,7 +38,7 @@ public partial class UISubjectivity
         public ModalOption? SelectedOption { get; set; } = ModalOption.ReturnToStep1;
     }
 
-    private ModalFormModel _modalFormModel = new();
+    private readonly ModalFormModel _modalFormModel = new();
     private ElementReference _modalRef;
 
     private bool _insufficientQuarterlyWageEntered = false;
@@ -615,7 +621,14 @@ public partial class UISubjectivity
         if (_modalFormModel.SelectedOption == ModalOption.ReturnToStep1)
         {
             _showNonProfitModal = false;
-            Nav.NavigateTo("/employer-registration/preliminary-questions");
+            if (OnNavigateToStep.HasDelegate)
+            {
+                await OnNavigateToStep.InvokeAsync(1);
+            }
+            else
+            {
+                Nav.NavigateTo("/employer-registration/steps");
+            }
         }
         else
         {
