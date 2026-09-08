@@ -21,7 +21,7 @@ public partial class UISubjectivity
 
     private enum ModalOption { ReturnToStep1, StayOnStep6 }
 
-    public static readonly IReadOnlyList<RadioOption<ModalOption?>> ModalRadioOptions = new[]
+    private static readonly IReadOnlyList<RadioOption<ModalOption?>> ModalRadioOptions = new[]
     {
         new RadioOption<ModalOption?> { Value = ModalOption.ReturnToStep1, Label = "Option 1: Return to Step 1 and correct your answer." },
         new RadioOption<ModalOption?> { Value = ModalOption.StayOnStep6, Label = "Option 2: Stay on step 6 and change your answer to no." }
