@@ -461,6 +461,43 @@
     </div>
 </div>
 
-<NonProfitInconsistencyModal IsVisible="_showNonProfitModal"
-                              OnReturnToStep1="HandleReturnToStep1"
-                              OnStayOnStep6="HandleStayOnStep6" />
+@if (_showNonProfitModal)
+{
+    <div class="modal-overlay" role="presentation">
+        <div class="modal-container"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="nonprofit-modal-title"
+             aria-describedby="nonprofit-modal-body"
+             @onkeydown="HandleModalKeyDown"
+             tabindex="-1"
+             @ref="_modalRef">
+            <div class="modal-header">
+                <h3 id="nonprofit-modal-title" class="modal-title">Inconsistent Non-Profit Designation</h3>
+                <button class="modal-close" type="button" @onclick="HandleStayOnStep6">
+                    <img src="icons/close_x_blue.svg" />
+                </button>
+            </div>
+            <div id="nonprofit-modal-body" class="modal-body">
+                <p>
+                    In step 1, you reported that you are not a non-profit organization as described in
+                    s.501(c)(3) of the IRS code. You must take one of these actions.
+                </p>
+                <EditForm Model="_modalFormModel">
+                    <RadioGroup TValue="ModalOption?"
+                                LabelledById="nonprofit-modal-body"
+                                Value="_modalFormModel.SelectedOption"
+                                ValueChanged="@((ModalOption? val) => _modalFormModel.SelectedOption = val)"
+                                Options="@ModalRadioOptions" />
+                </EditForm>
+            </div>
+            <div class="modal-footer">
+                <Button Variant="Button.ButtonVariant.Primary"
+                        type="button"
+                        OnClick="HandleModalContinue">
+                    CONTINUE
+                </Button>
+            </div>
+        </div>
+    </div>
+}

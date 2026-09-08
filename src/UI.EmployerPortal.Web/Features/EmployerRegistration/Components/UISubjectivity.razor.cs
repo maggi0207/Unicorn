@@ -3,6 +3,7 @@ namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Web;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
@@ -17,6 +18,22 @@ public partial class UISubjectivity
     private EmployerRegistrationModelStore ModelStore { get; set; } = default!;
     private bool _formSubmitted = false;
     private bool _showNonProfitModal = false;
+
+    private enum ModalOption { ReturnToStep1, StayOnStep6 }
+
+    public static readonly IReadOnlyList<RadioOption<ModalOption?>> ModalRadioOptions = new[]
+    {
+        new RadioOption<ModalOption?> { Value = ModalOption.ReturnToStep1, Label = "Option 1: Return to Step 1 and correct your answer." },
+        new RadioOption<ModalOption?> { Value = ModalOption.StayOnStep6, Label = "Option 2: Stay on step 6 and change your answer to no." }
+    };
+
+    private class ModalFormModel
+    {
+        public ModalOption? SelectedOption { get; set; } = ModalOption.ReturnToStep1;
+    }
+
+    private ModalFormModel _modalFormModel = new();
+    private ElementReference _modalRef;
 
     private bool _insufficientQuarterlyWageEntered = false;
     private bool _wageCheckflag = false;
@@ -593,15 +610,32 @@ public partial class UISubjectivity
 
         return !_subjectivityContext.GetValidationMessages().Any();
     }
-    private void HandleReturnToStep1()
+    private async Task HandleModalContinue()
     {
-        _showNonProfitModal = false;
-        Nav.NavigateTo("/employer-registration/preliminary-questions");
+        if (_modalFormModel.SelectedOption == ModalOption.ReturnToStep1)
+        {
+            _showNonProfitModal = false;
+            Nav.NavigateTo("/employer-registration/preliminary-questions");
+        }
+        else
+        {
+            HandleStayOnStep6();
+        }
     }
 
     private void HandleStayOnStep6()
     {
         _showNonProfitModal = false;
+        _modalFormModel.SelectedOption = ModalOption.ReturnToStep1;
+    }
+
+    private async Task HandleModalKeyDown(KeyboardEventArgs e)
+    {
+        // Escape key dismissal — treat as "Stay on Step 6"
+        if (e.Key == "Escape")
+        {
+            HandleStayOnStep6();
+        }
     }
 
     private void ResetField<T>(Expression<Func<T>> fieldExpression)
