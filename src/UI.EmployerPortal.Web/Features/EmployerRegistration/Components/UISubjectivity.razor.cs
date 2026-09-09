@@ -203,6 +203,16 @@ public partial class UISubjectivity
             ResetField(() => SubjectivityModel.PayWagesPerformWI);
             ResetField(() => SubjectivityModel.ExpectToPayWagesPerformWI);
         }
+        var currentStep5Date = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidEmployeesInWI;
+        if (currentStep5Date.HasValue
+            && SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.HasValue
+            && currentStep5Date.Value < SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.Value)
+        {
+            SubjectivityModel.Week20EndDate = null;
+            ResetField(() => SubjectivityModel.Week20EndDate);
+        }
+        SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = currentStep5Date;
+
         SubjectivityModel.BusinessCategory = lockedCategory;
         BusinessCategory = (BusinessCategory) lockedCategory;
         if ((wages.Count != SubjectivityModel.Wages.Count) && SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
