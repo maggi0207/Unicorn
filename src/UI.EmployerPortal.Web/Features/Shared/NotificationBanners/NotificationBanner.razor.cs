@@ -112,12 +112,11 @@ public partial class NotificationBanner : IAsyncDisposable
     public List<string> Messages { get; set; } = new();
 
     /// <summary>
-    /// Sets the maximum length for the Message part of the Notification Banner.  Once
-    /// the limit is reached the message displayed will be truncated and three ellipses (...)
-    /// will be added.
+    /// Obsolete: No longer used for truncation. Kept for backwards compatibility only.
+    /// Messages are now displayed in full and wrap within the banner.
     /// </summary>
     [Parameter]
-    public int MessageLimit { get; set; } = 200;
+    public int MessageLimit { get; set; } = int.MaxValue;
 
     /// <summary>
     /// Maps property names to their corresponding input HTML ids for anchor link navigation.
@@ -160,9 +159,7 @@ public partial class NotificationBanner : IAsyncDisposable
 
     private string GetFormattedMessage()
     {
-        return !String.IsNullOrWhiteSpace(Message)
-            ? Message.Length <= MessageLimit ? Message : string.Concat(Message.AsSpan(0, MessageLimit), "...")
-            : String.Empty;
+        return !String.IsNullOrWhiteSpace(Message) ? Message : String.Empty;
     }
 
     private bool IsRightAlignedContent()

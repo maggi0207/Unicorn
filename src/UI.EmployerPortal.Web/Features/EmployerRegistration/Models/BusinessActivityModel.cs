@@ -139,29 +139,42 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
         {
             responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRIN_SALE_DSC, _response = WisconsinSpecificBusinessActivity });
         }
-        if (SuppliesTemporaryWorkers.HasValue)
+        // Only emit Employer Services fields when the user actually selected an Employer Services activity.
+        // Without this guard, these fields leak into registrations where the user was never asked these questions,
+        // causing ghost questions to appear on the Verification page (UIEP-2829).
+        var isEmployerServices = PrincipalBusinessActivity is
+            PrincipalBusinessActivityType.EmployerServices or
+            PrincipalBusinessActivityType.EmployerServicesEmployeeLeasingCompany or
+            PrincipalBusinessActivityType.EmployerServicesPayrollService or
+            PrincipalBusinessActivityType.EmployerServicesProfessionalEmployerOrganization or
+            PrincipalBusinessActivityType.EmployerServicesTemporaryHelpService;
+
+        if (isEmployerServices)
         {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_TMPR_CLNT_CNTRCT, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(SuppliesTemporaryWorkers.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(SuppliesTemporaryWorkers.Value) });
-        }
-        if (ProvidesEmployeeLeasing.HasValue)
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_NONTMPR_CLNT_CNTRCT, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ProvidesEmployeeLeasing.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ProvidesEmployeeLeasing.Value) });
-        }
-        if (!string.IsNullOrWhiteSpace(EmployerServiceExplanation))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_REASON, _response = EmployerServiceExplanation });
-        }
-        if (!string.IsNullOrWhiteSpace(EmployeeType))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_EE_TYPE, _response = EmployeeType });
-        }
-        if (!string.IsNullOrWhiteSpace(EmployeeCount))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_EE_CT, _response = EmployeeCount.ToString() });
-        }
-        if (!string.IsNullOrWhiteSpace(ServicesDescription))
-        {
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_SRVC_TYPE, _response = ServicesDescription });
+            if (SuppliesTemporaryWorkers.HasValue)
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_TMPR_CLNT_CNTRCT, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(SuppliesTemporaryWorkers.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(SuppliesTemporaryWorkers.Value) });
+            }
+            if (ProvidesEmployeeLeasing.HasValue)
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_NONTMPR_CLNT_CNTRCT, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ProvidesEmployeeLeasing.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ProvidesEmployeeLeasing.Value) });
+            }
+            if (!string.IsNullOrWhiteSpace(EmployerServiceExplanation))
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_REASON, _response = EmployerServiceExplanation });
+            }
+            if (!string.IsNullOrWhiteSpace(EmployeeType))
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_EE_TYPE, _response = EmployeeType });
+            }
+            if (!string.IsNullOrWhiteSpace(EmployeeCount))
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_EE_CT, _response = EmployeeCount.ToString() });
+            }
+            if (!string.IsNullOrWhiteSpace(ServicesDescription))
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_SRVC_PYRL_SRVC_SRVC_TYPE, _response = ServicesDescription });
+            }
         }
 
         return responses;
@@ -198,34 +211,46 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
         {
             PrincipalBusinessActivity = principalBusinessActivityValue;
         }
-        //if (!string.IsNullOrWhiteSpace(PrimaryBusinessActivityDescription))
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_SALE_DSC, out var primaryBusinessActivityDescription))
+        // Fix: PRIN_OTHR_ACTV_DSC is saved from PrimaryBusinessActivityDescription (see GetSurveyResponses).
+        // Previously these two keys were swapped here, causing descriptions to flip on update (UIEP-2829).
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_OTHR_ACTV_DSC, out var primaryBusinessActivityDescription))
         {
             PrimaryBusinessActivityDescription = primaryBusinessActivityDescription.ReplyText;
         }
 
-        //if (!string.IsNullOrWhiteSpace(WisconsinSpecificBusinessActivity))
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_OTHR_ACTV_DSC, out var wisconsinSpecificBusinessActivity))
+        // Fix: PRIN_SALE_DSC is saved from WisconsinSpecificBusinessActivity (see GetSurveyResponses).
+        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_SALE_DSC, out var wisconsinSpecificBusinessActivity))
         {
             WisconsinSpecificBusinessActivity = wisconsinSpecificBusinessActivity.ReplyText;
         }
 
-        //if (SuppliesTemporaryWorkers.HasValue)
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_NONTMPR_CLNT_CNTRCT, out var suppliesTemporaryWorkers))
-        {
-            SuppliesTemporaryWorkers = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(suppliesTemporaryWorkers.ReplyText);
-        }
+        // Only load Employer Services fields when the user actually selected an Employer Services activity.
+        var isEmployerServices = PrincipalBusinessActivity is
+            PrincipalBusinessActivityType.EmployerServices or
+            PrincipalBusinessActivityType.EmployerServicesEmployeeLeasingCompany or
+            PrincipalBusinessActivityType.EmployerServicesPayrollService or
+            PrincipalBusinessActivityType.EmployerServicesProfessionalEmployerOrganization or
+            PrincipalBusinessActivityType.EmployerServicesTemporaryHelpService;
 
-        //if (ProvidesEmployeeLeasing.HasValue)
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_NONTMPR_CLNT_CNTRCT, out var providesEmployeeLeasing))
+        if (isEmployerServices)
         {
-            ProvidesEmployeeLeasing = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(providesEmployeeLeasing.ReplyText);
-        }
+            // Fix: was incorrectly using ER_SRVC_NONTMPR_CLNT_CNTRCT for SuppliesTemporaryWorkers (UIEP-2829).
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_TMPR_CLNT_CNTRCT, out var suppliesTemporaryWorkers))
+            {
+                SuppliesTemporaryWorkers = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(suppliesTemporaryWorkers.ReplyText);
+            }
 
-        //if (!string.IsNullOrWhiteSpace(EmployerServiceExplanantion))
-        if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_BUS_FLG, out var employerServiceExplanation))
-        {
-            EmployerServiceExplanation = employerServiceExplanation.ReplyText;
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_NONTMPR_CLNT_CNTRCT, out var providesEmployeeLeasing))
+            {
+                ProvidesEmployeeLeasing = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(providesEmployeeLeasing.ReplyText);
+            }
+
+            // Fix: was incorrectly using ACQ_BUS_FLG (Step 1 'acquired business' key), causing the Yes/No
+            // answer from Step 1 to appear as EmployerServiceExplanation on the Verification page (UIEP-2829).
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_REASON, out var employerServiceExplanation))
+            {
+                EmployerServiceExplanation = employerServiceExplanation.ReplyText;
+            }
         }
 
         //if (!string.IsNullOrWhiteSpace(EmployeeType))
