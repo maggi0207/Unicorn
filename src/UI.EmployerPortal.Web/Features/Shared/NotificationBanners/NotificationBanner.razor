@@ -1,48 +1,214 @@
+@*
+    NotificationBanner
+    =================
+    A reusable banner for surfacing alerts, warnings, information, and confirmation
+    messages to the user. The visual style (color and icon) is driven by the
+    NotificationType parameter; the layout is driven by the MessageStyle parameter.
+
+    Rendering modes (MessageStyle):
+
+      MultiLine   - Renders a titled bulleted list built from the Messages collection.
+                    Intended for validation error summaries. Each list item can link to
+                    the offending input via MessageFieldIds (matched by HTML id) or
+                    MessageFieldDataIds (matched by data attribute); clicking the link
+                    scrolls to and focuses that field. When used as an Alert summary the
+                    banner auto-focuses itself on first render for accessibility.
+
+      SingleLine  - Renders a single Title/Message line (Message is truncated at
+                    MessageLimit characters). If a DueDate, Action, or DismissButton is
+                    supplied the content is laid out with a right-aligned region for the
+                    due date (with an icon driven by DueDateState), an action link/callback,
+                    and/or a dismiss button. Otherwise the message spans the full width.
+
+      ChildContent - Renders the notification icon alongside arbitrary ChildContent,
+                     for cases that need custom markup rather than a plain message.
+
+    Common parameters:
+      NotificationType - Alert | Warning | Information | Confirmation (drives color/icon).
+      Title / Message  - Optional heading and body text.
+      Visible          - Hides the banner when false; the dismiss button sets this to false.
+      Action / ActionLink / ActionCallback - Optional right-aligned action; provide
+                         ActionLink (navigation) or ActionCallback (handler) with Action text.
+      DueDate / DueDateState - Optional right-aligned due date with a state-driven icon.
+      DismissButton    - Shows a dismiss (X) button that hides the banner.
+      Announce         - Boolean that adds role="alert" when true
+
+    See NotificationBanner.razor.cs for the full parameter list and usage examples.
+*@
 @if (Visible)
 {
-    @if (IsRightAlignedContent())
+    @if (MessageStyle == MessageStyle.MultiLine)
     {
-        <div class="row @GetCssClass()" aria-label=@($"{Title} {GetFormattedMessage()}")>
-            <div class="col-md-8 text-start">@GetNotificationIcon()<span class="nb-text"><strong class="mb-2 me-2">@Title@(string.IsNullOrEmpty(Message)?"": ":")</strong>@GetFormattedMessage()</span></div>
-            <div class="col-md-4">
-                <div class="row justify-content-end">
-                    <div class="col-auto">
-                        @if (DueDate.HasValue)
+        @if (Messages.Count > 0)
+        {
+            <div class="nb-container row @GetCssClass() align-items-center" aria-label=@($"{Title} {GetFormattedMessage()}")
+                 role="@(Announce ? "alert" : null)"
+                 tabindex="-1"
+                 @ref="_bannerElement">
+                <div class="@(DismissButton ? "col-md-10" : "col") text-start">
+                    <div class="nb-text">
+                        @{
+                            var displayTitle = Messages.Count == 1 ? string.Empty :  GetDisplayTitle();
+                        }
+                        @if (!string.IsNullOrWhiteSpace(displayTitle))
                         {
-                            @GetDueDateIcon()
-                            @if (DueDateState == DueDateState.Achieved)
+                            <div class="mb-2 d-flex align-items-center">
+                                <div class="me-2 d-flex align-items-center">@GetNotificationIcon()</div>
+                                <strong class="nb-multiline-title">@displayTitle</strong>
+                            </div>
+                        }
+                        <div class="@(string.IsNullOrWhiteSpace(displayTitle) ? "d-flex align-items-center" : "")">
+                            @if (string.IsNullOrWhiteSpace(displayTitle))
                             {
-                                <span class="nb-text text-end">@GetDueDateText()</span>
+                                <div class="me-2">@GetNotificationIcon()</div>
                             }
-                            else
+                            <div class="flex-grow-1">
+                                @if (Messages.Count == 1)
+                                {
+                                    var fieldId = GetFieldId(0);
+                                    var datasetId = GetFieldDataId(0);
+                                    var message = Messages[0];
+                                    <div class="nb-text-multiline">
+                                        @if (!string.IsNullOrWhiteSpace(fieldId))
+                                        {
+                                            <a href="#@fieldId" class="nb-error-link" @onclick="() => FocusFieldAsync(fieldId)" @onclick:preventDefault>
+                                                @message
+                                            </a>
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(datasetId))
+                                        {
+                                            <a href="#" class="nb-error-link" @onclick="() => FocusFieldByDatasetIdAsync(datasetId)" @onclick:preventDefault>
+                                                @message
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @message
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <ul style="list-style-type:disc;" class="nb-text-multiline">
+
+                                        @foreach (var (message, index) in Messages.Select((m, i) => (m, i)))
+                                        {
+                                            var fieldId = GetFieldId(index);
+                                            var datasetId = GetFieldDataId(index);
+                                            <li>
+                                                @if (!string.IsNullOrWhiteSpace(fieldId))
+                                                {
+                                                    <a href="#@fieldId" class="nb-error-link" @onclick="() => FocusFieldAsync(fieldId)" @onclick:preventDefault>
+                                                        @message
+                                                    </a>
+                                                }
+                                                else if (!string.IsNullOrWhiteSpace(datasetId))
+                                                {
+                                                    <a href="#" class="nb-error-link" @onclick="() => FocusFieldByDatasetIdAsync(datasetId)" @onclick:preventDefault>
+                                                        @message
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    @message
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (DismissButton)
+                {
+                    <div class="col-md-2">
+                        <div class="row justify-content-end">
+                            <div class="col-auto">
+                                <button class="dismiss-button" @onclick="Hide">@GetDismissIcon()</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    @if (MessageStyle == MessageStyle.SingleLine)
+    {
+        @if (IsRightAlignedContent())
+        {
+            <div class="nb-container row @GetCssClass() align-items-center" aria-label=@($"{Title} {GetFormattedMessage()}" ) role="@(Announce ? "alert" : null)">
+                <div class="col-md-8 text-start d-flex align-items-center">
+                    @GetNotificationIcon()
+                    <span class="nb-text">
+                        @if (!string.IsNullOrWhiteSpace(Title))
+                        {
+                            <strong class="me-2">@GetFormattedTitle()</strong>
+                            <br />
+                        }
+                        @GetFormattedMessage()
+                    </span>
+                </div>
+                <div class="col-md-4">
+                    <div class="row justify-content-end align-items-center">
+                        <div class="col-auto">
+                            @if (DueDate.HasValue)
                             {
-                                <span class="nb-text text-end"><strong>@GetDueDateText()</strong></span>
+                                @GetDueDateIcon()
+                                @if (DueDateState == DueDateState.Achieved)
+                                {
+                                    <span class="nb-text text-end">@GetDueDateText()</span>
+                                }
+                                else
+                                {
+                                    <span class="nb-text text-end"><strong>@GetDueDateText()</strong></span>
+                                }
                             }
-                        }
-                    </div>
-                    <div class="col-auto nb-action">
-                        @if (HasAction())
-                        {
-                            <a href="@ActionLink" class="nav-link me-2">Action</a>
-                        }
-                    </div>
-                    <div class="col-auto">
-                        @if (DismissButton)
-                        {
-                            <div @onclick="Hide">@GetDismissIcon()</div>
-                        }
+                        </div>
+                        <div class="col-auto nb-action">
+                            @if (HasAction())
+                            {
+                                <a href="" class="nav-link me-2 nb-link" @onclick="() => PerformAction()" @onclick:preventDefault>@Action</a>
+                            }
+                        </div>
+                        <div class="col-auto">
+                            @if (DismissButton)
+                            {
+                                <button class="dismiss-button" @onclick="Hide">@GetDismissIcon()</button>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <br />
+        }
+        else
+        {
+            <div class="nb-container row @GetCssClass() align-items-center" aria-label=@($"{Title} {Message}")>
+                <div class="col text-start d-flex align-items-center">
+                    @GetNotificationIcon()
+                    <span class="nb-text">
+                        @if (!string.IsNullOrWhiteSpace(Title))
+                        {
+                            <strong class="me-2">@GetFormattedTitle()</strong>
+                            <br />
+                        }
+                        @GetFormattedMessage()
+                    </span>
+                </div>
+            </div>
+        }
     }
-    else
+
+    @if (MessageStyle == MessageStyle.ChildContent)
     {
-        <div class="row @GetCssClass()" aria-label=@($"{Title} {Message}")>
-            <div class="col text-start">@GetNotificationIcon()<span class="nb-text"><strong class="mb-2 me-2">@Title@(string.IsNullOrEmpty(Message)?"": ":")</strong>@GetFormattedMessage()</span></div>
+        <div class="nb-container row @GetCssClass()" aria-label=@($"{Title}")>
+            <div class="nb-child-content-icon">
+                @GetNotificationIcon()
+            </div>
+            <div class="nb-child-content-body" style="">
+                @ChildContent
+            </div>
         </div>
-        <br />
     }
 }
