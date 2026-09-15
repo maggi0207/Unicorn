@@ -56,6 +56,9 @@
     vertical-align: middle;
     color: black;
     padding: 10px;
+    white-space: normal;
+    overflow: visible;
+    word-break: break-word;
 }
 
 .nb-action {
