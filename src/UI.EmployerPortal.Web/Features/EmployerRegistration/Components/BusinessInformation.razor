@@ -382,7 +382,7 @@
         var startIndex = _physicalSameAsMailing ? 1 : 0;
 
         var addressesToValidate = new List<(string, AddressModel)>
-            { ("Mailing Address", Model.MailingAddress) };
+            { ("Business Mailing Address", Model.MailingAddress) };
         for (var i = startIndex; i < Model.PhysicalLocations.Count; i++)
             addressesToValidate.Add(($"{GetPhysicalLocationLabel(i)} Address", Model.PhysicalLocations[i]));
         var usAddressesToValidate = addressesToValidate.Where(a => a.Item2.Country == "United States").ToList();
