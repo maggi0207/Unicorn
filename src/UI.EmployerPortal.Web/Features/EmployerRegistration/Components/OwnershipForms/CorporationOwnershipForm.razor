@@ -177,18 +177,32 @@
 
             if (ContinueData.Officers is { Count: > 0 })
             {
-                Officers.Clear();
+                
                 foreach (var savedOfficer in ContinueData.Officers)
                 {
-                    Officers.Add(new OwnerMember
+                    var existing = Officers.FirstOrDefault(o => o.Role == savedOfficer.Role);
+                    if (existing != null)
                     {
-                        Role = savedOfficer.Role,
-                        FirstName = savedOfficer.FirstName,
-                        MiddleInitial = savedOfficer.MiddleInitial,
-                        LastName = savedOfficer.LastName,
-                        SSN = savedOfficer.SSN,
-                        OwnershipPercentage = savedOfficer.OwnershipPercentage
-                    });
+                        // Populate the existing predefined slot with saved data
+                        existing.FirstName = savedOfficer.FirstName;
+                        existing.MiddleInitial = savedOfficer.MiddleInitial;
+                        existing.LastName = savedOfficer.LastName;
+                        existing.SSN = savedOfficer.SSN;
+                        existing.OwnershipPercentage = savedOfficer.OwnershipPercentage;
+                    }
+                    else
+                    {
+                        // Add any role that is not in the predefined list (future-proofing)
+                        Officers.Add(new OwnerMember
+                        {
+                            Role = savedOfficer.Role,
+                            FirstName = savedOfficer.FirstName,
+                            MiddleInitial = savedOfficer.MiddleInitial,
+                            LastName = savedOfficer.LastName,
+                            SSN = savedOfficer.SSN,
+                            OwnershipPercentage = savedOfficer.OwnershipPercentage
+                        });
+                    }
                 }
             }
 
