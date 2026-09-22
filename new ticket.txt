@@ -1,5 +1,987 @@
-Root Cause: When returning to a Corporation registration via Registration Number + FEIN, the Ownership step was only showing the President slot. Vice President, Secretary, and Treasurer were missing. This happened because the restore logic was calling Officers.Clear() first, wiping all 4 predefined officer slots, and then only adding back officers that had data saved in the database. Since only President was filled in the original submission, the other 3 slots were lost.
+# Angular + C#/.NET Coding Pattern Enforcement Skill
 
-Fix: Updated CorporationOwnershipForm.razor in the RestoreFromContinueData() method. Instead of clearing all slots and re-adding only saved ones, the fix merges saved data into the existing predefined slots. All 4 officer roles (President, Vice President, Secretary, Treasurer) now always appear on the update path. President is pre-populated with saved data and the remaining slots are available as empty editable fields.
+## Objective
 
-Fixed and verified locally. ✅
+Create a reusable coding-governance skill for VS Code Copilot for an existing **Angular + C#/.NET application**.
+
+The purpose of this skill is to ensure that whenever Copilot creates, modifies, fixes, or refactors code, it follows the **existing coding patterns and architecture of the repository**.
+
+The skill must behave like a senior engineer joining an existing enterprise codebase.
+
+### Primary principle
+
+> **Existing project patterns are the source of truth. Do not introduce a new pattern when an equivalent established pattern already exists.**
+
+Do not blindly apply generic Angular, C#, .NET, or "modern best practice" patterns if the existing project uses a different established approach.
+
+---
+
+# 1. Repository Analysis
+
+Before implementing a significant feature, analyze the repository and understand both sides:
+
+```text
+Angular Frontend
+        ↓
+HTTP/API Layer
+        ↓
+C#/.NET Backend
+        ↓
+Business/Application Layer
+        ↓
+Repository/Data Access
+        ↓
+Database / External Services
+```
+
+Analyze the actual implementation rather than assuming a standard architecture.
+
+Identify:
+
+### Angular
+
+* Angular version
+* Standalone vs NgModule architecture
+* Component structure
+* Component naming
+* Folder structure
+* Services
+* Dependency injection
+* Routing
+* Guards
+* Interceptors
+* HTTP communication
+* RxJS patterns
+* Signals, if used
+* Observables
+* State management
+* Forms
+* Reactive forms/template-driven forms
+* Validators
+* Models/interfaces
+* Pipes
+* Directives
+* Shared components
+* Feature modules
+* Lazy loading
+* Error handling
+* Loading-state handling
+* Subscription management
+* Component lifecycle patterns
+* Unit testing
+* Mocking
+* Environment/configuration patterns
+* SCSS/CSS patterns
+* Angular Material/custom UI patterns
+* Accessibility patterns
+
+### C#/.NET
+
+Identify:
+
+* .NET version
+* Solution/project structure
+* Controllers
+* Minimal APIs, if used
+* Application/services
+* Business logic
+* Domain layer
+* Repository layer
+* DTOs
+* Entities
+* Interfaces
+* Dependency injection
+* Middleware
+* Filters
+* Validators
+* Exception handling
+* Logging
+* Configuration
+* Options pattern
+* Authentication
+* Authorization
+* Database access
+* Entity Framework/Core
+* Dapper, if used
+* LINQ patterns
+* Async/await
+* CancellationToken usage
+* Mapping
+* Serialization
+* API response models
+* Unit tests
+* Integration tests
+* Mocking framework
+
+---
+
+# 2. Existing Pattern Discovery
+
+For every important pattern, find actual examples in the repository.
+
+For example:
+
+```text
+Pattern:
+Angular API calls are handled through dedicated services.
+
+Examples:
+src/app/services/user.service.ts
+src/app/services/order.service.ts
+src/app/services/product.service.ts
+
+Rule:
+Components must not directly implement HTTP API calls.
+
+Confidence:
+High
+```
+
+For C#:
+
+```text
+Pattern:
+Controllers delegate business logic to application services.
+
+Examples:
+UserController.cs
+OrderController.cs
+ProductController.cs
+
+Rule:
+Controllers should not contain business logic.
+
+Confidence:
+High
+```
+
+The skill must prefer patterns repeated across multiple files.
+
+Do not create mandatory rules from a single unusual implementation.
+
+---
+
+# 3. Angular Coding Rules
+
+## Components
+
+Determine the project's existing conventions for:
+
+* Component naming
+* File naming
+* Component structure
+* Constructor vs `inject()`
+* Inputs
+* Outputs
+* Signals
+* Observables
+* Lifecycle hooks
+* Change detection
+* Template organization
+
+When creating a component, copy the structure of the closest existing component.
+
+---
+
+## Angular Services
+
+Determine how existing services handle:
+
+* HTTP requests
+* API URLs
+* Headers
+* Authentication
+* Error handling
+* RxJS operators
+* Mapping
+* Caching
+* Loading state
+
+If the repository has an established service pattern:
+
+> Always follow it.
+
+Do not introduce another HTTP abstraction.
+
+---
+
+## RxJS
+
+Analyze existing usage.
+
+Determine whether the project prefers:
+
+* `Observable`
+* `Subject`
+* `BehaviorSubject`
+* Signals
+* `async` pipe
+* `subscribe()`
+* `switchMap`
+* `mergeMap`
+* `concatMap`
+* `forkJoin`
+* `combineLatest`
+* `catchError`
+* `finalize`
+* `shareReplay`
+
+Do not introduce a different reactive approach without a reason.
+
+---
+
+## Angular Forms
+
+Identify whether the project uses:
+
+* Reactive Forms
+* Template-driven Forms
+* FormBuilder
+* Typed forms
+* Custom validators
+* Shared validators
+
+New forms must follow the existing project pattern.
+
+---
+
+## Angular Routing
+
+Follow existing patterns for:
+
+* Routes
+* Lazy loading
+* Guards
+* Resolvers
+* Route parameters
+* Query parameters
+* Navigation
+
+Do not create a new routing architecture.
+
+---
+
+## Angular State Management
+
+Detect whether the project uses:
+
+* Services
+* RxJS state
+* NgRx
+* Signals
+* ComponentStore
+* Another state library
+
+Use the existing approach.
+
+Do not introduce a new state-management library for a feature unless explicitly requested.
+
+---
+
+# 4. C#/.NET Coding Rules
+
+## Controllers
+
+Determine:
+
+* Controller naming
+* Action naming
+* Routing attributes
+* HTTP verb conventions
+* Return types
+* API response pattern
+* Validation
+* Logging
+* Exception handling
+
+Controllers should follow existing project conventions.
+
+Do not move business logic into controllers if existing controllers delegate to services.
+
+---
+
+# 5. C# Service Layer
+
+Identify:
+
+* Service interfaces
+* Service implementations
+* Dependency injection
+* Business logic placement
+* Async patterns
+* Exception handling
+* Logging
+
+For example:
+
+```text
+IUserService
+     ↓
+UserService
+     ↓
+IUserRepository
+     ↓
+UserRepository
+```
+
+If this pattern exists, new functionality must follow the same architecture.
+
+---
+
+# 6. Repository/Data Access
+
+Analyze existing data-access patterns.
+
+Determine whether the project uses:
+
+* Entity Framework
+* EF Core
+* Dapper
+* Stored procedures
+* Raw SQL
+* Repository pattern
+* Unit of Work
+* Direct DbContext
+* Specification pattern
+
+Do not introduce another data-access approach without explicit approval.
+
+---
+
+# 7. DTO / Entity Rules
+
+Identify the existing separation between:
+
+```text
+Entity
+DTO
+Request
+Response
+ViewModel
+```
+
+Determine:
+
+* Naming conventions
+* Folder structure
+* Mapping approach
+* Serialization behavior
+* Nullable handling
+
+Never create duplicate DTOs when an appropriate existing DTO already exists.
+
+---
+
+# 8. Angular ↔ C# API Contract
+
+This is especially important.
+
+When modifying an API:
+
+Analyze both sides.
+
+Example:
+
+```text
+Angular Model
+      ↓
+Angular Service
+      ↓
+HTTP Request
+      ↓
+C# Controller
+      ↓
+Request DTO
+      ↓
+Application Service
+      ↓
+Repository
+      ↓
+Database
+```
+
+Verify:
+
+* Property names
+* Data types
+* Nullable fields
+* Enums
+* Request structure
+* Response structure
+* HTTP status codes
+* Error response format
+
+Do not modify only one side of the contract.
+
+---
+
+# 9. Error Handling
+
+Analyze the existing error-handling architecture.
+
+### Angular
+
+Identify:
+
+* HTTP interceptors
+* Global error handling
+* Service-level error handling
+* Notification/toast mechanism
+* Error models
+
+### C#
+
+Identify:
+
+* Global exception middleware
+* Exception filters
+* Custom exceptions
+* ProblemDetails
+* API error models
+* Logging
+
+Follow the existing mechanism.
+
+Do not add local error handling that duplicates centralized handling.
+
+---
+
+# 10. Logging
+
+Identify the existing logging mechanism.
+
+For C#:
+
+* `ILogger`
+* Serilog
+* NLog
+* Custom logger
+
+For Angular:
+
+* Existing logging service
+* Browser logging strategy
+* Telemetry
+
+Do not introduce another logging mechanism.
+
+Avoid `Console.WriteLine()` / `console.log()` when the project has an established logging mechanism.
+
+---
+
+# 11. Testing
+
+Analyze existing tests before creating new ones.
+
+### Angular
+
+Identify:
+
+* Jasmine/Karma
+* Jest
+* Vitest
+* Angular testing utilities
+* Component test structure
+* Service test structure
+* Mocking approach
+
+### C#
+
+Identify:
+
+* xUnit
+* NUnit
+* MSTest
+* Moq
+* NSubstitute
+* FluentAssertions
+* Integration testing
+
+New tests must follow existing patterns.
+
+Use the closest existing test as the template.
+
+---
+
+# 12. Pattern Matching Before Implementation
+
+Before writing code for a new feature:
+
+### Step 1
+
+Understand the requirement.
+
+### Step 2
+
+Search the repository for similar functionality.
+
+### Step 3
+
+Identify the closest Angular implementation.
+
+### Step 4
+
+Identify the closest C# implementation.
+
+### Step 5
+
+Identify the closest test implementation.
+
+### Step 6
+
+Identify applicable reviewer rules.
+
+### Step 7
+
+Implement using those patterns.
+
+---
+
+# 13. Required Pre-Implementation Analysis
+
+Before significant implementation, produce internally:
+
+```text
+Existing Angular Pattern:
+<pattern>
+
+Angular Reference:
+<file>
+
+Existing C# Pattern:
+<pattern>
+
+C# Reference:
+<file>
+
+Existing API Pattern:
+<pattern>
+
+Existing Test Pattern:
+<pattern>
+
+Applicable Reviewer Rules:
+<rules>
+
+Implementation Approach:
+<approach>
+```
+
+Do not invent missing information.
+
+---
+
+# 14. Manager / Code Review Rules
+
+Maintain a separate set of rules derived from recurring manager/reviewer feedback.
+
+Example:
+
+```text
+REVIEW-001
+
+Category:
+Angular Architecture
+
+Rule:
+Do not call HTTP APIs directly from components.
+
+Required:
+Use the existing Angular service layer.
+
+Source:
+Code review feedback
+```
+
+Example:
+
+```text
+REVIEW-002
+
+Category:
+C# Architecture
+
+Rule:
+Controllers must not contain business logic.
+
+Required:
+Delegate business logic to the existing application/service layer.
+```
+
+Example:
+
+```text
+REVIEW-003
+
+Category:
+Logging
+
+Rule:
+Do not use console.log for application logging.
+
+Required:
+Use the existing project logging mechanism.
+```
+
+Reviewer rules should be applied to future changes.
+
+---
+
+# 15. Reviewer Feedback Learning
+
+When the user provides a review comment such as:
+
+> "Don't create another helper. Use the existing utility."
+
+Convert it into a reusable rule:
+
+```text
+REVIEW-004
+
+Rule:
+Before creating a new helper or utility, search for an existing equivalent.
+
+Action:
+Reuse or extend the existing utility where appropriate.
+```
+
+When the user provides a recurring review correction, treat it as a candidate permanent project rule.
+
+Do not automatically create a rule from a one-off contextual comment unless explicitly requested.
+
+---
+
+# 16. Pattern Violation Detection
+
+After writing code, compare it against the discovered patterns.
+
+Example:
+
+```text
+⚠ Pattern Violation
+
+Existing pattern:
+Angular components use dedicated services for API communication.
+
+Reference:
+src/app/services/customer.service.ts
+
+New code:
+CustomerComponent directly calls HttpClient.
+
+Recommendation:
+Move the API call to the existing service pattern.
+```
+
+C# example:
+
+```text
+⚠ Pattern Violation
+
+Existing pattern:
+Controllers delegate business logic to application services.
+
+New code:
+Business logic was added directly to the controller.
+
+Recommendation:
+Move the logic to the existing service layer.
+```
+
+---
+
+# 17. Pattern Drift Detection
+
+Detect when new code introduces:
+
+* Different architecture
+* Different naming
+* Different folder structure
+* Different HTTP approach
+* Different error handling
+* Different logging
+* Different state management
+* Duplicate utilities
+* Duplicate services
+* Duplicate models
+* Unnecessary dependencies
+
+Report:
+
+```text
+⚠ Pattern Drift Detected
+
+Existing approach:
+<existing pattern>
+
+New approach:
+<new pattern>
+
+Existing references:
+<files>
+
+Recommendation:
+Follow the existing repository pattern.
+```
+
+---
+
+# 18. Avoid Unnecessary Refactoring
+
+When implementing a feature:
+
+DO:
+
+```text
+Existing pattern
++
+Minimal required changes
++
+Feature implementation
++
+Tests
+```
+
+DO NOT automatically do:
+
+```text
+Feature implementation
++
+Architecture redesign
++
+Unrelated refactoring
++
+Dependency replacement
++
+Code style migration
+```
+
+Only perform broader refactoring when explicitly requested.
+
+---
+
+# 19. Rule Confidence
+
+Every discovered rule should have confidence:
+
+### HIGH
+
+Pattern appears repeatedly across the repository.
+
+### MEDIUM
+
+Pattern appears in a particular feature/module.
+
+### LOW
+
+Pattern appears only in one or two places.
+
+Only HIGH confidence patterns should normally be treated as mandatory global rules.
+
+---
+
+# 20. Exceptions
+
+Existing documented exceptions must be respected.
+
+Example:
+
+```text
+General rule:
+API calls must go through services.
+
+Exception:
+Application startup health-check is performed directly by bootstrap code.
+
+Reason:
+Required during application initialization.
+```
+
+Do not flag documented exceptions as violations.
+
+---
+
+# 21. Pattern Evolution
+
+Do not assume the first discovered pattern will remain permanent.
+
+If a newer pattern begins appearing consistently:
+
+```text
+Existing:
+NgModule architecture
+
+Emerging:
+Standalone components
+
+Evidence:
+<files>
+```
+
+Report:
+
+```text
+Potential Pattern Evolution Detected
+
+The repository appears to be gradually adopting a new pattern.
+
+Do not automatically migrate existing code.
+
+Use the established pattern for the current feature unless the project has explicitly adopted the new pattern.
+```
+
+---
+
+# 22. Rule Precedence
+
+Use this order:
+
+```text
+1. Explicit project architecture
+2. Established repository pattern
+3. Approved reviewer/manager rules
+4. Local module pattern
+5. General Angular/.NET best practices
+```
+
+If two rules conflict, do not silently choose one.
+
+Report:
+
+```text
+⚠ Coding Rule Conflict
+
+Existing repository pattern:
+<pattern>
+
+Reviewer rule:
+<rule>
+
+Conflict:
+<description>
+
+Action:
+Clarification required before changing the architecture.
+```
+
+---
+
+# 23. Final Self-Review
+
+After implementing any feature, verify:
+
+### Angular
+
+```text
+[ ] Correct component pattern
+[ ] Correct service pattern
+[ ] Correct RxJS/signals pattern
+[ ] Correct routing pattern
+[ ] Correct state-management pattern
+[ ] Correct forms pattern
+[ ] Correct error handling
+[ ] Correct naming
+[ ] Correct folder structure
+```
+
+### C#
+
+```text
+[ ] Correct controller pattern
+[ ] Correct service pattern
+[ ] Correct repository/data-access pattern
+[ ] Correct DTO pattern
+[ ] Correct dependency injection
+[ ] Correct async pattern
+[ ] Correct exception handling
+[ ] Correct logging
+[ ] Correct naming
+[ ] Correct project structure
+```
+
+### API
+
+```text
+[ ] Request contract matches
+[ ] Response contract matches
+[ ] Property names match
+[ ] Nullable fields match
+[ ] Error contract matches
+[ ] HTTP status codes follow existing pattern
+```
+
+### Tests
+
+```text
+[ ] Angular tests follow existing pattern
+[ ] C# tests follow existing pattern
+[ ] Existing mocking strategy reused
+[ ] Relevant scenarios covered
+```
+
+### Architecture
+
+```text
+[ ] Existing abstraction reused
+[ ] No duplicate utility
+[ ] No duplicate service
+[ ] No unnecessary dependency
+[ ] No pattern drift
+[ ] No unrelated refactoring
+[ ] Reviewer rules satisfied
+```
+
+---
+
+# 24. Final Implementation Response
+
+When implementation is complete, summarize:
+
+```text
+## Implementation
+
+<what was implemented>
+
+## Existing Patterns Followed
+
+### Angular
+- <pattern>
+- <reference>
+
+### C#/.NET
+- <pattern>
+- <reference>
+
+### API
+- <pattern>
+
+### Testing
+- <pattern>
+
+## Reviewer Rules Applied
+
+- REVIEW-001
+- REVIEW-002
+
+## Deviations
+
+None
+
+OR
+
+<deviation and reason>
+```
+
+---
+
+# Core Principle
+
+Always think:
+
+> "How would an existing developer in this repository implement this feature?"
+
+Not:
+
+> "What is the newest or theoretically best way to implement this feature?"
+
+The generated code must look like a natural continuation of the existing Angular + C#/.NET codebase.
