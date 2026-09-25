@@ -46,10 +46,10 @@
                                                     Max="DateTime.Today"
                                                     Width="350"
                                                     IsRequired="true"
-                                                    HasError="@(FieldErrors.ContainsKey("DateBusinessStarted"))"
+                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateBusinessStarted")) && FieldErrors.ContainsKey("DateBusinessStarted"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateBusinessStarted")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => ValidateForm())"
+                                                    OnBlur="@(() => OnDateBlur("DateBusinessStarted"))"
                                                     FocusKey="response:3180"/>
                             </div>
 
@@ -62,10 +62,10 @@
                                                     Width="360"
                                                     CSS="master-text-field"
                                                     IsRequired="true"
-                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
+                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateFirstPaidEmployeesInWI")) && FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidEmployeesInWI")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => ValidateForm())"
+                                                    OnBlur="@(() => OnDateBlur("DateFirstPaidEmployeesInWI"))"
                                                     FocusKey="response:3181"/>
                             </div>
                         </div>
@@ -80,10 +80,10 @@
                                                     Max="DateTime.Today"
                                                     Width="350"
                                                     IsRequired="true"
-                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
+                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateFirstPaidWagesInWI")) && FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidWagesInWI")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => ValidateForm())"
+                                                    OnBlur="@(() => OnDateBlur("DateFirstPaidWagesInWI"))"
                                                     FocusKey="response:3182"/>
                             </div>
                         </div>

@@ -29,6 +29,9 @@ public partial class BusinessActivity : ComponentBase
     private Dictionary<string, string> FieldErrors { get; set; } = [];
     private HashSet<string> TouchedFields { get; set; } = [];
 
+    /// <summary>Tracks which fields have been blurred so errors only display after the user leaves the field.</summary>
+    private HashSet<string> BlurredFields { get; set; } = [];
+
 
     /// <summary>Tracks whether the form has been submitted at least once.</summary>
     private bool _formSubmitted = false;
@@ -185,6 +188,11 @@ public partial class BusinessActivity : ComponentBase
                 "ServicesDescription",
                 "EmployeeCount",
             ];
+        BlurredFields = [
+                "DateBusinessStarted",
+                "DateFirstPaidEmployeesInWI",
+                "DateFirstPaidWagesInWI",
+            ];
     }
     /// <summary>
     /// OnFieldChanged
@@ -193,6 +201,16 @@ public partial class BusinessActivity : ComponentBase
     private void OnFieldChanged(string fieldKey)
     {
         TouchedFields.Add(fieldKey);
+    }
+
+    /// <summary>
+    /// Called when a date field loses focus. Marks the field as blurred and triggers validation.
+    /// </summary>
+    /// <param name="fieldKey">The field key that was blurred.</param>
+    private void OnDateBlur(string fieldKey)
+    {
+        BlurredFields.Add(fieldKey);
+        ValidateForm();
     }
 
     private void OnFieldBlur(Expression<Func<object?>> fieldExpression)
