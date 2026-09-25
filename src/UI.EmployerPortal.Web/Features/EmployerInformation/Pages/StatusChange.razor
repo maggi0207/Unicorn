@@ -428,7 +428,7 @@
             {
                 request.ActivateReasonCodeSK = (int?)_model.ActivationReason;
                 request.DateEmploymentResumed = _model.EmploymentDate.ToDateTimeNullable();
-                request.NewPayrollDate = _model.EmploymentDate.ToDateTimeNullable();
+                request.NewPayrollDate = _model.PayrollDate.ToDateTimeNullable();
             }
 
             try

@@ -1,6 +1,9 @@
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.FluentUI.AspNetCore.Components.Extensions;
+using UI.EmployerPortal.Razor.SharedComponents.Helpers;
+using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 
 namespace UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
@@ -258,6 +261,10 @@ public partial class BusinessActivity : ComponentBase
             {
                 AddFieldError("DateBusinessStarted", "Date business started must be today or earlier");
             }
+            else if (DateHelper.IsInvalidDate(Model.DateBusinessStarted.ToDateOnly()))
+            {
+                AddFieldError("DateBusinessStarted", "Date is Invalid");
+            }
 
             // Date First Paid Employees In WI
             if (!Model.DateFirstPaidEmployeesInWI.HasValue)
@@ -267,6 +274,10 @@ public partial class BusinessActivity : ComponentBase
             else if (IsFutureDate(Model.DateFirstPaidEmployeesInWI.Value))
             {
                 AddFieldError("DateFirstPaidEmployeesInWI", "Date you first had employees working in Wisconsin must be today or earlier");
+            }
+            else if (DateHelper.IsInvalidFirstPayDate(Model.DateFirstPaidEmployeesInWI.ToDateOnly()))
+            {
+                AddFieldError("DateFirstPaidEmployeesInWI", "New employer registrations must be limited to Wisconsin employment in the past four years.");
             }
 
             // Date First Paid Wages In WI
@@ -282,6 +293,10 @@ public partial class BusinessActivity : ComponentBase
                 if (IsFutureDate(Model.DateFirstPaidWagesInWI.Value))
                 {
                     AddFieldError("DateFirstPaidWagesInWI", "Date you first paid wages for work performed in Wisconsin must be today or earlier");
+                }
+                else if (DateHelper.IsInvalidFirstPayDate(Model.DateFirstPaidWagesInWI.ToDateOnly()))
+                {
+                    AddFieldError("DateFirstPaidWagesInWI", "New employer registrations must be limited to wages paid for work performed in Wisconsin in the past four years.");
                 }
 
                 if (Model.DateBusinessStarted.HasValue && wagesDate < Model.DateBusinessStarted.Value.Date)
@@ -414,6 +429,4 @@ public partial class BusinessActivity : ComponentBase
         _hasValidationErrors = true;
         StateHasChanged();
     }
-
-
 }
