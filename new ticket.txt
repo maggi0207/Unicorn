@@ -1,5 +1,492 @@
-Root Cause: This is caused by the same key-swap bug fixed in UIEP-2829. LoadSurveyResponses in BusinessActivityModel.cs was reading PRIN_SALE_DSC into PrimaryBusinessActivityDescription and PRIN_OTHR_ACTV_DSC into WisconsinSpecificBusinessActivity — the exact opposite of how GetSurveyResponses saves them. When a user returned via Reg Number + FEIN, Step 5 displayed the two fields reversed. Submitting without correcting then persisted the swapped values to SUITES.
+You are implementing a new feature for an existing Angular + C#/.NET application.
 
-Fix: The key mapping in LoadSurveyResponses was corrected as part of UIEP-2829. This ticket can be closed as a duplicate of UIEP-2829.
+Ticket:
+FACTS Stoller: Create the search page of IPR Active
 
-Action Required for ER 375876-000-6: The data already written to SUITES for this account is corrupted (PRIN_OTHR_ACTV_DSC = "Kids 2", PRIN_SALE_DSC = "Kids 1"). A manual data correction is needed by the DWD/SUITES team to swap these values back.
+Ticket Reference:
+FOREP-2674 / FOREP-2697
+
+==================================================
+1. TICKET REQUIREMENT
+==================================================
+
+The "IPR Active" link should navigate to a dedicated Active IPR Search page.
+
+The page shown in the ticket contains:
+
+### Active IPR Search
+
+Search fields:
+
+- Input Active
+- Output Active
+- Chemist
+- Lead Chemist
+
+The ticket indicates that:
+
+- Input Active must be searchable.
+- Output Active must be searchable.
+- Lead Chemist must be searchable.
+- Chemist must be searchable.
+
+The search results should allow the user to navigate to the corresponding
+Active IPR details.
+
+There should also be an option:
+
+"Create New Active IPR"
+
+This should navigate to the Active IPR Details page in a blank/new state
+so the user can create a new Active IPR.
+
+Refer to the attached ticket screenshot for the expected UI/layout.
+
+==================================================
+2. IMPORTANT — FOLLOW EXISTING PROJECT PATTERNS
+==================================================
+
+DO NOT immediately start coding.
+
+This is an existing Angular + C#/.NET application.
+
+First analyze the repository and identify how similar functionality is
+already implemented.
+
+The existing codebase is the primary source of truth.
+
+Do NOT introduce a new architecture, framework, component pattern,
+service pattern, API pattern, state-management pattern, or styling
+approach if an equivalent existing pattern already exists.
+
+==================================================
+3. FIRST ANALYZE THE REPOSITORY
+==================================================
+
+Before modifying code, search for existing implementations related to:
+
+### Angular
+
+- Existing search pages
+- Existing search/filter components
+- Existing result tables
+- Existing dropdown/autocomplete components
+- Existing navigation to detail pages
+- Existing "Create New" buttons
+- Existing form implementations
+- Existing validation
+- Existing API services
+- Existing models/interfaces
+- Existing loading indicators
+- Existing error handling
+- Existing notification/toast handling
+- Existing pagination/sorting if applicable
+- Existing reusable table components
+- Existing styling/layout conventions
+
+### C#/.NET
+
+Search for:
+
+- Existing IPR-related APIs
+- Active IPR APIs
+- Search endpoints
+- Controller patterns
+- Service/application-layer patterns
+- Repository/data-access patterns
+- DTOs
+- Request/response models
+- Entity models
+- Validation
+- Error handling
+- Logging
+- Existing search implementations
+
+==================================================
+4. FIND THE CLOSEST EXISTING IMPLEMENTATION
+==================================================
+
+Before creating the new page, identify the closest existing page that
+implements similar functionality.
+
+For example:
+
+- Another search page
+- Another entity list/search page
+- Another details/create page
+- Another page containing searchable chemistry/person fields
+
+Use that implementation as the primary reference.
+
+Document internally:
+
+Existing Search Page:
+<file/path>
+
+Existing Angular Component:
+<file/path>
+
+Existing Angular Service:
+<file/path>
+
+Existing API:
+<controller/endpoint>
+
+Existing C# Service:
+<file/path>
+
+Existing DTO:
+<file/path>
+
+Existing Table/Grid:
+<file/path>
+
+Existing Detail Navigation:
+<file/path>
+
+==================================================
+5. DO NOT ASSUME API REQUIREMENTS
+==================================================
+
+Before creating a new API:
+
+Search the backend for existing Active IPR functionality.
+
+Determine whether an existing API already provides:
+
+- Active IPR search
+- Active IPR details
+- Chemist search
+- Lead Chemist search
+- Input Active search
+- Output Active search
+
+If an existing API can support this ticket, reuse it.
+
+Do NOT create duplicate APIs.
+
+If the required backend functionality does not exist, identify exactly
+what backend changes are required.
+
+==================================================
+6. SEARCH FUNCTIONALITY
+==================================================
+
+The search page should support filtering by:
+
+- Input Active
+- Output Active
+- Chemist
+- Lead Chemist
+
+Follow the existing project's search behavior.
+
+Determine from existing pages:
+
+- Whether search happens on button click
+- Whether search happens automatically
+- Whether fields use autocomplete
+- Whether fields use dropdowns
+- Whether multiple values can be selected
+- Whether partial matching is supported
+- Whether empty fields are allowed
+- How search requests are constructed
+- How validation is handled
+
+Do NOT invent these behaviors if an existing project pattern exists.
+
+==================================================
+7. SEARCH RESULTS
+==================================================
+
+The screenshot shows a results table containing columns similar to:
+
+- Chemical Equation
+- Input Actives
+- Output Actives
+- Chemist
+
+Determine from the existing application:
+
+- Exact table/grid component
+- Column configuration
+- Sorting behavior
+- Pagination behavior
+- Empty-state behavior
+- Loading behavior
+- Row-click behavior
+- Action/button behavior
+
+Use the existing table/grid implementation.
+
+Do not create a new table implementation if the project already has a
+reusable table/grid.
+
+The results must allow the user to open the corresponding Active IPR
+details.
+
+Follow the existing application's navigation pattern.
+
+==================================================
+8. ACTIVE IPR DETAILS
+==================================================
+
+Search the repository for the existing Active IPR Details page.
+
+Understand:
+
+- Route
+- Component
+- Create mode
+- Edit mode
+- View mode
+- Route parameters
+- API calls
+- State initialization
+
+For an existing search result:
+
+Navigate to the existing Active IPR Details page using the established
+navigation mechanism.
+
+For:
+
+"Create New Active IPR"
+
+navigate to the existing Active IPR Details page in the appropriate
+new/blank/create mode.
+
+DO NOT create another details page.
+
+==================================================
+9. UI IMPLEMENTATION
+==================================================
+
+Use the screenshot as a functional/UI reference.
+
+However, existing application UI patterns take precedence over blindly
+recreating the screenshot.
+
+Reuse existing:
+
+- Page layout
+- Header
+- Breadcrumbs
+- Buttons
+- Form controls
+- Dropdowns
+- Autocomplete controls
+- Tables
+- Spacing
+- Typography
+- Icons
+- CSS/SCSS classes
+- Design system components
+
+Do not introduce a new UI library.
+
+Do not introduce custom styling when an existing component/style can be
+reused.
+
+==================================================
+10. ANGULAR IMPLEMENTATION
+==================================================
+
+Follow the repository's existing Angular architecture.
+
+Before implementation determine:
+
+- Standalone vs NgModule
+- Component naming
+- Folder structure
+- Service structure
+- Dependency injection style
+- Forms approach
+- RxJS/signals approach
+- Subscription management
+- Routing
+- State management
+- HTTP service pattern
+- Error handling
+- Loading handling
+
+Follow the existing pattern exactly where applicable.
+
+==================================================
+11. C# IMPLEMENTATION
+==================================================
+
+If backend changes are required, follow the existing C# architecture.
+
+Determine the existing pattern for:
+
+Controller
+    ↓
+Application/Service
+    ↓
+Repository/Data Access
+    ↓
+Database
+
+Follow the project's actual structure.
+
+Do not move business logic into controllers if the existing project uses
+a service/application layer.
+
+Reuse:
+
+- Existing DTO conventions
+- Existing validation
+- Existing exception handling
+- Existing logging
+- Existing database access
+- Existing mapping
+- Existing response models
+
+==================================================
+12. DATABASE / DATA ACCESS
+==================================================
+
+Before creating a new query:
+
+Search for existing Active IPR queries, repositories, stored procedures,
+Entity Framework queries, or other data-access implementations.
+
+Reuse existing data-access logic where possible.
+
+Do not create duplicate database logic.
+
+If a new query is genuinely required, follow the existing repository/data
+access pattern.
+
+==================================================
+13. REVIEWER / MANAGER RULES
+==================================================
+
+Before implementation, check the project's reviewer-rules/coding-rules
+if available.
+
+Apply all relevant rules.
+
+Pay special attention to:
+
+- Existing Angular architecture
+- Existing C# architecture
+- API/service separation
+- Reusable components
+- Error handling
+- Logging
+- Testing
+- Naming
+- No duplicate utilities
+- No unnecessary refactoring
+
+==================================================
+14. TESTING
+==================================================
+
+Before writing tests, find the closest existing tests.
+
+Identify the project's:
+
+Angular testing framework:
+<determine from repository>
+
+C# testing framework:
+<determine from repository>
+
+Follow the existing test structure.
+
+Add tests for the relevant behavior, including where applicable:
+
+1. Search page loads correctly.
+2. Search request is constructed correctly.
+3. Search results are displayed.
+4. Search filters work.
+5. Existing result opens Active IPR Details.
+6. Create New Active IPR navigates to create/blank mode.
+7. Empty search behavior follows existing project convention.
+8. API errors follow existing error-handling behavior.
+
+Do not create a new testing pattern.
+
+==================================================
+15. IMPLEMENTATION CONSTRAINTS
+==================================================
+
+Do NOT:
+
+- Rewrite unrelated code.
+- Refactor unrelated components.
+- Introduce a new UI framework.
+- Introduce a new state-management library.
+- Introduce duplicate services.
+- Introduce duplicate utilities.
+- Create a duplicate Active IPR Details page.
+- Create a new API if an existing API can be reused.
+- Create a new table/grid if an existing reusable table exists.
+- Change existing architecture without explicit requirement.
+- Change unrelated files.
+
+Keep the implementation focused on this ticket.
+
+==================================================
+16. BEFORE CODING — PROVIDE ANALYSIS
+==================================================
+
+Before making changes, provide a concise implementation analysis containing:
+
+### Existing Pattern Found
+
+Angular Search Pattern:
+<file + explanation>
+
+Angular Form Pattern:
+<file + explanation>
+
+Angular Table Pattern:
+<file + explanation>
+
+Angular Navigation Pattern:
+<file + explanation>
+
+Active IPR Details:
+<file + route>
+
+C# API Pattern:
+<file + explanation>
+
+Existing Active IPR API:
+<endpoint/file or "not found">
+
+Data Access:
+<file + explanation>
+
+Testing Pattern:
+<file + explanation>
+
+### Proposed Changes
+
+Frontend:
+<files>
+
+Backend:
+<files>
+
+Tests:
+<files>
+
+### API Decision
+
+Reuse existing API:
+YES/NO
+
+If NO:
+Explain why a new API is required.
+
+### Pattern Deviations
+
+List any place where the new implementation cannot follow an existing
+pattern and explain why.
+
+Do not start implementation until this analysis is complete.
