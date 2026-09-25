@@ -193,7 +193,6 @@ public partial class BusinessActivity : ComponentBase
     private void OnFieldChanged(string fieldKey)
     {
         TouchedFields.Add(fieldKey);
-        ValidateForm();
     }
 
     private void OnFieldBlur(Expression<Func<object?>> fieldExpression)
