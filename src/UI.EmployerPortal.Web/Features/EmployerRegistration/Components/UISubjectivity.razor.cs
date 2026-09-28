@@ -203,16 +203,24 @@ public partial class UISubjectivity
             ResetField(() => SubjectivityModel.PayWagesPerformWI);
             ResetField(() => SubjectivityModel.ExpectToPayWagesPerformWI);
         }
-        var currentStep5Date = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidEmployeesInWI;
-        if (currentStep5Date.HasValue
-            && SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.HasValue
-            && currentStep5Date.Value < SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.Value)
-        {
-            SubjectivityModel.Week20EndDate = null;
-            ResetField(() => SubjectivityModel.Week20EndDate);
-        }
-        SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = currentStep5Date;
 
+        var currentStep5Date = ModelStore.EmployerRegistrationModel.BusinessActivityModel.DateFirstPaidEmployeesInWI;
+
+        if (currentStep5Date.HasValue
+
+            && SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.HasValue
+
+            && currentStep5Date.Value < SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI.Value)
+
+        {
+
+            SubjectivityModel.Week20EndDate = null;
+
+            ResetField(() => SubjectivityModel.Week20EndDate);
+
+        }
+
+        SubjectivityModel.PlaceHolderDateFirstPaidWagesInWI = currentStep5Date;
         SubjectivityModel.BusinessCategory = lockedCategory;
         BusinessCategory = (BusinessCategory) lockedCategory;
         if ((wages.Count != SubjectivityModel.Wages.Count) && SubjectivityModel.BusinessCategory != BusinessCategory.NonProfit_501c3)
@@ -763,7 +771,7 @@ public partial class UISubjectivity
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.WhenExpectToHaveWagesInAQuarter));
             if (string.IsNullOrEmpty(SubjectivityModel.WhenExpectToHaveWagesInAQuarter))
             {
-                _messageStore.Add(field, "Select When to have 4 part or full time employees working for you?");
+                _messageStore.Add(field, "When you expect to meet the condition is required");
             }
         }
 
@@ -805,7 +813,7 @@ public partial class UISubjectivity
             var field = _subjectivityContext.Field(nameof(SubjectivityModel.WhenExpectToPayWagesInAQuarter));
             if (string.IsNullOrEmpty(SubjectivityModel.WhenExpectToPayWagesInAQuarter))
             {
-                _messageStore.Add(field, "Select When to pay wages");
+                _messageStore.Add(field, "When you expect to meet the condition is required");
             }
         }
         if (IsVisible(() => SubjectivityModel.PaidWagesOver1500Employees) && Section4Visible)
@@ -965,7 +973,7 @@ public partial class UISubjectivity
     private bool Section0Visible => BusinessCategory == BusinessCategory.NonProfit_501c3;
     private bool Section3Visible => BusinessCategory != BusinessCategory.NonProfit_501c3;
     private bool Section6Visible => SubjectivityModel.HasEmployeesOutsideWisconsin == true && BusinessCategory != BusinessCategory.NonProfit_501c3;
-    private bool Section15Visible => SubjectivityModel.HasFutaLiabilityInOtherStates == true && (BusinessCategory == BusinessCategory.Agricultural || BusinessCategory == BusinessCategory.Domestic);
+    private bool Section15Visible => false;// SubjectivityModel.HasFutaLiabilityInOtherStates == true && (BusinessCategory == BusinessCategory.Agricultural || BusinessCategory == BusinessCategory.Domestic);
     private bool Section16Visible => SubjectivityModel.PayWagesPerformWI == false;
     private bool Section17Visible => SubjectivityModel.ExpectToPayWagesPerformWI == true;
     // paid employees over x in calendar quarter
