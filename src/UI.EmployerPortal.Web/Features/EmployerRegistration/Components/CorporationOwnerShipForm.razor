@@ -52,6 +52,7 @@
                 <div class="member-fields">
                     <ValidatedInput Id="@($"first-name-{officer.Role}")"
                                     Label="First Name"
+                                    AriaLabel="@($"First Name {officer.Role}")"
                                     Value="@officer.FirstName"
                                     ValueChanged="@(v => officer.FirstName = v)"
                                     MaxLength="64"
@@ -64,6 +65,7 @@
 
                     <ValidatedInput Id="@($"middle-initial-{officer.Role}")"
                                     Label="Middle Initial"
+                                    AriaLabel="@($"Middle Initial {officer.Role}")"
                                     Value="@officer.MiddleInitial"
                                     ValueChanged="@(v => officer.MiddleInitial = v)"
                                     MaxLength="1"
@@ -71,6 +73,7 @@
 
                     <ValidatedInput Id="@($"last-name-{officer.Role}")"
                                     Label="Last Name"
+                                    AriaLabel="@($"Last Name {officer.Role}")"
                                     Value="@officer.LastName"
                                     ValueChanged="@(v => officer.LastName = v)"
                                     MaxLength="64"
@@ -83,6 +86,7 @@
 
                     <SSNInput Id="@($"ssn-{officer.Role}")"
                               Label="SSN"
+                              AriaLabel="@($"SSN {officer.Role}")"
                               Value="@officer.SSN"
                               ValueChanged="@((string value) => OnSSNChanged(index, value))"
                               IsFocused="@officer.IsSSNFocused"
@@ -97,6 +101,7 @@
 
                     <ValidatedInput Id="@($"ownership-percentage-{officer.Role}")"
                                     Label="Ownership (%)"
+                                    AriaLabel="@($"Ownership (%) {officer.Role}")"
                                     InputType="number"
                                     Value="@(officer.OwnershipPercentage?.ToString())"
                                     ValueChanged="@(v => officer.OwnershipPercentage = decimal.TryParse(v, out var n) ? n : null)"
@@ -170,23 +175,39 @@
 
         try
         {
+            IsOutsideUSA = ContinueData.IsOutsideUSA;
+            _previousISOutsideUSA = IsOutsideUSA;
             IncorporationState = ContinueData.IncorporationState ?? string.Empty;
             ForeignCountry = ContinueData.ForeignCountry ?? string.Empty;
 
             if (ContinueData.Officers is { Count: > 0 })
             {
-                Officers.Clear();
+
                 foreach (var savedOfficer in ContinueData.Officers)
                 {
-                    Officers.Add(new OwnerMember
+                    var existing = Officers.FirstOrDefault(o => o.Role == savedOfficer.Role);
+                    if (existing != null)
                     {
-                        Role = savedOfficer.Role,
-                        FirstName = savedOfficer.FirstName,
-                        MiddleInitial = savedOfficer.MiddleInitial,
-                        LastName = savedOfficer.LastName,
-                        SSN = savedOfficer.SSN,
-                        OwnershipPercentage = savedOfficer.OwnershipPercentage
-                    });
+                        // Populate the existing predefined slot with saved data
+                        existing.FirstName = savedOfficer.FirstName;
+                        existing.MiddleInitial = savedOfficer.MiddleInitial;
+                        existing.LastName = savedOfficer.LastName;
+                        existing.SSN = savedOfficer.SSN;
+                        existing.OwnershipPercentage = savedOfficer.OwnershipPercentage;
+                    }
+                    else
+                    {
+                        // Add any role that is not in the predefined list (future-proofing)
+                        Officers.Add(new OwnerMember
+                        {
+                            Role = savedOfficer.Role,
+                            FirstName = savedOfficer.FirstName,
+                            MiddleInitial = savedOfficer.MiddleInitial,
+                            LastName = savedOfficer.LastName,
+                            SSN = savedOfficer.SSN,
+                            OwnershipPercentage = savedOfficer.OwnershipPercentage
+                        });
+                    }
                 }
             }
 
@@ -280,27 +301,17 @@
         InvalidFields.Clear();
         FieldErrors.Clear();
 
-        if (IsOutsideUSA)
+        if (string.IsNullOrWhiteSpace(IncorporationState) && string.IsNullOrWhiteSpace(ForeignCountry))
         {
-            if (string.IsNullOrWhiteSpace(ForeignCountry))
-            {
-                AddFieldError("ForeignCountry", "Foreign Country is required");
-            }
-            if (!string.IsNullOrWhiteSpace(IncorporationState))
-            {
-                AddFieldError("IncorporationState", $"{Config.StateLabel} must be empty");
-            }
+            var msg = $"{Config.StateLabel} or Foreign Country is required";
+            AddFieldError("IncorporationState", msg);
+            AddFieldError("ForeignCountry", msg);
         }
-        else
+        else if (!string.IsNullOrWhiteSpace(IncorporationState) && !string.IsNullOrWhiteSpace(ForeignCountry))
         {
-            if (string.IsNullOrWhiteSpace(IncorporationState))
-            {
-                AddFieldError("IncorporationState", $"{Config.StateLabel} is required");
-            }
-            if (!string.IsNullOrWhiteSpace(ForeignCountry))
-            {
-                AddFieldError("ForeignCountry", "Foreign Country must be empty");
-            }
+            var msg = $"Either {Config.StateLabel} or Foreign Country is required, not both";
+            AddFieldError("IncorporationState", msg);
+            AddFieldError("ForeignCountry", msg);
         }
 
         var hasAnyOfficerData = Officers.Any(o =>
@@ -371,9 +382,9 @@
                 .Where(o => o.OwnershipPercentage.HasValue)
                 .Sum(o => o.OwnershipPercentage!.Value);
 
-            if (totalPercentage > 0 && Math.Round(totalPercentage, 2) != 100)
+            if (totalPercentage > 0 && Math.Round(totalPercentage, 2) > 100)
             {
-                var msg = "Total Ownership Percentage must equal 100.00";
+                var msg = "Total Ownership Percentage can not exceed 100%";
                 var firstOfficer = Officers.FirstOrDefault(m => m.OwnershipPercentage.HasValue);
                 _validationItems.Add(new ValidationItem(msg, firstOfficer != null ? $"ownership-percentage-{firstOfficer.Role}" : string.Empty));
                 ValidationErrors.Add(msg);
@@ -420,6 +431,8 @@
     {
         _ = OnDataChanged.InvokeAsync(new CorporationFormData
         {
+
+            IsOutsideUSA = IsOutsideUSA,
             IncorporationState = IncorporationState,
             ForeignCountry = ForeignCountry,
             Officers = Officers.Select(o => new OwnerMember

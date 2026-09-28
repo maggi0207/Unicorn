@@ -6,7 +6,7 @@
     <!-- Headquartered Outside USA Checkbox -->
     <div class="checkbox-group">
         <label class="checkbox-label">
-            <input type="checkbox" @bind="IsOutsideUSA" @bind:after="ValidateForm" />
+            <input type="checkbox" checked="@IsOutsideUSA" @onchange="OnIsOutsideUSAChanged" />
             <span>The business is headquartered outside of the United States</span>
         </label>
     </div>
@@ -19,6 +19,7 @@
                      ErrorMessage="@FieldErrors.GetValueOrDefault("IncorporationState")"
                      HasError="@FieldErrors.ContainsKey("IncorporationState")"
                      Visible="_showAllErrors"
+                     Disabled="@IsOutsideUSA"
                      OnBlur="@(() => ValidateForm())" />
 
         <div class="form-group-divider">
@@ -33,6 +34,7 @@
                         ErrorMessage="@FieldErrors.GetValueOrDefault("ForeignCountry")"
                         Visible="_showAllErrors"
                         MaxLength="64"
+                        Disabled="@(!IsOutsideUSA)"
                         OnBlur="@(() => ValidateForm())"
                         OnKeyUp="@(() => ValidateForm())" />
     </div>
@@ -170,7 +172,7 @@
 
         try
         {
-            IsOutsideUSA = ContinueData.IsOutsideUSA;
+            IsOutsideUSA = ContinueData.IsOutsideUSA || !string.IsNullOrWhiteSpace(ContinueData.ForeignCountry);
             _previousISOutsideUSA = IsOutsideUSA;
             IncorporationState = ContinueData.IncorporationState ?? string.Empty;
             ForeignCountry = ContinueData.ForeignCountry ?? string.Empty;
@@ -230,6 +232,21 @@
     {
         IncorporationState = value;
         if (!string.IsNullOrWhiteSpace(IncorporationState))
+            ForeignCountry = string.Empty;
+        ValidateForm();
+    }
+
+    /// <summary>
+    /// Called when the "headquartered outside USA" checkbox is toggled.
+    /// Clears the mutually exclusive field and triggers validation.
+    /// </summary>
+    /// <param name="e">The change event args.</param>
+    private void OnIsOutsideUSAChanged(ChangeEventArgs e)
+    {
+        IsOutsideUSA = e.Value is true;
+        if (IsOutsideUSA)
+            IncorporationState = string.Empty;
+        else
             ForeignCountry = string.Empty;
         ValidateForm();
     }

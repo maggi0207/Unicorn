@@ -76,7 +76,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
     {
         return OwnershipType switch
         {
-            OwnershipType.LLC or OwnershipType.LLP or OwnershipType.Partnership or OwnershipType.LLCCorporation => Members?.Where(x =>
+            OwnershipType.LLC or OwnershipType.LLP or OwnershipType.LLCCorporation => Members?.Where(x =>
             {
                 return !string.IsNullOrWhiteSpace(x.FirstName) || !string.IsNullOrWhiteSpace(x.LastName);
             }).Select(m =>
@@ -91,6 +91,23 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     _socialSecurityNumber = !string.IsNullOrWhiteSpace(m.SSN) ? m.SSN.Replace("-", string.Empty) : string.Empty,
                 };
             }).ToList() ?? new(),
+
+            OwnershipType.Partnership => Members?.Where(x =>
+            {
+                return !string.IsNullOrWhiteSpace(x.FirstName) || !string.IsNullOrWhiteSpace(x.LastName);
+            }).Select(m =>
+            {
+                return new SurveyContact
+                {
+                    _surveyIndividualCode = (int) RegistrationIndividualCode.Partner,
+                    _firstName = m.FirstName,
+                    _lastName = m.LastName,
+                    _middleName = m.MiddleInitial,
+                    _ownershipPercentage = (m.OwnershipPercentage ?? 0).ToString(),
+                    _socialSecurityNumber = !string.IsNullOrWhiteSpace(m.SSN) ? m.SSN.Replace("-", string.Empty) : string.Empty,
+                };
+            }).ToList() ?? new(),
+
             OwnershipType.LP => (string.IsNullOrWhiteSpace(GeneralPartner?.FirstName) && string.IsNullOrWhiteSpace(GeneralPartner?.LastName)) ? new() : new()
                 {
                     new SurveyContact
@@ -378,7 +395,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                     {
                         _surveyResponseItemSk = (int) SurveyResponseItem.GOV_EMP_DOC_UPLD,
                         _response = OwnershipAgencies.Filepath,
-                        _responseDisplay = Path.GetFileName(OwnershipAgencies.Filepath)?.RemoveGUID()
+                        _responseDisplay = Path.GetFileName(OwnershipAgencies.Filepath)?.ToDisplayFileName()
                     });
                 }
                 else
@@ -470,7 +487,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
                         {
                             _surveyResponseItemSk = (int) SurveyResponseItem.LLC_ELEC_CORP_UPLD,
                             _response = LlcDocumentation.FilePath,
-                            _responseDisplay = Path.GetFileName(LlcDocumentation.FilePath)?.RemoveGUID()
+                            _responseDisplay = Path.GetFileName(LlcDocumentation.FilePath)?.ToDisplayFileName()
                         });
                     }
                 }
@@ -611,7 +628,7 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             {
                 _surveyResponseItemSk = (int) SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT,
                 _response = qsf.FilePath,
-                _responseDisplay = System.IO.Path.GetFileName(qsf.FilePath)?.RemoveGUID()
+                _responseDisplay = System.IO.Path.GetFileName(qsf.FilePath)?.ToDisplayFileName()
             });
         }
         else

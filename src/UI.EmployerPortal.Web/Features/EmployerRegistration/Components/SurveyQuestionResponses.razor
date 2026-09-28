@@ -463,6 +463,6 @@
     {
         return string.IsNullOrWhiteSpace(ssnValue) || ssnValue.Length < 4
             ? "No Value"
-            : $"***-**-{ssnValue.Substring(ssnValue.Length - 4)}";
+            : "***-**-****";
     }
 }

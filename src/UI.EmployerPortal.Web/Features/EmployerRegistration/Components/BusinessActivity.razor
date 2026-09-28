@@ -42,14 +42,14 @@
                                 <ValidatedDateInput Id="dateStarted"
                                                     Label="Date business started or acquired"
                                                     Value="@Model.DateBusinessStarted"
-                                                    ValueChanged="@(v => {Model.DateBusinessStarted = v; OnFieldChanged("DateBusinessStarted");})"
+                                                    ValueChanged="@(v => {Model.DateBusinessStarted = v; ValidateForm(); OnFieldChanged("DateBusinessStarted");})"
                                                     Max="DateTime.Today"
                                                     Width="350"
                                                     IsRequired="true"
-                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateBusinessStarted")) && FieldErrors.ContainsKey("DateBusinessStarted"))"
+                                                    HasError="@(FieldErrors.ContainsKey("DateBusinessStarted"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateBusinessStarted")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => OnDateBlur("DateBusinessStarted"))"
+                                                    OnBlur="@(() => ValidateForm())"
                                                     FocusKey="response:3180"/>
                             </div>
 
@@ -57,15 +57,15 @@
                                 <ValidatedDateInput Id="dateFirstPaid"
                                                     Label="Date you first had paid employees working in WI"
                                                     Value="@Model.DateFirstPaidEmployeesInWI"
-                                                    ValueChanged="@(v => {Model.DateFirstPaidEmployeesInWI = v; OnFieldChanged("DateFirstPaidEmployeesInWI");})"
+                                                    ValueChanged="@(v => {Model.DateFirstPaidEmployeesInWI = v;ValidateForm(); OnFieldChanged("DateFirstPaidEmployeesInWI");})"
                                                     Max="DateTime.Today"
                                                     Width="360"
                                                     CSS="master-text-field"
                                                     IsRequired="true"
-                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateFirstPaidEmployeesInWI")) && FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
+                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidEmployeesInWI")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => OnDateBlur("DateFirstPaidEmployeesInWI"))"
+                                                    OnBlur="@(() => ValidateForm())"
                                                     FocusKey="response:3181"/>
                             </div>
                         </div>
@@ -76,14 +76,14 @@
                                 <ValidatedDateInput Id="dateFirstWages"
                                                     Label="Date first paid wages for work performed in WI"
                                                     Value="@Model.DateFirstPaidWagesInWI"
-                                                    ValueChanged="@(v => {Model.DateFirstPaidWagesInWI = v; OnFieldChanged("DateFirstPaidWagesInWI");})"
+                                                    ValueChanged="@(v => {Model.DateFirstPaidWagesInWI = v; ValidateForm(); OnFieldChanged("DateFirstPaidWagesInWI");})"
                                                     Max="DateTime.Today"
                                                     Width="350"
                                                     IsRequired="true"
-                                                    HasError="@((_showAllErrors || BlurredFields.Contains("DateFirstPaidWagesInWI")) && FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
+                                                    HasError="@(FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidWagesInWI")"
                                                     Visible="_showAllErrors"
-                                                    OnBlur="@(() => OnDateBlur("DateFirstPaidWagesInWI"))"
+                                                    OnBlur="@(() => ValidateForm())"
                                                     FocusKey="response:3182"/>
                             </div>
                         </div>
