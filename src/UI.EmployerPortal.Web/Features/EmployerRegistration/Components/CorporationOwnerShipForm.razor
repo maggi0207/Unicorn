@@ -33,6 +33,7 @@
                         ErrorMessage="@FieldErrors.GetValueOrDefault("ForeignCountry")"
                         Visible="_showAllErrors"
                         MaxLength="64"
+                        Disabled="@(!IsOutsideUSA)"
                         OnBlur="@(() => ValidateForm())"
                         OnKeyUp="@(() => ValidateForm())" />
     </div>
