@@ -281,7 +281,18 @@ public partial class UISubjectivity
         {
             daysUntilSaturday += 7; // wrap to next Saturday
         }
-        return today.AddDays(daysUntilSaturday);
+        var currentWeekSat = today.AddDays(daysUntilSaturday);
+        var minDate = TwentiethWeekMinSaturday();
+        
+        if (minDate > currentWeekSat)
+        {
+            var endOfYear = new DateTime(minDate.Year, 12, 31);
+            int offset = (int)endOfYear.DayOfWeek - (int)DayOfWeek.Saturday;
+            if (offset < 0) offset += 7;
+            return endOfYear.AddDays(-offset);
+        }
+        
+        return currentWeekSat;
     }
 
 
