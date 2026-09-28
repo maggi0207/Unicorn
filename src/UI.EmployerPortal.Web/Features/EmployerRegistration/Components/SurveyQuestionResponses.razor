@@ -161,6 +161,37 @@
                                     </div>
                                 }
                             }
+
+                            // Explicitly render Corporation fields (Incorporation State / Foreign Country)
+                            // which are not part of the standard API Questions list.
+                            var isCorporation = SurveyResponses.Any(r =>
+                                r._surveyResponseItemSk == (int)SurveyResponseItem.OWNR_CLS_CD_SK
+                                && (r._response == ((int)OwnershipType.Corporation).ToString()
+                                    || r._response == ((int)OwnershipType.LLCCorporation).ToString()));
+                            if (isCorporation)
+                            {
+                                var corpResponses = SurveyResponses
+                                    .Where(r => CorporationItemDescriptions.ContainsKey(r._surveyResponseItemSk)
+                                                && !string.IsNullOrWhiteSpace(r._response))
+                                    .OrderBy(r => r._surveyResponseItemSk)
+                                    .ToList();
+
+                                foreach (var corpResponse in corpResponses)
+                                {
+                                    <div class="vf-accordion-section">
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-text">@CorporationItemDescriptions[corpResponse._surveyResponseItemSk]</span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-10 text-start">
+                                                <span class="vf-accordion-answer">@(corpResponse._responseDisplay ?? corpResponse._response)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
                         }
 
                         @{
@@ -358,6 +389,16 @@
         { (int)SurveyResponseItem.QSF_OWNR_PYMT_REASONS, "Reason for payments" },
         { (int)SurveyResponseItem.QSF_OWNR_COURT_APR_STLMT, "Court-approved Settlement Agreement File" },
         { (int)SurveyResponseItem.PRTL_MISS_DOC_QSF_STL_AGR, "Will provide documentation later" }
+    };
+
+    /// <summary>
+    /// Descriptions for Corporation-specific survey response items that are not
+    /// included in the API Questions list and must be rendered explicitly.
+    /// </summary>
+    private static readonly Dictionary<int, string> CorporationItemDescriptions = new()
+    {
+        { (int)SurveyResponseItem.ICRP_ST_CD,        "Incorporation State" },
+        { (int)SurveyResponseItem.ICRP_FGN_CTRY_NAM, "Foreign Country" },
     };
 
     private void EditClicked(int step)
