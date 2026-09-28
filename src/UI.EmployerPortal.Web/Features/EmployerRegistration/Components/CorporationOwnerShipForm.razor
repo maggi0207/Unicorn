@@ -6,7 +6,7 @@
     <!-- Headquartered Outside USA Checkbox -->
     <div class="checkbox-group">
         <label class="checkbox-label">
-            <input type="checkbox" @bind="IsOutsideUSA" @bind:after="ValidateForm" />
+            <input type="checkbox" @bind="IsOutsideUSA" @bind:after="OnIsOutsideUSAChanged" />
             <span>The business is headquartered outside of the United States</span>
         </label>
     </div>
@@ -237,6 +237,19 @@
         IncorporationState = value;
         if (!string.IsNullOrWhiteSpace(IncorporationState))
             ForeignCountry = string.Empty;
+        ValidateForm();
+    }
+
+    private void OnIsOutsideUSAChanged()
+    {
+        if (IsOutsideUSA)
+        {
+            IncorporationState = string.Empty;
+        }
+        else
+        {
+            ForeignCountry = string.Empty;
+        }
         ValidateForm();
     }
 
