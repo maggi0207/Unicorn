@@ -1,0 +1,169 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="form-group master-text-field-full @(showError ? "master-text-field--error" : "")">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label for="@Id" class="form-label @(showError ? "master-label--error" : "")">
+            @Label
+        </label>
+    }
+    <textarea id="@Id"
+              class="form-input master-input @(showError ? "master-input--error" : "")"
+              style="height: auto; @(Width > 0 ? $"width:{Width}px;" : "")"
+              rows="@Rows"
+              maxlength="@MaxLength"
+              disabled="@Disabled"
+              value="@Value"
+              required="@IsRequired"
+              aria-label="@Label"
+              aria-invalid="@HasError.ToString()"
+              aria-required="@IsRequired.ToString()"
+              aria-describedby="@AriaDescribedBy"
+              @onchange="HandleChange"
+              @onkeyup="HandleKeyUp"
+              @oninput="HandleInput"
+              @onblur="HandleBlur">@Value</textarea>
+
+    @if (MaxLength.HasValue)
+    {
+        <div id="@CharCountId" class="master-charcount">
+            @(Value?.Length ?? 0) / @MaxLength
+        </div>
+    }
+
+    @if (showError && !string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <ValidationError ErrorMessage="@ErrorMessage" ErrorId="@ErrorId" />
+    }
+</div>
+@code {
+    /// <summary>HTML id for the textarea element.</summary>
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    /// <summary>Label text displayed above the textarea.</summary>
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    /// <summary>Current value.</summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>Two-way binding callback.</summary>
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>HTML maxlength attribute.</summary>
+    [Parameter] public int? MaxLength { get; set; }
+
+    /// <summary>Number of visible text rows. Defaults to 4.</summary>
+    [Parameter] public int Rows { get; set; } = 4;
+
+    /// <summary>Input width in pixels. Set 0 to omit.</summary>
+    [Parameter] public int Width { get; set; }
+
+    /// <summary>Whether the field currently has a validation error.</summary>
+    [Parameter] public bool HasError { get; set; }
+
+    /// <summary>Error message to display below the textarea.</summary>
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    /// <summary>Callback invoked on blur.</summary>
+    [Parameter] public EventCallback OnBlur { get; set; }
+
+    /// <summary>Disables the textarea when true.</summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>Visible the input error when true.</summary>
+    [Parameter] public bool Visible { get; set; }
+
+    /// <summary>Callback invoked on input key up (e.g. to trigger validation).</summary>
+    [Parameter] public EventCallback<KeyboardEventArgs> OnKeyUp { get; set; }
+
+    /// <summary>Mark the field as required.</summary>
+    [Parameter] public bool IsRequired { get; set; }
+
+    /// <summary> Hint Id</summary>
+    [Parameter] public string? HintId { get; set; }
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    [Parameter]
+    public Expression<Func<string?>>? ValueExpression { get; set; }
+
+    private bool touched;
+
+    private bool showError => (touched || Visible) && HasError;
+
+    private string ErrorId => $"{Id}-error";
+
+    private string CharCountId => $"{Id}-charcount";
+
+    private FieldIdentifier _fieldIdentifier;
+
+    private string? AriaDescribedBy
+    {
+        get
+        {
+            var ids = new List<string>();
+            if (MaxLength.HasValue)
+            {
+                ids.Add(CharCountId);
+            }
+            if (!string.IsNullOrWhiteSpace(HintId))
+            {
+                ids.Add(HintId!);
+            }
+            if (showError && !string.IsNullOrWhiteSpace(ErrorMessage))
+            {
+                ids.Add(ErrorId);
+            }
+            return ids.Count > 0 ? string.Join(" ", ids) : null;
+        }
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        touched = true;
+
+        var val = e.Value?.ToString() ?? string.Empty;
+
+        await ValueChanged.InvokeAsync(val);
+
+        if (EditContext != null && ValueExpression != null)
+        {
+            EditContext.NotifyFieldChanged(_fieldIdentifier);
+        }
+    }
+
+    private async Task HandleBlur()
+    {
+        touched = true;
+        await OnBlur.InvokeAsync();
+    }
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        touched = true;
+        await OnKeyUp.InvokeAsync(e);
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString() ?? string.Empty;
+
+        await ValueChanged.InvokeAsync(val);
+
+        if (EditContext != null && ValueExpression != null)
+        {
+            EditContext.NotifyFieldChanged(_fieldIdentifier);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (ValueExpression != null)
+        {
+            _fieldIdentifier = FieldIdentifier.Create(ValueExpression);
+        }
+    }
+}
