@@ -212,9 +212,16 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesPerformWI.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesPerformWI.Value) });
 
-                if (ExpectToPayWagesPerformWI.Value && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)) //6.23) // have futa when expect future ag wages in wisconsin
+                if (ExpectToPayWagesPerformWI.Value 
+                    && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
+                    && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.23) // have futa when expect future ag wages in wisconsin
                 {
-                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, _response = WhenExpectToPayWagesInAQuarter });
+                    responses.Add(new SurveyResponse() 
+                    { 
+                        _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, 
+                        _response = WhenExpectToPayWagesInAQuarter,
+                        _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                    });
                 }
             }
 
@@ -243,13 +250,25 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AX_10_IN_20_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToHaveWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToHaveWagesInAQuarter.Value) });
             }
 
-            if (!string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)) //6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
+            if (!string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
+                && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, _response = WhenExpectToPayWagesInAQuarter });
+                responses.Add(new SurveyResponse() 
+                { 
+                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, 
+                    _response = WhenExpectToPayWagesInAQuarter,
+                    _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                });
             }
-            else if (!string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter))
+            else if (!string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)
+                     && Enum.TryParse<FuturePayPeriod>(WhenExpectToHaveWagesInAQuarter, out var whenExpectToHaveWagesInAQuarterValue))
             {
-                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, _response = WhenExpectToHaveWagesInAQuarter });
+                responses.Add(new SurveyResponse() 
+                { 
+                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, 
+                    _response = WhenExpectToHaveWagesInAQuarter,
+                    _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName()
+                });
             }
         }
 
