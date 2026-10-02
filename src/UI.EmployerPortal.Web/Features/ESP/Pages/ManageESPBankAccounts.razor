@@ -47,7 +47,6 @@ else
                     }
                 </div>
                 <h2 class="section-title">Accounts</h2>
-                <hr class="section-divider" />
 
                 @if (_isLoading)
                 {
@@ -82,7 +81,7 @@ else
                 }
                 else
                 {
-                    <p class="page-subtitle">Select an account to edit</p>
+                    <p class="page-subtitle">Select an account to edit.</p>
                     <div class="table-container">
                         <table class="accounts-table"
                             style="width: 100%"
@@ -116,14 +115,6 @@ else
                                             </button>
                                         </div>
                                     </th>
-                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountNumber")">
-                                        <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountNumber"))">
-                                                <span class="header-label fw-bold">Account Number</span>
-                                                <span aria-hidden="true">@GetSortIcon("accountNumber")</span>
-                                            </button>
-                                        </div>
-                                    </th>
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("routingNumber")">
                                         <div class="header-content header-content-left">
                                             <button type="button" class="header-sort-button" @onclick="@(() => Sort("routingNumber"))">
@@ -132,8 +123,16 @@ else
                                             </button>
                                         </div>
                                     </th>
-                                    <th scope="col" class="header-cell header-cell-static" >
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountNumber")">
                                         <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountNumber"))">
+                                                <span class="header-label fw-bold">Account Number</span>
+                                                <span aria-hidden="true">@GetSortIcon("accountNumber")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell header-cell-static" >
+                                        <div class="header-content header-content-center">
                                             <span class="header-label fw-bold">Remove</span>
                                         </div>
                                     </th>
@@ -161,9 +160,9 @@ else
                                             </td>
                                             <td class="fw-normal">@account.BankName</td>
                                             <td class="fw-normal">@account.AccountType</td>
-                                            <td class="fw-normal">@account.MaskedAccountNumber</td>
                                             <td class="fw-normal">@account.RoutingNumber</td>
-                                            <td>
+                                            <td class="fw-normal">@account.MaskedAccountNumber</td>
+                                            <td class="cell-remove">
                                                 <button type="button"
                                                         class="delete-btn"
                                                         aria-label="Remove @account.Nickname"

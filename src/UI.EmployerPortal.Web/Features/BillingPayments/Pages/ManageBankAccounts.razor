@@ -45,7 +45,6 @@ else
                     }
                 </div>
                 <h2 class="section-title">Accounts</h2>
-                <hr class="section-divider" />
 
                 @if (_isLoading)
                 {
@@ -80,7 +79,7 @@ else
                 }
                 else
                 {
-                    <p class="page-subtitle">Select an account to edit</p>
+                    <p class="page-subtitle">Select an account to edit.</p>
                     <div class="table-container">
                         <table class="accounts-table"
                             style="width: 100%"
@@ -131,7 +130,7 @@ else
                                         </div>
                                     </th>
                                     <th scope="col" class="header-cell header-cell-static" >
-                                        <div class="header-content header-content-left">
+                                        <div class="header-content header-content-center">
                                             <span class="header-label fw-bold">Remove</span>
                                         </div>
                                     </th>
@@ -161,7 +160,7 @@ else
                                             <td class="fw-normal">@account.AccountType</td>
                                             <td class="fw-normal">@account.RoutingNumber</td>
                                             <td class="fw-normal">@account.MaskedAccountNumber</td>
-                                            <td>
+                                            <td class="cell-remove">
                                                 <button type="button"
                                                         class="delete-btn"
                                                         aria-label="Remove @account.Nickname"
