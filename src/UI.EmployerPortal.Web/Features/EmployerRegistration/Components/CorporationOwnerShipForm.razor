@@ -19,6 +19,7 @@
                      ErrorMessage="@FieldErrors.GetValueOrDefault("IncorporationState")"
                      HasError="@FieldErrors.ContainsKey("IncorporationState")"
                      Visible="_showAllErrors"
+                     Disabled="@IsOutsideUSA"
                      OnBlur="@(() => ValidateForm())" />
 
         <div class="form-group-divider">
@@ -315,17 +316,19 @@
         InvalidFields.Clear();
         FieldErrors.Clear();
 
-        if (string.IsNullOrWhiteSpace(IncorporationState) && string.IsNullOrWhiteSpace(ForeignCountry))
+        if (IsOutsideUSA)
         {
-            var msg = $"{Config.StateLabel} or Foreign Country is required";
-            AddFieldError("IncorporationState", msg);
-            AddFieldError("ForeignCountry", msg);
+            if (string.IsNullOrWhiteSpace(ForeignCountry))
+            {
+                AddFieldError("ForeignCountry", "Foreign Country is required");
+            }
         }
-        else if (!string.IsNullOrWhiteSpace(IncorporationState) && !string.IsNullOrWhiteSpace(ForeignCountry))
+        else
         {
-            var msg = $"Either {Config.StateLabel} or Foreign Country is required, not both";
-            AddFieldError("IncorporationState", msg);
-            AddFieldError("ForeignCountry", msg);
+            if (string.IsNullOrWhiteSpace(IncorporationState))
+            {
+                AddFieldError("IncorporationState", $"{Config.StateLabel} is required");
+            }
         }
 
         var hasAnyOfficerData = Officers.Any(o =>

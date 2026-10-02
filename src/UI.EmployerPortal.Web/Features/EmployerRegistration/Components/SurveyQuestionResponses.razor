@@ -162,36 +162,8 @@
                                 }
                             }
 
-                            // Explicitly render Corporation fields (Incorporation State / Foreign Country)
-                            // which are not part of the standard API Questions list.
-                            var isCorporation = SurveyResponses.Any(r =>
-                                r._surveyResponseItemSk == (int)SurveyResponseItem.OWNR_CLS_CD_SK
-                                && (r._response == ((int)OwnershipType.Corporation).ToString()
-                                    || r._response == ((int)OwnershipType.LLCCorporation).ToString()));
-                            if (isCorporation)
-                            {
-                                var corpResponses = SurveyResponses
-                                    .Where(r => CorporationItemDescriptions.ContainsKey(r._surveyResponseItemSk)
-                                                && !string.IsNullOrWhiteSpace(r._response))
-                                    .OrderBy(r => r._surveyResponseItemSk)
-                                    .ToList();
-
-                                foreach (var corpResponse in corpResponses)
-                                {
-                                    <div class="vf-accordion-section">
-                                        <div class="row">
-                                            <div class="col-md-10 text-start">
-                                                <span class="vf-accordion-text">@CorporationItemDescriptions[corpResponse._surveyResponseItemSk]</span>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-10 text-start">
-                                                <span class="vf-accordion-answer">@(corpResponse._responseDisplay ?? corpResponse._response)</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            }
+                            // The API now returns Corporation fields (Incorporation State / Foreign Country)
+                            // in the standard Questions list, so we no longer need to explicitly render them here.
                         }
 
                         @{
