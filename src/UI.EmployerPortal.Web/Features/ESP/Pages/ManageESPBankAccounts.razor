@@ -1,9 +1,11 @@
 @page "/esp/manage-bank-accounts"
-@using UI.EmployerPortal.Razor.SharedComponents
-@using UI.EmployerPortal.Web.Features.Shared.NotificationBanners
 @using UI.EmployerPortal.Web.Features.ESP.Components
+@using UI.EmployerPortal.Web.Features.ESP.Models
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
-        
+
 <PageTitle>Manage Bank Accounts</PageTitle>
 
 @if (_pageState == BankAccountPageState.AddForm)
@@ -35,6 +37,15 @@ else
             <h1 class="page-title">Manage Bank Accounts</h1>
             <hr class="page-divider" />
             <section aria-label="Accounts">
+                <div aria-live="polite">
+                    @if (_deleteSuccessMessage)
+                    {
+                        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                            Title="Bank account deleted successfully"
+                                            Visible="true"
+                                            DismissButton="true"/>
+                    }
+                </div>
                 <h2 class="section-title">Accounts</h2>
                 <hr class="section-divider" />
 
@@ -72,106 +83,100 @@ else
                 else
                 {
                     <p class="page-subtitle">Select an account to edit</p>
-
-                    <table class="accounts-table"
-                           style="width: 100%"
-                           aria-label="Bank accounts">
-                        <thead>
-                            <tr class="header-row">
-                                <th scope="col" class="header-cell" 
-                                    tabindex="0"
-                                    aria-sort="@GetAriaSort("nickname")"
-                                    @onclick="@(() => Sort("nickname"))"
-                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "nickname"))">
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Account Nickname</span>
-                                        @GetSortIcon("nickname")
-                                    </div>
-                                </th>
-                                <th scope="col" class="header-cell"
-                                    tabindex="0"
-                                    aria-sort="@GetAriaSort("bankName")"
-                                    @onclick="@(() => Sort("bankName"))"
-                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "bankName"))">
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Bank Name</span>
-                                        @GetSortIcon("bankName")
-                                    </div>
-                                </th>
-                                <th scope="col" class="header-cell" 
-                                    tabindex="0"
-                                    aria-sort="@GetAriaSort("accountType")"
-                                    @onclick="@(() => Sort("accountType"))"
-                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "accountType"))">
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Type</span>
-                                        @GetSortIcon("accountType")
-                                    </div>
-                                </th>
-                                <th scope="col" class="header-cell" 
-                                    tabindex="0"
-                                    aria-sort="@GetAriaSort("accountNumber")"
-                                    @onclick="@(() => Sort("accountNumber"))"
-                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "accountNumber"))">
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Account Number</span>
-                                        @GetSortIcon("accountNumber")
-                                    </div>
-                                </th>
-                                <th scope="col" class="header-cell" 
-                                    tabindex="0"
-                                    aria-sort="@GetAriaSort("routingNumber")"
-                                    @onclick="@(() => Sort("routingNumber"))"
-                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "routingNumber"))">
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Routing Number</span>
-                                        @GetSortIcon("routingNumber")
-                                    </div>
-                                </th>
-                                <th scope="col" class="header-cell header-cell-static" >
-                                    <div class="header-content header-content-left">
-                                        <span class="header-label fw-bold">Remove</span>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (_accounts.Count == 0)
-                            {
-                                <tr>
-                                    <td colspan="6" class="no-accounts-message">No bank accounts on file.</td>
+                    <div class="table-container">
+                        <table class="accounts-table"
+                            style="width: 100%"
+                            aria-label="Bank accounts">
+                            <caption class="visually-hidden">
+                                View bank accounts (column headers with buttons are sortable).
+                            </caption>
+                            <thead>
+                                <tr class="header-row">
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("nickname")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("nickname"))">
+                                                <span class="header-label fw-bold">Account Nickname</span>
+                                                <span aria-hidden="true">@GetSortIcon("nickname")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("bankName")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("bankName"))">
+                                                <span class="header-label fw-bold">Bank Name</span>
+                                                <span aria-hidden="true">@GetSortIcon("bankName")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountType")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountType"))">
+                                                <span class="header-label fw-bold">Type</span>
+                                                <span aria-hidden="true">@GetSortIcon("accountType")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountNumber")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountNumber"))">
+                                                <span class="header-label fw-bold">Account Number</span>
+                                                <span aria-hidden="true">@GetSortIcon("accountNumber")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("routingNumber")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("routingNumber"))">
+                                                <span class="header-label fw-bold">Routing Number</span>
+                                                <span aria-hidden="true">@GetSortIcon("routingNumber")</span>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="header-cell header-cell-static" >
+                                        <div class="header-content header-content-left">
+                                            <span class="header-label fw-bold">Remove</span>
+                                        </div>
+                                    </th>
                                 </tr>
-                            }
-                            else
-                            {
-                                @foreach (var account in GetSortedAccounts())
+                            </thead>
+                            <tbody>
+                                @if (_accounts.Count == 0)
                                 {
-                                    <tr class="data-row">
-                                        <td class="fw-normal">
-                                            <button type="button"
-                                                    class="account-link"
-                                                    aria-label="View or edit @account.Nickname"
-                                                    @onclick="() => HandleEditAccount(account.BankAccountSk)">
-                                                @account.Nickname
-                                            </button>
-                                        </td>
-                                        <td class="fw-normal">@account.BankName</td>
-                                        <td class="fw-normal">@account.AccountType</td>
-                                        <td class="fw-normal">@account.MaskedAccountNumber</td>
-                                        <td class="fw-normal">@account.RoutingNumber</td>
-                                        <td>
-                                            <button type="button"
-                                                    class="delete-btn"
-                                                    aria-label="Remove @account.Nickname"
-                                                    @onclick="() => OpenRemoveModal(account)">
-                                                <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" />
-                                            </button>
-                                        </td>
+                                    <tr>
+                                        <td colspan="6" class="no-accounts-message">No bank accounts on file.</td>
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
+                                else
+                                {
+                                    @foreach (var account in GetSortedAccounts())
+                                    {
+                                        <tr class="data-row">
+                                            <td class="fw-normal">
+                                                <button type="button"
+                                                        class="account-link"
+                                                        aria-label="View or edit @account.Nickname"
+                                                        @onclick="() => HandleEditAccount(account.BankAccountSk)">
+                                                    @account.Nickname
+                                                </button>
+                                            </td>
+                                            <td class="fw-normal">@account.BankName</td>
+                                            <td class="fw-normal">@account.AccountType</td>
+                                            <td class="fw-normal">@account.MaskedAccountNumber</td>
+                                            <td class="fw-normal">@account.RoutingNumber</td>
+                                            <td>
+                                                <button type="button"
+                                                        class="delete-btn"
+                                                        aria-label="Remove @account.Nickname"
+                                                        @onclick="() => OpenRemoveModal(account)">
+                                                    <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div class="add-account-row">
                         <button type="button"

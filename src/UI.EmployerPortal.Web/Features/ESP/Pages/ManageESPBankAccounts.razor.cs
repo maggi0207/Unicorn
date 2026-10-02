@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using Microsoft.AspNetCore.Components.Web;
 using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.ESP.Models;
 
@@ -31,6 +30,12 @@ public partial class ManageESPBankAccounts
     [SupplyParameterFromQuery(Name = "action")]
     public string? Action { get; set; }
 
+    /// <summary>
+    /// get wehen edit from 'Edit Payment' option
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "eftPaymentSk")]
+    public int? EftPaymentSkParam { get; set; }
+
     [Inject] private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
     [Inject] private IESPBankAccountOrchestrator ESPBankAccountOrchestrator { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
@@ -41,6 +46,7 @@ public partial class ManageESPBankAccounts
     private int _editAccountSk;
     private bool _isLoading;
     private string? _loadError;
+    private bool _deleteSuccessMessage = false;
     private string _sortColumn = "nickname";
     private bool _sortAscending = true;
     private bool _canGoBack = true;
@@ -105,6 +111,7 @@ public partial class ManageESPBankAccounts
 
     private void HandleAddAccount()
     {
+        _deleteSuccessMessage = false;
         _editAccountSk = 0;
         _pageState = BankAccountPageState.AddForm;
         _canGoBack = true;
@@ -112,6 +119,7 @@ public partial class ManageESPBankAccounts
 
     private void HandleEditAccount(int bankAccountSk)
     {
+        _deleteSuccessMessage = false;
         _editAccountSk = bankAccountSk;
         _pageState = BankAccountPageState.EditForm;
         _canGoBack = true;
@@ -120,10 +128,16 @@ public partial class ManageESPBankAccounts
     private void HandleSaved(SavedBankAccount account)
     {
         _savedAccount = account;
-
         if (Showback)
         {
-            NavigationManager.NavigateTo(AchOriginUrl);
+            if (EftPaymentSkParam > 0)
+            {
+                NavigationManager.NavigateTo($"{AchOriginUrl}&showback=true&action=edit&eftPaymentSk={EftPaymentSkParam}");
+            }
+            else
+            {
+                NavigationManager.NavigateTo(AchOriginUrl);
+            }
             return;
         }
         _pageState = BankAccountPageState.Confirmation;
@@ -135,7 +149,15 @@ public partial class ManageESPBankAccounts
         // automatically and there's no list to fall back to - return to the ACH page instead.
         if (Showback)
         {
-            NavigationManager.NavigateTo(AchOriginUrl);
+            //NavigationManager.NavigateTo(AchOriginUrl);
+            if (EftPaymentSkParam > 0)
+            {
+                NavigationManager.NavigateTo($"{AchOriginUrl}&showback=true&action=edit&eftPaymentSk={EftPaymentSkParam}");
+            }
+            else
+            {
+                NavigationManager.NavigateTo(AchOriginUrl);
+            }
             return;
         }
 
@@ -225,16 +247,9 @@ public partial class ManageESPBankAccounts
         return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
     }
 
-    private void HandleHeaderKeyDown(KeyboardEventArgs e, string column)
-    {
-        if (e.Key is "Enter" or " ")
-        {
-            Sort(column);
-        }
-    }
-
     private void OpenRemoveModal(SavedBankAccount account)
     {
+        _deleteSuccessMessage = false;
         _accountToRemove = account;
         _showRemoveModal = true;
     }
@@ -247,6 +262,7 @@ public partial class ManageESPBankAccounts
 
     private async Task ConfirmRemove()
     {
+        _deleteSuccessMessage = false;
         if (_accountToRemove != null)
         {
             try
@@ -255,6 +271,7 @@ public partial class ManageESPBankAccounts
 
                 if (result.Success)
                 {
+                    _deleteSuccessMessage = true;
                     await LoadAccountsAsync();
                 }
                 else
@@ -274,6 +291,7 @@ public partial class ManageESPBankAccounts
     private async Task HandleClearError()
     {
         _loadError = null;
+        _deleteSuccessMessage = false;
         await LoadAccountsAsync();
     }
 

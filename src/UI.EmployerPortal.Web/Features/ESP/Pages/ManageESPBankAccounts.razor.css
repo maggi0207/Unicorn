@@ -69,10 +69,22 @@
 
 /* Accounts table — grid pattern matches WageAdjustmentQuarter */
 
+.table-container {
+    overflow: auto;
+}
+
+.header-sort-button {
+    background-color: transparent;
+    border: none;
+    height:100%;
+    width: 100%;
+}
+
 .accounts-table {
     border-collapse: collapse;
     font-family: Verdana, sans-serif;
     font-size: 14px;
+    caption-side: unset;
 }
 
 .header-row {
@@ -89,22 +101,22 @@
     vertical-align: middle;
 }
 
-.header-cell:hover {
-    background-color: #D9D9D9;
-}
+    .header-cell:hover {
+        background-color: #D9D9D9;
+    }
 
-.header-cell:focus {
-    outline: 2px solid var(--color-primary, #006bb7);
-    outline-offset: -2px;
-}
+    .header-cell:focus {
+        outline: 2px solid var(--color-primary, #006bb7);
+        outline-offset: -2px;
+    }
 
 .header-cell-static {
     cursor: default;
 }
 
-.header-cell-static:hover {
-    background-color: var(--color-gray-light, #f5f5f5);
-}
+    .header-cell-static:hover {
+        background-color: var(--color-gray-light, #f5f5f5);
+    }
 
 .header-content {
     display: flex;
@@ -154,9 +166,9 @@
     font-size: 14px;
 }
 
-.account-link:hover {
-    color: var(--color-header-nav, #003663);
-}
+    .account-link:hover {
+        color: var(--color-header-nav, #003663);
+    }
 
 /* Delete placeholder button */
 
@@ -170,10 +182,10 @@
     justify-content: center;
 }
 
-.delete-btn img {
-    width: 20px;
-    height: 20px;
-}
+    .delete-btn img {
+        width: 20px;
+        height: 20px;
+    }
 
 /* Add Account link */
 
@@ -193,10 +205,10 @@
     font-weight: 600;
 }
 
-.add-account-link:hover {
-    color: var(--color-header-nav, #003663);
-    text-decoration: underline;
-}
+    .add-account-link:hover {
+        color: var(--color-header-nav, #003663);
+        text-decoration: underline;
+    }
 
 /* Loading and empty states */
 
