@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Microsoft.FluentUI.AspNetCore.Components.Extensions;
 using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
@@ -93,6 +94,20 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     /// </summary>
     [RequiredIfVisibleAttribute("HasEmployeeIn20Weeks", true, ErrorMessage = "The date is not valid. Format example: MM/DD/YYYY")]
     public DateTime? Week20EndDate { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string? Week20EndDateTxt
+    {
+        get => Week20EndDate?.ToString("yyyy-MM-dd");
+        set
+        {
+            Week20EndDate = DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                ? date : null;
+        }
+    }
+
     /// <summary>
     /// do you expect to have x employees in 20 weeks in a calendar year
     /// </summary>
@@ -294,7 +309,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
         }
 
         if (BusinessCategory.HasValue
-            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit or Models.BusinessCategory.NonProfit_Other)
+            && BusinessCategory.Value is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
         {
 
             if (PaidWagesOver1500Employees.HasValue) //6.24) // 20k cash wages for ag labor in quarter
@@ -527,6 +542,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
     /// <inheritdoc/>
     public void LoadSurveyResponses(SurveyResponseItemProxy[] responses)
     {
+
         // (BusinessCategory.HasValue)
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var busCat)
             && Enum.TryParse<BusinessCategory>(busCat.ReplyText, out var busCatValue))
@@ -672,8 +688,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.32) // commercial employer had at least one employee during 20 different weeks in year
-            if (BusinessCategory == Models.BusinessCategory.Commercial
-                && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_1_IN_20_FLG, out var commercialEmployerHadAtLeastOneEmployeeFor20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.CMCL_1_IN_20_FLG, out var commercialEmployerHadAtLeastOneEmployeeFor20WeeksInYear))
             {
                 HasEmployeeIn20Weeks = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(commercialEmployerHadAtLeastOneEmployeeFor20WeeksInYear.ReplyText);
 
@@ -712,7 +727,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3 or Models.BusinessCategory.NonProfit)
+        if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3)
         {
             // (6.40) // non-profit employer has at least 4 employees working in wisconsin on same day in 20 weeks in year
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_4_IN_20_FLG, out var nonProfit4EmployeesForSameDayIn20WeeksInYear))
@@ -730,8 +745,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             // (6.42) // non profit employer expects to have 4 employees working in wisconsin on same day in 20 weeks in year
-            if ((BusinessCategory == Models.BusinessCategory.NonProfit_501c3 || BusinessCategory == Models.BusinessCategory.NonProfit_Other)
-                && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_XPCT_4_IN_20_FLG, out var nonProfitExpects4EmployeesForSameDayIn20WeeksInYear))
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.NP_XPCT_4_IN_20_FLG, out var nonProfitExpects4EmployeesForSameDayIn20WeeksInYear))
             {
                 ExpectToHaveWagesInAQuarter = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(nonProfitExpects4EmployeesForSameDayIn20WeeksInYear.ReplyText);
 
@@ -756,22 +770,27 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_ONE_Q1_WAGES, out var yearOneQ1Wages)
                 && decimal.TryParse(yearOneQ1Wages.ReplyText, out var yearOneQ1WagesValue))
             {
+
                 yearOneWages.Q1Wages = yearOneQ1WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_ONE_Q2_WAGES, out var yearOneQ2Wages)
                 && decimal.TryParse(yearOneQ2Wages.ReplyText, out var yearOneQ2WagesValue))
             {
                 yearOneWages.Q2Wages = yearOneQ2WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_ONE_Q3_WAGES, out var yearOneQ3Wages)
                 && decimal.TryParse(yearOneQ3Wages.ReplyText, out var yearOneQ3WagesValue))
             {
-                yearOneWages.Q1Wages = yearOneQ3WagesValue;
+                yearOneWages.Q3Wages = yearOneQ3WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_ONE_Q4_WAGES, out var yearOneQ4Wages)
                 && decimal.TryParse(yearOneQ4Wages.ReplyText, out var yearOneQ4WagesValue))
             {
-                yearOneWages.Q1Wages = yearOneQ4WagesValue;
+                yearOneWages.Q4Wages = yearOneQ4WagesValue;
+
             }
 
             Wages.Add(yearOneWages);
@@ -789,21 +808,25 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 && decimal.TryParse(yearTwoQ1Wages.ReplyText, out var yearTwoQ1WagesValue))
             {
                 yearTwoWages.Q1Wages = yearTwoQ1WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_TWO_Q2_WAGES, out var yearTwoQ2Wages)
                 && decimal.TryParse(yearTwoQ2Wages.ReplyText, out var yearTwoQ2WagesValue))
             {
                 yearTwoWages.Q2Wages = yearTwoQ2WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_TWO_Q3_WAGES, out var yearTwoQ3Wages)
                 && decimal.TryParse(yearTwoQ3Wages.ReplyText, out var yearTwoQ3WagesValue))
             {
-                yearTwoWages.Q1Wages = yearTwoQ3WagesValue;
+                yearTwoWages.Q3Wages = yearTwoQ3WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_TWO_Q4_WAGES, out var yearTwoQ4Wages)
                 && decimal.TryParse(yearTwoQ4Wages.ReplyText, out var yearTwoQ4WagesValue))
             {
-                yearTwoWages.Q1Wages = yearTwoQ4WagesValue;
+                yearTwoWages.Q4Wages = yearTwoQ4WagesValue;
+
             }
 
             Wages.Add(yearTwoWages);
@@ -826,16 +849,19 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 && decimal.TryParse(yearThreeQ2Wages.ReplyText, out var yearThreeQ2WagesValue))
             {
                 yearThreeWages.Q2Wages = yearThreeQ2WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES, out var yearThreeQ3Wages)
                 && decimal.TryParse(yearThreeQ3Wages.ReplyText, out var yearThreeQ3WagesValue))
             {
-                yearThreeWages.Q1Wages = yearThreeQ3WagesValue;
+                yearThreeWages.Q3Wages = yearThreeQ3WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES, out var yearThreeQ4Wages)
                 && decimal.TryParse(yearThreeQ4Wages.ReplyText, out var yearThreeQ4WagesValue))
             {
-                yearThreeWages.Q1Wages = yearThreeQ4WagesValue;
+                yearThreeWages.Q4Wages = yearThreeQ4WagesValue;
+
             }
 
             Wages.Add(yearThreeWages);
@@ -853,21 +879,25 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 && decimal.TryParse(yearFourQ1Wages.ReplyText, out var yearFourQ1WagesValue))
             {
                 yearFourWages.Q1Wages = yearFourQ1WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_THREE_Q2_WAGES, out var yearFourQ2Wages)
                 && decimal.TryParse(yearFourQ2Wages.ReplyText, out var yearFourQ2WagesValue))
             {
                 yearFourWages.Q2Wages = yearFourQ2WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES, out var yearFourQ3Wages)
                 && decimal.TryParse(yearFourQ3Wages.ReplyText, out var yearFourQ3WagesValue))
             {
-                yearFourWages.Q1Wages = yearFourQ3WagesValue;
+                yearFourWages.Q3Wages = yearFourQ3WagesValue;
+
             }
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES, out var yearFourQ4Wages)
                 && decimal.TryParse(yearFourQ4Wages.ReplyText, out var yearFourQ4WagesValue))
             {
-                yearFourWages.Q1Wages = yearFourQ4WagesValue;
+                yearFourWages.Q4Wages = yearFourQ4WagesValue;
+
             }
 
             Wages.Add(yearFourWages);
@@ -1029,4 +1059,3 @@ public class RequiredIfVisibleAttribute : ValidationAttribute
     }
 
 }
-
