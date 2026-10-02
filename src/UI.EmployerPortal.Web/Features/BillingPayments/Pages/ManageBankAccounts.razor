@@ -83,11 +83,18 @@ else
                     <p class="page-subtitle">Select an account to edit.</p>
                     <div class="table-container">
                         <table class="accounts-table"
-                            style="width: 100%"
                             aria-label="Bank accounts">
                             <caption class="visually-hidden">
                                 View bank accounts (column headers with buttons are sortable).
                             </caption>
+                            <colgroup>
+                                <col class="col-nickname" />
+                                <col class="col-bank-name" />
+                                <col class="col-type" />
+                                <col class="col-routing" />
+                                <col class="col-account" />
+                                <col class="col-remove" />
+                            </colgroup>
                             <thead>
                                 <tr class="header-row">
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("nickname")">

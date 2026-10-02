@@ -1,7 +1,7 @@
 .page-wrapper {
     display: flex;
     justify-content: flex-start;
-    padding: 0 24px;
+    padding: 0;
 }
 
 .form-content {
@@ -20,12 +20,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 900px;
-    padding-top: 32px;
+    max-width: 100%;
+    padding-top: 24px;
     padding-bottom: 32px;
+    padding-left: 24px;
+    padding-right: 24px;
     font-family: Verdana, sans-serif;
     font-size: 16px;
-    gap: 16px;
+    gap: 0;
 }
 
 .page-title {
@@ -33,15 +35,15 @@
     font-size: 32px;
     font-weight: 700;
     color: #000000;
-    margin: 0;
+    margin: 0 0 12px 0;
 }
 
 .page-subtitle {
     font-family: Verdana, sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
     color: #000000;
-    margin: 0 0 8px 0;
+    margin: 12px 0 8px 0;
 }
 
 .action-row {
@@ -56,18 +58,18 @@
 .section-title {
     display: inline-block;
     font-family: Verdana, sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--color-primary, #006bb7);
-    margin: 0;
-    padding-bottom: 12px;
+    margin: 16px 0 0 0;
+    padding-bottom: 10px;
     border-bottom: 3px solid var(--color-primary, #006bb7);
 }
 
 .section-divider {
     border: none;
     border-top: 1px solid var(--color-gray-medium, #ADADAD);
-    margin: -1px 0 16px 0;
+    margin: -1px 0 12px 0;
 }
 
 /* Accounts table — grid pattern matches WageAdjustmentQuarter */
@@ -81,7 +83,17 @@
     font-family: Verdana, sans-serif;
     font-size: 14px;
     caption-side: unset;
+    width: 100%;
+    table-layout: fixed;
 }
+
+/* Fixed column widths matching Figma proportions */
+.col-nickname     { min-width: 130px; width: 18%; }
+.col-bank-name    { min-width: 130px; width: 22%; }
+.col-type         { min-width: 80px;  width: 9%; }
+.col-routing      { min-width: 120px; width: 16%; }
+.col-account      { min-width: 130px; width: 18%; }
+.col-remove       { min-width: 70px;  width: 8%; }
 
 .header-row {
     min-height: 56px;
@@ -151,6 +163,7 @@
     font-family: Verdana, sans-serif;
     font-size: 14px;
     color: var(--color-text, #333333);
+    white-space: nowrap;
 }
 
 .sort-icon {
@@ -165,9 +178,12 @@
 
 .data-row td {
     vertical-align: middle;
-    padding: 0.5rem;
+    padding: 8px;
     border-bottom: 1px solid var(--color-gray-light, #E6E6E6);
     color: var(--color-text, #333333);
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
