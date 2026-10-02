@@ -54,11 +54,14 @@
 /* Section header */
 
 .section-title {
+    display: inline-block;
     font-family: Verdana, sans-serif;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
-    color: #000000;
-    margin: 0 0 8px 0;
+    color: var(--color-primary, #006bb7);
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--color-primary, #006bb7);
 }
 
 .section-divider {
@@ -131,7 +134,17 @@
 }
 
 .header-content-left {
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.header-content-center {
+    justify-content: center;
+}
+
+.cell-remove {
+    text-align: center;
+    width: 80px;
 }
 
 .header-label {

@@ -134,7 +134,17 @@
 }
 
 .header-content-left {
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.header-content-center {
+    justify-content: center;
+}
+
+.cell-remove {
+    text-align: center;
+    width: 80px;
 }
 
 .header-label {
