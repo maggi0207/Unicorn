@@ -214,13 +214,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
 
                 if (ExpectToPayWagesPerformWI.Value 
                     && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
-                    && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.23) // have futa when expect future ag wages in wisconsin
+                    && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayAgWagesInAQuarterValue)) //6.23) // have futa when expect future ag wages in wisconsin
                 {
                     responses.Add(new SurveyResponse() 
                     { 
                         _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, 
                         _response = WhenExpectToPayWagesInAQuarter,
-                        _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                        _responseDisplay = whenExpectToPayAgWagesInAQuarterValue.GetDisplayName()
                     });
                 }
             }
@@ -251,13 +251,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
 
             if (!string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
-                && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayWagesInAQuarterValue)) //6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
+                && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPay20kAgWagesInAQuarterValue)) //6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
             {
                 responses.Add(new SurveyResponse() 
                 { 
                     _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, 
                     _response = WhenExpectToPayWagesInAQuarter,
-                    _responseDisplay = whenExpectToPayWagesInAQuarterValue.GetDisplayName()
+                    _responseDisplay = whenExpectToPay20kAgWagesInAQuarterValue.GetDisplayName()
                 });
             }
             else if (!string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)
