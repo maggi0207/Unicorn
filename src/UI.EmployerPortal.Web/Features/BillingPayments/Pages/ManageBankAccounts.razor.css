@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 100%;
+    max-width: 80%;
     padding-top: 24px;
     padding-bottom: 32px;
     padding-left: 24px;
@@ -35,15 +35,20 @@
     font-size: 32px;
     font-weight: 700;
     color: #000000;
-    margin: 0 0 12px 0;
+    margin: 0 0 16px 0;
 }
 
+.page-divider {
+    border: none;
+    border-top: 1px solid var(--color-gray-medium, #ADADAD);
+    margin: 0 0 32px 0;
+}
 .page-subtitle {
     font-family: Verdana, sans-serif;
     font-size: 14px;
     font-weight: 400;
     color: #000000;
-    margin: 12px 0 8px 0;
+    margin: 0 0 16px 0;
 }
 
 .action-row {
@@ -61,15 +66,15 @@
     font-size: 14px;
     font-weight: 700;
     color: var(--color-primary, #006bb7);
-    margin: 16px 0 0 0;
-    padding-bottom: 10px;
+    margin: 0;
+    padding-bottom: 8px;
     border-bottom: 3px solid var(--color-primary, #006bb7);
 }
 
 .section-divider {
     border: none;
     border-top: 1px solid var(--color-gray-medium, #ADADAD);
-    margin: -1px 0 12px 0;
+    margin: -1px 0 16px 0;
 }
 
 /* Accounts table — grid pattern matches WageAdjustmentQuarter */
@@ -87,13 +92,13 @@
     table-layout: fixed;
 }
 
-/* Fixed column widths matching Figma proportions */
-.col-nickname     { min-width: 130px; width: 18%; }
-.col-bank-name    { min-width: 130px; width: 22%; }
-.col-type         { min-width: 80px;  width: 9%; }
-.col-routing      { min-width: 120px; width: 16%; }
-.col-account      { min-width: 130px; width: 18%; }
-.col-remove       { min-width: 70px;  width: 8%; }
+/* Fixed column widths matching Figma proportions — must sum to 100% */
+.col-nickname     { min-width: 120px; width: 20%; }
+.col-bank-name    { min-width: 130px; width: 24%; }
+.col-type         { min-width: 70px;  width: 9%; }
+.col-routing      { min-width: 110px; width: 17%; }
+.col-account      { min-width: 120px; width: 22%; }
+.col-remove       { min-width: 60px;  width: 8%; }
 
 .header-row {
     min-height: 56px;
@@ -112,8 +117,8 @@
 }
 
 .header-cell {
-    height: 50px;
-    background-color: var(--color-gray-light, #f5f5f5);
+    height: 56px;
+    background-color: #E6E6E6;
     cursor: pointer;
     user-select: none;
     padding: 0 !important;
@@ -135,7 +140,7 @@
 }
 
     .header-cell-static:hover {
-        background-color: var(--color-gray-light, #f5f5f5);
+        background-color: #E6E6E6;
     }
 
 .header-content {
@@ -194,11 +199,11 @@
     border: none;
     padding: 0;
     color: var(--color-primary, #006bb7);
-    text-decoration: none;
+    text-decoration: underline;
     cursor: pointer;
     font-family: Verdana, sans-serif;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 400;
 }
 
     .account-link:hover {
@@ -226,7 +231,7 @@
 /* Add Account link */
 
 .add-account-row {
-    padding-top: 4px;
+    padding-top: 8px;
 }
 
 .add-account-link {
