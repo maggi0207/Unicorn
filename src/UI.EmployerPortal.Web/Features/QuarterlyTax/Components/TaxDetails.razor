@@ -1,0 +1,101 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+
+@if (ReportData != null)
+{
+    <div class="tax-details-container" @attributes="AdditionalAttributes">
+        <button type="button"
+                class="header-row"
+                @onclick="ToggleExpand"
+                aria-expanded="@_isExpanded.ToString().ToLower()"
+                aria-controls="tax-details-content">
+            <h2 class="title">Tax Report Details</h2>
+            <img src="images/menu/submenu-arrow.svg"
+                 alt=""
+                 width="24"
+                 height="24"
+                 class="chevron-icon @(_isExpanded ? "rotated" : "")"
+                 aria-hidden="true" />
+        </button>
+
+        @if (!string.IsNullOrEmpty(ConfirmationNumber))
+        {
+            <p class="confirmationNumber">
+                <span>The tax report confirmation number is not a payment confirmation number.</span>
+                <span>Confirmation Number for Tax Report: <b>@ConfirmationNumber</b></span>
+            </p>
+        }
+
+        @if (_isExpanded)
+        {
+            <div id="tax-details-content" class="content-grid">
+
+                @if (ShowEdit)
+                {
+                    <div class="edit-column">
+                        <button type="button" class="edit-link" @onclick="HandleEditClick" aria-label="Edit tax report details">
+                            <span class="edit-icon"> <img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" /> </span> Edit
+                        </button>
+                    </div>
+                }
+
+                <div class="content-column">
+                    <p class="instruction-text">
+                        <span class="question-number">1.</span> Monthly data should count all full-time and part-time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+                    </p>
+
+                    <dl class="data-list">
+                        <dt class="label">1a. Employee Count 1st Month - @ReportData.FirstMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount1stMonth</dd>
+
+                        <dt class="label">1b. Employee Count 2nd Month - @ReportData.SecondMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount2ndMonth</dd>
+
+                        <dt class="label">1c. Employee Count 3rd Month - @ReportData.ThirdMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount3rdMonth</dd>
+
+                        <dt class="label">2. Total Gross Covered Wages</dt>
+                        <dd class="value">@ReportData.TotalGrossCoveredWages.ToString("C2")</dd>
+
+                        @if (!ReportData.IsAuditSource &&
+                                ReportData.PreviouslyReportedGrossWages.HasValue &&
+                                ReportData.TotalGrossCoveredWages != ReportData.PreviouslyReportedGrossWages.Value)
+                        {
+                            <dt class="label sub-label">Wages Previously Reported.</dt>
+                            <dd class="value out-of-balance-value">@ReportData.PreviouslyReportedGrossWages.Value.ToString("C2")</dd>
+
+                            @if (!string.IsNullOrEmpty(ReportData.GrossWageDiscrepancyExplanation))
+                            {
+                                <dt class="label sub-label">2a. Reason for Discrepancy</dt>
+                                <dd class="value">@ReportData.GrossWageDiscrepancyExplanation</dd>
+                            }
+                        }
+
+                        <dt class="label">3. Less Exclusions for Wages Over @ReportData.ExclusionThreshold.ToString("C2")</dt>
+                        <dd class="value">@ReportData.LessExclusions.ToString("C2")</dd>
+
+                        @if (!string.IsNullOrEmpty(ReportData.ExclusionOverrideReason))
+                        {
+                            <dt class="label sub-label">Reason for Exclusion Change</dt>
+                            <dd class="value">@ReportData.ExclusionOverrideReason</dd>
+                        }
+                        <dt class="label">4. Defined (Taxable) Payroll</dt>
+                        <dd class="value">@ReportData.DefinedPayroll.ToString("C2")</dd>
+
+                        <dt class="label">5. @ReportData.TaxYear Tax Rate</dt>
+                        <dd class="value">@ReportData.TaxRate.ToString("0.0000")</dd>
+
+                        <dt class="label">6. Tax Assessed</dt>
+                        <dd class="value">@ReportData.TaxAssessed.ToString("C2")</dd>
+                    </dl>
+                </div>
+
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="tax-details-container" @attributes="AdditionalAttributes">
+        <p class="no-data">No tax report data available.</p>
+    </div>
+}

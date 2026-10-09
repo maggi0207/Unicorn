@@ -1,0 +1,279 @@
+
+.employee-information-container2 {
+    width: 100%;
+    height: 500px;
+    /*max-width: 990px;*/
+    margin: 0 auto;
+    font-family: Verdana;
+    /*gap: 24px;*/
+}
+
+.employee-information-container1 {
+    width: 100%;
+    height: 300px;
+    /*max-width: 990px;*/
+    margin: 0 auto;
+    font-family: Verdana;
+    /*gap: 24px;*/
+}
+
+.employee-information-container3 {
+    width: 100%;
+    height: auto;
+    /*max-width: 990px;*/
+    margin: 0 auto;
+    font-family: Verdana;
+    /*gap: 24px;*/
+}
+
+.employee-information-header {
+    border-bottom: 1px;
+    gap: 6px;
+    border-bottom: none !important;
+}
+
+.wage-adjustment-header {
+    /*width: 990px;*/
+    height: 50px;
+    border-bottom: 1px;
+    gap: 6px;
+    border-bottom: none !important;
+}
+
+.employee-information-header-verify {
+    height: 60px;
+    border-bottom: 1px;
+    gap: 8px;
+    border-bottom: none !important;
+}
+
+.page-header {
+    font-family: Verdana;
+    font-weight: Bold;
+    font-size: 32px;
+    color: #000000;
+    line-height: 1.15;
+    padding-bottom: 24px;
+    border-bottom: none !important;
+    margin-bottom: 4px !important;
+}
+
+.employee-ssn {
+    font-size: 14px;
+    margin-top: 0 !important;
+}
+
+    .employee-ssn .label {
+        font-weight: 600; /* bold label */
+        color: #000;
+    }
+
+    .employee-ssn .value {
+        font-weight: 400; /* normal text */
+        color: #333;
+    }
+
+
+.tbl-input {
+    height: 45px;
+    width: 142px;
+}
+
+.emp-identifier-title {
+    width: 100%;
+    border-bottom: 1px solid #003663;
+    margin-bottom: 20px;
+}
+
+.verify-info {
+    width: 100%;
+    border-bottom: 1px solid gray;
+    margin-bottom: 20px;
+}
+
+.table-container {
+    width: 100%;
+}
+
+.header-row {
+    min-height: 56px;
+}
+
+.header-cell {
+    height: 50px;
+    background-color: var(--color-gray-light, #f5f5f5) !important;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 8px var(--spacing-sm, 8px);
+}
+
+.header-content-left {
+    justify-content: space-between;
+}
+
+.header-content-right {
+    justify-content: flex-end;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-content-center {
+    justify-content: center;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-label-small {
+    line-height: 1.2;
+    text-align: center;
+}
+
+
+.data-row td {
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+.ssn-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ssn-text {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.ssn-toggle-all-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+    .ssn-toggle-all-btn:hover {
+        opacity: 0.7;
+    }
+
+.ssn-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+    .ssn-toggle-btn:hover {
+        opacity: 0.7;
+    }
+
+
+/* Chevron icon (arrow) */
+.chevron-icon {
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+    .chevron-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+/* Two-column grid layout */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 100px;
+    width: 100%;
+    padding-top: 5px;
+}
+
+/* Left column - content */
+.content-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Right column - edit button */
+.edit-column {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-right: 5px;
+}
+
+/* Edit link styled as a button */
+.edit-link {
+    background: none;
+    border: none;
+    color: #003663;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+}
+
+    .edit-link:hover {
+        color: #258cfb;
+        text-decoration: underline;
+    }
+
+    .edit-link:focus {
+        outline: 2px solid #258cfb;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+/* Edit icon */
+.edit-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tax-entry-container {
+    width: 100%;
+    height: 1136px;
+    /*max-width: 990px;*/
+    margin: 0 auto;
+    font-family: Verdana;
+    /*gap: 24px;*/
+}
+
+.tax-details-container {
+    width: 100%;
+    background: #F3F3F3;
+    border-radius: 6px;
+    padding: 24px 8px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.wage-adjustment-container {
+    width: 100%;
+    height: 500px;
+    background: #F3F3F3;
+    border-radius: 6px;
+    padding: 24px 8px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}

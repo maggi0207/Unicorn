@@ -1,0 +1,38 @@
+@page "/quarterly-tax/missing-reports"
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.MissingWageAndTaxReports
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading report data..." />
+}
+else
+{
+    <div class="page-content">
+        <PageTitle>Missing Tax & Wage Reports</PageTitle>
+        <h1 class="page-header" tabindex="-1" @ref="_headingRef">Missing Tax & Wage Reports</h1>
+        <hr />
+        <AnnouncementBanner AnnouncementType="AnnouncementType.WAGETAXFILING" />
+        <br />
+
+        @if (!_userHasAssociatedEmployers)
+        {
+            <MissingReportsNoAccount></MissingReportsNoAccount>
+        }
+        else if (!_userHasSelectedEmployer)
+        {
+            <MissingReportsNoAccountSelected></MissingReportsNoAccountSelected>
+        }
+        else if (_userHasSelectedEmployer && _reportData.MissingReports.Count == 0)
+        {
+            <MissingReportsUpToDate></MissingReportsUpToDate>
+        }
+        else if (_userHasSelectedEmployer && _reportData.MissingReports.Count > 0)
+        {
+            <MissingReports ReportData="@_reportData"></MissingReports>
+            <MissingReportsAvailableCredit></MissingReportsAvailableCredit>
+        }
+    </div>
+}

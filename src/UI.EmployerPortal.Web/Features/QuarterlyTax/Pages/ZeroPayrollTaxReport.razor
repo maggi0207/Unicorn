@@ -1,0 +1,118 @@
+@page "/quarterly-tax/zero-payroll-tax-report"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Zero Tax Report</PageTitle>
+<div class="page-content">
+    @if (_pageState == PageState.Confirmation)
+    {
+        <ReportConfirmation ReportingQuarter="@_reportingQuarter"
+                            DueDate="@_dueDate"
+                            EffectiveDate="@DateTime.Now"
+                            ConfirmationNumber="@_confirmationNumber"
+                            FiledQuarter="@_quarter"
+                            FiledYear="@_taxYear"
+                            FiledFilingType="@_filingType" />
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading report data..." />
+    }
+    else
+    {
+        <EditForm EditContext="_editContext">
+            <DataAnnotationsValidator />
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
+            @if (_hasSubjectivityStep)
+            {
+                <Wizard Steps="@_wizardSteps"
+                        @bind-CurrentStep="@_currentStep"
+                        UseTextStepper="true"
+                        ShowCancelButton="true"
+                        ShowBackButton="true"
+                        ShowSaveAndQuitButton="false"
+                        OnBackClick="HandleBackClick"
+                        OnCancelClick="HandleCancel"
+                        OnActionClick="HandleActionClick"
+                        AutoNavigateOnAction="false"
+                        DisableBackOnFirstStep="false">
+
+
+                @if (_currentStep == 1)
+                {
+                    <SubjectivityQuestionsStep Categories="@_subjectivityResponse?.EmployerPortalPayrollQuestionCategories"
+                         Answers="@_subjectivityAnswers"
+                         FieldIds="@_validationFieldIds"
+                         ShowValidation="@_showValidationSummary"
+                         @ref="_subjectivityStepRef" />
+                }
+                else if (_currentStep == 2)
+                {
+                    @VerificationContent
+                }
+                </Wizard>
+            }
+            else
+            {
+                @VerificationContent
+                <div class="page-navigation">
+                <div class="page-navigation-left">
+                <Button Text="BACK"
+                               Variant="ButtonVariant.Secondary"
+                               Size="ButtonSize.Medium"
+                               OnClick="HandleBackClick"
+                               AriaLabel="Go back" />
+                <Button Text="CANCEL"
+                               Variant="ButtonVariant.Secondary"
+                               ShowBorder="false"
+                               Size="ButtonSize.Medium"
+                               OnClick="HandleCancel"
+                               AriaLabel="Cancel report" />
+                </div>
+                <div class="page-navigation-right">
+                <Button Text="SUBMIT REPORT"
+                               Variant="ButtonVariant.Primary"
+                               Size="ButtonSize.Medium"
+                               OnClick="HandleSubmitClick"
+                               AriaLabel="Submit tax report" />
+                </div>
+                </div>
+            }
+        </EditForm>
+    }
+</div>
+
+<LeaveReportModal IsOpen="@_showLeaveModal"
+                  OnClose="HandleLeaveModalClose"
+                  OnConfirm="HandleLeaveModalConfirm" />
+
+@code {
+    private RenderFragment VerificationContent =>
+        @<text>
+        <h1 class="page-title">Tax Report</h1>
+        <div class="page-subheader">
+        <span class="subheader-item"><strong>Reporting Quarter:</strong> <span class="subheader-value">@_reportingQuarter</span></span>
+        <span class="subheader-item"><strong>Due Date:</strong> <span class="subheader-value">@_dueDate.ToString("M/d/yyyy")</span></span>
+        <span class="subheader-item"><strong>Effective Date:</strong> <span class="subheader-value">@DateTime.Now.ToString("M/d/yyyy")</span></span>
+        </div>
+        <p class="body-text">Verify the information below and then click "Submit Report."</p>
+        <p class="note-text"><strong>Note:</strong> Tax or wage reports submitted after the due date may result in interest and/or penalty charges.</p>
+
+            <TaxDetails ReportData="@_taxDetailsData" IsExpanded="true" ShowEdit="false" />
+
+            @if (_hasSubjectivityStep && _subjectivityResponse != null)
+            {
+                <SubjectivityDetails Categories="@_subjectivityResponse.EmployerPortalPayrollQuestionCategories"
+                                    Answers="@_subjectivityAnswers"
+                                    OnEdit="HandleSubjectivityEdit" />
+            }
+        </text>;
+}
+

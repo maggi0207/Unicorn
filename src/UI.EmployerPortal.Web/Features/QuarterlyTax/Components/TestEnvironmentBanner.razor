@@ -1,0 +1,17 @@
+@if (IsTestEnvironment)
+{
+    <div class="test-env-banner" role="status">
+        <span class="test-env-label">TEST:</span>
+        <span class="test-env-text">
+            <strong>You are in the test environment.</strong>
+            @Description
+        </span>
+    </div>
+}
+@code {
+
+    // Whether the bosting page was served from the <c>quarterly-tax/test/...</c> route.
+    [Parameter] public bool IsTestEnvironment { get; set; }
+
+    [Parameter] public string Description { get; set; } = "Nothing here affects live UI accounts. ";
+}

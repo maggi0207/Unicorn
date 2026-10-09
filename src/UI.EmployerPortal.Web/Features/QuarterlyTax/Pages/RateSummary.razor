@@ -1,0 +1,79 @@
+@page "/manage-account/rate-summary"
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject ITaxAndWageEntryService TaxRateService
+
+<PageTitle>Rate Summary</PageTitle>
+<div class="page-content">
+    <h1 class="page-header">Rate Summary</h1>
+    <div class="divider" role="separator"></div>
+
+    <p class="page-description">
+        This page displays the yearly UI tax rates that have been assigned to your account.
+        To see how tax rates are calculated, please see
+        <a href="https://dwd.wisconsin.gov/ui201/t4201.htm#tax-rate-determined" target="_blank" rel="noopener noreferrer" class="tax-link">How your Tax Rate is Determined.</a>
+
+    </p>
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else if (TaxRates == null || !TaxRates.Any())
+    {
+        <p role="status">No rate data available.</p>
+    }
+    else
+    {
+        @foreach (var rate in TaxRates.OrderByDescending(x => x.TaxRateYear))
+        {
+            <section class="ownership-card" aria-labelledby="@($"year-{rate.TaxRateYear}")">
+                <div class="year-header">
+                    <h2 id="@($"year-{rate.TaxRateYear}")" class="year-text">@rate.TaxRateYear</h2>
+                </div>
+
+                <table class="rate-table">
+                    <caption class="sr-only">
+                        Tax rate details for @rate.TaxRateYear
+                    </caption>
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">Account Balance Rate Factor</th>
+                            <td> @rate.ReserveFundBalanceRateFactorAmount.ToString("C")</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Defined Payroll Rate Factor</th>
+                            <td>@rate.TaxablePayrollRateFactorAmount.ToString("C")</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Total Tax Rate</th>
+                            <td>@rate.TotalRate.ToString("P2")</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Tax Rate Description</th>
+                            <td> @rate.RateNoticeDescription</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private List<TaxRate>? TaxRates;
+    private bool _isLoading = true;
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        TaxRates = await TaxRateService.GetAllTaxRateForEmployer() ?? new List<TaxRate>();
+        _isLoading = false;
+    }
+}

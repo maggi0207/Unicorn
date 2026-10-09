@@ -1,0 +1,245 @@
+@media print {
+    .chevron-icon {
+        display: none;
+    }
+}
+
+/* Container styling based on Figma specifications */
+.tax-details-container {
+    width: 100%;
+    background: #F3F3F3;
+    border-radius: 6px;
+    padding: 24px 8px 24px 24px; /* Minimal right padding to reduce whitespace */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Header row with title and chevron - clickable */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    font: inherit;
+}
+
+    .header-row:hover {
+        opacity: 0.8;
+    }
+
+.confirmationNumber span {
+    display: block;
+}
+
+/* Title styling */
+.title {
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+}
+
+/* Chevron icon (arrow) */
+.chevron-icon {
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+    .chevron-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+/* Two-column grid layout */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 100px;
+    width: 100%;
+    padding-top: 5px;
+}
+
+/* Left column - content */
+.content-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    order: 1;
+}
+
+/* Right column - edit button */
+.edit-column {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    order: 2;
+    margin-right: 5px;
+}
+
+/* Instruction text styling */
+.instruction-text {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    color: #000000;
+    margin: 0;
+    padding: 0 24px;
+    text-indent: -24px;
+}
+
+/* Question number */
+.question-number {
+    font-weight: 400;
+}
+
+/* Definition list container using CSS Grid */
+.data-list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px 0;
+    row-gap: 16px;
+    width: 100%;
+}
+
+/* Label styling (dt element) */
+.label {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    color: #000000;
+    margin: 0;
+    padding-left: 0;
+    padding-bottom: 8px; /* sm padding */
+    border-bottom: 1px solid #ADADAD;
+    grid-column: 1;
+}
+
+/* Add padding only for rows 1a, 1b, 1c */
+.data-list > dt:nth-of-type(1),
+.data-list > dt:nth-of-type(2),
+.data-list > dt:nth-of-type(3) {
+    padding-left: 40px;
+}
+
+/* Value styling (dd element) */
+.value {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 160%;
+    color: #000000;
+    text-align: right;
+    margin: 0;
+    padding-bottom: 8px;
+    padding-right: 0;
+    border-bottom: 1px solid #ADADAD;
+    grid-column: 2;
+}
+
+/* Edit link styled as a button */
+.edit-link {
+    background: none;
+    border: none;
+    color: #003663;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+}
+
+    .edit-link:hover {
+        color: #258cfb;
+        text-decoration: underline;
+    }
+
+    .edit-link:focus {
+        outline: 2px solid #258cfb;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+/* Edit icon */
+.edit-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* No data message */
+.no-data {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #666666;
+    text-align: center;
+    margin: 0;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .tax-details-container {
+        padding: 16px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    .data-list {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .label {
+        padding-left: 0;
+        font-size: 14px;
+        border-bottom: none;
+        padding-bottom: 4px;
+        grid-column: auto;
+    }
+
+    /* Add smaller padding for rows 1a, 1b, 1c on mobile */
+    .data-list > dt:nth-of-type(1), .data-list > dd:nth-of-type(1),
+    .data-list > dt:nth-of-type(2), .data-list > dd:nth-of-type(2),
+    .data-list > dt:nth-of-type(3), .data-list > dd:nth-of-type(3) {
+        padding-left: 16px;
+    }
+
+    .value {
+        font-size: 14px;
+        text-align: left;
+        padding-left: 0;
+        padding-bottom: 8px;
+        grid-column: auto;
+    }
+}
+
+.sub-label {
+    padding-left: 24px;
+}
+
+.out-of-balance-value {
+    color: #c82838;
+    font-weight: 700;
+}

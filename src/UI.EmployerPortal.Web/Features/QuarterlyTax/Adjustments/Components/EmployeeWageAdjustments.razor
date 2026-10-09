@@ -1,0 +1,282 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<CascadingValue Value="_editContext" IsFixed="false">
+    <DataAnnotationsValidator />
+    <ValidationErrorSummary ShowSummary="_showErrors" FieldIds="_fieldIds" FieldResolver="ResolveField" SummaryId="wage-adj-validation-summary" />
+    <div class="wage-adjustments-step">
+
+        <div class="step-header">
+            <h1 class="step-title"> Employees & Wage Adjustments</h1>
+            <p class="reporting-quarter"><strong>Reporting Quarter: </strong>@ReportingQuarter</p>
+            <hr />
+
+            @if (!EmployeesData.AdjustmentEmployees.Any())
+            {
+                <p class="step-instructions">
+                    Choose employees for which you wish to make an adjustment, then select Continue to adjust wages.
+                </p>
+            }
+            else
+            {
+                <p class="step-instructions">
+                    Enter the applicable adjustments below the current values.
+                </p>
+            }
+            <p class="note-text">
+                <strong>Note:</strong> You may change up to <strong>two</strong> items when making an adjustment to employee identifiers (SSN, First Name, Last Name).
+            </p>
+        </div>
+
+
+        <div class="employees-section">
+            <div class="section-header">
+                <h2 class="section-title">Employees with Wage Adjustments</h2>
+                <Button OnClick="OpenAddEmployeesModal"
+                        Variant="ButtonVariant.Secondary">
+                    <span class="add-icon">+</span> SELECT EMPLOYEES
+                </Button>
+            </div>
+
+            <div class="table-container">
+                <table class="adjustments-table" aria-label="Employee wage adjustments">
+                    <caption class="visually-hidden">
+                        View current employee information and update employee name, SSN, or wages.  Rows to update employee information immediately follow rows with current employee information.
+                        Column headers with buttons are sortable.
+                    </caption>
+                    <thead>
+                        <tr class="header-row">
+                            <th id="last-name-header" scope="col" class="header-cell header-cell-sortable"
+                                aria-sort="@GetAriaSort("lastName")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("lastName"))">
+                                        <span>Last Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("lastName")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th id="first-name-header" scope="col" class="header-cell header-cell-sortable"
+                                aria-sort="@GetAriaSort("firstName")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("firstName"))">
+                                        <span>First Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("firstName")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th id="ssn-header" scope="col" class="header-cell header-cell-sortable"
+                                aria-sort="@GetAriaSort("ssn")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("ssn"))">
+                                        <span></span>
+                                        <span></span>
+                                        <span>SSN</span>
+                                        <span aria-hidden="true">@GetSortIcon("ssn")</span>
+                                    </button>
+                                    <button type="button"
+                                            class="ssn-toggle-btn"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="ToggleAllSsnVisibility"
+                                            title="@(_showAllSsns ? "Hide all SSNs" : "Show all SSNs")"
+                                            aria-label="@(_showAllSsns ? "Hide all SSNs" : "Show all SSNs")">
+                                        <img src="@(_showAllSsns ? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                    </button>
+                                </div>
+                            </th>
+                            <th id="quarterly-wage-header" scope="col" class="header-cell header-cell-sortable"
+                                aria-sort="@GetAriaSort("quarterlyWages")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("quarterlyWages"))">
+                                        <span>Quarterly Wages</span>
+                                        <span aria-hidden="true">@GetSortIcon("quarterlyWages")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th id="adjustment-reason-header" scope="col" class="header-cell header-cell-sortable"
+                                aria-sort="@GetAriaSort("reason")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("reason"))">
+                                        <span>Wage Adjustment Reason</span>
+                                        <span aria-hidden="true">@GetSortIcon("reason")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell header-cell-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int index = 0;
+                        }
+                        @foreach (var employee in PagedEmployees)
+                        {
+                            var empId = employee.Id;
+                            var isSsnVisible = _visibleSsns.Contains(empId);
+                            var hasReasonError = employee.AdjustedQuarterlyWages.HasValue && (employee.AdjustmentReasonCodeSK is null or 0);
+                            var hasSSnFormatError = _invalidSsnErrors.Contains(empId);
+                            var hasWageError = (employee.AdjustmentReasonCodeSK.HasValue && (employee.AdjustedQuarterlyWages is null))
+                                || IsAdjustedWageUnchanged(employee);
+                            var hasAllIdentifiersChanged = !string.IsNullOrWhiteSpace(employee.CorrectedSSN) && !string.IsNullOrWhiteSpace(employee.CorrectedFirstName) && !string.IsNullOrWhiteSpace(employee.CorrectedLastName);
+                            <!------------------------------------------------------Original Vlaues-------------------------->
+                            <tr @key="@($"{empId}-original")" class="data-row">
+                                <th id="last-name-@index" scope="row" class="data-cell">
+                                    <span class="original-value">@employee.OriginalLastName</span>
+                                </th>
+                                <th id="first-name-@index" scope="row" class="data-cell">
+                                    <span class="original-value">@employee.OriginalFirstName</span>
+                                </th>
+                                <td class="data-cell">
+                                    <div class="ssn-row right">
+                                        <span class="original-value">@(isSsnVisible ? SsnHelper.FormatSSN(employee.OriginalSSN) : SsnHelper.MaskSSN(employee.OriginalSSN))</span>
+                                        <button type="button"
+                                                class="ssn-toggle-btn" @onclick="() => ToggleSsnVisibility(empId)" title="@(isSsnVisible ? "Hide SSN" : "Show SSN")" aria-label="@(isSsnVisible ? "Hide SSN for" : "Show SSN for") @employee.OriginalFirstName @employee.OriginalLastName">
+                                            <img src="@(isSsnVisible ? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="data-cell">
+                                    <span class="original-value right">@employee.OriginalQuarterlyWages.ToString("C2")</span>
+                                </td>
+                                <td class="data-cell"></td>
+                                <td class="data-cell actions-cell"></td>
+                            </tr>
+                            <!------------------------------------------------------Corrected Vlaues-------------------------->
+
+                            <tr @key="empId" class="data-row">
+                                <td class="data-cell">
+                                    <div class="field-stack">
+                                        <OutlinedTextField Id="@($"corrected-lastname-{empId}")" Value="@employee.CorrectedLastName" Placeholder="Last Name"
+                                                           ValueChanged="v => HandleCorrectedLastNameChanged(employee, v)"
+                                                           For="@(()=>employee.CorrectedLastName)"
+                                                           Visible="@hasAllIdentifiersChanged"
+                                                           AriaLabelledBy="@($"first-name-{index} last-name-{index} last-name-header")" />
+                                    </div>
+                                </td>
+                                <td class="data-cell">
+                                    <div class="field-stack">
+                                        <OutlinedTextField Id="@($"corrected-firstname-{empId}")"
+                                                           Value="@employee.CorrectedFirstName" Placeholder="First Name"
+                                                           ValueChanged="v => HandleCorrectedFirstNameChanged(employee, v)"
+                                                           For="@(()=>employee.CorrectedFirstName)"
+                                                           Visible="@hasAllIdentifiersChanged"
+                                                           AriaLabelledBy="@($"first-name-{index} last-name-{index} first-name-header")" />
+                                    </div>
+                                </td>
+                                <td class="data-cell">
+                                    <div class="field-stack field-stack-ssn">
+                                        <OutlinedSSNInput Id="@($"corrected-ssn-{empId}")"
+                                                          Label=""
+                                                          AllowMNumber="true"
+                                                          Value="@(SsnHelper.FormatSSN(employee.CorrectedSSN!))"
+                                                          ValueChanged="v => HandleCorrectedSsnChanged(employee, v)"
+                                                          ValueExpression="@(()=>employee.CorrectedSSN)"
+                                                          IsFocused="@_correctedSsnFocused.GetValueOrDefault(empId)"
+                                                          IsFocusedChanged="v => HandleCorrectedSsnFocusedChanged(employee, v)"
+                                                          ShowSSN="@_correctedSsnVisible.GetValueOrDefault(empId)"
+                                                          ShowSSNChanged="v => HandleCorrectedSsnVisibleChanged(empId, v)"
+                                                          Visible="@hasSSnFormatError"
+                                                          AriaLabelledBy="@($"first-name-{index} last-name-{index} ssn-header")" />
+                                    </div>
+                                </td>
+                                <td class="data-cell">
+                                    <div class="field-stack field-stack-wages">
+                                        <NumericTextBox InputType="@InputDataTypes.Currency"
+                                                        Id="@($"corrected-wages-{empId}")"
+                                                        Value="@employee.AdjustedQuarterlyWages"
+                                                        ValueChanged="@(v => HandleAdjustedWageChanged(employee, v))"
+                                                        ValueExpression="@(() => employee.AdjustedQuarterlyWages)"
+                                                        OnBlurCallback="v => HandleAdjustedWageOnBlur(employee)"
+                                                        AriaLabel="@($"Adjusted wages for {employee.OriginalFirstName} {employee.OriginalLastName}")"
+                                                        Placeholder="Adjusted Wages"
+                                                        AriaDescription="Adjusted Wages"
+                                                        ShowCurrencyIcon="false"
+                                                        Visible="@hasWageError"
+                                                        ClearZeroOnFocus="false"
+                                                        AriaLabelledBy="@($"first-name-{index} last-name-{index} quarterly-wage-header")" />
+                                    </div>
+                                </td>
+                                <td class="data-cell">
+                                    <div class="field-stack field-stack-reason"
+                                         title="@(!employee.AdjustedQuarterlyWages.HasValue
+                                                                                                                            ? "Wage adjustment reason is only available when quarterly wages are entered."
+                                                                                                                            : null)">
+                                        <OutlinedSelectField Value="@employee.AdjustmentReasonCodeSK?.ToString()"
+                                                             Id="@($"corrected-reason-{empId}")"
+                                                             Disabled="@(!employee.AdjustedQuarterlyWages.HasValue)"
+                                                             ValueChanged="@(v => HandleReasonChanged(employee, v))"
+                                                             Options="@AdjustmentReasonOptions"
+                                                             For="@(()=>employee.AdjustmentReasonValidation)"
+                                                             Placeholder="@(employee.AdjustedQuarterlyWages.HasValue
+                                                                                                                            ? "Select Adjustment Reason"
+                                                                                                                            : "Enter wage to select reason")"
+                                                             DisableEmptyOption="false"
+                                                             OnBlur="v => HandleAdjustedWageReasonOnBlur(employee)"
+                                                             Visible="@hasReasonError"
+                                                             AriaLabelledBy="@($"first-name-{index} last-name-{index} adjustment-reason-header")" />
+                                    </div>
+                                </td>
+                                <td class="data-cell actions-cell">
+                                    <Button OnClick="() => HandleRemoveEmployee(employee)"
+                                            Variant="ButtonVariant.Secondary"
+                                            ShowBorder="false"
+                                            AriaLabel="@($"Remove {employee.OriginalFirstName} {employee.OriginalLastName} from adjustment")">
+                                        <img src="@Assets["icons/trash.svg"]" alt="Remove" class="action-icon" />
+                                    </Button>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    </tbody>
+                </table>
+                @if (EmployeesData.AdjustmentEmployees.Any())
+                {
+                    <div class="pagination">
+                        <div class="pagination-rows">
+                            <span>Rows per page</span>
+                            <select class="pagination-select" value="@_pageSize" @onchange="HandlePageSizeChange">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        <div class="pagination-info">
+                            <span>@PaginationLabel</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button type="button" class="page-btn" disabled="@(_currentPage == 1)"
+                                    @onclick="GoToFirstPage" aria-label="First page">
+                                |&lt;
+                            </button>
+                            <button type="button" class="page-btn" disabled="@(_currentPage == 1)"
+                                    @onclick="GoToPreviousPage" aria-label="Previous page">
+                                &lt;
+                            </button>
+                            <button type="button" class="page-btn" disabled="@(_currentPage == TotalPages)"
+                                    @onclick="GoToNextPage" aria-label="Next page">
+                                &gt;
+                            </button>
+                            <button type="button" class="page-btn" disabled="@(_currentPage == TotalPages)"
+                                    @onclick="GoToLastPage" aria-label="Last page">
+                                &gt;|
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</CascadingValue>
+<AddEmployeesModal IsOpen="@_isAddModalOpen"
+                   PreviouslyReportedEmployees="@EmployeesData.PreviouslyReportedEmployees"
+                   AddedEmployees="@EmployeesData.AdjustmentEmployees"
+                   OnClose="HandleAddModalClose"
+                   OnAddEmployee="HandleEmployeeAdded" OnRemoveEmployee="HandleRemoveEmployeeFromAddModel" />
+
+<RemoveAdjustmentEmployeeModal IsOpen="@_isRemoveModalOpen"
+                               OnClose="HandleRemoveModalClose"
+                               OnConfirm="HandleRemoveConfirmed" />

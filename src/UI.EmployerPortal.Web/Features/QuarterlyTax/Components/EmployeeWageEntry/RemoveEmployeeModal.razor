@@ -1,0 +1,73 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-employee-modal-title" @ref="_modalElement">
+            <div class="modal-header">
+                <h3 id="remove-employee-modal-title" class="modal-title">Remove Employee?</h3>
+                <button type="button" class="modal-close" @onclick="Close" aria-label="Close">x</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="modal-text">
+                    Are you sure you want to remove this employee from this and all future quarterly reports?
+                </p>
+                @if (IsDeletionDisabled)
+                {
+                    <p class="text-danger mt-3 fw-bold" style="font-size: 0.875rem;">
+                        Cannot remove employee when quarterly wages are not zero.
+                    </p>
+                }
+            </div>
+            <div class="modal-footer">
+                <Button Text="DO NOT REMOVE EMPLOYEE"
+                        Variant="Button.ButtonVariant.Secondary"
+                        ShowBorder="false"
+                        OnClick="Close" />
+                <Button Text="REMOVE EMPLOYEE"
+                        Variant="Button.ButtonVariant.Secondary"
+                        Disabled="IsDeletionDisabled"
+                        OnClick="Remove" />
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsDeletionDisabled { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<EmployeeWageEntryData> OnConfirm { get; set; }
+    private ElementReference _modalElement;
+    private IJSObjectReference? _module;
+    private bool _wasOpen;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _modalElement);
+        }
+        else if (!IsOpen && _wasOpen)
+        {
+            _wasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+
+    private Task HandleBackdropClick() => Close();
+
+    private Task Remove() => OnConfirm
+    .InvokeAsync();
+
+}

@@ -1,0 +1,281 @@
+/* Table container - contains table and pagination */
+.table-container {
+    width: 100%;
+}
+
+.missing-report-title {
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+/* Header row */
+.header-row {
+    height: 56px;
+}
+
+/* Header cell (th) */
+.header-cell {
+    padding: 0 !important;
+    background-color: var(--color-gray-light) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--color-gray-medium) !important;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Header content container */
+.header-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 var(--spacing-sm);
+}
+
+.header-content-left {
+    justify-content: space-between;
+}
+
+.header-content-right {
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+}
+
+.header-content-multiline {
+    height: 56px;
+}
+
+/* Header labels */
+.header-label {
+    line-height: var(--line-height-normal);
+}
+
+.header-label-small {
+    line-height: 1.2;
+    text-align: right;
+}
+
+/* Sort icon */
+.sort-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Focus styles for sortable headers */
+.header-sort-button {
+    background-color: transparent;
+    border: none;
+    text-align: left;
+}
+
+#pending-reports-table:focus {
+    outline: 2px solid #c82838;
+    outline-offset: 2px;
+}
+
+/* Data rows */
+.data-row {
+    cursor: pointer;
+}
+
+/* Negative balance indicator */
+.negative-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-error);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 4px;
+}
+
+/* Visually hidden but accessible to screen readers */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+tbody td {
+    text-align: right;
+}
+
+    tbody td:first-child {
+        text-align: left;
+    }
+
+.file-report-button {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    background: var(--color-text-body-secondary, #0D6EFD);
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+}
+
+.rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.page-info {
+    min-width: 85px;
+    white-space: nowrap;
+    margin-right: 1rem;
+}
+
+/* Page size dropdown */
+.page-size-select {
+    width: 3.5rem;
+    padding-right: 24px !important;
+    padding-left: 6px !important;
+    background-position: right 4px center !important;
+    background-size: 12px !important;
+}
+
+/* Paging buttons */
+.paging-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+    .paging-btn:disabled {
+        cursor: default;
+    }
+
+/* Tablet styles */
+@media (max-width: 1023px) {
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .header-cell {
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 575px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .page-info {
+        margin-right: 0;
+    }
+}
+
+.active-audit {
+    background-color: #ffe8e8;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 1px solid #C82838;
+    border-bottom: 1px solid #C82838;
+    border-left: 5px solid #C82838;
+    border-right: 1px solid #C82838;
+    border-color: #C82838;
+    box-shadow: 0px 4px 5px 0px #00000024;
+}
+
+.missing-reports {
+    background-color: #FFFCF3;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 1px solid #FBB829;
+    border-bottom: 1px solid #FBB829;
+    border-left: 5px solid #FBB829;
+    border-right: 1px solid #FBB829;
+    border-color: #FBB829;
+    box-shadow: 0px 4px 5px 0px #00000024;
+}
+
+.error-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: black;
+    padding: 10px;
+}
+
+.custom-header th {
+    background-color: #F3F3F3;
+    color: black;
+    border-bottom: solid;
+    border-width: 1px;
+    border-bottom: 1px solid #ADADAD;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    text-align: left;
+}
+
+.custom-row td {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    text-align: left;
+}
+
+.custom-cell-late {
+    font-weight: 700 !important;
+    color: #DC3546;
+}
+
+.custom-cell-due-soon {
+    font-weight: 700 !important;
+    color: #C05628;
+}
+
+.custom-cell-report-needed {
+    font-weight: 700 !important;
+    color: #198754;
+}
+
+.custom-cell-action {
+    font-weight: 700 !important;
+    color: #0D6EFD;
+}
+
+.pending-status {
+    font-weight: 700 !important;
+    color: #C05628;
+}

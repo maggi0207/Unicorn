@@ -1,0 +1,81 @@
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inject IJSRuntime JS
+<div class="confirmation-page">
+    <h1 id="confirmation-heading" class="confirmation-title" tabindex="-1">@(IsSourceTestEnv ? "Test Upload Confirmation" : "Confirmation")</h1>
+    <hr class="title-divider" />
+    <div class="success-section">
+        <div class="success-message">
+            <span class="success-icon">
+                <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <span class="success-text">
+                @if(IsSourceTestEnv)
+                {
+                    <text>Your TEST tax report has been submitted. Nothing was filed.</text>
+                }
+                else
+                {
+                    <text>Your tax report has been submitted.</text>
+                }
+                </span>
+        </div>
+        <div class="confirmation-number-section">
+            <p class="confirmation-number-label">Confirmation Number:</p>
+            <h4 class="confirmation-number-value">@ConfirmationNumber</h4>
+        </div>
+        <div class="file-another-report-section">
+            @if(IsSourceTestEnv)
+            {
+                <div class="test-file-upload-summary-section">
+                    <a href="quarterly-tax/test/tax-file-upload-summary" class="view-summary-link">
+                        View Test Tax File Upload Summary
+                    </a>
+                </div>
+            }
+             <div class="action-buttons">
+                <Button Variant="Button.ButtonVariant.Secondary"
+                        Size="Button.ButtonSize.Medium"
+                        Text="@(IsSourceTestEnv ? "FILE ANOTHER TEST REPORT" : "File Another Report")"
+                        OnClick="OnFileAnotherReportClicked" />
+             </div>
+        </div>
+    </div>
+    <hr class="divider" />
+    <div class="save-page-section">
+        <button type="button" class="save-page-link" @onclick="HandleSavePageClicked">
+            <span class="save-icon">
+                <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            </span>
+            Save this page for your records.
+        </button>
+    </div>
+</div>
+@code {
+    /// <summary>
+    /// Gets or sets the confirmation number received from the submit response.
+    /// </summary>
+    [Parameter] public string ConfirmationNumber { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Whether this confirmation is for a test-environment submission.
+    /// </summary>
+    [Parameter] public bool IsSourceTestEnv { get; set; }
+
+    /// <summary>
+    /// Invoked when the user clicks "File Another Report", so the parent page
+    /// can decide how to reset/navigate back to the upload form.
+    /// </summary>
+    [Parameter] public EventCallback OnFileAnotherReportClicked { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("focusElement", "confirmation-heading");
+        }
+    }
+    private async Task HandleSavePageClicked()
+    {
+        await JS.InvokeVoidAsync("printElement", ".confirmation-page");
+    }
+}

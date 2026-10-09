@@ -1,0 +1,189 @@
+.selected-method-upload {
+    width: 100%;
+}
+
+.section-title strong {
+    font-weight: 700;
+}
+
+.selection-title {
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.report-meta {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+.subsection-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+}
+
+.report-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.quarter-select-row {
+    margin-bottom: 30px;
+}
+
+.quarter-field {
+    width: 330px;
+}
+
+.field-error {
+    font-size: 13px;
+    color: #dc2626;
+    margin-top: -24px;
+    margin-bottom: 16px;
+}
+
+.report-type-ack {
+    background-color: #f0f5fa;
+    border-left: 4px solid #003663;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #003663;
+    line-height: 1.5;
+}
+
+.report-type-ack__intro {
+    margin: 0 0 8px;
+}
+
+.report-type-ack__list {
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+
+    .report-type-ack__list li {
+        margin-bottom: 4px;
+    }
+
+.report-type-ack__question {
+    margin: 0 0 16px;
+    font-weight: 700;
+}
+
+.report-type-ack__checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+}
+
+    .report-type-ack__checkbox input {
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+.report-type-ack__error {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #dc2626;
+}
+
+.upload-section {
+    margin-bottom: 24px;
+}
+
+.validating-banner {
+    margin-bottom: 16px;
+}
+
+.validation-section {
+    margin-top: 16px;
+}
+
+.validation-banner {
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.validating-banner--error {
+    background-color: #fef2f2;
+    border-left: 4px solid #dc2626;
+    color: #991b1b;
+}
+
+.validating-banner--warning {
+    background-color: #fffcf3;
+    border-left: 4px solid #fbb829;
+    color: #92400e;
+}
+
+.error-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e6e6e6;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.error-count {
+    color: #666;
+    font-size: 13px;
+}
+
+.error-list {
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 8px 16px;
+    background-color: #fafafa;
+}
+
+    .error-list ol {
+        padding-left: 20px;
+        margin: 0;
+    }
+
+    .error-list li {
+        font-size: 13px;
+        padding: 4px 0;
+        line-height: 1.5;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+        .error-list li:last-child {
+            border-bottom: none;
+        }
+
+.error-item {
+    color: #dc2626;
+}
+
+.warning-item {
+    color: #92400e;
+}
+
+.see-more-btn {
+    background: none;
+    border: none;
+    color: #0d6efd;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 12px 0;
+    text-decoration: underline;
+}
+
+    .see-more-btn:hover {
+        color: #0a58ca;
+    }

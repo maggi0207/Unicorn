@@ -1,0 +1,37 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@if (IsOpen)
+{
+    <div class="unavailable-drawer-overlay" @onclick="HandleClose" aria-hidden="true"></div>
+
+    <aside class="unavailable-drawer" role="dialog" aria-modal="true" aria-labelledby="unavailable-drawer-title">
+
+        <div class="unavailable-drawer-header">
+            <h2 id="unavailable-drawer-title" class="unavailable-drawer-title">Unavailable Reporting Methods</h2>
+            <button type="button" class="unavailable-btn-cancel" aria-label="Close unavailable methods panel" @onclick="HandleClose">
+                <img src="@Assets["icons/close_x_blue.svg"]" alt="" aira-hidden="true" />
+            </button>
+        </div>
+
+        <div class="unavailable-drawer-content">
+            <p class="unavailable-drawer-intro">
+                The following reporting methods are not available. See the reasons listed below each method.
+            </p>
+
+            @foreach (var method in UnavailableMethods)
+            {
+                <div class="unavailable-method-item">
+                    <p class="unavailable-method-name">@method.ShortDescription</p>
+                    @if (method.EligibleReasons.Any())
+                    {
+                        <ul class="unavailable-reasons-list">
+                            @foreach (var reason in method.EligibleReasons)
+                            {
+                                <li>@reason</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            }
+        </div>
+    </aside>
+}

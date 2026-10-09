@@ -1,0 +1,70 @@
+@page "/quarterly-tax/first-quarter-deferral"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<div class="page-content">
+    @if (_pageState == PageState.Confirmation)
+
+    {
+        <DeferralConfirmation ReportingQuarter="@($"Q1 {DateTime.Now.Year}")"
+                              DueDate="@(new DateTime(DateTime.Now.Year, 4, 30))"
+                              EffectiveDate="@DateTime.Now"
+                              ConfirmationNumber="@_confirmationNumber"
+                              OnFileAnotherReportClicked="HandleFileAnotherReport" />
+    }
+    else
+    {
+        <EditForm EditContext="_editContext">
+            <DataAnnotationsValidator />
+            <PageTitle>First Quarter Deferral</PageTitle>
+            <h1 class="page-title">First Quarter Deferral</h1>
+            <div class="page-subheader"></div>
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
+            <NotificationBanner Visible="@_showNotificationSummary" NotificationType="@NotificationType.Information" Message="@_notificationMessage" />
+            @if (_isLoading)
+            {
+                <LoadingSpinner Message="Loading..." />
+            }
+            else
+            {
+                <p class="body-text-bold">Employers with a first quarter liability of $1,000 or more can defer up to 60% of the total liability to future quarters.</p>
+                <p class="body-text">To avoid assessment of interest on the deferred amount, the employer must be in compliance with the following requirements:</p>
+                <ul>
+                    <li>The employer does not have any prior quarter outstanding amounts due on April 30. This includes interest, penalties, or other fees, including amounts under appeal.</li>
+                    <li>The employer must file an on-line election to take the deferral. The Election applies only to this year's tax. A new election must be filed each year in which the employer wishes to defer their first quarter tax liability.</li>
+                    <li>This election must be filed between 2/15 and 4/30 of the year the employer wants to take the deferral. The election can be filed by clicking the "Submit" button below.</li>
+                    <li>The employer must file their tax and wage reports electronically for all calendar quarters of the year elected for deferral.</li>
+                    <li>The first quarter contribution/wage report and at least 40% of the first quarter tax liability must be received by April 30.</li>
+                    <li>The next 30% of the first quarter and all second quarter tax liability must be received by July 31.</li>
+                    <li>The next 20% of the first quarter and all third quarter tax liability must be received by October 31.</li>
+                    <li>The remaining 10% of the first quarter and all fourth quarter tax liability must be received by January 31 of the next year.</li>
+                </ul>
+
+                @if (_isEligible)
+                {
+                    <p class="body-text">I understand that interest will not be assessed on the deferred amounts as long as the installment payments, along with subsequent quarter tax payments, are made by the specified due dates and subsequent quarter tax and wage reports are filed electronically. If there are any other amounts due on each of the specified due dates including interest and/or penalties, interest on the deferred amount will be assessed retroactive to April 30.</p>
+                    <p class="body-text">I understand that any deferral amount not paid prior to July 31 will not be included in the employer's account balance for purposes of computing the employer's tax rate for the next calendar year. This could result in being assigned a higher rate.</p>
+                    <p class="note-text">If you have any questions, please call <strong>608-261-6700</strong>.</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="agreeTerms" @bind="_hasAgreed">
+                        <label class="form-check-label" for="agreeTerms">
+
+                            I understand and agree to the above terms.
+                        </label>
+                    </div>
+                    <div class="page-navigation">
+                        <div class="page-navigation-left">
+                            <Button Text="CANCEL" Variant="ButtonVariant.Secondary" OnClick="HandleCancel" />
+                        </div>
+                        <div class="page-navigation-right">
+                            <Button Text="SUBMIT" Variant="ButtonVariant.Primary" OnClick="HandleSubmit" />
+                        </div>
+                    </div>
+                }
+            }
+        </EditForm>
+    }
+</div>

@@ -1,0 +1,104 @@
+/* Thin warning banner above Wage Report Details */
+.out-of-balance-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: #FFF8E6;
+    border: 1px solid #C8A415;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 24px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+}
+
+    .out-of-balance-banner img {
+        flex-shrink: 0;
+    }
+
+.out-of-balance-banner-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    line-height: 160%;
+}
+
+    .out-of-balance-banner-text strong {
+        font-weight: 700;
+    }
+
+/* Detail card below the banner */
+.out-of-balance-card {
+    width: 100%;
+    background: #F3F3F3;
+    border-radius: 6px;
+    padding: 24px;
+    box-sizing: border-box;
+    margin-top: 16px;
+    font-family: Verdana, sans-serif;
+}
+
+.out-of-balance-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 16px 0;
+    line-height: 116%;
+}
+
+.out-of-balance-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    line-height: 160%;
+    margin: 0 0 16px 0;
+}
+
+    .out-of-balance-text img {
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+.out-of-balance-amounts {
+    margin: 0;
+}
+
+    .out-of-balance-amounts .amount-row {
+        display: flex;
+        gap: 8px;
+        padding: 4px 0;
+        font-size: 16px;
+        color: #000000;
+    }
+
+        .out-of-balance-amounts .amount-row dt {
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .out-of-balance-amounts .amount-row dd {
+            font-weight: 700;
+            margin: 0;
+        }
+
+/* Responsive adjustments, matching WageDetails breakpoint */
+@media (max-width: 768px) {
+    .out-of-balance-banner,
+    .out-of-balance-card {
+        padding: 16px;
+    }
+
+    .out-of-balance-title {
+        font-size: 16px;
+    }
+
+    .out-of-balance-banner-text,
+    .out-of-balance-text,
+    .out-of-balance-amounts .amount-row {
+        font-size: 14px;
+    }
+}

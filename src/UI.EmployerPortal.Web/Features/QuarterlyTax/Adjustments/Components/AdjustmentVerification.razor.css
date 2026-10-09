@@ -1,0 +1,228 @@
+.verification-step {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.verification-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: 32px;
+    color: var(--color-header-nav);
+    margin: 0;
+}
+
+.verification-subtitle {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    margin-top: 4px;
+}
+
+.verification-instructions {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.collapsible-section {
+    border: 1px solid var(--color-gray-light);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 20px;
+    background: var(--color-gray-lighter);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}
+
+.section-title {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: 24px;
+    color: var(--color-header-nav);
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.edit-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--color-header-nav);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+    .edit-link:hover {
+        color: var(--color-primary);
+    }
+
+.chevron-icon {
+    transition: transform 0.2s ease;
+}
+
+    .chevron-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+.section-content {
+    padding: 20px;
+    background: #F3F3F3;
+}
+
+.content-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.subheader-title {
+    font-family: var(--font-primary);
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-header-nav);
+    margin: 0;
+}
+
+.quarter-value {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.verification-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.header-cell {
+    padding: 10px 12px;
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    text-align: left;
+    width:118px;
+}
+
+.header-cell-label {
+    width: 160px;
+}
+
+.prev-row {
+    border-bottom: none;
+}
+
+.corr-row {
+    border-bottom: 1px solid var(--color-gray-light);
+    font-weight: 700;
+    vertical-align:baseline;
+}
+
+.data-cell {
+    padding: 10px 12px;
+    font-family: var(--font-primary);
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    width:118px;
+}
+
+.prev-row .data-cell {
+    padding-top: 16px;
+}
+
+.corr-row .data-cell {
+    padding-bottom: 16px;
+}
+
+.row-label {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    color: #000000;
+    white-space: nowrap;
+}
+
+.corrected-label {
+    color: var(--color-header-nav);
+}
+
+.corrected-wages {
+    font-weight: var(--font-weight-bold);
+}
+.adj-reason{
+    width:172px;
+}
+
+
+.ssn-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    width:153px;
+    margin-right:10px;
+}
+.ssn-col{
+    display:flex;
+    align-items:center;
+}
+.ssn-cell-content {
+    vertical-align: middle;
+    display: flex;
+    justify-content:end;
+    width: 153px;
+}
+
+.ssn-cell-content-corrected {
+    vertical-align: middle;
+    display: flex;
+    justify-content: end;
+    width: 153px;
+}
+
+    .ssn-header-content span,
+    .ssn-cell-content-corrected span,
+    .ssn-cell-content span {
+        padding:5px;
+    }
+
+
+    .ssn-toggle-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+    }
+
+.visibility-icon {
+    width: 18px;
+    height: 18px;
+}

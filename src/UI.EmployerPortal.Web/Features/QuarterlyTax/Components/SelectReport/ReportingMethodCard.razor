@@ -1,0 +1,26 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+
+<div id="@Id"
+     class="method-card @(IsSelected ? "method-card--selected" : "") @(IsDisabled ? "method-card--disabled" : "") @(IsError ? "method-card--error" : "")"
+     role="radio"
+     aria-checked="@((IsSelected && !IsDisabled).ToString().ToLower())"
+     aria-disabled="@IsDisabled.ToString().ToLower()"
+     tabindex="@(IsFocusable ? 0 : -1)"
+     aria-description="@(IsDisabled ? "not available" : String.Empty)"
+     @onclick="HandleClick"
+     @onkeydown="HandleKeyDown">
+
+    <div class="method-card-text">
+        <span class="method-card-title @(BoldTitle ? "method-card-title--bold" : "")
+                                       @(IsDisabled ? "method-card-title--disabled" : "")">@Title</span>
+
+        @if(CustomDescription is not null)
+        {
+            <div class="method-card-description @(IsDisabled ? "method-card-description--disabled" : "")"> @CustomDescription</div>
+        }
+        else if (!string.IsNullOrWhiteSpace(Description))
+        {
+        <span class="method-card-description @(IsDisabled ? "method-card-description--disabled" : "")">@Description</span>
+        }
+    </div>
+</div>

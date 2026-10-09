@@ -1,0 +1,231 @@
+.tax-entry-container {
+    width: 100%;
+    margin: 0 auto;
+    font-family: Verdana;
+}
+
+.tax-report-header {
+    width: 100%;
+    height: 80px;
+    border-bottom: 1px;
+    gap: 8px;
+}
+
+.page-header {
+    width: 100%;
+    height: 37px;
+    margin: 0;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    color: #000000;
+    line-height: 116%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.tax-header-meta {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 26px;
+    gap: 24px;
+    margin-top: 17px;
+    padding: 0;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    color: #000000;
+}
+
+.tax-meta-label {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    white-space: nowrap;
+}
+
+.tax-meta-value {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    white-space: nowrap;
+}
+
+.due-date-label {
+    margin-left: 0;
+}
+
+.tax-instructions {
+    height: 52px;
+    width: 100%;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.60;
+    color: #000000;
+}
+
+.tax-information {
+    height: 52px;
+    width: 100%;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.60;
+    color: #000000;
+    margin-bottom: -15px;
+}
+
+.tax-note {
+    font-family: Verdana;
+    font-size: 16px;
+    width: 100%;
+    height: 26px;
+    line-height: 1.60;
+    color: #000000;
+}
+
+.tax-note-label {
+    font-weight: 700;
+}
+
+.tax-note-text {
+    font-weight: 400;
+}
+
+.monthly-tax-description {
+    height: 52px;
+    width: 100%;
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.60;
+    color: #000000;
+}
+
+.tax-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #D9D9D9;
+    margin-bottom: 24px;
+}
+
+.LowerGridDisplay {
+    display: grid;
+    grid-template-columns: 3.2fr 5fr;
+    row-gap: 16px;
+    column-gap: 10px;
+    align-items: center;
+    padding: 20px 0;
+    width: 100%;
+    min-height: 836px;
+    display: grid;
+}
+
+    .LowerGridDisplay label {
+        max-width: 382px;
+        width: 100%;
+        height: 26px;
+    }
+
+.grid-item {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    min-height: 56px;
+    justify-content: center;
+}
+
+.hint-text {
+    display: inline-block;
+    font-size: .75em;
+    width: 100%;
+    padding-left: 24px;
+}
+
+.indent-month {
+    padding-left: 40px;
+}
+
+.textboxReadOnlyBackgroundColor {
+    background-color: #F5F5F5 !important;
+}
+
+.tax-instructions-section {
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+
+input {
+    text-align: center;
+}
+
+::deep .exclusion {
+    /*    padding-right: 40px !important;*/
+    text-align: center;
+    background-color: #FFFFFF !important;
+    border: 1px solid #767676 !important;
+}
+
+.discrepancy-label {
+    height: auto !important;
+    line-height: 1.5;
+    white-space: normal;
+}
+
+.discrepancy-row {
+    align-self: start;
+    justify-content: flex-start;
+}
+
+.gross-wages-label-row {
+    align-self: start;
+    justify-content: flex-start;
+    padding-top: 16px;
+}
+
+::deep .master-text-area-field {
+    max-width: 330px;
+    margin: 0;
+    padding: 0;
+}
+
+.error-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.error-text {
+    color: #C82838;
+    font-size: 14px;
+}
+
+::deep .numeric-input-icon {
+    display: none !important;
+}
+
+.grid-item {
+    display: flex;
+    align-items: center;
+}
+
+.optional-label {
+    font-weight: 400;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Visually hidden but accessible to screen readers (referenced via aria-describedby) */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

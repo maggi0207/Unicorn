@@ -1,0 +1,190 @@
+@page "/quarterly-tax/upload-summary"
+@page "/quarterly-tax/test/upload-summary"
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@TestEnvironmentSource.Title("Wage File Upload Summary", _isSourceTestEnv)</PageTitle>
+<div class="page-content @(_isSourceTestEnv ? "test-env-page" : "")">
+    <h1 class="page-header">@TestEnvironmentSource.Heading("Wage File Upload Summary", _isSourceTestEnv)</h1>
+    <TestEnvironmentBanner IsTestEnvironment="@_isSourceTestEnv"
+                           Description="This list shows test uploads only." />
+    @if (_isSourceTestEnv)
+    {
+        <p class="page-description">
+            This screen displays a list of all test wage report files previously uploaded for this user ID.
+            Files without a Processed Date have been uploaded, but not yet processed.
+            To view the file upload details for an individual file, including details and error listings
+            for the report(s) within the file, select the link for the desired file.
+        </p>
+    }
+    else
+    {
+        <p class="page-description">
+            This screen displays a list of all wage report files previously uploaded for this user ID.
+            Files without a Processed Date have been uploaded, but not yet processed.
+            To view the file upload details for an individual file, including details and error listings
+            for the report(s) within the file, select the link for the desired file.
+        </p>
+    }
+
+    <AnnouncementBanner AnnouncementType="@(_isSourceTestEnv ? AnnouncementType.VRUNPAGES : AnnouncementType.WAGETAXFILING)" />
+
+    @if (_gridData == null)
+    {
+        <p role="status" aria-live="polite">Loading...</p>
+    }
+    else if (!_gridData.Any())
+    {
+        <p role="status">No uploaded wage files found.</p>
+    }
+    else
+    {
+        <div class="table-container">
+
+            <table class="table" aria-label="Uploaded wage files">
+
+                <caption class="visually-hidden">
+                    List of previously uploaded wage report files
+                </caption>
+
+                <thead>
+                    <tr class="header-row">
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:148px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("uploadDate")"
+                            @onclick="@(() => Sort("uploadDate"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "uploadDate"))">
+                            <div class="header-content">
+                                <span class="header-label">Upload Date</span>
+                                @GetSortIcon("uploadDate")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:101px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("contactName")"
+                            @onclick="@(() => Sort("contactName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "contactName"))">
+                            <div class="header-content">
+                                <span class="header-label">Contact Name</span>
+                                @GetSortIcon("contactName")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:168px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("fileName")"
+                            @onclick="@(() => Sort("fileName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "fileName"))">
+                            <div class="header-content">
+                                <span class="header-label">File Name</span>
+                                @GetSortIcon("fileName")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:161px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("fileType")"
+                            @onclick="@(() => Sort("fileType"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "fileType"))">
+
+                            <div class="header-content">
+                                <span class="header-label">File Type</span>
+                                @GetSortIcon("fileType")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:171px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("confirmation")"
+                            @onclick="@(() => Sort("confirmation"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "confirmation"))">
+
+                            <div class="header-content">
+                                <span class="header-label">Confirmation #</span>
+                                @GetSortIcon("confirmation")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:84px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("errorCount")"
+                            @onclick="@(() => Sort("errorCount"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "errorCount"))">
+
+                            <div class="header-content">
+                                <span class="header-label">Error Count</span>
+                                @GetSortIcon("errorCount")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:155px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("processedDate")"
+                            @onclick="@(() => Sort("processedDate"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "processedDate"))">
+
+                            <div class="header-content">
+                                <span class="header-label">Processed Date</span>
+                                @GetSortIcon("processedDate")
+                            </div>
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var file in _gridData)
+                    {
+                        <tr class="custom-row">
+                            <td>
+                                <a href="#"
+                                       @onclick="@(() => NavigateToDetails(file))"
+                                       @onclick:preventDefault="true"
+                                       class="file-link"
+                                       aria-label=@($"View upload details for file uploaded on {file.UploadDate.ToString("MM/ddd/yyyy")}")>
+                                    @file.UploadDate.ToString("MM/dd/yyyy hh:mm:ss tt")
+                                </a>
+                            </td>
+                            <td>@file.ContactName</td>
+                            <td>@file.FileName </td>
+                            <td>@file.FileType</td>
+                            <td>@file.ConfirmationNumber</td>
+                            <td>@file.ErrorCount</td>
+                            <td>
+                                @if (file.ProcessedDate.HasValue)
+                                {
+                                    @file.ProcessedDate.Value.ToString("MM/dd/yyyy")
+                                    ;
+
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+</div>

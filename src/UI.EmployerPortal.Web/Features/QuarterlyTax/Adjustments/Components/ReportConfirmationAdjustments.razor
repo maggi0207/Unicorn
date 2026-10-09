@@ -1,0 +1,94 @@
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+<PageTitle>Adjustment Confirmation</PageTitle>
+<div class="pfr-details-page print-target">
+    <div class="confirmation-header">
+        <h1 class="confirmation-title">Confirmation</h1>
+        <div class="confirmation-meta">
+            <p class="meta-item">
+                <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+            </p>
+            <p class="meta-item">
+                <span class="meta-label">Due Date:</span> @DueDate?.ToString("MM/dd/yyyy")
+            </p>
+            <p class="meta-item">
+                <span class="meta-label">Effective Date:</span>@EffectiveDate?.ToString("MM/dd/yyyy")
+            </p>
+        </div>
+    </div>
+
+    <hr class="header-divider" />
+
+    <div class="success-section">
+        <div class="success-message">
+            <span class="success-icon">
+                <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <h2 class="success-text">Your @ReportingQuarter Adjusted Tax report has been submitted.</h2>
+        </div>
+        <div class="confirmation-number-section">
+            <p class="confirmation-number-label">Confirmation Number:</p>
+            <p class="confirmation-number-value">@ConfirmationNumber</p>
+        </div>
+        @if (ShowNoWageReportWarning)
+        {
+            <div class="no-wage-report-banner">
+                <NotificationBanner NotificationType="NotificationType.Warning"
+                                    Message="Your Tax Report Adjustment adds wages to a quarter previously reported as $0. You may need to file a Wage Report for this quarter once the adjustment is approved."></NotificationBanner>
+            </div>
+        }
+    </div>
+
+    <hr class="options-divider" />
+
+    <div class="whats-next-section">
+        <h2 class="whats-next-title">What's Next?</h2>
+        <div class="note-text">
+            <div><b>It may be necessary to file a wage report adjustment</b></div>for @ReportingQuarter based on your changes to the tax report for the same quarter.
+            <div>If you would like to review the wage report before filing an</div>
+            <div>adjustment, select "Review Wage Report."</div>
+            <div>If you know a wage report adjustment is needed, select “Adjust Another Report.”</div>
+        </div>
+    </div>
+</div>
+
+<hr class="options-divider" />
+
+<div class="action-buttons">
+    <Button Text="REVIEW WAGE REPORT"
+            Variant="ButtonVariant.Secondary"
+            Size="ButtonSize.Medium"
+            OnClick="@HandleOnWageReport"
+            AriaLabel="Review Wage Report" />
+
+    <Button Text="ADJUST ANOTHER REPORT"
+            Variant="ButtonVariant.Secondary"
+            Size="ButtonSize.Medium"
+            OnClick="@HandleOnAdjustAnotherReport"
+            AriaLabel="Adjust Another Report" />
+
+    @if (_hasOutstandingBalance)
+    {
+        <Button Text="PAYMENT OPTIONS"
+                Variant="ButtonVariant.Secondary"
+                Size="ButtonSize.Medium"
+                OnClick="@HandleOnPaymentOptions"
+                AriaLabel="Payment options" />
+    }
+</div>
+
+<hr class="options-divider" />
+
+<div class="save-page-section">
+    <Button Variant="ButtonVariant.Secondary"
+            ShowBorder="false"
+            OnClick="OnSavePageClicked"
+            AriaLabel="Save this page for your records">
+        <span class="save-icon">
+            <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+        </span>
+        Save this page for your records
+    </Button>
+</div>
+

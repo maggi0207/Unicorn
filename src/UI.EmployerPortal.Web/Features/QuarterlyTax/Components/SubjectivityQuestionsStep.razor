@@ -1,0 +1,47 @@
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+@inject IJSRuntime JSRuntime
+
+<div class="ui-subjectivity-step">
+    <h1 class="page-title">Subjectivity Questions</h1>
+    <p class="page-subtitle">
+        Please answer the following questions to verify your UI tax liability eligibility for Wisconsin.
+    </p>
+    @if (!string.IsNullOrWhiteSpace(BannerMessage))
+    {
+        <div class="subjectivity-banner">
+            <NotificationBanner NotificationType="NotificationType.Warning"
+                                MessageLimit="500"
+                                Message="@BannerMessage" />
+        </div>
+    }
+
+    @if (Categories != null && Categories.Length > 0)
+    {
+        @foreach (var category in Categories)
+        {
+            @if (category.TaxThresholds != null)
+            {
+                @foreach (var threshold in category.TaxThresholds)
+                {
+                    @if (threshold.EmployerPortalPayrollQuestions != null)
+                    {
+                        var activeQuestions = GetActiveQuestions(threshold.EmployerPortalPayrollQuestions);
+
+
+
+                        @foreach (var question in activeQuestions)
+                        {
+                            <SubjectivityQuestionNode @key="question.EmployerPortalQuestionSK"
+                                                      Question="@question"
+                                                      AllQuestions="@threshold.EmployerPortalPayrollQuestions"
+                                                      Answers="@Answers"
+                                                      AnswersChanged="@OnAnswersChanged"
+                                                      FormSubmitted="@(_submittedQuestionSKs.Contains(question.EmployerPortalQuestionSK))" />
+                        }
+                    }
+                }
+            }
+        }
+    }
+</div>

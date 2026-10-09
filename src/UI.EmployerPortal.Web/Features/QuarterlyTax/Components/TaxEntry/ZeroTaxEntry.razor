@@ -1,0 +1,157 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers;
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes;
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models;
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services;
+
+@inject IQuarterlyTaxCalculatorService Calculator
+@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
+
+<div class="tax-entry-container">
+    <header class="tax-report-header">
+        <h1 class="page-header">@HeaderTitle</h1>
+        <div class="tax-header-meta">
+            <span class="tax-meta-label">@ReportingQuarterLabel</span>
+            <span class="tax-meta-value">@TaxDataEntry.ReportingQuarter</span>
+            <span class="tax-meta-label due-date-label">@DueDateLabel</span>
+            <span class="tax-meta-value">@TaxDataEntry.DueDate.ToString("M/d/yyyy")</span>
+        </div>
+    </header>
+
+    <div class="tax-instructions-section">
+        <p class="tax-instructions">
+            Enter the employee count for each month, total covered gross wages, and less exclusions for wages over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold(). Wage fields must contain a decimal to identify cents.
+        </p>
+        <p class="monthly-tax-description">
+            1. Monthly data should count all full-time and part-time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+        </p>
+    </div>
+
+    <div class="LowerGridDisplay">
+        <div class="grid-item indent-month">
+            <label for="zero-employee-count-month1">1a. Employee Count 1st Month - @TaxDataEntry.MonthName1</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-employee-count-month1"
+                            InputType="@InputDataTypes.NumericOnly"
+                            IntValue="@((int?)TaxDataEntry.EmployeeCountMonth1)"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor" />
+        </div>
+
+        <div class="grid-item indent-month">
+            <label for="zero-employee-count-month2">1b. Employee Count 2nd Month - @TaxDataEntry.MonthName2</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-employee-count-month2"
+                            InputType="@InputDataTypes.NumericOnly"
+                            IntValue="@((int?)TaxDataEntry.EmployeeCountMonth2)"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor" />
+        </div>
+        <div class="grid-item indent-month">
+            <label for="zero-employee-count-month3">1c. Employee Count 3rd Month - @TaxDataEntry.MonthName3</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-employee-count-month3"
+                            InputType="@InputDataTypes.NumericOnly"
+                            IntValue="@((int?)TaxDataEntry.EmployeeCountMonth3)"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor" />
+        </div>
+
+        <div class="grid-item">
+            <label for="zero-total-gross-wages">2. Total Gross Covered Wages</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-total-gross-wages"
+                            InputType="@InputDataTypes.Currency"
+                            Value="@TaxDataEntry.TotalGrossCoveredWages"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor" />
+        </div>
+        <div class="grid-item">
+            <label for="zero-exclusion-amount">3. Less Exclusions for Wages Over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold()</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-exclusion-amount"
+                            InputType="@InputDataTypes.Currency"
+                            Value="@TaxDataEntry.ExclusionAmount"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor" />
+        </div>
+
+        <div class="grid-item">
+            <label for="zero-defined-payroll" class="label-with-icon">
+                4. Defined (Taxable) Payroll
+                <span class="info-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#003663">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                     10-4.48 10-10S17.52 2 12 2zm0 15h-1v-6h2v6h-1zm0-8
+                     c-.83 0-1.5-.67-1.5-1.5S11.17 6 12 6s1.5.67
+                     1.5 1.5S12.83 9 12 9z" />
+                    </svg>
+                </span>
+            </label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-defined-payroll"
+                            Value="@TaxDataEntry.DefinedTaxablePayroll"
+                            InputType="@InputDataTypes.Currency"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor"
+                            DecimalPlaces="2" />
+        </div>
+
+        <div class="grid-item">
+            <label for="zero-tax-rate" class="label-with-icon">
+                5. @TaxDataEntry.TaxYear Tax Rate
+                <span class="info-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#003663">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                     10-4.48 10-10S17.52 2 12 2zm0 15h-1v-6h2v6h-1zm0-8
+                     c-.83 0-1.5-.67-1.5-1.5S11.17 6 12 6s1.5.67
+                     1.5 1.5S12.83 9 12 9z" />
+                    </svg>
+                </span>
+            </label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-tax-rate"
+                            Value="@TaxDataEntry.TaxRate"
+                            InputType="@InputDataTypes.DecimalOnly"
+                            IsReadonly="true"
+                            CssClass="form-control textboxReadOnlyBackgroundColor"
+                            DecimalPlaces="4" />
+        </div>
+        <div class="grid-item">
+            <label for="zero-tax-assessed">6. Tax Assessed</label>
+        </div>
+        <div class="grid-item">
+            <NumericTextBox Id="zero-tax-assessed"
+                            Value="@TaxDataEntry.TaxAssessed"
+                            InputType="@InputDataTypes.Currency"
+                            IsReadonly="true"
+                            ShowCurrencyIcon="false"
+                            CssClass="form-control textboxReadOnlyBackgroundColor"
+                            DecimalPlaces="2" />
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public string HeaderTitle { get; set; } = "Zero Tax Report";
+
+    [Parameter]
+    public string ReportingQuarterLabel { get; set; } = "Reporting Quarter:";
+
+    [Parameter]
+    public string DueDateLabel { get; set; } = "Due Date:";
+
+    [Parameter]
+    public ZeroTaxEntryModel TaxDataEntry { get; set; } = new();
+}

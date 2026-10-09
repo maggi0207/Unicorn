@@ -1,0 +1,211 @@
+@using Microsoft.AspNetCore.Components.Forms
+@namespace UI.EmployerPortal.Web.Features.QuarterlyTax.Components.TaxEntry
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="update-exclusions-modal-title" @ref="_modalElement">
+            <div class="modal-header">
+                <h3 class="modal-title" id="update-exclusions-modal-title">Update Exclusions Amount</h3>
+                <button type="button" class="modal-close" @onclick="HandleCancel">×</button>
+            </div>
+            <CascadingValue Value="_editContext" IsFixed="false">
+                <DataAnnotationsValidator />
+
+                <div class="modal-body">
+                    <ValidationErrorSummary ShowSummary="_showErrors"
+                                            FieldIds="_fieldIds"
+                                            SummaryId="exclusion-validation-summary" />
+
+                    <p class="modal-text">
+                        The exclusions amount was calculated based on previously provided wage information. Are you sure you want to change the exclusions?
+                    </p>
+
+                    <div class="yesno">
+                        <InputRadioGroup TValue="bool"
+                                         @bind-Value="_draft.IsOverride">
+                            <label class="yesno-option">
+                                <InputRadio Value="true" />
+                                <span>Yes</span>
+                            </label>
+                            <label class="yesno-option">
+                                <InputRadio Value="false" />
+                                <span>No</span>
+                            </label>
+                        </InputRadioGroup>
+                    </div>
+
+                    <div class="field-block">
+                        <div class="field-label">Exclusions Amount Entered</div>
+                        <div class="readonly-amount">@_draft.EffectiveAmount.ToString("C2")</div>
+                    </div>
+
+                    @if (_draft.IsOverride)
+                    {
+                        <div class="form-group">
+                            <NumericTextBox Id="exclusion-override-amount"
+                                            AriaLabel="Override Exclusions Amount"
+                                            InputType="@InputDataTypes.Currency"
+                                            Value="@_draft.OverrideAmount"
+                                            ValueExpression="@(() => (decimal?)_draft.OverrideAmount)"
+                                            ValueChanged="@((decimal? v) => { _draft.OverrideAmount = v ?? 0; ClearManualValidation(); })"
+                                            ShowCurrencyIcon="true"
+                                            Max=99999999999999
+                                            DecimalPlaces="2"
+                                            Min="0" />
+                        </div>
+
+                        <div class="form-group">
+                            <OutlinedSelectField Id="exclusion-override-reason"
+                                                 Label="Reason for Change"
+                                                 Value="@_draft.OverrideReason"
+                                                 ValueChanged="@((string v) => _draft.OverrideReason = v)"
+                                                 For="@(() => _draft.OverrideReason)"
+                                                 Placeholder="Select Reason"
+                                                 Options="ReasonSelectOptions"
+                                                 Required="true"
+                                                 Visible="_showErrors" />
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <Button Text="CANCEL"
+                            Variant="Button.ButtonVariant.Secondary"
+                            ShowBorder="false"
+                            OnClick="HandleCancel" />
+                    @if (_draft.IsOverride)
+                    {
+                        <Button Text="UPDATE EXCLUSIONS AMOUNT"
+                                Variant="Button.ButtonVariant.Secondary"
+                                OnClick="HandleUpdate" />
+                    }
+                    else
+                    {
+                        <Button Text="CONFIRM EXCLUSIONS AMOUNT"
+                                Variant="Button.ButtonVariant.Secondary"
+                                OnClick="HandleConfirm" />
+                    }
+                </div>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+    [Parameter] public bool IsOpen { get; set; }
+
+    [Parameter] public ExclusionOverrideModel ExclusionOverride { get; set; } = default!;
+
+    [Parameter] public List<string> ReasonOptions { get; set; } = new();
+
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    [Parameter] public EventCallback OnUpdate { get; set; }
+
+    [Parameter] public decimal TotalGrossCoveredWages { get; set; }
+
+    private ExclusionOverrideModel _draft = new();
+
+    private EditContext _editContext = default!;
+
+    private ValidationMessageStore? _messageStore;
+
+    private bool _wasOpen;
+
+    private bool _showErrors;
+
+    private readonly Dictionary<string, string> _fieldIds = new()
+    {
+        [nameof(ExclusionOverrideModel.OverrideReason)] = "exclusion-override-reason",
+        [nameof(ExclusionOverrideModel.OverrideAmount)] = "exclusion-override-amount",
+    };
+
+    private List<SelectOption> ReasonSelectOptions => ReasonOptions.Select(r => new SelectOption { Value = r, Text = r }).ToList();
+    private ElementReference _modalElement;
+    private IJSObjectReference? _module;
+    private bool _modalWasOpen;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_modalWasOpen)
+        {
+            _modalWasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _modalElement);
+        }
+        else if (!IsOpen && _modalWasOpen)
+        {
+            _modalWasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _draft = ExclusionOverride.Clone();
+            _editContext = new EditContext(_draft);
+            _messageStore = new ValidationMessageStore(_editContext);
+            _showErrors = false;
+        }
+
+        _wasOpen = IsOpen;
+    }
+
+    private void ClearManualValidation()
+    {
+        _messageStore?.Clear();
+        _showErrors = false;
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private Task HandleCancel()
+    {
+        return OnClose.InvokeAsync();
+    }
+
+    private Task HandleConfirm()
+    {
+        _draft!.IsOverride = false;
+        _draft!.OverrideAmount = _draft.CalculatedExclusionAmount;
+        _draft.OverrideReason = null;
+
+        ExclusionOverride.CopyFrom(_draft);
+        return OnUpdate.InvokeAsync();
+    }
+
+    private Task HandleUpdate()
+    {
+        if (!_editContext.Validate())
+        {
+            _showErrors = true;
+            return Task.CompletedTask;
+        }
+
+        if (_draft.OverrideAmount > TotalGrossCoveredWages && _messageStore != null)
+        {
+            _messageStore?.Clear();
+            _messageStore?.Add(_editContext.Field(nameof(ExclusionOverride.OverrideAmount)),
+                $"Exclusion amount cannot exceed Total Gross Covered Wages ({TotalGrossCoveredWages:C}).");
+            _showErrors = true;
+            _editContext.NotifyValidationStateChanged();
+            return Task.CompletedTask;
+        }
+
+        ExclusionOverride.CopyFrom(_draft!);
+        _showErrors = false;
+        return OnUpdate.InvokeAsync();
+    }
+}

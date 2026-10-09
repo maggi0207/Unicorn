@@ -1,0 +1,59 @@
+/* Ensure the parent wrapper allows absolute positioning for the icon */
+
+
+::deep .form-control.textboxReadOnlyBackgroundColor.exclusion.pencil {
+    text-align: right !important;
+    padding-right: 40px !important;
+    padding-left: 12px !important;
+    height: 56px !important;
+    box-sizing: border-box !important;
+}
+
+.field-icon {
+    position: absolute;
+    right: 12px;
+    top: 28px;
+    transform: translateY(-50%);
+    cursor: pointer !important;
+    z-index: 10;
+    pointer-events: auto !important;
+}
+
+    .field-icon:focus-visible {
+        outline: 2px solid #003663;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+::deep .exclusion {
+    padding-left: 12px;
+}
+
+.Lower-text {
+    font-size: 12px;
+    font-family: Verdana;
+    width: auto;
+    height: 18px;
+    font-weight: 400;
+    line-height: 150%;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    white-space: nowrap;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 330px;
+    display: inline-block;
+}
+
+::deep .numeric-text-field {
+    max-width: 100%;
+}
+
+::deep .numeric-input-icon {
+    display: none !important;
+}

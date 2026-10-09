@@ -1,0 +1,284 @@
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.Extensions
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Services
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using Microsoft.JSInterop;
+
+@inject IConfiguration Configuration
+@inject IWageFileUploadService WageFileUploadService
+@inject IUploadFolderResolver UploadFolderResolver
+
+<div class="selected-method-upload">
+    <h2 class="section-title"><strong>Select Method and File Upload</strong></h2>
+    <div class="report-meta">
+        <span>Select the report type (original, replacement, or appended) before attaching your wage report file. Max file size: 20 MB</span>
+    </div>
+
+    <CascadingValue Value="_editContext" IsFixed="false">
+        <ValidationErrorSummary ShowSummary="_showErrors"
+                                FieldIds="_fieldIds"
+                                SummaryId="file-upload-validation-summary" />
+    </CascadingValue>
+
+    <NotificationBanner NotificationType="NotificationType.Warning"
+                        Title="Important"
+                        MessageLimit="500"
+                        Message="Replacement and appended must be limited to a single employer, quarter and year. Replacement and appended report types should not be selected when resubmitting an original wage report that was previously rejected due to formatting or content errors." />
+
+    <h3 id="radio-group-title" class="subsection-title">Wage Report Type</h3>
+
+    <div class="report-type-options" role="radiogroup" aria-labelledby="radio-group-title">
+        @for (int i = 0; i < _reportTypeOptions.Count; i++)
+        {
+            var index = i;
+            var option = _reportTypeOptions[i];
+
+            <ReportingMethodCard
+                Id="@($"reporting-card-{index}")"
+                Title="@option.title"
+                BoldTitle="true"
+                IsSelected="@(_selectedIndex == index)"
+                IsFocusable="@(_selectedIndex == index)"
+                OnSelected="@(() => HandleCardSelected(index))"
+                OnNextCardSelected="HandleNextCard"
+                OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    @option.description
+                </CustomDescription>
+
+            </ReportingMethodCard>
+        }
+    </div>
+
+    <div class="upload-section">
+        <FileUpload2 @ref="_fileUploadRef"
+                     Title="@($"{Model.WageReportType} Wage Report")"
+                     OnFileUpload="@HandleFileUploaded"
+                     OnFileRemoved="@HandleFileRemoved"
+                     AllowMultiple="false"
+                     FileType="FileAcceptableType.WageReport"
+                     FolderPath="@_folderPath"
+                     SaveOnUpload="false"
+                     ViewDetailsurl="http://dwd.wisconsin.gov/ui201/w3201.htm"
+                     FileName="@Model.WageFileData.FileName"
+                     FilePath="@Model.WageFileData.UploadedFilePath"
+                     @bind-PendingFileBytes="Model.WageFileData.PendingBytes"
+                     ValidationMessages="@Model.WageFileData.ValidationMessages"
+                     HasBlockingErrors="@Model.WageFileData.HasBlockingErrors"
+                     HasWarnings="@Model.WageFileData.HasWarnings" />
+    </div>
+
+    @if (Model.WageReportType == _replaceType || Model.WageReportType == _appendType)
+    {
+        <div class="report-type-ack">
+            @if (Model.WageReportType == _replaceType)
+            {
+                <p class="report-type-ack__intro">You should select <strong>Replacement</strong> only when:</p>
+                <ul class="report-type-ack__list">
+                    <li>You are replacing an existing wage report that has already been received and processed by the Department.</li>
+                    <li>Your wage report file contains only one account, quarter and year (multiple replacement wage report files must be uploaded separately).</li>
+                </ul>
+                <p class="report-type-ack__question">
+                    Do not select Replacement Wage Report if you are reuploading an original wage report file that was previously rejected due to formatting or content errors.  Are you sure you want to upload a Replacement Wage Report?
+                </p>
+            }
+            else
+            {
+                <p class="report-type-ack__intro">You should select <strong>Append</strong> only when:</p>
+                <ul class="report-type-ack__list">
+                    <li>You are adding employees to an existing wage report that has already been received and processed by the Department for this quarter/year.</li>
+                    <li>Your wage report file contains only one account, quarter and year (multiple appended wage reports must be uploaded separately).</li>
+                </ul>
+                <p class="report-type-ack__question">Are you sure you want to Append?</p>
+            }
+
+            <label class="report-type-ack__checkbox">
+                <input type="checkbox"
+                       id="report-type-ack"
+                       checked="@Model.ReportTypeAcknowledged"
+                       @onchange="OnAcknowledgementChanged" />
+                <span>Check here to continue with the upload, otherwise select a different file type</span>
+            </label>
+
+            @if (_showErrors && !Model.ReportTypeAcknowledged)
+            {
+                <p class="report-type-ack__error">
+                    Check the box to continue with the upload or select a different report type
+                </p>
+            }
+        </div>
+    }
+
+    @if (_isValidating)
+    {
+        <div class="validating-banner">
+            <LoadingSpinner Message="Validating file..." />
+        </div>
+    }
+</div>
+
+@code {private const string _originalType = "Original";
+    private const string _replaceType = "Replace";
+    private const string _appendType = "Append";
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
+    [Parameter] public WageUploadReportModel Model { get; set; } = new();
+
+    private int _selectedIndex = 0;
+    private FileUpload2? _fileUploadRef;
+    private bool _isValidating;
+    private bool _showErrors;
+    private string _folderPath = string.Empty;
+    private EditContext _editContext = default!;
+    private ValidationMessageStore? _messageStore;
+    private readonly Dictionary<string, string> _fieldIds = new()
+    {
+        [nameof(WageUploadReportModel.ReportTypeAcknowledged)] = "report-type-ack",
+    };
+
+    private readonly List<(string title, string description, string type)> _reportTypeOptions = new()
+    {
+        ("Original Wage Report", "The first wage report submitted for an employer, quarter and year.", _originalType),
+        ("Replacement Wage Report", "Replaces a previously-filed wage report for the same employer, quarter and year.", _replaceType),
+        ("Appended Wage Report", "Adds wage details for different employees to a previously-submitted wage report for the same employer, quarter, and year.", _appendType)
+    };
+
+    protected override void OnInitialized()
+    {
+        _folderPath = UploadFolderResolver.Resolve("FileUpload:TaxWageReport:FolderPath") ?? string.Empty;
+
+        _editContext = new EditContext(Model);
+    }
+
+    public bool IsValid()
+    {
+        _messageStore?.Clear();
+        _messageStore = new ValidationMessageStore(_editContext);
+
+        if (!Model.WageFileData.IsUploaded)
+        {
+            _messageStore.Add(_editContext.Field(string.Empty), "Please upload a wage report file.");
+        }
+
+        if (Model.WageFileData.HasBlockingErrors)
+        {
+            _messageStore.Add(_editContext.Field(string.Empty), "Please fix file errors before continuing.");
+        }
+
+        if ((Model.WageReportType == _replaceType || Model.WageReportType == _appendType) && !Model.ReportTypeAcknowledged)
+        {
+            _messageStore.Add(_editContext.Field(nameof(WageUploadReportModel.ReportTypeAcknowledged)), "Check the box to continue with the upload or select a different report type.");
+        }
+
+        _editContext.NotifyValidationStateChanged();
+
+        var isValid = !_editContext.GetValidationMessages().Any();
+        _showErrors = !isValid;
+        StateHasChanged();
+        return isValid;
+    }
+
+    public async Task<string?> SaveFileAsync()
+    {
+        return _fileUploadRef != null ? await _fileUploadRef.SavePendingFileAsync() : null;
+    }
+
+    private void OnAcknowledgementChanged(ChangeEventArgs e)
+    {
+        Model.ReportTypeAcknowledged = (bool)(e.Value ?? false);
+    }
+
+    private async Task HandleFileUploaded(string filePath)
+    {
+        //filePath contains the GUID-appended name (for service calls)
+        var serverFileName = System.IO.Path.GetFileName(filePath);
+        var ext = System.IO.Path.GetExtension(serverFileName);
+        var nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(serverFileName);
+        var originalName = filePath.ToDisplayFileName();
+
+        Model.WageFileData.UploadedFilePath = filePath;
+        Model.WageFileData.FileName = originalName;
+        Model.WageFileData.IsUploaded = true;
+        Model.WageFileData.ValidationMessages.Clear();
+
+        _isValidating = true;
+
+        Model.WageFileData.HasBlockingErrors = false;
+        Model.WageFileData.HasWarnings = false;
+        Model.WageFileData.ValidationMessages = [];
+
+        StateHasChanged();
+
+        string? fileContent = _fileUploadRef?.GetPendingFileContent(lineCount: 5);
+
+        if (!string.IsNullOrEmpty(fileContent))
+        {
+            var result = await WageFileUploadService.ValidateWageUploadFile(fileContent, originalName, ext);
+
+            if (result.RuleViolations != null && result.RuleViolations.Count() > 0)
+            {
+                Model.WageFileData.HasBlockingErrors = true;
+                Model.WageFileData.ValidationMessages = result.RuleViolations.Select(r => new FileValidationMessage()
+                {
+                    Message = r.RuleViolation
+                }).ToList();
+            }
+
+            Model.WageFileData.FileUploadFormatCodeSK = result.FileUploadFormatCodeSK;
+            Model.WageFileData.RecordCount = result.RecordCount;
+        }
+        Model.WageFileData.WageReportType = $"{Model.WageReportType} Wage Report";
+
+        _isValidating = false;
+    }
+
+    private void HandleFileRemoved()
+    {
+        Model.WageFileData = new WageFileUploadModel();
+    }
+
+    private void HandleCardSelected(int index)
+    {
+        _selectedIndex = index;
+        var type = _reportTypeOptions[_selectedIndex].type;
+        if (Model.WageReportType == type)
+        {
+            return;
+        }
+        Model.WageReportType = type;
+
+        Model.ReportTypeAcknowledged = false;
+    }
+
+    private async Task HandleNextCard()
+    {
+        if (_reportTypeOptions.Count == 0)
+        {
+            return;
+        }
+        // Move down or wrap to beginning
+        HandleCardSelected((_selectedIndex + 1) % _reportTypeOptions.Count);
+        await FocusOnCard(_selectedIndex);
+    }
+
+    private async Task HandlePreviousCard()
+    {
+        if (_reportTypeOptions.Count == 0)
+        {
+            return;
+        }
+        // Move up or wrap to end
+        HandleCardSelected((_selectedIndex - 1 + _reportTypeOptions.Count) % _reportTypeOptions.Count);
+        await FocusOnCard(_selectedIndex);
+    }
+
+    private async Task FocusOnCard(int index)
+    {
+        await JSRuntime.InvokeVoidAsync("focusElement", $"reporting-card-{index}");
+    }
+}

@@ -1,0 +1,58 @@
+.page-content {
+    max-width: var(--width-quarterly-tax);
+}
+.page-title {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    color: black;
+    font-style: normal;
+    /*margin-bottom: 0.25rem;*/
+}
+
+.page-subheader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-gray-light);
+    margin-bottom: 1rem;
+    font-family: Verdana;
+    font-size: medium;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.subheader-item {
+    display: block;
+    gap: 16px;
+}
+
+.subheader-value {
+    font-weight: normal;
+}
+
+/* ── Body text
+   Spec: Verdana, weight 400, 16px, line-height 160%              */
+.body-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+}
+
+
+/* ── Note text
+   Spec: Verdana, weight 700 bold, 16px, line-height 160%         */
+.note-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+}

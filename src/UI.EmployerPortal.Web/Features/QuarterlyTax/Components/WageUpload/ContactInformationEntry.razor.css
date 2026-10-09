@@ -1,0 +1,106 @@
+.contact-info-entry {
+    width: 100%;
+}
+
+.page-title {
+    font-weight: 700;
+    font-size: 28px;
+    color: black;
+    margin-bottom: 4px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.report-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.divider {
+    border-top: 1px solid #adadad;
+    margin-bottom: 30px;
+}
+
+.section-header {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    margin-top: 32px;
+    margin-bottom: 30px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #003663;
+}
+
+.address-wrapper {
+    margin-bottom: 30px;
+}
+
+.form-row {
+    display: grid;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.form-field-half {
+    min-width: 0;
+}
+
+.phone-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.phone-field {
+    width: 200px;
+}
+
+.ext-field {
+    width: 140px;
+}
+
+.phone-dash {
+    padding-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.phone-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: -16px;
+    margin-bottom: 30px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+@media (max-width: 575px) {
+    .form-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .phone-field {
+        width: 100%;
+    }
+}

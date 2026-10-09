@@ -1,0 +1,221 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+
+<h1 class="page-title">Verification</h1>
+<p class="verification-subtitle"> <strong>Reporting Quarter:</strong> @SelectedQuarter </p>
+<hr class="title-divider" />
+<p class="instruction-text">Verify the information below and then click "Submit Adjustment."</p>
+
+@if (ShowValidationBanner && !string.IsNullOrWhiteSpace(BannerMessage))
+{
+    <NotificationBanner NotificationType="NotificationType.Alert"
+                        MessageStyle="MessageStyle.SingleLine"
+                        Message="@BannerMessage"
+                        Visible="true" />
+}
+
+<div class="verification-content">
+    <div class="summary-section">
+        <div class="summary-header d-flex justify-content-between align-items-center">
+            <h2 class="summary-title">Added Employees</h2>
+            <button type="button"
+                    class="collapse-btn"
+                    @onclick="ToggleEmployeesSection"
+                    aria-expanded="@_isEmployeesExpanded.ToString().ToLower()"
+                    title="@CollapseAltText">
+                <img src="icons/chevron_up.svg"
+                     alt="@CollapseAltText"
+                     style="transform: @CollapseTransform" />
+            </button>
+        </div>
+
+        @if (_isEmployeesExpanded)
+        {
+            <div class="summary-body">
+                <div class="reason-group mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="reason-label">Reason for Adding Employee(s) to Existing Wage Report</div>
+                        <button type="button" class="btn-edit" @onclick="() => OnEditEmployees.InvokeAsync()">
+                            <img src="icons/edit-pen.svg" alt="" />
+                            <span>Edit</span>
+                        </button>
+                    </div>
+                    <div class="reason-value">@SelectedReason</div>
+                    <h3 class="sub-heading mb-3">Additional Employees</h3>
+                </div>
+                <div class="table-scroll-container">
+                    <table class="table table-sm verification-table">
+                        <caption class="visually-hidden">
+                            Additonal employees added to the wage report.
+                            Column headers with buttons are sortable.
+                        </caption>
+                        <colgroup>
+                            <col style="min-width: 150px;" />
+                            <col style="min-width: 150px;" />
+                            <col style="min-width: 180px;" />
+                            <col style="min-width: 150px;" />
+                        </colgroup>
+                     <thead>
+                        <tr>
+                            <th aria-sort="@GetAriaSort("lastName")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("lastName"))">
+                                        <span class="me-4">Last Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("lastName")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th aria-sort="@GetAriaSort("firstName")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("firstName"))">
+                                        <span class="me-4">First Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("firstName")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th aria-sort="@GetAriaSort("ssn")">
+                                <div class="header-content">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("ssn"))">
+                                        <span class="me-4">SSN</span>
+                                        <span aria-hidden="true">@GetSortIcon("ssn")</span>
+                                    </button>
+                                    <button type="button"
+                                            class="ssn-toggle-all-btn"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="ToggleAllSSN"
+                                            title="@SsnToggleTitle"
+                                            aria-label="@SsnToggleTitle">
+                                        <img src="@Assets[SsnVisibilityIcon]"
+                                             alt=""
+                                             class="visibility-icon" />
+                                    </button>
+                                </div>
+                            </th>
+                            <th class="text-end" aria-sort="@GetAriaSort("wages")">
+                                <div class="header-content justify-content-end">
+                                    <button type="button" class="sort-button" @onclick="@(() => Sort("wages"))">
+                                        <span class="me-4">Quarterly Wages</span>
+                                        <span aria-hidden="true">@GetSortIcon("wages")</span>
+                                    </button>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var emp in GetSortedEmployees())
+                        {
+                            var empIdx = Employees.IndexOf(emp);
+                            <tr>
+                                <td>@emp.LastName</td>
+                                <td>@emp.FirstName</td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span>@(emp.IsSSNVisible ? SsnHelper.FormatSSN(emp.SSN!) : SsnHelper.MaskSSN(emp.SSN))</span>
+                                        <button type="button"
+                                                class="ssn-toggle-all-btn"
+                                                @onclick="() => emp.IsSSNVisible = !emp.IsSSNVisible"
+                                                title="@(emp.IsSSNVisible ? "Hide SSN" : "Show SSN")"
+                                                aria-label="@(emp.IsSSNVisible ? $"Hide SSN for employee {empIdx+1}" : $"Show SSN for employee {empIdx+1}")">
+                                            <img src="@Assets[emp.IsSSNVisible ? "icons/visibility-on.svg" : "icons/visibility-off.svg"]"
+                                                 alt=""
+                                                 class="visibility-icon" />
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="text-end">@emp.QuarterlyWages?.ToString("C2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? SelectedQuarter { get; set; }
+    [Parameter] public string? SelectedReason { get; set; }
+    [Parameter] public List<EmployeeEntryModel> Employees { get; set; } = new();
+    [Parameter] public bool ShowValidationBanner { get; set; }
+    [Parameter] public string? BannerMessage { get; set; }
+    [Parameter] public EventCallback OnEditEmployees { get; set; }
+
+    private bool _isEmployeesExpanded = true;
+    private bool _allSSNVisible = false;
+
+    private string SsnToggleTitle => _allSSNVisible ? "Hide all SSNs" : "Show all SSNs";
+    private string SsnVisibilityIcon => _allSSNVisible ? "icons/visibility-on.svg" : "icons/visibility-off.svg";
+
+    private void ToggleAllSSN()
+    {
+        _allSSNVisible = !_allSSNVisible;
+        foreach (var emp in Employees)
+        {
+            emp.IsSSNVisible = _allSSNVisible;
+        }
+    }
+
+    private void ToggleEmployeesSection()
+    {
+        _isEmployeesExpanded = !_isEmployeesExpanded;
+    }
+
+    private string CollapseAltText => _isEmployeesExpanded ? "Collapse" : "Expand";
+    private string CollapseTransform => _isEmployeesExpanded ? "rotate(0deg)" : "rotate(180deg)";
+
+    private string? _sortColumn;
+    private bool _sortAscending = true;
+
+    private void Sort(string column)
+    {
+        if (_sortColumn == column)
+            _sortAscending = !_sortAscending;
+        else
+        {
+            _sortColumn = column;
+            _sortAscending = true;
+        }
+    }
+
+    private MarkupString GetSortIcon(string column)
+    {
+        string path;
+        string altText;
+
+        if (_sortColumn == column)
+        {
+            path = _sortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            altText = _sortAscending ? "Sorted ascending" : "Sorted descending";
+        }
+        else
+        {
+            path = "images/sort/sort-icon.svg";
+            altText = "Not sorted";
+        }
+
+        return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' alt='{altText}' />");
+    }
+
+    private string? GetAriaSort(string column)
+    {
+        return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
+    }
+
+    private IEnumerable<EmployeeEntryModel> GetSortedEmployees()
+    {
+        var query = Employees.AsQueryable();
+
+        query = _sortColumn switch
+        {
+            "lastName"  => _sortAscending ? query.OrderBy(e => e.LastName).ThenBy(e => e.FirstName)       : query.OrderByDescending(e => e.LastName),
+            "firstName" => _sortAscending ? query.OrderBy(e => e.FirstName)      : query.OrderByDescending(e => e.FirstName),
+            "ssn"       => _sortAscending ? query.OrderBy(e => e.SSN)            : query.OrderByDescending(e => e.SSN),
+            "wages"     => _sortAscending ? query.OrderBy(e => e.QuarterlyWages) : query.OrderByDescending(e => e.QuarterlyWages),
+            _           => query
+        };
+
+        return query;
+    }
+}

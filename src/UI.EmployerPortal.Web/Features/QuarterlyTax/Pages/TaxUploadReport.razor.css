@@ -1,0 +1,44 @@
+.page-content {
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+    margin: 0;
+}
+.button-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-top: 24px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.page-title{
+    width:100%;
+    margin:0 0 8px 0;
+    font-family:Verdana,sans-serif;
+    font-size:32px;
+    font-weight:700;
+    line-height:116%;
+    letter-spacing:0;
+    color:#000000;
+    margin-top:24px;
+}
+
+.page-subtitle {
+    width: 100%;
+    margin: 0;
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #000000;
+}
+
+.header-divider{
+    width:100%;
+    border-top:1px solid #808080;
+    margin:12px 0 20px 0;
+}
+
+

@@ -1,0 +1,655 @@
+@using System.ComponentModel.DataAnnotations
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@inject IWageAdjustmentReasonsService _reasonService
+@inject IWageAdjustmentService _wageAdjustmentService
+@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
+
+<style>
+    #total-gross-covered-wages-error {
+        display: none !important;
+    }
+</style>
+
+<div class="page-content">
+    <h1><b>Tax Report Adjustment</b></h1>
+    <div>
+        <p class="report-info-line"><b>Reporting Quarter</b> @QuarterYear</p>
+        <p class="report-info-line"><b>Due Date</b> @DueDate.ToShortDateString()</p>
+    </div>
+    <div class="custom-border"></div>
+
+    <div class="">
+        <h2 id=""><b>Tax Report Adjustment Details</b></h2>
+        <p class="">
+            Existing employee count and payroll information for the selected quarter are shown. Enter changes in the Corrected Information column and select an Adjustment Reason.
+        </p>
+        <p class="">
+            <b>1.</b> Monthly data should count all full-time and part-time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+        </p>
+    </div>
+
+    <div class="table-scroll">
+        <table class="adjustment-entry-table" aria-labelledby="details-heading">
+            <thead>
+                <tr>
+                    <td class="corner"></td>
+                    <th id="hdr-previously" scope="col" class="headers"><b>Previously Recorded</b></th>
+                    <th id="hdr-corrected" scope="col" class="headers"><b>Corrected Information</b></th>
+                    <th id="hdr-adjustment" scope="col" class="headers"><b>Adjustment</b></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th id="row-emp1" scope="row" class="row-header indentedLabels"><b>1a.</b> Employee Count Month - @TaxNewAndWageModel.PreviousTaxWageValues!.PreviousMonth1</th>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousEmployeeCountQtr1"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-previously row-emp1"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.EmployeeCountQtr1"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        IntValueChanged="@((int? v) => UpdateEmployeeCountAsync(1,v))"
+                                        IntValueExpression="(() => TaxNewAndWageModel.EmployeeCountQtr1)"
+                                        Id="employee-count-month1"
+                                        AriaLabelledBy="hdr-corrected row-emp1"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control"
+                                        Placeholder=""
+                                        Min="0" Max="999999" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="@AdjustedTaxWageModel.AdjustedEmployeeCountQtr1"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-adjustment row-emp1"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                </tr>
+                <tr>
+                    <th id="row-emp2" scope="row" class="row-header indentedLabels"><b>1b.</b> Employee Count Month - @TaxNewAndWageModel.PreviousTaxWageValues!.PreviousMonth2</th>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousEmployeeCountQtr2"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-previously row-emp2"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.EmployeeCountQtr2"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control"
+                                        Id="employee-count-month2"
+                                        AriaLabelledBy="hdr-corrected row-emp2"
+                                        IntValueChanged="@((int? v) => UpdateEmployeeCountAsync(2,v))"
+                                        IntValueExpression="(() => TaxNewAndWageModel.EmployeeCountQtr2)"
+                                        Placeholder=""
+                                        Min="0" Max="999999" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="AdjustedTaxWageModel.AdjustedEmployeeCountQtr2"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-adjustment row-emp2"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                </tr>
+                <tr>
+                    <th id="row-emp3" scope="row" class="row-header indentedLabels"><b>1c.</b> Employee Count Month - @TaxNewAndWageModel.PreviousTaxWageValues.PreviousMonth3</th>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousEmployeeCountQtr3"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-previously row-emp3"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="@TaxNewAndWageModel.EmployeeCountQtr3"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        Id="employee-count-month3"
+                                        AriaLabelledBy="hdr-corrected row-emp3"
+                                        IntValueChanged="@((int? v) => UpdateEmployeeCountAsync(3,v))"
+                                        IntValueExpression="(() => TaxNewAndWageModel.EmployeeCountQtr3)"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control"
+                                        Placeholder=""
+                                        Min="0" Max="999999" />
+                    </td>
+                    <td>
+                        <NumericTextBox IntValue="@AdjustedTaxWageModel.AdjustedEmployeeCountQtr3"
+                                        InputType="@InputDataTypes.NumericOnly"
+                                        AriaLabelledBy="hdr-adjustment row-emp3"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        IsReadonly="true"
+                                        Min="0" />
+                    </td>
+                </tr>
+                <tr>
+                    <th id="row-gross" scope="row" class="row-header"><b>2.</b> Total Gross Covered Wages</th>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousTotalGrossCoveredWages"
+                                        IsReadonly="true"
+                                        InputType="@InputDataTypes.Currency"
+                                        AriaLabelledBy="hdr-previously row-gross"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.TotalGrossCoveredWages"
+                                        InputType="@InputDataTypes.Currency"
+                                        id="total-gross-covered-wages"
+                                        AriaLabelledBy="hdr-corrected row-gross"
+                                        ValueChanged="@((decimal? e) => ValueChangedEvent(e,"TotalGrossCoveredWages"))"
+                                        ValueExpression="@(() => TaxNewAndWageModel.TotalGrossCoveredWages)"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control"
+                                        DecimalPlaces="2"
+                                        Min="0" Max="@TaxAndWageAdjustmentEntryModel.MaxGrossWagesAmount" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@AdjustedTaxWageModel.AdjustedTotalGrossCoveredWages"
+                                        IsReadonly="true"
+                                        InputType="@InputDataTypes.Currency"
+                                        AriaLabelledBy="hdr-adjustment row-gross"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                </tr>
+                <tr>
+                    <th id="row-exclusion" scope="row" class="row-header"><b>3.</b> Less Exclusions for wages over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold()</th>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousLessExclusionWages"
+                                        InputType="@InputDataTypes.Currency"
+                                        IsReadonly="true"
+                                        AriaLabelledBy="hdr-previously row-exclusion"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.LessExclusionWages"
+                                        InputType="@InputDataTypes.Currency"
+                                        id="exclusion-amount"
+                                        AriaLabelledBy="hdr-corrected row-exclusion"
+                                        ValueChanged="@((decimal? e) => ValueChangedEvent(e,"LessExclusionWages"))"
+                                        ValueExpression="@(() => TaxNewAndWageModel.LessExclusionWages)"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="@TaxAndWageAdjustmentEntryModel.MaxGrossWagesAmount" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@AdjustedTaxWageModel.AdjustedLessExclusionWages"
+                                        InputType="@InputDataTypes.Currency"
+                                        IsReadonly="true"
+                                        AriaLabelledBy="hdr-adjustment row-exclusion"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                </tr>
+                <tr>
+                    <th id="row-payroll" scope="row" class="row-header"><b>4.</b> Defined (Taxable) Payroll</th>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousDefinedTaxableIncome"
+                                        InputType="@InputDataTypes.Currency"
+                                        IsReadonly="true"
+                                        AriaLabelledBy="hdr-previously row-payroll"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@TaxNewAndWageModel.DefinedTaxableIncome"
+                                        InputType="@InputDataTypes.Currency"
+                                        AriaLabelledBy="hdr-corrected row-payroll"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        IsReadonly="true"
+                                        Min="0" Max="10000000" />
+                    </td>
+                    <td>
+                        <NumericTextBox Value="@AdjustedTaxWageModel.AdjustedDefinedTaxableIncome"
+                                        InputType="@InputDataTypes.Currency"
+                                        IsReadonly="true"
+                                        AriaLabelledBy="hdr-adjustment row-payroll"
+                                        ShowCurrencyIcon="false"
+                                        CssClass="form-control textboxReadOnlyBackgroundColor"
+                                        Placeholder=""
+                                        DecimalPlaces="2"
+                                        Min="0" Max="10000000" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="LowerGridDisplay">
+        @if (_reasonsModel is not null)
+        {
+            <label id="reason-label" class="grid-item"><b>5.</b> Adjustment Reason</label>
+            <div class="grid-item lowerDisplayMargins">
+                <div class="form-group">
+                    <div class="select-field">
+                        <InputSelect TValue="int?"
+                                     Value="TaxNewAndWageModel.CodeSK"
+                                     ValueChanged="OnReasonChanged"
+                                     ValueExpression="() => TaxNewAndWageModel.CodeSK"
+                                     id="reasons"
+                                     aria-labelledby="reason-label"
+                                     title="@TaxNewAndWageModel.ReasonText"
+                                     class="form-control">
+
+                            <option value="">Select Reason</option>
+
+                            @foreach (var r in _reasonsModel)
+                            {
+                                <option value="@r.CodeSk">@r.ReasonText</option>
+                            }
+                        </InputSelect>
+
+                        <ValidationMessage For="() => TaxNewAndWageModel.CodeSK" />
+
+                        <span class="chevron-icon" aria-hidden="true">
+                            <svg width="12" height="7.4" viewBox="0 0 12 7.4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1.5 5.5 6 11 1.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        }
+        <label id="tax-rate-label" class="grid-item"><b>6.</b> Current Tax Rate</label>
+        <div class="grid-item lowerDisplayMargins">
+            <NumericTextBox Value="@TaxNewAndWageModel.PreviousTaxWageValues.PreviousCurrentTaxRate"
+                            InputType="@InputDataTypes.DecimalOnly"
+                            IsReadonly="true"
+                            AriaLabelledBy="tax-rate-label"
+                            ShowCurrencyIcon="false"
+                            CssClass="form-control textboxReadOnlyBackgroundColor"
+                            Placeholder=""
+                            DecimalPlaces="4"
+                            Min="0"
+                            Max="10000000" />
+        </div>
+        <label id="tax-assessed-label" class="grid-item"><b>7.</b> Tax Assessed (Overpaid)</label>
+        <div class="grid-item lowerDisplayMargins">
+            <NumericTextBox Value="@AdjustedTaxWageModel.AdjustedTaxAssessed"
+                            InputType="@InputDataTypes.Currency"
+                            IsReadonly="true"
+                            AriaLabelledBy="tax-assessed-label"
+                            ShowCurrencyIcon="false"
+                            CssClass="form-control textboxReadOnlyBackgroundColor"
+                            Placeholder=""
+                            DecimalPlaces="2"
+                            Min="0"
+                            Max="10000000" />
+        </div>
+    </div><br />
+    @if (TaxNewAndWageModel.TotalGrossCoveredWages == 0)
+    {
+        <p><b>You are submitting an adjustment showing that no employee wages ($0.00) were paid in this quarter for services performed in Wisconsin.</b></p>
+        <p>Please explain why the tax report previously submitted to the account indicated that employee wages had been paid for services performed in Wisconsin during this quarter when you are now indicating that no wages were paid.</p>
+        <div class="row">
+            <div class="col-md-5">
+                <label id="wage-change-label"><b>8.</b> Reason for Wage Change</label>
+            </div>
+            <div class="col-md-7 textArea">
+                <InputTextArea id="wages-explanation"
+                               aria-labelledby="wage-change-label"
+                               class="form-control"
+                               placeholder="Reason for Wage Change"
+                               maxlength="2000"
+                               rows="7"
+                               style="resize: none;"
+                               Value="@TaxNewAndWageModel.WageChangeText"
+                               ValueChanged="TextValueChanged"
+                               ValueExpression="@(() => TaxNewAndWageModel.WageChangeText)" />
+                <ValidationMessage For="() => TaxNewAndWageModel.WageChangeText" />
+            </div>
+        </div>
+    }
+</div>
+
+<br />
+
+@code {
+
+    [Parameter]
+    public string? QuarterYear { get; set; }
+
+    [Parameter]
+    public DateTime DueDate { get; set; }
+
+    [Parameter]
+    public AdjustedTaxWageModel AdjustedTaxWageModel { get; set; } = new();
+
+    [Parameter]
+    public TaxAndWageAdjustmentEntryModel TaxNewAndWageModel { get; set; } = new();
+
+    public required IEnumerable<WageAdjustmentReasonsModel> _reasonsModel { get; set; }
+
+    [Parameter]
+    public bool HasRendered { get; set; }
+
+    [Parameter]
+    public bool PreserveData { get; set; } = false;
+
+    [Parameter]
+    public int CurrentStep { get; set; }
+
+    [CascadingParameter]
+    public EditContext EditContext { get; set; } = default!;
+
+    private bool _hasWageReport = true;
+    
+    private bool ShowNoWageReportWarning =>
+        (TaxNewAndWageModel.PreviousTaxWageValues?.PreviousTotalGrossCoveredWages ?? 0m) == 0m
+    && !_hasWageReport;
+
+    private int? _selectedReason;
+    private int? SelectedReason
+    {
+        get => _selectedReason;
+        set
+        {
+            _selectedReason = value;
+            OnReasonChanged(value);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        _reasonsModel = await _reasonService.GetTaxAdjustmentReasons();
+
+        SetHeaderInformation();
+        SetMonthsFromQuarter();
+        SetAdjustmentQuartYear();
+        SetSelectedReason();
+        await CheckWageReportExistsAsync();
+    }
+
+    private async Task CheckWageReportExistsAsync()
+    {
+        int? quarter = TaxNewAndWageModel.PreviousTaxWageValues?.PreviousQuarter;
+        int? year = TaxNewAndWageModel.PreviousTaxWageValues?.PreviousYear;
+
+        if (!quarter.HasValue || !year.HasValue)
+        {
+            if (!string.IsNullOrWhiteSpace(QuarterYear))
+            {
+                var parts = QuarterYear.Split(' ');
+                if (parts.Length == 2 && int.TryParse(parts[0].Replace("Q", ""), out var q) && int.TryParse(parts[1], out var y))
+                {
+                    quarter = q;
+                    year = y;
+                }
+            }
+        }
+
+        if (quarter.HasValue && year.HasValue)
+        {
+            var wageReport = await _wageAdjustmentService.LoadWageReportAsync(quarter.Value, year.Value);
+            _hasWageReport = wageReport is not null;
+        }
+    }
+
+    public IReadOnlyList<ValidationResult> Validate()
+    {
+        var context = new ValidationContext(TaxNewAndWageModel);
+        var results = new List<ValidationResult>();
+        Validator.TryValidateObject(
+            TaxNewAndWageModel,
+            context,
+            results,
+            validateAllProperties: true);
+
+        return results;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            if (!HasRendered)
+            {
+                if (!PreserveData)
+                {
+                    SetValues();
+                }
+
+            }
+
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (EditContext == null)
+            throw new InvalidOperationException("EditContext not found. Ensure this component is inside an <EditForm>.");
+
+        EditContext.OnFieldChanged -= OnFieldChanged;
+        EditContext.OnFieldChanged += OnFieldChanged;
+    }
+
+    private void OnReasonChanged(int? id)
+    {
+        TaxNewAndWageModel.CodeSK = id;
+        TaxNewAndWageModel.ReasonText = _reasonsModel.Where(x => x.CodeSk == id).Select(x => x.ReasonText).FirstOrDefault();
+
+    }
+
+    private void SetSelectedReason()
+    {
+        SelectedReason = TaxNewAndWageModel.CodeSK ?? null;
+    }
+
+    private void OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private void TextValueChanged(string? value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            TaxNewAndWageModel.WageChangeText = value;
+
+        }
+        else
+        {
+            TaxNewAndWageModel.WageChangeText = null;
+
+        }
+
+    }
+
+    private void SetHeaderInformation()
+    {
+        if (QuarterYear != null)
+        {
+            TaxNewAndWageModel.PreviousTaxWageValues!.PreviousQuarterYear = QuarterYear;
+
+        }
+
+    }
+
+    private void SetMonthsFromQuarter()
+    {
+        if (string.IsNullOrWhiteSpace(TaxNewAndWageModel.PreviousTaxWageValues?.PreviousQuarterYear))
+        {
+            return;
+        }
+
+        var parts = TaxNewAndWageModel.PreviousTaxWageValues.PreviousQuarterYear.Split(' ');
+        var quarterPart = parts[0];
+
+        if (!int.TryParse(quarterPart.Replace("Q", ""), out var quarter))
+        {
+            return;
+        }
+
+        var startMonth = ((quarter - 1) * 3) + 1;
+
+        TaxNewAndWageModel.PreviousTaxWageValues.PreviousMonth1 = new DateTime(2000, startMonth, 1).ToString("MMMM");
+        TaxNewAndWageModel.PreviousTaxWageValues.PreviousMonth2 = new DateTime(2000, startMonth + 1, 1).ToString("MMMM");
+        TaxNewAndWageModel.PreviousTaxWageValues.PreviousMonth3 = new DateTime(2000, startMonth + 2, 1).ToString("MMMM");
+    }
+
+    private void SetAdjustmentQuartYear()
+    {
+        AdjustedTaxWageModel.AdjustedYear = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousYear ?? 0;
+        AdjustedTaxWageModel.AdjustedReportQuarter = TaxNewAndWageModel.PreviousTaxWageValues.PreviousQuarter ?? 0;
+
+    }
+
+    private void SetValues()
+    {
+
+        TaxNewAndWageModel.EmployeeCountQtr1 = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr1;
+        TaxNewAndWageModel.EmployeeCountQtr2 = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr2;
+        TaxNewAndWageModel.EmployeeCountQtr3 = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr3;
+        TaxNewAndWageModel.CurrentTaxRate = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousCurrentTaxRate;
+        TaxNewAndWageModel.DefinedTaxableIncome = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousDefinedTaxableIncome;
+        TaxNewAndWageModel.DueDate = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousDueDate;
+        TaxNewAndWageModel.EffectiveDate = DateTime.Now;
+        TaxNewAndWageModel.LessExclusionWages = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousLessExclusionWages;
+        TaxNewAndWageModel.TotalGrossCoveredWages = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousTotalGrossCoveredWages;
+        TaxNewAndWageModel.ReportingQuarter = TaxNewAndWageModel.PreviousTaxWageValues!.PreviousQuarterYear ?? "";
+
+        // ----- Tax Assessed -----
+        AdjustedTaxWageModel.AdjustedTaxAssessed =
+            (TaxNewAndWageModel.DefinedTaxableIncome * TaxNewAndWageModel.CurrentTaxRate);
+
+    }
+
+    private Task ValueChangedEvent(decimal? value, string type)
+    {
+        decimal safeValue = value ?? 0m;
+
+        switch (type)
+        {
+            case "TotalGrossCoveredWages":
+                TaxNewAndWageModel.TotalGrossCoveredWages = safeValue;
+
+                if (safeValue > 0)
+                    TaxNewAndWageModel.WageChangeText = null;
+
+                break;
+
+            case "LessExclusionWages":
+                TaxNewAndWageModel.LessExclusionWages = safeValue;
+                break;
+        }
+
+        recalculateAll(type);
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+
+    private Task UpdateEmployeeCountAsync(int month, int? value)
+    {
+        var safeValue = value ?? 0;
+
+        switch (month)
+        {
+            case 1:
+                TaxNewAndWageModel.EmployeeCountQtr1 = safeValue;
+                break;
+            case 2:
+                TaxNewAndWageModel.EmployeeCountQtr2 = safeValue;
+                break;
+            case 3:
+                TaxNewAndWageModel.EmployeeCountQtr3 = safeValue;
+                break;
+        }
+
+        recalculateAll(Convert.ToString(month));
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+
+    private void recalculateAll(string type = "")
+    {
+        // ----- Previous values -----
+        var prev = TaxNewAndWageModel.PreviousTaxWageValues!;
+
+        int prevEmp1 = prev.PreviousEmployeeCountQtr1 ?? 0;
+        int prevEmp2 = prev.PreviousEmployeeCountQtr2 ?? 0;
+        int prevEmp3 = prev.PreviousEmployeeCountQtr3 ?? 0;
+
+        decimal prevGrossWages = prev.PreviousTotalGrossCoveredWages ?? 0m;
+        decimal prevExclusions = prev.PreviousLessExclusionWages ?? 0m;
+        decimal prevPayroll = prev.PreviousDefinedTaxableIncome ?? 0m;
+        decimal taxRate = prev.PreviousCurrentTaxRate;
+
+        // ----- Current values -----
+        int curEmp1 = TaxNewAndWageModel.EmployeeCountQtr1 ?? 0;
+        int curEmp2 = TaxNewAndWageModel.EmployeeCountQtr2 ?? 0;
+        int curEmp3 = TaxNewAndWageModel.EmployeeCountQtr3 ?? 0;
+
+        decimal curGrossWages = TaxNewAndWageModel.TotalGrossCoveredWages ?? 0m;
+        decimal curExclusions = TaxNewAndWageModel.LessExclusionWages ?? 0m;
+
+        // ----- Always recalculate derived values -----
+        decimal curPayroll = curGrossWages - curExclusions;
+        TaxNewAndWageModel.DefinedTaxableIncome = curPayroll;
+
+        // ----- Employee adjustments (new - previous) -----
+        AdjustedTaxWageModel.AdjustedEmployeeCountQtr1 = curEmp1 - prevEmp1;
+        AdjustedTaxWageModel.AdjustedEmployeeCountQtr2 = curEmp2 - prevEmp2;
+        AdjustedTaxWageModel.AdjustedEmployeeCountQtr3 = curEmp3 - prevEmp3;
+
+        // ----- Wage adjustments (new - previous) -----
+        AdjustedTaxWageModel.AdjustedTotalGrossCoveredWages =
+            curGrossWages - prevGrossWages;
+
+        AdjustedTaxWageModel.AdjustedLessExclusionWages =
+            curExclusions - prevExclusions;
+
+        AdjustedTaxWageModel.AdjustedDefinedTaxableIncome =
+            curPayroll - prevPayroll;
+
+        // ----- Tax adjustment -----
+        AdjustedTaxWageModel.AdjustedTaxAssessed =
+            (AdjustedTaxWageModel.AdjustedDefinedTaxableIncome * taxRate);
+
+    }
+
+}

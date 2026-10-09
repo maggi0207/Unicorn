@@ -1,0 +1,123 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+
+<div class="verification-step">
+    <h1 class="verification-title">Verification</h1>
+    <p class="verification-subtitle"><strong>Reporting Quarter:</strong> @ReportingQuarter</p>
+
+    <p class="verification-instructions">       Verify the information below and then click "Submit Adjustment." </p>
+
+    <div class="collapsible-section">
+        <button type="button"
+                class="section-header"
+                @onclick="ToggleEmployeesExpanded"
+                aria-expanded="@_employeesExpanded.ToString()"
+                aria-controls="employees-section-content">
+            <h2 class="section-title">Added Employees</h2>
+            <div class="header-right">
+                <img src="images/menu/submenu-arrow.svg"
+                     alt=""
+                     width="20"
+                     height="20"
+                     class="chevron-icon @(_employeesExpanded ? "rotated" : "")"
+                     aria-hidden="true" />
+            </div>
+        </button>
+
+        @if (_employeesExpanded)
+        {
+            <div id="employees-section-content" class="section-content">
+                <div class="content-subheader">
+                    <h3 class="subheader-title">Employees with Wage Adjustments</h3>
+                    <button type="button" class="edit-link" @onclick="HandleEditEmployees" @onclick:stopPropagation="true" aria-label="Edit added employees">
+                        <img src="@Assets["icons/edit.svg"]" alt="" width="18" height="18" aria-hidden="true" /> Edit
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="verification-table" aria-label="Employee adjustments verification">
+                        <thead>
+                            <tr class="header-row">
+                                <th scope="col" class="header-cell header-cell-label"></th>
+                                <th scope="col" class="header-cell">Last Name</th>
+                                <th scope="col" class="header-cell">First Name</th>
+                                <th scope="col" class="header-cell ">
+                                    <div class="ssn-col">
+                                    <div class="ssn-header-content">
+                                        <span>SSN</span>
+                                        <button type="button"
+                                                class="ssn-toggle-btn"
+                                                @onclick="ToggleAllSsnVisibility"
+                                                title="@(_showAllSsns ? "Hide all SSNs" : "Show all SSNs")"
+                                                aria-label="@(_showAllSsns ? "Hide all SSNs" : "Show all SSNs")">
+                                            <img src="@(_showAllSsns? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                        </button>
+                                    </div>
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell">Quarterly Wages</th>
+                                <th scope="col" class="header-cell adj-reason">Wage Adjustment Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in AdjustmentEmployees)
+                            {
+                                var reasonText = GetReasonText(employee.AdjustmentReasonCodeSK, AdjustmentReasons);
+                                var isSsnVisible = _visibleSsns.Contains(employee.Id);
+                                var isCorrectedSsnVisible = _visibleCorrectedSsns.Contains(employee.Id);
+                                <tr @key="@($"prev-{employee.Id}")" class="data-row prev-row">
+                                    <th row="scope" class="data-cell row-label">
+                                        Previously Reported <span class="visually-hidden">for @employee.OriginalFirstName @employee.OriginalLastName</span></th>
+                                    <td class="data-cell">@employee.OriginalLastName</td>
+                                    <td class="data-cell">@employee.OriginalFirstName</td>
+                                    <td class="data-cell ">
+                                          <div class="ssn-col">
+                                        <div class="ssn-cell-content">
+                                            <span>@(isSsnVisible? SsnHelper.FormatSSN(employee.OriginalSSN): SsnHelper.MaskSSN(employee.OriginalSSN))</span>
+                                            <button type="button"
+                                                    class="ssn-toggle-btn"
+                                                    @onclick="() => ToggleSsnVisibility(employee.Id)"
+                                                    title="@(isSsnVisible ? "Hide SSN" : "Show SSN")"
+                                                    aria-label="@(isSsnVisible ? "Hide previously reported SSN for" : "Show previously reported SSN for") @employee.OriginalFirstName @employee.OriginalLastName">
+                                                <img src="@(isSsnVisible? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                            </button>
+                                        </div>
+                                        </div>
+                                    </td>
+                                    <td class="data-cell">@employee.OriginalQuarterlyWages.ToString("C2")</td>
+                                    <td class="data-cell"></td>
+                                </tr>
+                                <tr @key="@($"corr-{employee.Id}")" class="data-row corr-row">
+                                    <th scope="row" class="data-cell row-label corrected-label">
+                                        Corrected Information <span class="visually-hidden">for @employee.OriginalFirstName @employee.OriginalLastName</span>
+                                    </th>
+                                    <td class="data-cell">@employee.CorrectedLastName</td>
+                                    <td class="data-cell">@employee.CorrectedFirstName</td>
+                                    <td class="data-cell">
+                                          <div class="ssn-col">
+                                        <div class="ssn-cell-content-corrected">
+                                            <span>@(isCorrectedSsnVisible? SsnHelper.FormatSSN(employee.CorrectedSSN!): SsnHelper.MaskSSN(employee.CorrectedSSN))</span>
+                                            @if (!string.IsNullOrEmpty(employee.CorrectedSSN))
+                                            {
+                                                <button type="button"
+                                                        class="ssn-toggle-btn"
+                                                        @onclick="() => ToggleSsnCorrectedVisibility(employee.Id)"
+                                                        title="@(isCorrectedSsnVisible ? "Hide SSN" : "Show SSN")"
+                                                        aria-label="@(isCorrectedSsnVisible ? "Hide corrected SSN for" : "Show corrected SSN for") @employee.OriginalFirstName @employee.OriginalLastName">
+                                                    <img src="@(isCorrectedSsnVisible? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                                </button>
+                                            }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="data-cell corrected-wages">@(employee.AdjustedQuarterlyWages?.ToString("C2"))</td>
+                                    <td class="data-cell">@reasonText</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>

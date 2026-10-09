@@ -1,0 +1,39 @@
+.available-credit-page {
+    padding: 12px;
+}
+.available-credit {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    padding-bottom: 8px;
+    margin: 0;
+}
+
+.available-credit-body {
+    padding: 16px;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: #F3F3F3;
+}
+.available-credit-amount {
+    color: #1B753B;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.available-credit-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}

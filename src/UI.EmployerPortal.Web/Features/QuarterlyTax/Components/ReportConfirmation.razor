@@ -1,0 +1,141 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading confirmation..." />
+}
+else
+{
+    <div class="confirmation-page">
+        <div class="confirmation-header">
+            <h1 class="confirmation-title">Confirmation</h1>
+            <div class="confirmation-meta">
+                <span class="meta-item">
+                    <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+                </span>
+                <span class="meta-item">
+                    <span class="meta-label">Due Date:</span> @DueDate?.ToString("MM/dd/yyyy")
+                </span>
+                <span class="meta-item">
+                    <span class="meta-label">Effective Date:</span>@EffectiveDate?.ToString("MM/dd/yyyy")
+                </span>
+            </div>
+        </div>
+
+        <hr class="header-divider" />
+
+        <div class="success-section">
+            <div class="success-message">
+                <span class="success-icon">
+                    <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+                </span>
+                <h2 class="success-text">Your report has been submitted.</h2>
+            </div>
+            <div class="confirmation-number-section">
+                <p class="confirmation-number-label">Confirmation Number:</p>
+                <p class="confirmation-number-value">@ConfirmationNumber</p>
+            </div>
+        </div>
+
+        <hr class="options-divider" />
+
+        <div class="whats-next-section">
+            <h2 class="whats-next-title">What's Next?</h2>
+            <p class="note-text">
+                <span class="note-label">Note:</span> This is <strong>not</strong> a Payment Confirmation Number.
+            </p>
+
+            @if (_hasGrossWageMismatch)
+            {
+                @* --- Wage Mismatch View --- *@
+                <div class="wage-mismatch-section">
+                    <p class="wage-mismatch-text">
+                        The total gross wages previously reported on the wage report do not match the total
+                        reported on this tax report. <strong>Either the tax or wage report needs to be adjusted.</strong>
+                        Click "File Adjustment for @_adjustmentQuarter" below to begin the adjustment report.
+                    </p>
+                </div>
+                <div class="action-buttons">
+                    <Button Text="@($"FILE ADJUSTMENT FOR {_adjustmentQuarter}")"
+                            Variant="ButtonVariant.Secondary"
+                            Size="ButtonSize.Medium"
+                            OnClick="HandleFileAdjustmentClicked"
+                            AriaLabel="@($"File adjustment for {_adjustmentQuarter}")" />
+                    @if (_hasOutstandingBalance)
+                    {
+                        <Button Text="PAYMENT OPTIONS"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandlePaymentOptionsClicked"
+                                AriaLabel="Payment options" />
+                    }
+                </div>
+            }
+            else
+            {
+                @* --- Normal View --- *@
+                @if (_hasMissingQuarterlyReports)
+                {
+                    <p class="missing-reports-text">Our records show that you have missing quarterly reports.</p>
+                }
+                <div class="action-buttons">
+                    @if (_hasOutstandingBalance)
+                    {
+                        <Button Text="PAYMENT OPTIONS"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandlePaymentOptionsClicked"
+                                AriaLabel="Payment options" />
+                    }
+
+                    @if (_hasMatchingMissingWageReport)
+                    {
+                        <Button Text="UPLOAD EMPLOYEE WAGE FILE"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandleUploadWageFileClicked"
+                                AriaLabel="Upload employee wage file" />
+
+                        <Button Text="FILE WAGE REPORT"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandleFileWageReportClicked"
+                                AriaLabel="File wage report" />
+                    }
+                    @if (_hasMissingQuarterlyReports && !_hasMatchingMissingWageReport)
+                    {
+                        <Button Text="FILE ANOTHER REPORT"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandleFileAnotherReportClicked"
+                                AriaLabel="File another report" />
+                    }
+
+                </div>
+
+                @* Email subscription link - only shown when report was filed late *@
+                @if (ShowEmailSubscriptionLink)
+                {
+                    <div>
+                        <a class="anchor-link" href="quarterly-tax/missing-reports">  Sign up for the "Notice to File" email subscription list </a>
+                    </div>
+                }
+            }
+        </div>
+
+        <hr class="options-divider" />
+
+        <div class="save-page-section">
+            <Button Variant="ButtonVariant.Secondary"
+                    ShowBorder="false"
+                    OnClick="HandleSavePageClicked"
+                    AriaLabel="Click here to save this page for your records">
+                <span class="save-icon">
+                    <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+                </span>
+                Click here to save this page for your records
+            </Button>
+        </div>
+    </div>
+}

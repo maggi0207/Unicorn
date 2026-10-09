@@ -1,0 +1,113 @@
+@page "/tax-wage-report-adjustments/add-new-employees"
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Components
+@using Microsoft.AspNetCore.Components.Web
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageAdjustmentService
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Add New Employees to Existing Wage Report</PageTitle>
+@if (_pageState == PageState.Confirmation)
+{
+    <AddEmployeeConfirmation ReportingQuarter="@_model.SelectedQuarter"
+                             ConfirmationNumber="@_confirmationNumber" />
+}
+else
+{
+    <div class="page-content">
+        <EditForm EditContext="_editContext">
+            <DataAnnotationsValidator />
+            <Wizard Steps="@_wizardSteps"
+                    @bind-CurrentStep="@_currentStep"
+                    UseTextStepper="true"
+                    ShowNavigationButtons="true"
+                    OnActionClick="HandleActionClick"
+                    OnBackClick="@(() => HandleBackClick())"
+                    OnCancelClick="HandleCancelClick"
+                    OnSaveAndQuitClick="HandleSaveAndQuitClick"
+                    AutoNavigateOnAction="false"
+                    AutoNavigateOnBack="false"
+                    ShowBackButton="@(_currentStep > 1)"
+                    ShowCancelButton="true"
+                    ShowSaveAndQuitButton="@(_currentStep > 1)">
+
+                @if (_currentStep == 1)
+                {
+                    <div class="step-container">
+                        @if (_showStep1Errors)
+                        {
+                            <ValidationErrorSummary ShowSummary="true"
+                                                    FieldIds="@_step1FieldIds"
+                                                    SummaryId="step1-validation-summary" />
+                        }
+                        <div class="@(_showStep1Errors && string.IsNullOrWhiteSpace(_model.SelectedQuarter) ? "quarter-error-wrapper" : "")">
+                            <QuarterYearDropdownList Id="quarter-year-select"
+                                                     Value="@_model.SelectedQuarter"
+                                                     ValueChanged="@HandleQuarterChanged"
+                                                     For="() => _model.SelectedQuarter!"
+                                                     Required="true"
+                                                     AvailableQuarters="@_filedWageQuarters" />
+                        </div>
+
+                    </div>
+                }
+                else if (_currentStep == 2)
+                {
+                    <ValidationErrorSummary ShowSummary="@(_showErrors && _step2Attempted)"
+                                            FieldIds="@_fieldIds"
+                                            FieldResolver="@ResolveField"
+                                            SummaryId="add-employees-validation-summary" />
+                    <div @key="@($"step2-{_step2Attempted}")">
+                        <AddEmployees Model="_model"
+                                      ReportingQuarter="@_model.SelectedQuarter"
+                                      AvailableReasons="@_availableReasons"
+                                      SelectedReason="@_model.SelectedReason"
+                                      SelectedReasonChanged="@HandleReasonChanged"
+                                      ShowValidationBanner="false"
+                                      BannerMessage=""
+                                      ShowValidation="@_step2Attempted"
+                                      OnEmployeeChanged="HandleEmployeeChanged" />
+                    </div>
+                }
+                else if (_currentStep == 3)
+                {
+                    @if (_isSubmitting)
+                    {
+                        <LoadingSpinner Message="Submitting adjustment..." />
+                    }
+                    else
+                    {
+                        <ValidationErrorSummary ShowSummary="@_showErrors"
+                                                FieldIds="@_fieldIds"
+                                                FieldResolver="@ResolveField"
+                                                SummaryId="verify-validation-summary" />
+                        <VerifyInformation SelectedQuarter="@_model.SelectedQuarter"
+                                           SelectedReason="@_model.SelectedReason"
+                                           Employees="@_model.EmployeeEntryModels"
+                                           ShowValidationBanner="false"
+                                           BannerMessage=""
+                                           OnEditEmployees="@(() => JumpToStep(2))" />
+                    }
+                }
+            </Wizard>
+        </EditForm>
+        <BackButtonModal IsOpen="@_showBackModal"
+                         OnClose="@HandleKeepEmployeeData"
+                         OnRemoveDataConfirmed="@HandleRemoveEmployeeData" />
+
+        <SaveAndQuitModal IsOpen="@_showSaveAndQuitModal"
+                          OnClose="@HandleSaveAndQuitClose"
+                          OnConfirm="@HandleSaveAndQuitConfirm" />
+
+        <UnsavedChangesModal IsOpen="@_showCancelModal"
+                             OnStay="HandleCancelModalStay"
+                             OnCancelReport="HandleCancelModalConfirm" />
+
+    </div>
+}

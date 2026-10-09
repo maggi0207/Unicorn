@@ -1,0 +1,104 @@
+@page "/tax-wage-report-adjustments/adjustments"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>File a Tax & Wage Report Adjustment</PageTitle>
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    <div class="select-adjustment-type">
+        <h1 class="page-title" tabindex="-1" @ref="_headingRef">File a Tax & Wage Report Adjustment</h1>
+        <p class="page-subtitle">Adjust an existing tax or wage report that has already been filed.</p>
+        <hr />
+
+        @if (_pendingAdjustment is not null)
+        {
+            <div class="active-audit" role="alert">
+                <img src="@(Assets["images/reports/active-audit-icon.svg"])" alt="" />
+                <span class="error-text"><strong>Pending Adjustment Report: </strong>You must complete your current adjustment report before filing a new one.</span>
+            </div>
+            <br />
+            <h2 class="missing-report-title">Pending Adjustment Report</h2>
+            <div class="table-container">
+                <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Pending Adjustment Reports">
+                    <caption class="visually-hidden">List of pending adjustment reports in progress</caption>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell" style="width: 180px">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Report Name</span>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell" style="width: 140px">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Status</span>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell" style="width: 120px">
+                                <div class="header-content header-content-left">
+                                    <span class="header-label fw-bold fs-sm">Actions</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="custom-row"
+                            role="row"
+                            aria-label="Pending adjustment @GetReportName(_pendingAdjustment)">
+                            <td>@GetReportName(_pendingAdjustment)</td>
+                            <td class="pending-status">In Progress</td>
+                            <td>
+                                <Button Text="CONTINUE"
+                                        OnClick="HandleContinuePendingAdjustment"
+                                        AriaLabel="@($"Continue {GetReportName(_pendingAdjustment)}")"
+                                        Size="Button.ButtonSize.Small"
+                                        Variant="Button.ButtonVariant.Secondary"
+                                        ShowBorder="false" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="adjustment-type-section">
+                <h2 class="section-label">Adjustment Type</h2>
+                @if (_showValidationError)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert" Message="Please select an adjustment type to continue." />
+                }
+
+                <div class="adjustment-cards" role="radiogroup" aria-label="Adjustment Type" aria-required="true">
+                    @for (int i = 0; i <_adjustmentOptions.Count; i++)
+                    {
+                        var index = i;
+                        var option = _adjustmentOptions[i];
+
+                        <ReportingMethodCard
+                            Id="@($"reporting-card-{index}")"
+                            Title="@option"
+                            Description=""
+                            IsSelected="@(index == _selectedIndex)"
+                            IsFocusable="@(index == _selectedIndex)"
+                            OnSelected="@(() => HandleCardSelected(index))"
+                            OnNextCardSelected="HandleNextCard"
+                            OnPreviousCardSelected="HandlePreviousCard"/>
+                    }
+                </div>
+            </div>
+            <div class="action-row">
+                <Button Variant="Button.ButtonVariant.Primary" Size="Button.ButtonSize.Medium"
+                        AriaLabel="Continue" OnClick="HandleContinue">
+                    CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+                </Button>
+            </div>
+        }
+    </div>
+}

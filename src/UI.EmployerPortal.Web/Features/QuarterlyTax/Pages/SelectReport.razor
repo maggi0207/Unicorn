@@ -1,0 +1,108 @@
+@page "/quarterly-tax/select-report"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.MissingWageAndTaxReports
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Select Report</PageTitle>
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading report data..." />
+}
+else
+{
+    <div class="select-report-page">
+        <CascadingValue Value="_editContext" IsFixed="false">
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary"
+                                    FieldIds="@_validationFieldIds"
+                                    SummaryId="select-report-validation-summary" />
+        </CascadingValue>
+
+        <!-- Page Header -->
+        <div class="select-report-header">
+            <h1 class="select-report-title">Select Report</h1>
+
+            @if (_hasReportContext)
+            {
+                <div class="select-report-meta">
+                    <span class="meta-label">@_reportingQuarterDisplay</span>
+                    <button role="link" type="button" class="select-report-change-link" @onclick="NavigateToMissingReports">Change Report</button>
+                </div>
+            }
+            else
+            {
+                <div class="select-report-no-context-banner" role="status">
+                    <span>Please head to the Missing Reports page from the main navigation to select the report you wish to file</span>
+                    <button role="link" type="button" class="select-report-change-link" @onclick="NavigateToMissingReports">Select Report</button>
+                </div>
+            }
+        </div>
+
+        @if (_hasPendingReport)
+        {
+            <div class="select-report-pending-banner" role="alert">
+                <p><strong>Pending Report:</strong> You have a report in progress. You must complete or cancel your pending report before selecting a new reporting method.</p>
+                <Button Text="CONTINUE TO PENDING REPORT"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="HandleContinuePendingReport" />
+
+            </div>
+        }
+        else
+        {
+
+            <!-- Section Label -->
+            <div class="select-report-section-label">
+                <span id="reporting-method-group-label" class="section-label-text">Select a Reporting Method</span>
+                @if (_unavailableMethods.Count > 0)
+                {
+                    <button type="button" class="section-label-info-btn" aria-label="View information about selecting a reporting method" @onclick="OpenDrawer">
+                        <img src="@Assets["icons/info_circle_filled.svg"]" alt="Help" aria-hidden="true" width="16" height="16" />
+                    </button>
+                }
+            </div>
+
+            <!-- Reporting Method Cards -->
+            <div class="select-report-methods" role="radiogroup" aria-labelledby="reporting-method-group-label">
+                @for (int i = 0; i < _eligibleMethods.Count; i++)
+                {
+                    var index = i;
+                    var method = _eligibleMethods[i];
+
+                    <ReportingMethodCard Id="@($"reporting-card-{index}")"
+                                         Title="@method.ShortDescription"
+                                         Description="@method.LongDescription"
+                                         IsSelected="@(_selectedMethod.HasValue && _selectedIndex == index)"
+                                         IsFocusable="@(_selectedIndex == index)"
+                                         IsDisabled="@(!_hasReportContext)"
+                                         IsError="@(_errorMethodCodeSK == method.CodeSK)"
+                                         OnSelected="@(() => SelectMethod(index))"
+                                         OnNextCardSelected="HandleNextCard"
+                                         OnPreviousCardSelected="HandlePreviousCard" />
+                }
+            </div>
+
+            <!-- Continue Button -->
+            <div class="select-report-footer">
+                <Button Variant="Button.ButtonVariant.Primary"
+                        Size="Button.ButtonSize.Medium"
+                        Disabled="@(!CanContinue)"
+                        AriaLabel="Continue with selected reporting method"
+                        OnClick="HandleContinue">
+                    CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+                </Button>
+            </div>
+        }
+    </div>
+}
+
+@if (_unavailableMethods.Count > 0)
+{
+    <!-- Unavailable Methods Drawer -->
+    <UnavailableMethodsDrawer IsOpen="@_isDrawerOpen"
+                              UnavailableMethods="@_unavailableMethods"
+                              OnClose="CloseDrawer" />
+}
+<MissingPriorQuartersModal IsOpen="@_showMissingPriorQuartersModal"
+                           OnCancel="HandleCancelMissingPriorQuartersModal"
+                           OnConfirm="HandleConfirmMissingPriorQuartersModal" />

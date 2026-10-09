@@ -1,0 +1,152 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading confirmation..." />
+}
+else
+{
+    <div class="confirmation-page">
+        <h1 class="confirmation-title">Confirmation</h1>
+        <hr class="title-divider" />
+        <div class="success-section">
+            <div class="success-message">
+                <span class="success-icon">
+                    <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+                </span>
+                <span class="success-text">
+                    @if (IsSourceTestEnv)
+                    {
+                        <text>Your test Wage Report Upload has been submitted.</text>
+                    }
+                    else
+                    {
+                        <text>Your @ReportType Wage report has been submitted.</text>
+                    }
+                </span>
+            </div>
+            <div class="confirmation-number-section">
+                <h2 class="confirmation-number-label">Confirmation Number:</h2>
+                <p class="confirmation-number-value">@ConfirmationNumber</p>
+            </div>
+        </div>
+        <hr class="divider" />
+        @if (IsSourceTestEnv)
+        {
+            <div class="test-env-actions" style="text-align: center;">
+                <a href="quarterly-tax/test/upload-summary" class="view-summary-link">
+                    View Test Upload Summary
+                </a>
+                <div class="action-buttons">
+                    <Button Text="FILE ANOTHER TEST REPORT"
+                            Variant="ButtonVariant.Secondary"
+                            Size="ButtonSize.Medium"
+                            OnClick="HandleFileAnotherReportClicked"
+                            AriaLabel="File another test report" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="whats-next-section">
+                <h2 class="whats-next-title">What's Next?</h2>
+                <p class="info-text">
+                    The report will be reviewed for errors, and the detailed results of the
+                    review should be ready for you in 1-2 business days. You will be notified
+                    by email at <strong>@ContactEmail</strong> once the report has been processed
+                    or errors are found. Until the wage file you uploaded has been reviewed for
+                    errors and processed, it will still show as missing on the Missing Reports page.
+                </p>
+                <p class="info-text">
+                    <strong>Note:</strong> This is <strong>not</strong> a Contribution Tax Report Confirmation Number; a
+                    Contribution Tax Report also needs to be filed for the account if you
+                    have not yet done so.
+                </p>
+                @if (_hasMissingQuarterlyReports)
+                {
+                    <p class="missing-text">Our records show that you have missing quarterly reports.</p>
+                    <div class="action-buttons">
+                        <Button Text="FILE ANOTHER REPORT"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="HandleFileAnotherReportClicked"
+                                AriaLabel="File another report" />
+                    </div>
+                }
+            </div>
+        }
+        <hr class="divider" />
+        <div class="save-page-section">
+            <button type="button" class="save-page-link" @onclick="HandleSavePageClicked">
+                <span class="save-icon">
+                    <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+                </span>
+                Save this page for your records.
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject]
+    private ITaxAndWageEntryService TaxAndWageEntryService { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+    /// <summary>
+    /// Gets or sets Confirmation Number received from submit response
+    /// </summary>
+
+    [Parameter] public string ConfirmationNumber { get; set; } = string.Empty;
+    /// <summary>
+    /// Report type
+    /// </summary>
+
+    [Parameter] public string ReportType { get; set; } = "Original";
+    /// <summary>
+    /// ContactEmail
+    /// </summary>
+
+    [Parameter] public string ContactEmail { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Whether this confirmation is being shown for a test-environment submission.
+    /// </summary>
+
+    [Parameter] public bool IsSourceTestEnv { get; set; }
+    private bool _isLoading = true;
+
+    /// <summary>
+    /// Whether there are missing quarterly reports. Populated automatically via service call.
+    /// </summary>
+    private bool _hasMissingQuarterlyReports;
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsSourceTestEnv)
+        {
+            // Test-environment confirmation does not depend on missing-reports lookup.
+            _isLoading = false;
+            return;
+        }
+        var missingReportsData = await TaxAndWageEntryService.GetMissingWageAndTaxReports();
+        var missingReports = missingReportsData.MissingReports ?? new();
+        _hasMissingQuarterlyReports = missingReports.Count > 0;
+        _isLoading = false;
+    }
+    private void HandleFileAnotherReportClicked()
+    {
+         NavigationManager.NavigateTo(
+            TestEnvironmentSource.Preserve("quarterly-tax/wage-upload", IsSourceTestEnv), forceLoad: true);
+    }
+    private async Task HandleSavePageClicked()
+    {
+        await JS.InvokeVoidAsync("printElement", ".confirmation-page");
+    }
+}

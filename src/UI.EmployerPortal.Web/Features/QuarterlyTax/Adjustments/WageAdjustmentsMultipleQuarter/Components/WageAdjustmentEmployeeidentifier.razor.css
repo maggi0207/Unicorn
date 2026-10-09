@@ -1,0 +1,118 @@
+
+.emp-identifier-title {
+
+    font-family: Verdana;
+    width: 100%;
+    border-bottom: 1px solid #003663;
+    margin-bottom: 20px;
+}
+
+.emp-identifier-title h2 {
+    color: var(--color-header-nav);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.table-container {
+    width: 100%;
+    overflow: auto;
+}
+
+.tbl-input {
+    height: 45px;
+    width: 142px;
+}
+
+.header-row {
+    min-height: 56px;
+}
+
+.header-cell {
+    height: 50px;
+    background-color: var(--color-gray-light, #f5f5f5) !important;
+}
+
+.ssn-header-cell {
+        width: 100%
+    }
+
+.header-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 8px var(--spacing-sm, 8px);
+}
+
+.header-content-left {
+    justify-content: space-between;
+}
+
+.header-content-right {
+    justify-content: flex-end;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-content-center {
+    justify-content: center;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-label-small {
+    line-height: 1.2;
+    text-align: center;
+}
+
+
+.data-row td {
+    vertical-align: top;
+    padding: 0.5rem;
+}
+
+.toggle-btn {
+    /*  position: absolute;*/
+    right: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #003663;
+    padding: 4px;
+    /* display: flex;*/
+    align-items: center;
+
+.ssn-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        margin-top: 0;
+        width: 180px;
+    }
+
+.ssn-input-wrapper .validation-message {
+            min-height: 36px;
+            font-size: 12px;
+            color: red;
+            margin-top: 4px;
+            line-height: 18px;
+        }
+
+.master-input {
+        box-sizing: border-box;
+        height: 40px;
+    }
+
+.master-input.master-text-field--error {
+            box-sizing: border-box;
+            height: 40px;
+        }
+
+.master-text-field {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 750px) {
+    .ssn-header-cell {
+        width: 180px;
+    }
+}

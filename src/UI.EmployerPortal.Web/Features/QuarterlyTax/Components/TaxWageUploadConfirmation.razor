@@ -1,0 +1,59 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<div class="confirmation-page">
+    <div class="confirmation-header">
+        <h1 class="confirmation-title">Confirmation</h1>
+        <div class="confirmation-meta">
+            <span class="meta-item">
+                <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+            </span>
+            <span class="meta-item">
+                <span class="meta-label">Due Date:</span> @DueDate?.ToString("M/d/yyyy")
+            </span>
+            <span class="meta-item">
+                <span class="meta-label">Effective Date:</span> @EffectiveDate?.ToString("M/d/yyyy")
+            </span>
+        </div>
+    </div>
+
+    <hr class="header-divider" />
+
+    <div class="success-section">
+        <div class="success-message">
+            <span class="success-icon">
+                <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <span class="success-text">Your tax report has been submitted.</span>
+        </div>
+        <div class="confirmation-number-section">
+            <p class="confirmation-number-label">Confirmation Number:</p>
+            <h4 class="confirmation-number-value">@ConfirmationNumber</h4>
+        </div>
+    </div>
+
+    <hr class="options-divider" />
+
+    <div class="whats-next-section">
+        <h3 class="whats-next-title">What's Next?</h3>
+        <p class="note-text">Please continue to upload your employee wage file to complete the Tax & Wage Upload report.</p>
+        
+        <div class="action-buttons">
+            <Button Text="CONTINUE TO WAGE FILE UPLOAD"
+                    Variant="ButtonVariant.Primary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleContinueToWageUpload"
+                    AriaLabel="Continue to wage file upload" />
+        </div>
+    </div>
+    <hr class="options-divider" />
+
+    <div class="save-page-section">
+        <button type="button" class="save-page-link" @onclick="HandleSavePageClicked">
+            <span class="save-icon">
+                <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            </span>
+            Save this page for your records.
+        </button>
+    </div>
+</div>

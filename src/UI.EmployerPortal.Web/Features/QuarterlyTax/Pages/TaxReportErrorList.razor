@@ -1,0 +1,180 @@
+
+@page "/quarterly-tax/tax-report-error-list"
+
+<PageTitle>Tax Report Error List</PageTitle>
+
+<div class="wuel-page">
+
+    <div class="wuel-header">
+        <h1 class="wuel-title">Contribution Tax Reports File Upload Error List</h1>
+        <p class="wuel-subtitle fs-md">
+            This screen displays the error numbers and messages for all errors that could be found in a tax report upload file, as well as information about the actions necessary to correct the errors.
+        </p>
+    </div>
+
+    <div class="table-container">
+        <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Wage report file upload error list">
+            <caption class="visually-hidden">Contribution Tax Reports file upload error numbers, messages, and corrective actions</caption>
+            <colgroup>
+                <col style="width: 90px;" />
+                <col style="width: 280px;" />
+                <col />
+            </colgroup>
+            <thead>
+                <tr class="header-row">
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Error #</span>
+                        </div>
+                    </th>
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Error Message</span>
+                        </div>
+                    </th>
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Corrective Action</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var error in _errors)
+                {
+                    <tr class="data-row">
+                        <th scope="row" class="fw-bold fs-md">@error.Number</th>
+                        <td class="fw-normal fs-md">@error.Message</td>
+                        <td class="fw-normal fs-md">@((MarkupString)error.CorrectiveAction)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    private record ErrorEntry(int Number, string Message, string CorrectiveAction);
+
+    private readonly List<ErrorEntry> _errors =
+        [
+        new(1,
+        "Invalid UI Account #",
+        "This account number is not valid for Wisconsin UI reporting. Use our <a href=\"https://dwd.wisconsin.gov/uitax/AboutDataFileExchange.pdf\" target=\"_blank\">Data File Exchange</a> to obtain the correct UI account number for this client."),
+        new(2,
+            "Invalid UI Account # - Duplicate",
+            "This account number is not valid for Wisconsin UI reporting. Use our <a href=\"https://dwd.wisconsin.gov/uitax/AboutDataFileExchange.pdf\" target=\"_blank\">Data File Exchange</a> to obtain the correct UI account number for this client."),
+        new(3,
+            "This Employer has a status of Closed",
+            "This account has been closed and cannot be used for reporting. Please complete New Employer Registration at <a href=\"https://dwd.wisconsin.gov/uitax/\" target=\"_blank\">http://dwd.wisconsin.gov/uitax/</a>  to obtain a new UI account number for this client."),
+        new(4,
+            "This Employer has a status of Closed, by reason of business transfer",
+            "This account has been closed due to a transfer of account experience and can no longer be used for electronic reporting. If this report is for final payroll of the transferred business, submit a paper tax report and an explanation of why wages were paid after the transfer date. If this company has started a new business, complete New Employer Registration at <a href=\"https://dwd.wisconsin.gov/uitax/\" target=\"_blank\">http://dwd.wisconsin.gov/uitax/</a> to obtain a new UI account number for this client."),
+        new(5,
+            "An actual tax report with the same payroll has been previously posted to this account for this quarter/year",
+            "This report has already been filed. No further action is necessary."),
+        new(6,
+            "Cannot adjust payroll for a quarter after the last payroll date",
+            ""),
+        new(7,
+            "Report with payroll was received after last date of payroll",
+            "This account is currently on inactive reporting status. To reactivate the account, complete <a href=\"https://dwd.wisconsin.gov/dwd/forms/ui/uct-16722.htm\" target=\"_blank\"> UCT-16722 UI Account Reactivation Request </a>."),
+        new(8,
+            "Taxable Payroll + Exclusions are not equal to Total Covered Wages",
+            "Please correct Total Covered Wage, Exclusions, and/or Taxable Payroll in your report. Taxable Payroll and Exclusions combined must equal Total Covered Wage."),
+        new(9,
+            "The report is being filed for a quarter before their quarter of first pay",
+            "This account was not active during this quarter/year. Please update the account through New Employer Registration at <a href=\"https://dwd.wisconsin.gov/uitax/\" target=\"_blank\">http://dwd.wisconsin.gov/uitax/</a>."),
+        new(10,
+            "Tax Report was received with zero payroll after the transfer date for a transferred Employer",
+            "This account has been closed due to a transfer of account experience and can no longer be used for reporting. Please discontinue filing zero payroll reports under this account number."),
+        new(11,
+            "Tax Report quarter/year must be for current or preceding 4 years",
+            "Please correct Reporting Period Quarter/Year. Valid values are the current quarter or any quarter in the previous four years."),
+        new(12,
+            "Quarter must be 1, 2, 3 or 4",
+            "Please correct Quarter. Valid values are 1, 2, 3 or 4."),
+        new(13,
+            "Report Year is missing",
+            "Please provide Year. Valid values are the current year and the previous four years."),
+        new(14,
+            "Report Quarter is missing",
+            "Please provide Quarter. Valid values are 1, 2, 3 or 4."),
+        new(15,
+            "Year must be numeric",
+            "Please correct Year so it contains only numeric characters."),
+        new(16,
+            "Quarter must be numeric",
+            "Please correct Quarter. Valid values are 1, 2, 3, or 4."),
+        new(17,
+            "Employer UI account number must be numeric",
+            "Please correct Employer UI Account Number so it contains only numeric characters."),
+        new(18,
+            "Amount Paid must be numeric",
+            "Please correct Amount Paid so it contains only numeric characters."),
+        new(19,
+            "Total Covered Wage Amount is required",
+            "Please enter a value for Total Covered Wage. If no wages were paid, fill the field with all zeroes."),
+        new(20,
+            "Total Covered Wage must be numeric",
+            "Please correct Total Covered Wage so it contains only numeric characters."),
+        new(21,
+            "Total Covered Wage Amount cannot be negative",
+            "Please correct Total Coverage Wage. The value must not be negative."),
+        new(22,
+            "Exclusion Amount is required",
+            "Please enter a value for Exclusions. If there were no exclusions, fill the field with all zeroes."),
+        new(23,
+            "Exclusions must be numeric.",
+            "Please correct Exclusions so it contains only numeric characters."),
+        new(24,
+            "Exclusions cannot be negative",
+            "Please correct Exclusions. The value must not be negative."),
+        new(25,
+            "Taxable Payroll Amount is required",
+            "Please enter a value for Taxable Payroll. If there was no taxable payroll, fill the field with all zeroes."),
+        new(26,
+            "Taxable Payroll must be numeric",
+            "Please correct Taxable Payroll so it contains only numeric characters."),
+        new(27,
+            "Taxable Payroll cannot be negative",
+            "Please correct Taxable Payroll. The value must not be negative."),
+        new(28,
+            "Employee Count must not be negative",
+            "Please correct Employee Count. The value must not be negative"),
+        new(29,
+            "Month 1 Employee Count must be Numeric",
+            "Please correct Month 1 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(30,
+            "Month 1 Employee Count must not have decimals",
+            "Please correct Month 1 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(31,
+            "Month 2 Employee Count must be Numeric",
+            "Please correct Month 2 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(32,
+            "Month 2 Employee Count must not have decimals",
+            "Please correct Month 2 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(33,
+            "Month 3 Employee Count must be Numeric",
+            "Please correct Month 3 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(34,
+            "Month 3 Employee Count must not have decimals",
+            "Please correct Month 3 Employee Count so it contains only numeric characters. Do not use commas or decimals."),
+        new(35,
+            "The tax report payment amount is negative",
+            "Please correct Amount Paid. The value must not be negative."),
+        new(36,
+            "Tax Report was received with zero payroll on a Closed Account",
+            "This account has been closed and cannot be used for reporting. Please discontinue filing zero payroll reports under this account number."),
+        new(37,
+            "Invalid UI Account # - Finance Method Change",
+            "This account number is not valid for Wisconsin UI reporting. Use our <a href=\"https://dwd.wisconsin.gov/uitax/AboutDataFileExchange.pdf\" target=\"_blank\">Data File Exchange</a> to obtain the correct UI account number for this client."),
+        new(38,
+            "A zero payroll report cannot be submitted for the first quarter of pay",
+            "Contact the Employer Services section at 608-261-6700 or TaxNet@dwd.wisconsin.gov to explain the reason for filing a zero-payroll report for the account's first quarter of indicated payroll."),
+        new(999,
+            "FTP Upload File Format is Invalid. The file cannot be processed",
+            "Please review your file before resubmitting it to ensure that it is in an acceptable file format and to ensure that there is a carriage return at the end of each row of data. Information about acceptable tax file formats can be found at <a href=\"https://dwd.wisconsin.gov/uitax/taxreportfilelayout.htm\" target=\"_blank\">https://dwd.wisconsin.gov/uitax/taxreportfilelayout.htm</a>. Information about acceptable wage file formats can be found at <a href=\"https://dwd.wisconsin.gov/ui201/w3201.htm\" target=\"_blank\">http://dwd.wisconsin.gov/uiben/wagefmt.htm</a>.")
+	    ];
+}

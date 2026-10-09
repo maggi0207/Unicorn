@@ -1,0 +1,206 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<CascadingValue Value="_editContext" IsFixed="false">
+    <div class="wage-entry-step">
+
+        <DataAnnotationsValidator />
+
+        <ValidationErrorSummary ShowSummary="_showErrors"
+                                FieldIds="_fieldIds"
+                                FieldResolver="ResolveField"
+                                SummaryId="wage-entry-validation-summary" />
+
+        <div class="wage-entry-header">
+            <h1 class="wage-entry-title">Wage Entry</h1>
+            <div class="wage-entry-meta">
+                <span class="meta-item">Reporting Quarter: @WageEntryData.ReportingQuarter</span>
+                <span class="meta-item">Due Date: @WageEntryData.DueDate.ToString("MM/dd/yyyy")</span>
+            </div>
+            <p class="wage-entry-instructions">
+                Enter quarterly wage amounts for each employee paid in the quarter. If you filed a quarterly wage report for any of the two most recently completed calendar quarters, a list of employees from the most recently submitted wage report displays on this screen. For employees who were not paid wages during this quarter, enter zero for the quarterly wage amount.
+            </p>
+            <div class="wage-entry-controls">
+                <div class="search-wrapper">
+                    <label for="employee-search" class="visually-hidden">
+                        Search employees
+                    </label>
+                    <input type="text"
+                           id="employee-search"
+                           class="search-input"
+                           placeholder="Search"
+                           value="@_searchText"
+                           @oninput="HandleSearchInput"
+                           aria-label="Search employees"
+                           aria-describedby="employee-search-desc" />
+                    <img src="@Assets["icons/searchIconBlack.svg"]"
+                         class="search-icon"
+                         alt=""
+                         aria-hidden="true" />
+                </div>
+                <div class="wage-entry-actions">
+                    <Button Variant="ButtonVariant.Secondary"
+                            OnClick="OpenAddModel">
+                        <img src="@Assets["icons/add.svg"]"
+                             alt=""
+                             class="add-icon" />
+                        <span>ADD EMPLOYEES</span>
+                    </Button>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="employee-wage-table"
+                   class="table"
+                   style="table-layout: fixed; width: 100%"
+                   aria-label="Employee wages">
+
+                <caption class="visibility-hidden">List of employees with wage entry information</caption>
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col"
+                            class="header-cell"
+                            style="width: 180px;"
+                            @onclick="@(() => Sort("lastName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "lastName"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("lastName")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm"> Last Name</span>
+                                @GetSortIcon("lastName")
+                            </div>
+                        </th>
+                        <th scope="col"
+                            class="header-cell"
+                            style="width: 180px;"
+                            @onclick="@(() => Sort("firstName"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "firstName"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("firstName")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">First Name</span>
+                                @GetSortIcon("firstName")
+                            </div>
+                        </th>
+                        <th scope="col"
+                            class="header-cell"
+                            style="width: 200px;"
+                            @onclick="@(() => Sort("ssn"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "ssn"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("ssn")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">SSN</span>
+                                <button type="button"
+                                        class="btn btn-sm p-0 ssn-toggle-all-btn"
+                                        @onclick="ToggleAllSsnVisibility"
+                                        @onclick:stopPropagation="true"
+                                        title="@(_showAllSsns ? "Hide All SSN" : "Show All SSN")"
+                                        aria-label="@(_showAllSsns ? "Hide All SSN" : "Show All SSN")">
+                                    <img src="@(_showAllSsns? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])"
+                                         alt=""
+                                         class="visibility-icon">
+                                </button>
+                                @GetSortIcon("ssn")
+                            </div>
+                        </th>
+                        <th scope="col"
+                            class="header-cell"
+                            style="width: 220px;"
+                            @onclick="@(() => Sort("quarterlyWages"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "quarterlyWages"))"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("quarterlyWages")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm">Quarterly Wages</span>
+                                @GetSortIcon("quarterlyWages")
+                            </div>
+                        </th>
+                        <th scope="col"
+                            class="header-cell header-cell-actions"
+                            style="width: 100px;">
+                            <div class="header-content header-content-center">
+                                <span class="header-label fw-bold fs-sm">Actions</span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in FilteredEmployees)
+                    {
+                        <tr @key="employee" class="data-row">
+                            <td class="fw-normal fs-md"> @employee.LastName </td>
+                            <td class="fw-normal fs-md"> @employee.FirstName </td>
+                            <td class="fw-normal fs-md">
+                                <div class="ssn-cell">
+                                    <span class="ssn-text">
+                                        @FormatSsn(employee)
+                                    </span>
+                                    <button type="button"
+                                            class="btn btn-sm p-0 ssn-toggle-btn"
+                                            @onclick="() => ToggleSsnVisibility(employee.SSN)"
+                                            @onclick:stopPropagation="true"
+                                            title="@GetVisibilityAlt(employee.SSN)"
+                                            aria-label="@GetVisibilityAlt(employee.SSN) for @employee.FirstName @employee.LastName">
+                                        <img src="@GetVisibilityIcon(employee.SSN)" alt="" class="visibility-icon" />
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="fw-normal fs-md">
+                                <NumericTextBox InputType="@InputDataTypes.Currency"
+                                                Id="@ElementIdFor(employee)"
+                                                Value="@employee.QuarterlyWages"
+                                                ValueExpression="@(() => employee.QuarterlyWages)"
+                                                ValueChanged="@(val => HandleWageValueChanged(employee, val))"
+                                                ShowCurrencyIcon="false"
+                                                AriaLabel="@($"{@employee.FirstName} {@employee.LastName} Quarterly Wages")"
+                                               />
+                            </td>
+                            <td class="fw-normal fs-md">
+                                <div class="action-buttons">
+                                    <button type="button"
+                                            class="btn btn-sm p-1 action-btn"
+                                            @onclick="() => HandleEdit(employee)"
+                                            @onclick:stopPropagation="true"
+                                            title="Edit employee"
+                                            aria-label="Edit @employee.FirstName @employee.LastName">
+                                        <img src="@Assets["icons/edit-pen.svg"]"
+                                             alt="Edit"
+                                             class="action-icon" />
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm p-1 action-btn" @onclick="() => HandleDelete(employee)"
+                                            @onclick:stopPropagation="true" title="Delete employee" aria-label="Delete @employee.FirstName @employee.LastName">
+                                        <img src="@Assets["icons/trash.svg"]" alt="Delete" class="action-icon" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="wage-entry-summary">
+            <div class="summary-line summary-left">
+                Total Employees: @FilteredEmployees.Count
+            </div>
+            <div class="summary-line summary-right" id="total-gross-covered-wages" tabindex="-1">
+                Total Gross Covered Wages: @TotalGrossWages.ToString("C")
+            </div>
+        </div>
+    </div>
+</CascadingValue>
+
+<AddEditEmployeeModal IsOpen="@_isEditEmployeeModalOpen"
+                      IsEditMode="@_isEditMode"
+                      Employee="@_modalEmployee"
+                      ExistingSSNs="@GetOtherEmployeeSSNs()"
+                      OnClose="HandleModalClose"
+                      OnSave="HandleModalSave" />
+
+<RemoveEmployeeModal IsOpen="@_isDeleteEmployeeModalOpen"
+                     IsDeletionDisabled="@(_deleteEmployee?.QuarterlyWages != 0m)"
+                     OnClose="HandleDeleteModalClose"
+                     OnConfirm="HandleDeleteConfirm" />

@@ -1,0 +1,140 @@
+@page "/tax-wage-report-adjustments/wage-adjustment-multiple-quarter"
+
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Model
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.TaxEntry
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Pages
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Wage Adjustment by Employee</PageTitle>
+<div class="wage-adjustment-super-div">
+
+    @if (_pageState == PageState.Confirmation)
+    {
+        <MultiQuarterReportConfirmation EffectiveDate="@DateTime.Now"
+                                        ConfirmationNumber="@_confirmationNumber" />
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading report data..." />
+    }
+    else
+    {
+        <Wizard Steps="@_wageAdjustmentMultipleQuarterWizard"
+                @bind-CurrentStep="@_currentStep"
+                UseTextStepper="true"
+                ShowCancelButton="true"
+                OnBackClick="HandleBackClick"
+                OnCancelClick="HandleCancel"
+                OnActionClick="HandleActionClick"
+                AutoNavigateOnAction="false"
+                AutoNavigateOnBack="false"
+                DisableBackOnFirstStep="true"
+                ShowSaveAndQuitButton="@(_currentStep != 1)"
+                ShowBackButton="@(_currentStep != 1)"
+                OnSaveAndQuitClick="HandleSaveAndQuitClick">
+
+            @if (_currentStep == 1)
+            {
+                <div class="employee-information-container1">
+
+                    <CascadingValue Value="_editContext" IsFixed="false">
+
+                        <DataAnnotationsValidator />
+
+                        <ValidationErrorSummary ShowSummary="_showErrors"
+                                                FieldIds="_fieldIds"
+                                                SummaryId="modal-validation-summary"
+                                                FieldResolver="@(key => new FieldIdentifier(this,key))"/>
+                        <header class="employee-information-header">
+                            <h1 class="page-header">Enter Employee Information</h1>
+                        </header>
+
+                        <b> Enter the SSN of the employee this adjustment is for.</b>
+                        <br />
+                        If the employee has no Social Security Number, enter their M00 number
+                        including the leading &quot;M&quot; (for example M00-12-3456).
+                        <br />
+                        <br />
+
+                        <OutlinedSSNInput Id="wage-adj-ssn"
+                                          Label="Employee SSN"
+                                          @bind-Value="@SSN"
+                                          AllowMNumber="true"
+                                          IsFocused="@_ssnFocused"
+                                          IsFocusedChanged="(val) => _ssnFocused = val"
+                                          ShowSSN="@_showSSN"
+                                          ShowSSNChanged="(val) => _showSSN = val"
+                                          Visible="@_showErrors" />
+
+                    </CascadingValue>
+                </div>
+            }
+            else if (_currentStep == 2)
+            {
+                <CascadingValue Value="_step2EditContext">
+                    <DataAnnotationsValidator />
+                    <ValidationErrorSummary ShowSummary="_showStep2Errors"
+                                            FieldIds="_fieldIdsStep2"
+                                            SummaryId="wage-adj-validation-summary" />
+
+                    <div class="employee-information-container">
+                        <WageAdjustmentHeader></WageAdjustmentHeader>
+                        <WageAdjustmentEmployeeIdentifier @key="WageAdjustmentsMultipleQuarter.EmployeeIdentifierModel"
+                                                          EmployeeIdentifierViewModel="@WageAdjustmentsMultipleQuarter.EmployeeIdentifierViewModel"
+                                                          @bind-EditModel="@WageAdjustmentsMultipleQuarter.EmployeeIdentifierModel">
+                        </WageAdjustmentEmployeeIdentifier>
+                        <EnterWageAdjustments @key="WageAdjustmentsMultipleQuarter.WageAdjustmentQuarterlyList"
+                                              DropDownItemsForReason="@DropDownItems"
+                                              ShowErrors="@_showStep2Errors"
+                                              @bind-EditModel="@WageAdjustmentsMultipleQuarter.WageAdjustmentQuarterlyList">
+                        </EnterWageAdjustments>
+                    </div>
+                </CascadingValue>
+            }
+            else if (_currentStep == 3)
+            {
+                <div class="employee-information-container3">
+                    <CascadingValue Value="_step2EditContext">
+                        <DataAnnotationsValidator />
+
+                        <ValidationErrorSummary ShowSummary="_showStep2Errors"
+                                                FieldIds="_fieldIdsStep2"
+                                                SummaryId="modal-validation-summary" />
+
+                        <input id="stpe2-hdn-field" hidden value="@WageAdjustmentsMultipleQuarter.EmployeeIdentifierViewModel.SSN" />
+                        <WageAdjustmentVerificationHeader></WageAdjustmentVerificationHeader>
+
+                        <WageAdjustmentVerification DropDownItemsForReason="@DropDownItems"
+                                                    OnEditClick="HandleEditClick"
+                                                    EmployeeIdentifierModel="@WageAdjustmentsMultipleQuarter.EmployeeIdentifierModel"
+                                                    EmployeeIdentifierViewModel="@WageAdjustmentsMultipleQuarter.EmployeeIdentifierViewModel"
+                                                    MultiQuarterWageAdjustment="@WageAdjustmentsMultipleQuarter.WageAdjustmentQuarterlyList"></WageAdjustmentVerification>
+
+                    </CascadingValue>
+                </div>
+            }
+        </Wizard>
+
+        <SaveAndQuitModal IsOpen="@_showSaveAndQuitModal"
+                  OnClose="HandleSaveAndQuitModalClose"
+                  OnConfirm="HandleSaveAndQuitModalConfirm" />
+
+         <BackButtonModal IsOpen="@_showBackModal" Title="Return to &quot;Employee SSN&quot; ?"
+                         OnClose="@HandleKeepEmployeeData"
+                         OnRemoveDataConfirmed="@HandleRemoveEmployeeData" />
+
+        <UnsavedChangesModal IsOpen="@_showUnsavedChangesModal"
+                             OnStay="HandleUnsavedChangesStayOnReport"
+                             OnCancelReport="HandleUnsavedChangesCancelReport" />
+    }
+</div>

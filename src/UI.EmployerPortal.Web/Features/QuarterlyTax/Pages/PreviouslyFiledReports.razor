@@ -1,0 +1,146 @@
+@page "/quarterly-tax/previously-filed"
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Previously Filed Reports</PageTitle>
+
+<div class="pfr-page">
+
+    <div class="pfr-header">
+        <h1 class="pfr-title">Previously Filed Reports</h1>
+        <p class="pfr-subtitle fs-md">
+            If the Wage Report Gross Wages do not match the Tax Report Gross Wages an adjustment may be needed. Select "View" for additional information or to save or print a summary of your reports.
+        </p>
+    </div>
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading previously filed reports..." />
+    }
+    else
+    {
+        <div class="table-container">
+            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Previously filed reports">
+                <caption class="visually-hidden">Previously filed quarterly tax and wage reports (column headers with buttons are sortable).</caption>
+                <thead>
+                    <tr class="header-row">
+
+                        <th scope="col" class="header-cell" style="width: 110px;"
+                            aria-sort="@GetAriaSort("quarterYear")">
+                            <div class="header-content header-content-left header-content-multiline">
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("quarterYear"))">
+                                    <span class="header-label-small fw-bold fs-md">Quarter &amp; Year</span>
+                                    @GetSortIcon("quarterYear")
+                                </button>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width: 160px;"
+                            aria-sort="@GetAriaSort("wageGrossWages")">
+                            <div class="header-content header-content-right header-content-multiline">
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("wageGrossWages"))">
+                                    <span class="header-label-small fw-bold fs-md">Wage Report Gross Wages</span>
+                                    @GetSortIcon("wageGrossWages")
+                                </button>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width: 160px;"
+                            aria-sort="@GetAriaSort("taxGrossWages")">
+                            <div class="header-content header-content-right header-content-multiline">
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("taxGrossWages"))">
+                                    <span class="header-label-small fw-bold fs-md">Tax Report Gross Wages</span>
+                                    @GetSortIcon("taxGrossWages")
+                                </button>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width: 150px;"
+                            aria-sort="@GetAriaSort("taxExclusions")">
+                            <div class="header-content header-content-right header-content-multiline">
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("taxExclusions"))">
+                                    <span class="header-label-small fw-bold fs-md">Tax Report Exclusions</span>
+                                    @GetSortIcon("taxExclusions")
+                                </button>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell" style="width: 165px;"
+                            aria-sort="@GetAriaSort("taxablePayroll")">
+                            <div class="header-content header-content-right header-content-multiline">
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("taxablePayroll"))">
+                                    <span class="header-label-small fw-bold fs-md">Tax Report Taxable Payroll</span>
+                                    @GetSortIcon("taxablePayroll")
+                                </button>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="header-cell header-cell-static" style="width: 100px;">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-md">View Details</span>
+                            </div>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in PagedReports)
+                    {
+                        <tr class="data-row">
+                            <td class="fw-bold fs-lg">@report.QuarterYear</td>
+                            <td class="fw-normal fs-md text-end">@FormatCurrency(report.WageReportGrossWages)</td>
+                            <td class="fw-normal fs-md text-end">@FormatCurrency(report.TaxReportGrossWages)</td>
+                            <td class="fw-normal fs-md text-end">@FormatCurrency(report.TaxReportExclusions)</td>
+                            <td class="fw-normal fs-md text-end">@FormatCurrency(report.TaxReportTaxablePayroll)</td>
+                            <td class="fw-normal fs-md">
+                                <a href="#"
+                                   class="pfr-view-link"
+                                   @onclick="@(() => HandleViewDetails(report))"
+                                   @onclick:preventDefault="true"
+                                   aria-label="View details for @report.QuarterYear">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (_reports.Count > 10)
+            {
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-container fw-normal fs-md">
+                        <div class="rows-per-page">
+                            <label for="pfr-page-size-select" class="me-2">Rows per page</label>
+                            <select id="pfr-page-size-select"
+                                    class="form-select form-select-sm page-size-select"
+                                    @onchange="HandlePageSizeChanged">
+                                <option value="10" selected="@(_pageSize == 10)">10</option>
+                                <option value="20" selected="@(_pageSize == 20)">20</option>
+                                <option value="25" selected="@(_pageSize == 25)">25</option>
+                                <option value="50" selected="@(_pageSize == 50)">50</option>
+                            </select>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="page-info" aria-live="polite">
+                                <span class="visually-hidden">Displaying&nbsp;</span>
+                                @PaginationStart-@PaginationEnd of @_reports.Count
+                                <span class="visually-hidden">&nbsp;records</span>
+                            </span>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="FirstPage" title="First" aria-label="First page">
+                                <img aria-hidden="true" src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="PreviousPage" title="Previous" aria-label="Previous page">
+                                <img aria-hidden="true" src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" alt="" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="NextPage" title="Next" aria-label="Next page">
+                                <img aria-hidden="true" src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" alt="" />
+                            </button>
+                            <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="LastPage" title="Last" aria-label="Last page">
+                                <img aria-hidden="true" src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" alt="" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>

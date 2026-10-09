@@ -1,0 +1,15 @@
+
+<div class="up-to-date">@GetUpToDateIcon()<span>All Reports Up To Date</span></div>
+<br />
+
+<MissingReportsAvailableCredit></MissingReportsAvailableCredit>
+
+@code {
+
+    private MarkupString GetUpToDateIcon()
+    {
+        string path = "images/reports/up-to-date-icon.svg";
+
+        return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' alt='' />");
+    }
+}

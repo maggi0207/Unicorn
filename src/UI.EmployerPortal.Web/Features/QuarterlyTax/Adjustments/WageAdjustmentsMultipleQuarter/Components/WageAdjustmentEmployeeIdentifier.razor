@@ -1,0 +1,235 @@
+﻿@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.Models
+
+
+<div class="emp-identifier-title">
+    <h2 id="employee-indentifier-heading">Employee Identifiers</h2>
+</div>
+
+<div class="table-container">
+    <table style="table-layout: fixed; width: 100%" aria-labelledby="employee-indentifier-heading">
+        <thead>
+            <tr class="header-row">
+                <th scope="col" class="header-cell" style="width: 180px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Last Name</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell" style="width: 180px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">First Name</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell ssn-header-cell">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">
+                            SSN
+                            <button type="button"
+                                    class="toggle-btn"
+                                    @onclick="ToggleAllSSNVisibility"
+                                    aria-label="@(ShowAllSSNView ? "Hide All SSNs" : "Show All SSNs")">
+                                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    @if (ShowAllSSNView)
+                                    {
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    }
+                                    else
+                                    {
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    }
+                                </svg>
+                            </button>
+                        </span>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="data-row">
+                <td class="fw-normal fs-md">@EmployeeIdentifierViewModel.LastName</td>
+                <td class="fw-normal fs-md">@EmployeeIdentifierViewModel.FirstName</td>
+                <td class="fw-normal fs-md">
+                    @_displaySSN
+                    <button type="button"
+                            class="toggle-btn"
+                            @onclick="ToggleVisibility"
+                            aria-label="@(ShowSSNView ? "Hide current SSN" : "Show current SSN")">
+                        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            @if (ShowSSNView)
+                            {
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            }
+                            else
+                            {
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            }
+                        </svg>
+                    </button>
+                </td>
+                <td class="fw-normal fs-md"></td>
+                <td class="fw-normal fs-md"></td>
+            </tr>
+            <tr class="data-row">
+                <td class="fw-normal fs-md">
+                    <OutlinedTextField Id="modal-last-name"
+                                    Label="Last Name"
+                                    @bind-Value="EditModel.LastName" />
+                </td>
+                <td class="fw-normal fs-md">
+                    <OutlinedTextField Id="modal-first-name"
+                                    Label="First Name"
+                                    @bind-Value="EditModel.FirstName" />
+                </td>
+                <td class="fw-normal fs-md">
+                        <div class="ssn-input-wrapper">
+                            <OutlinedSSNInput Id="wage-adj-ssn"
+                                            @bind-Value="@EditModel.SSN"
+                                            AllowMNumber="true"
+                                            IsFocused="@_ssnEditFocused"
+                                            IsFocusedChanged="OnSSNFocusChanged"
+                                            ShowSSN="@_showEditSSN"
+                                            ShowSSNChanged="(val) => _showEditSSN = val" />
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<br />
+
+
+
+@code {
+
+    private bool _ssnEditFocused;
+    private bool _showEditSSN;
+    private string? _displaySSN = string.Empty;
+    private bool ShowSSNView = false;
+    private bool ShowAllSSNView = false;
+
+
+    private EditContext _editContextPage2 = default!;
+
+
+    private readonly Dictionary<string, string> _fieldIds = new()
+    {
+        [nameof(EmployeeIdentifierModel.SSN)] = "wage-adj-ssn",
+    };
+
+
+    [Parameter]
+    public EmployeeIdentifierViewModel EmployeeIdentifierViewModel { get; set; } = new();
+
+    [Parameter]
+    public EmployeeIdentifierModel EditModel { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+
+    public EventCallback<EmployeeIdentifierModel> EditModelChanged { get; set; }
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    private void OnSSNFocusChanged(bool isFocused)
+    {
+        _ssnEditFocused = isFocused;
+        // This acts like "blur"
+        if (!isFocused)
+        {
+            ValidateSSN();
+        }
+    }
+    private void ValidateSSN()
+    {
+        if (EditContext != null)
+        {
+            var fieldIdentifier = FieldIdentifier.Create(() => EditModel.SSN);
+            EditContext.NotifyFieldChanged(fieldIdentifier);
+        }
+    }
+
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+
+        await EditModelChanged.InvokeAsync(EditModel);
+    }
+
+    private async Task OnSSNValueChanged(ChangeEventArgs e)
+    {
+        var inputValue = e.Value?.ToString() ?? string.Empty;
+        var newValue = SsnHelper.FormatSSN(inputValue);
+        _ = ValueChanged.InvokeAsync(newValue);
+        EditModel.SSN = newValue;
+
+        await EditModelChanged.InvokeAsync(EditModel);
+    }
+
+    [Parameter]
+    public EventCallback<bool> ShowSSNChanged { get; set; }
+
+    [Parameter]
+    public bool ShowSSN { get; set; }
+
+    private void ToggleVisibility()
+    {
+        ShowSSNView = !ShowSSNView;
+        if (ShowSSNView)
+        {
+            _displaySSN = EmployeeIdentifierViewModel.SSN;
+        }
+        else
+        {
+            _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+        }
+
+    }
+
+
+    private void ToggleAllSSNVisibility()
+    {
+        ShowSSNView = !ShowSSNView;
+        ShowSSN = !ShowSSN;
+
+        if (ShowSSNView)
+        {
+            _displaySSN = EmployeeIdentifierViewModel.SSN;
+        }
+        else
+        {
+            _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+        }
+
+    }
+
+    protected override void OnParametersSet()
+    {
+
+        EmployeeIdentifierViewModel.SSN = SsnHelper.FormatSSN(EmployeeIdentifierViewModel.SSN!);
+        _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+
+    }
+    /// <summary>
+    /// OnInitialized
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+
+        _editContextPage2 = new EditContext(EditModel);
+        _editContextPage2.OnFieldChanged += OnFieldChanged;
+
+
+    }
+    private void OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+}

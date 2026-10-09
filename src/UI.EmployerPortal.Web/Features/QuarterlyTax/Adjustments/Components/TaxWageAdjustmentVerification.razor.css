@@ -1,0 +1,237 @@
+/* --- Chevron Toggle --- */
+.section-header {
+    position: relative;
+
+}
+
+.edit-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.subSection {
+    padding-left: 45px !important;
+}
+
+/* Chevron icon (arrow) */
+.chevron-icon {
+    transition: transform 0.2s ease;
+    display: block;
+    border:none !important;
+}
+
+    .chevron-icon.rotated {
+        transform: rotate(180deg);
+    }
+
+    .chevron-border{
+        border:none;
+        padding-right:5px;
+        margin-bottom: 16px;
+    }
+
+.section-card.open .chevron-icon {
+    transform: rotate(90deg); /* opens downward */
+}
+
+/* Edit link styled as a button */
+.edit-link {
+    background: none;
+    border: none;
+    color: #003663;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+    text-decoration:none;
+}
+
+    .edit-link:hover {
+        color: #258cfb;
+        text-decoration: none;
+    }
+
+    .edit-link:focus {
+        outline: 2px solid #258cfb;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+/* Edit icon */
+.edit-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.verification-container {
+    max-width: 1068px;
+    margin: 0 auto;
+    font-family: "Segoe UI", Arial, sans-serif;
+
+}
+
+.page-title {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+
+.report-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.instructions {
+    margin-bottom: 25px;
+}
+
+/* --- Section Cards --- */
+.section-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: #F3F3F3;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.section-description {
+    margin-top: 15px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* --- TABLE (Desktop View) --- */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.adjustment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .adjustment-table th,
+    .adjustment-table td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .adjustment-table th {
+        text-align: left;
+        color: black;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    /* Row headers (the question column) read as normal text, not as bold headers. */
+    .adjustment-table tbody th[scope="row"] {
+        font-weight: 400;
+    }
+
+    .adjustment-table thead th:first-child,
+    .adjustment-table tbody th[scope="row"] {
+        width: 45%;
+    }
+
+    .adjustment-table .bold-value {
+        font-weight: 600;
+    }
+
+/* --- Summary list for fields 5-8 (no longer part of the data table) --- */
+.adjustment-summary {
+    margin: 15px 0 0;
+}
+
+    .adjustment-summary .summary-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .adjustment-summary dt {
+        width: 45%;
+        margin: 0;
+    }
+
+    .adjustment-summary dd {
+        margin: 0;
+    }
+
+    .adjustment-summary .bold-value {
+        font-weight: 600;
+    }
+
+
+.custom-border {
+    left: 0;
+    width: 100%;
+    height: 0;
+    border-bottom: .5px solid #E5E5E5;
+    transform: translateZ(0);
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+
+
+/* --- Buttons --- */
+.footer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-outline,
+.btn-primary,
+.btn-submit {
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #333;
+    white-space: nowrap;
+}
+
+.btn-outline {
+    background: transparent;
+}
+
+.btn-primary {
+    background: #0057b8;
+    color: white;
+}
+
+.btn-submit {
+    background: #007b00;
+    color: white;
+    border-color: #007b00;
+}

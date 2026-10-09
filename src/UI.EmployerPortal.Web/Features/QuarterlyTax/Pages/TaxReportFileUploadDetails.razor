@@ -1,0 +1,478 @@
+@page "/quarterly-tax/tax-upload-details"
+@page "/quarterly-tax/test/tax-upload-details"
+@using Microsoft.AspNetCore.Components.Sections
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@TestEnvironmentSource.Title("Tax Report File Upload Details", _isSourceTestEnv)</PageTitle>
+
+<div class="details-container @(_isSourceTestEnv ? "test-env-page" : "")">
+    <TestEnvironmentBanner
+        IsTestEnvironment="@_isSourceTestEnv"
+        Description="These are the results of a test upload." />
+
+    @if (Model == null)
+    {
+        <p role="status">Loading...</p>
+    }
+    else
+    {
+        <!--Page Header-->
+        <section class="page-header-block">
+            <h1 class="page-title">@TestEnvironmentSource.Heading("Tax Report File Upload Details", _isSourceTestEnv)</h1>
+        </section>
+
+        @if (ShowCancelledBanner)
+        {
+            <div class="flash-banner-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Title="Processing Cancelled"
+                                    DismissButton="true" />
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(CancelFailedMessage))
+        {
+            <div class="flash-banner-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Title="Unable to Cancel Processing"
+                                    Message="@CancelFailedMessage"
+                                    DismissButton="true" />
+            </div>
+        }
+
+        <!--SECTION 1-->
+        <section class="summary-card">
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+                    <div class="label">File Name</div>
+
+                    <div class="value">
+                        @Model.FileName
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Upload Date/Time</div>
+
+                    <div class="value">
+                        @Model.UploadDate?.ToString("MM/dd/yyyy hh:mm:ss tt");
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Confirmation Number</div>
+
+                    <div class="value">
+                        @Model.ConfirmationNumber
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Contact Name</div>
+
+                    <div class="value">
+                        @Model.ContactName
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">File Size (KB)</div>
+
+                    <div class="value">
+                        @Model.FileSizeKB
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">File Format Type</div>
+
+                    <div class="value">
+                        @Model.FileFormatType
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!--SECTION 2-->
+
+        <section class="summary-card">
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+                    <div class="label">Reports in File</div>
+
+                    <div class="value">
+                        @Model.ReportsInFile
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Reports without Errors</div>
+
+                    <div class="value">
+                        @(_awaitingReview ? "N/A" : Model.ReportsWithoutErrors.ToString())
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Reports with Errors</div>
+
+                    <div class="value">
+                        @(_awaitingReview ? "N/A" : Model.ReportsWithErrors.ToString())
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Payment Amount in File</div>
+
+                    <div class="value">
+                        @Model.PaymentAmountInFile.ToString("C")
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Payment Amount Reports without Errors</div>
+
+                    <div class="value">
+                        @(_awaitingReview ? "N/A" : @Model.PaymentAmountWithoutErrors.ToString("C"))
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Payment Amount Reports with Errors</div>
+
+                    <div class="value">
+                        @(_awaitingReview ? "N/A" : @Model.PaymentAmountWithErrors.ToString("C"))
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!--SECTION 3-->
+        <section class="summary-card">
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+                    <div class="label">File Status</div>
+
+                    <div class="value">
+                        @Model.FileStatus
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Status Date/Time</div>
+
+                    <div class="value">
+                        @Model.StatusDate?.ToString("MM/dd/yyyy hh:mm:ss tt")
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <div class="label">Upload Type</div>
+
+                    <div class="value">
+                        @Model.UploadType
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+    }
+
+    @if (Model?.TaxFileStatusCode==TaxFileStatusCode.ReviewCompletedPending)
+    {
+        <div class="eft-payment-section">
+            <p class="payment-total">
+                Total Payment Amount in the file for all reports without errors is:
+                <span class="payment-amount">@Model.PaymentAmountWithoutErrors.ToString("C")</span>
+            </p>
+
+            <p class="payment-message">
+                To post reports and any payments, you must select Make ACH Payment.
+            </p>
+
+            <p class="payment-message">
+                If you want to stop processing this file, select Cancel Processing. The reports will not be posted. You may need to upload a new file.
+            </p>
+
+           
+            <div class="payment-button">
+                <Button Text="CANCEL PROCESSING"
+                        Variant="Button.ButtonVariant.Secondary"
+                        Size="Button.ButtonSize.Medium"
+                        OnClick="HandleCancelProcessing" />
+
+                <Button Text="MAKE ACH PAYMENT"
+                        Variant="Button.ButtonVariant.Primary"
+                        Size="Button.ButtonSize.Medium"
+                        OnClick="HandleMakeAchPayment" />
+            </div>
+        </div>
+    }
+    <br/>
+    <!--Tabs-->
+    <div class="tab-bar">
+        <button type="button" class="tab-button @(SelectedTab == UploadDetailTab.FileSummary ? "active" : "")" @onclick="ShowFileSummary">
+            File Summary
+        </button>
+
+        <button type="button" class="tab-button @(SelectedTab == UploadDetailTab.ErrorDetail ? "active" : "")" @onclick="ShowErrorDetail">
+            Error Detail Report
+        </button>
+
+    </div>
+
+    @if (_awaitingReview)
+    {
+        <p class="not-processed-message" role="status">File has not been processed yet.</p>
+    }
+    else if (SelectedTab == UploadDetailTab.FileSummary)
+    {
+        <div class="table-container">
+
+            <table class="summary-table" aria-label="FileSummary">
+                <thead>
+                    <tr class="header-row">
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:127px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("recordNumber")"
+                            @onclick="@(() => Sort("recordNumber"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "recordNumber"))">
+                            <div class="header-content">
+                                <span class="header-label">Record Number</span>
+                                @GetSortIcon("recordNumber")
+                            </div>
+                        </th>
+
+                        <th scope="col"
+                            class="header-cell"
+                            style="width:863px"
+                            tabindex="0"
+                            aria-sort="@GetAriaSort("errorDescription")"
+                            @onclick="@(() => Sort("errorDescription"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "errorDescription"))">
+                            <div class="header-content">
+                                <span class="header-label">Error Description</span>
+                                @GetSortIcon("errorDescription")
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model?.FileSummary?.Any() == true)
+                    {
+                        @foreach (var row in Model.FileSummary)
+                        {
+                            <tr class="custom-row">
+                                <td>@row.RecordNumber</td>
+                                <td>@row.ErrorDescription</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">No file summary records found</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+                
+        </div>
+    }
+
+    @if (!_awaitingReview && SelectedTab == UploadDetailTab.ErrorDetail)
+    {
+        @if (Model?.ErrorDetails?.Any() == true)
+        {
+            @foreach (var error in Model.ErrorDetails)
+            {
+                <section class="error-card">
+
+                    <div class="error-grid">
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Record Number
+                            </div>
+
+                            <div class="value">@error.RecordNumber</div>
+                        </div>
+
+                        
+                        <div class="summary-item">
+                            <div class="label">
+                                Legal Name
+                            </div>
+
+                            <div class="value">@error.LegalName</div>
+
+                        </div>
+                        <div class="summary-item">
+
+                            <div class="label">
+                                FEIN
+                            </div>
+
+                            <div class="value">@error.FEIN</div>
+                        </div>
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                UI Account Number
+                            </div>
+
+                            <div class="value">@FormatUIAccountNo(error.UIAccountNumber)</div>
+                        </div>
+
+         
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Quarter/Year
+                            </div>
+
+                            <div class="value">@error.QuarterYear</div>
+                        </div>
+
+                        
+                        <div class="summary-item">
+                            <div class="label">
+                                Elected 1st Quarter Deferral
+                            </div>
+
+                            <div class="value">@error.ElectedFirstQuarterDeferral</div>
+
+                        </div>
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Gross Wages
+                            </div>
+
+                            <div class="value">@error.GrossWages.ToString("C")</div>
+                        </div>
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Exclusions
+                            </div>
+
+                            <div class="value">@error.Exclusions.ToString("C")</div>
+                        </div>
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Taxable Payroll
+                            </div>
+
+                            <div class="value">@error.TaxablePayroll.ToString("C")</div>
+                        </div>
+
+                        
+                        <div class="summary-item">
+                            <div class="label">
+                                Month 1 Employee Count
+                            </div>
+
+                            <div class="value">@error.Month1EmployeeCount</div>
+
+                        </div>
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Month 2 Employee Count
+                            </div>
+
+                            <div class="value">@error.Month2EmployeeCount</div>
+                        </div>
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Month 3 Employee Count
+                            </div>
+
+                            <div class="value">@error.Month3EmployeeCount</div>
+                        </div>
+
+
+                        <div class="summary-item">
+
+                            <div class="label">
+                                Amount Paid
+                            </div>
+
+                            <div class="value">@error.AmountPaid.ToString("C")</div>
+                        </div>
+
+                        
+                        <div class="summary-item">
+                            <div class="label">
+                                Error Message
+                            </div>
+
+                            <div class="value">@error.ErrorMessage</div>
+
+                        </div>
+                        <div class="corrective-action">
+
+                            <div class="label">
+                                Corrective Action
+                            </div>
+
+                            <div class="value">@error.CorrectiveAction</div>
+                        </div>
+                    </div>
+                </section>
+            }
+        }
+        else
+        {
+            <p>No error detail records found.</p>
+        }
+    }
+    <div class="page-navigation">
+
+        <div class="page-navigation-left">
+
+            <Button Variant="Button.ButtonVariant.Secondary"
+                    Onclick="HandleBack">
+                <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                BACK
+            </Button>
+        </div>
+    </div>
+
+    <CancelTaxFileUploadModal IsOpen="@ShowCancelModal"
+                              IsBusy="@IsCancelling"
+                              OnClose="HandleCancelModalClose"
+                              OnConfirm="HandleCancelModalConfirm" />
+
+</div>

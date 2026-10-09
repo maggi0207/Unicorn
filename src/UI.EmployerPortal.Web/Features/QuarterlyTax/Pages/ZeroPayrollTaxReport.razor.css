@@ -1,0 +1,77 @@
+/* ── Page wrapper ───────────────────────────────────────────────── */
+.page-content {
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+}
+
+/* ── Page title ─────────────────────────────────────────────────── */
+.page-title {
+    font-family: Verdana, Sans-serrif;
+    font-weight: 700;
+    font-size: 32px;
+    color: #003663;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+/* ── Sub-header row  (Reporting Quarter / Due Date / Effective Date) */
+.page-subheader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-gray-light);
+    margin-bottom: 1rem;
+    font-family: Verdana;
+    font-size: medium;
+    font-style: normal;
+    font-weight: 700;
+}
+.subheader-item {
+    display: block;
+}
+.subheader-value {
+    font-weight: normal;
+}
+/* ── Body text ──────────────────────────────────────────────────── */
+.body-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+}
+
+/* ── Note text ──────────────────────────────────────────────────── */
+.note-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+}
+
+/* ── Navigation buttons row ─────────────────────────────────────── */
+.page-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+    width: 100%;
+}
+
+.page-navigation-left {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.page-navigation-right {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+}

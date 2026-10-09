@@ -1,0 +1,192 @@
+@if (ReportData != null)
+{
+    <div class="tax-details-container" @attributes="AdditionalAttributes">
+        <div class="header-row" @onclick="ToggleExpand" style="cursor: pointer;">
+            <h2 class="title">Tax Report Details</h2>
+            <img src="images/menu/submenu-arrow.svg"
+                 alt=""
+                 width="24"
+                 height="24"
+                 class="chevron-icon @(_isExpanded ? "rotated" : "")"
+                 aria-hidden="true" />
+        </div>
+
+        @if (_isExpanded)
+        {
+            <div class="content-grid">
+                <div class="content-column">
+                    <p class="instruction-text">
+                        <span class="question-number">1.</span> Monthly data should count all full-time and part-time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+                    </p>
+
+                    <dl class="data-list">
+                        <dt class="label">1a. Employee Count 1st Month - @ReportData.FirstMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount1stMonth</dd>
+
+                        <dt class="label">1b. Employee Count 2nd Month - @ReportData.SecondMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount2ndMonth</dd>
+
+                        <dt class="label">1c. Employee Count 3rd Month - @ReportData.ThirdMonthName</dt>
+                        <dd class="value">@ReportData.EmployeeCount3rdMonth</dd>
+
+                        <dt class="label">2. Total Gross Covered Wages</dt>
+                        <dd class="value">@ReportData.TotalGrossCoveredWages.ToString("C2")</dd>
+
+                        <dt class="label">2a. Gross covered wages do not match previously reported wage report. Please explain why the values are different.</dt>
+                        <dd class="value">@ReportData.Explanation</dd>
+
+                        <dt class="label">3. Less Exclusions for Wages Over @ReportData.ExclusionThreshold.ToString("C2")</dt>
+                        <dd class="value">@ReportData.LessExclusions.ToString("C2")</dd>
+
+                        <dt class="label">4. Defined (Taxable) Payroll</dt>
+                        <dd class="value">@ReportData.DefinedPayroll.ToString("C2")</dd>
+
+                        <dt class="label">5. @ReportData.TaxYear Tax Rate</dt>
+                        <dd class="value">@ReportData.TaxRate.ToString("F4")</dd>
+
+                        <dt class="label">6. Tax Assessed</dt>
+                        <dd class="value">@ReportData.TaxAssessed.ToString("C2")</dd>
+                    </dl>
+                </div>
+
+                <div class="edit-column">
+                    <button type="button" class="edit-link" @onclick="HandleEditClick" aria-label="Edit tax report details">
+                        <span class="edit-icon"> <img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" /> </span> Edit
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="tax-details-container" @attributes="AdditionalAttributes">
+        <p class="no-data">No tax report data available.</p>
+    </div>
+}
+
+@code
+{
+    /// <summary>
+    /// Gets or sets the tax report data to display
+    /// </summary>
+    [Parameter]
+    public ZeroTaxDetailsModel? ReportData { get; set; }
+
+    /// <summary>
+    /// Event callback invoked when the Edit link is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the component is initially expanded.
+    /// </summary>
+    [Parameter]
+    public bool IsExpanded { get; set; } = true;
+
+    /// <summary>
+    /// Captures additional attributes (like style, class, id) to apply to the root element.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    internal bool _isExpanded;
+
+    /// <summary>
+    /// OnInitialized
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        _isExpanded = IsExpanded;
+    }
+
+    internal void ToggleExpand()
+    {
+        _isExpanded = !_isExpanded;
+    }
+
+    internal async Task HandleEditClick()
+    {
+        await OnEdit.InvokeAsync();
+    }
+
+    /// <summary>
+    /// Data model for Tax Details component
+    /// </summary>
+    public class ZeroTaxDetailsModel
+    {
+        /// <summary>
+        /// Employee count for the first month
+        /// </summary>
+        public int EmployeeCount1stMonth { get; set; }
+
+        /// <summary>
+        /// Name of the first month
+        /// </summary>
+        public string FirstMonthName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Employee count for the second month
+        /// </summary>
+        public int EmployeeCount2ndMonth { get; set; }
+
+        /// <summary>
+        /// Name of the second month
+        /// </summary>
+        public string SecondMonthName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Employee count for the third month
+        /// </summary>
+        public int EmployeeCount3rdMonth { get; set; }
+
+        /// <summary>
+        /// Name of the third month
+        /// </summary>
+        public string ThirdMonthName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Total gross covered wages
+        /// </summary>
+        public decimal TotalGrossCoveredWages { get; set; }
+
+        /// <summary>
+        /// Exclusions for wages over the threshold
+        /// </summary>
+        public decimal LessExclusions { get; set; }
+
+        /// <summary>
+        /// Wage threshold amount for exclusions
+        /// </summary>
+        public decimal ExclusionThreshold { get; set; }
+
+        /// <summary>
+        /// Defined (Taxable) Payroll after exclusions
+        /// </summary>
+        public decimal DefinedPayroll { get; set; }
+
+        /// <summary>
+        /// Tax rate for the year
+        /// </summary>
+        public decimal TaxRate { get; set; }
+
+        /// <summary>
+        /// Tax year
+        /// </summary>
+        public int TaxYear { get; set; }
+
+        /// <summary>
+        /// Total tax assessed
+        /// </summary>
+        public decimal TaxAssessed { get; set; }
+
+        /// <summary>
+        /// Explanation
+        /// </summary>
+        public string? Explanation { get; set; } 
+
+    }
+  
+
+}

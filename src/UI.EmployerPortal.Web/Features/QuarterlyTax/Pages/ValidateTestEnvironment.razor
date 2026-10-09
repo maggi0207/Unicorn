@@ -1,0 +1,38 @@
+@page "/quarterly-tax/validation-test"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+
+<div class="select-test-type test-env-page">    
+    <h1 class="page-title">Validation Test Environment</h1>
+    <TestEnvironmentBanner IsTestEnvironment="true"
+                           Description="Everything launched from this screen runs against the test environment." />
+    <p class="page-subtitle">Test Wage Report File Upload</p>
+    <hr />
+    <AnnouncementBanner AnnouncementType="@(true ? AnnouncementType.VRUNPAGES : AnnouncementType.WAGETAXFILING)" />
+    <div class="test-type-section">
+        <h2 class="section-label">Test Type</h2>
+        @if (_showValidationError)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert" Message="Please select an test type to continue." />
+        }
+
+        <div class="test-cards" role="radiogroup" aria-label="test Type" aria-required="true">
+            @foreach (var option in _testOptions)
+            {
+                <ReportingMethodCard Title="@option" Description="" IsSelected="@(_selectedValue == option)" OnSelected="@(() => HandleCardSelected(option))" />
+            }
+        </div>
+    </div>
+    <div class="action-row">
+        <Button Variant="Button.ButtonVariant.Primary" Size="Button.ButtonSize.Medium"
+                AriaLabel="Continue" OnClick="HandleContinue">
+            CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+        </Button>
+    </div>
+        
+</div>
+

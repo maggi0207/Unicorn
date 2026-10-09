@@ -1,0 +1,155 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.Models
+@using static UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.WageAdjustmentsMultipleQuarterReport
+<div class="emp-identifier-title">
+    <h2>Wage Adjustment</h2>
+</div>
+
+<div class="table-container">
+    <table class="" style="table-layout: fixed; width: 100%" aria-label="Employee wages">
+        <thead>
+            <tr class="header-row">
+                <th scope="col" class="header-cell" style="width: 140px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Quarter & Year</span>
+
+                    </div>
+                </th>
+                <th scope="col" class="header-cell" style="width: 140px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Quarterly Wages</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell" style="width: 180px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Adjusted Quarterly Wages</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell" style="width: 280px;">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Adjustment Reason</span>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quarterWage in EditModel)
+            {
+                <tr class="data-row">
+                    <th scope="row" class="fw-normal fs-md"><span>Q</span>@quarterWage.Quarter @quarterWage.Year</th>
+                    <td class="fw-normal fs-md"><span>$</span>@quarterWage.QuarterlyWage</td>
+                    <td class="fw-normal fs-md">
+                        @* <input class="tbl-input" type="text" value=@quarterWage.AdjustedQuarterlyWage @oninput="async (ChangeEventArgs e) => { quarterWage.AdjustedQuarterlyWage = e.Value?.ToString(); await OnValueChanged(e); }" /> *@
+
+                        <NumericTextBox @bind-Value="quarterWage.AdjustedQuarterlyWage"
+                                        Id="@AdjustedWageFieldKey(quarterWage)"
+                                        InputType="@InputDataTypes.Currency"
+                                        DecimalPlaces="2"
+                                        ShowCurrencyIcon="false"
+                                        OnBlurCallback="() => MarkWageTouched(quarterWage)"
+                                        CssClass="@(ShouldShowUnchangedWageError(quarterWage) ? "numeric-input--error" : "")"
+                                        Min="0" Max="99999999.99m"
+                                        AriaLabel="@($"Q{quarterWage.Quarter} {quarterWage.Year} Adjusted Quarterly Wages")" />
+                        @if(ShouldShowUnchangedWageError(quarterWage))
+                        {
+                            <div class="text-danger small my-1">
+                                @UnchangedWageErrorMessage
+                            </div>
+                        }
+                    </td>
+                    <td class="fw-normal fs-md">
+                        <div class="select-field @(IsReasonRequired(quarterWage) ? "is-invalid" : "")">
+                            <select class="wage-adj-reason-select" Id="@AdjustmentReasonFieldKey(quarterWage)"
+                                    value="@quarterWage.AdjustmentReason"
+                                    @onblur="() => MarkReasonTouched(quarterWage)"
+                                    @onchange="async (ChangeEventArgs e) => { quarterWage.AdjustmentReason = e.Value?.ToString(); await OnValueChanged(e); }"
+                                    aria-label="@($"Q{quarterWage.Quarter} {quarterWage.Year} Adjustment Reason")" >
+                                <option value="" selected="@string.IsNullOrEmpty(quarterWage.AdjustmentReason)">Select Adjustment Reason</option>
+                                @foreach (var item in DropDownItemsForReason)
+                                {
+                                    <option value="@item.Value" selected="@(item.Value.ToString() == quarterWage.AdjustmentReason)">@item.Text</option>
+                                }
+                            </select>
+                            <span class="chevron-icon" aria-hidden="true">
+                                <svg width="12" height="7.4" viewBox="0 0 12 7.4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1.5 5.5 6 11 1.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                                </svg>
+                            </span>
+                        </div>
+                        @if (IsReasonRequired(quarterWage))
+                        {
+                            <div class="text-danger small mt-1">
+                                Adjustment reason required when wage is entered
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    [Parameter]
+    public List<WageAdjustmentModelOnly> EditModel { get; set; } = new();
+
+    [Parameter]
+    public List<DropDownItem> DropDownItemsForReason { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<WageAdjustmentModelOnly>> EditModelChanged { get; set; }
+
+    [Parameter]
+    public bool ShowErrors { get; set; }
+
+    private readonly HashSet<int> _touchedReasons = new HashSet<int>();
+
+    private readonly HashSet<int> _touchedWages = new HashSet<int>();
+
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+        await EditModelChanged.InvokeAsync(EditModel); // notifies the parent
+    }
+
+    private void MarkReasonTouched(WageAdjustmentModelOnly quarterWage)
+    {
+        if (quarterWage.WageReportSK is { } wageReportSk)
+        {
+            _touchedReasons.Add(wageReportSk);
+        }
+    }
+
+    private bool IsReasonRequired(WageAdjustmentModelOnly quarterWage)
+    {
+        var isMissing = quarterWage.AdjustedQuarterlyWage != null && string.IsNullOrEmpty(quarterWage.AdjustmentReason);
+        return isMissing && (ShowErrors || IsReasonTouched(quarterWage));
+    }
+
+    private bool IsReasonTouched(WageAdjustmentModelOnly quarterWage) =>
+        quarterWage.WageReportSK is { } wageReportSk && _touchedReasons.Contains(wageReportSk);
+
+    private void MarkWageTouched(WageAdjustmentModelOnly quarterWage)
+    {
+        if (quarterWage.WageReportSK is { } wageReportSk)
+        {
+            _touchedWages.Add(wageReportSk);
+        }
+    }
+
+    /// <summary>
+    /// Shows the unchanged-wage error once the field has been left, or once the parent
+    /// has flagged errors on Continue — the same touched-or-submitted rule the
+    /// adjustment reason uses.
+    /// </summary>
+    private bool ShouldShowUnchangedWageError(WageAdjustmentModelOnly quarterWage)
+    {
+        return quarterWage.IsAdjustedWageUnchanged()
+            && (ShowErrors || IsWageTouched(quarterWage));
+    }
+
+    private bool IsWageTouched(WageAdjustmentModelOnly quarterWage) =>
+        quarterWage.WageReportSK is { } wageReportSk && _touchedWages.Contains(wageReportSk);
+}

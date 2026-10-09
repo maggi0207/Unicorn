@@ -1,0 +1,395 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+<div class="add-employees-container">
+    <h1 class="step-title">Add Additional Employees</h1>
+    <div class="step-subtitle">
+        <span class="subtitle-label">Reporting Quarter:</span>
+        <span class="subtitle-value">@ReportingQuarter</span>
+    </div>
+    <hr class="step-divider" />
+    <p class="step-instruction">
+        Add employees to the wage report that has already been filed for the given quarter/year.
+    </p>
+    @if (ShowValidationBanner && !string.IsNullOrWhiteSpace(BannerMessage))
+    {
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Messages="@BannerMessage.Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList()"
+                            Visible="true" />
+    }
+    <OutlinedSelectField Label="Reason for Adding Employee(s)"
+                         Id="reason-select"
+                         Value="@Model.SelectedReason"
+                         ValueChanged="@(async v => await HandleReasonChanged(v))"
+                         For="@(() => Model.SelectedReason)"
+                         Options="@AvailableReasons.Select(r => new SelectOption { Value = r, Text = r }).ToList()"
+                         Placeholder="Select Reason"
+                         Visible="@ShowValidation" />
+</div>
+<div class="table-container">
+    <table class="employee-table" style="table-layout: fixed; width: 100%;">
+        <caption class="visually-hidden">
+            Add employees to the wage report that has already been filed for the given quarter/year. Use the Add Employee button after the table to add additional rows.
+        </caption>
+        <colgroup>
+            <col style="width:0;"
+            <col style="width:180px;" />
+            <col style="width:180px;" />
+            <col style="width:200px;" />
+            <col style="width:220px;" />
+            <col style="width:10%;" />
+        </colgroup>
+        <thead>
+            <tr class="header-row">
+                <th scope="col" class="visually-hidden">Added Employee Number</th>
+                <th id="last-name-header" scope="col" class="header-cell">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Last Name</span>
+                    </div>
+                </th>
+                <th id="first-name-header" scope="col" class="header-cell">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">First Name</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell">
+                    <div class="header-content header-content-left">
+                        <span id="ssn-header" class="header-label fw-bold fs-sm">SSN</span>
+                        <div style="display:flex; align-items:center; gap:2px; margin:0 4px;">
+                            <button type="button"
+                                    class="ssn-toggle-all-btn"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="ToggleAllSSN"
+                                    title="@(_allSSNVisible ? "Hide all SSNs" : "Show all SSNs")"
+                                    aria-label="@(_allSSNVisible ? "Hide all SSNs" : "Show all SSNs")">
+                                <img src="@(_allSSNVisible ? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])"
+                                     alt=""
+                                     class="visibility-icon" />
+                            </button>
+                        </div>
+                    </div>
+                </th>
+                <th id="wage-header" scope="col" class="header-cell">
+                    <div class="header-content header-content-left">
+                        <span class="header-label fw-bold fs-sm">Quarterly Wages</span>
+                    </div>
+                </th>
+                <th scope="col" class="header-cell header-cell-actions">
+                    <div class="header-content header-content-center">
+                        <span class="header-label fw-bold fs-sm">Actions</span>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in GetSortedEmployees())
+            {
+                var idx = Model.EmployeeEntryModels.IndexOf(emp);
+                var applyGlobalValidation = ShowValidation && !emp.AddedAfterValidation;
+                var lastNameTouched = emp.LastNameTouched || applyGlobalValidation;
+                var firstNameTouched = emp.FirstNameTouched || applyGlobalValidation;
+                var wagesTouched = emp.WagesTouched || applyGlobalValidation;
+                var ssnTouched = emp.SSNTouched || applyGlobalValidation;
+                var isDuplicateName = !string.IsNullOrWhiteSpace(emp.FirstName)
+                    && !string.IsNullOrWhiteSpace(emp.LastName)
+                    && Model.EmployeeEntryModels
+                        .Where((e, i) => i != idx)
+                        .Any(e => string.Equals(e.FirstName?.Trim(), emp.FirstName?.Trim(), StringComparison.OrdinalIgnoreCase)
+                               && string.Equals(e.LastName?.Trim(), emp.LastName?.Trim(), StringComparison.OrdinalIgnoreCase)
+                               && string.Equals(
+                                   new string((e.SSN ?? "").Where(char.IsDigit).ToArray()),
+                                   new string((emp.SSN ?? "").Where(char.IsDigit).ToArray()),
+                                   StringComparison.Ordinal));
+
+                // Duplicate SSN check — independent of name, so two different
+                // employees who share an SSN are still flagged inline.
+                // All-zero SSN is the deliberate "unknown SSN" convention — the
+                // backend generates a unique M00 number for each one, so it must
+                // never be flagged as a duplicate here either.
+                var empSsnDigits = new string((emp.SSN ?? "").Where(char.IsDigit).ToArray());
+                var isDuplicateSSN = empSsnDigits.Length == 9
+                    && empSsnDigits != "000000000"
+                    && Model.EmployeeEntryModels
+                        .Where((e, i) => i != idx)
+                        .Any(e => string.Equals(
+                            new string((e.SSN ?? "").Where(char.IsDigit).ToArray()),
+                            empSsnDigits,
+                            StringComparison.Ordinal));
+
+                // The length and character-set rules live on EmployeeEntryModel, but this table renders
+                // its own inline errors rather than reading the EditContext, so they have to be asked
+                // for explicitly - otherwise a 200-character name is accepted here while the same
+                // value is rejected on Wage Entry.
+                var lastNameProblem = EmployeeFieldRules.DescribeNameProblem(emp.LastName, "Last name");
+                var firstNameProblem = EmployeeFieldRules.DescribeNameProblem(emp.FirstName, "First name");
+                var lastNameError = lastNameTouched && (string.IsNullOrWhiteSpace(emp.LastName) || isDuplicateName || lastNameProblem is not null);
+                var firstNameError = firstNameTouched && (string.IsNullOrWhiteSpace(emp.FirstName) || isDuplicateName || firstNameProblem is not null);
+                var ssnFormatValid = ValidSSNAttribute.IsValidSsn(emp.SSN);
+                var ssnError = ssnTouched && (string.IsNullOrWhiteSpace(emp.SSN)
+                    || !ssnFormatValid
+                    || isDuplicateSSN);
+                // A deliberately entered 0 is a VALUE, not a missing one - zero wages are legitimate.
+                // The old test was "<= 0", which flagged an entered zero as "required" while Continue
+                // accepted it, so the row showed an error the page itself disagreed with.
+                var wagesTooLarge = emp.QuarterlyWages > (decimal)EmployeeFieldRules.MaxQuarterlyWages;
+                var wagesNegative = emp.QuarterlyWages < 0;
+                var wagesError = wagesTouched && (emp.QuarterlyWages is null || wagesNegative || wagesTooLarge);
+                <tr class="data-row">
+                    <th id="@($"employee-{idx}")" scope="row" class="visually-hidden">Employee @(idx + 1)</th>
+                    <td class="col-last-name">
+                        <div class="@(lastNameError ? "field-error-wrapper" : "")"
+                             @onblur="@(() => emp.LastNameTouched = true)">
+                            <OutlinedTextField Id="@($"last-name-{idx}")"
+                                               Label=""
+                                               AriaLabelledBy="@($"last-name-header employee-{idx}")"
+                                               Placeholder="Last Name"
+                                               Value="@emp.LastName"
+                                               ValueChanged="@(val => { emp.LastName = val; OnEmployeeChanged.InvokeAsync(); })"
+                                               Visible="@ShowValidation" />
+                        </div>
+                        @if (lastNameError)
+                        {
+                            <span id="@($"last-name-error-{idx}")" class="field-inline-error">
+                                @(string.IsNullOrWhiteSpace(emp.LastName)
+                                    ? "Last Name is required."
+                                    : lastNameProblem ?? "Duplicate name found.")
+                            </span>
+                        }
+                    </td>
+                    <td class="col-first-name">
+                        <div class="@(firstNameError ? "field-error-wrapper" : "")"
+                             @onblur="@(() => emp.FirstNameTouched = true)">
+                            <OutlinedTextField Id="@($"first-name-{idx}")"
+                                               Label=""
+                                               AriaLabelledBy="@($"first-name-header employee-{idx}")"
+                                               Placeholder="First Name"
+                                               Value="@emp.FirstName"
+                                               ValueChanged="@(val => { emp.FirstName = val; OnEmployeeChanged.InvokeAsync(); })"
+                                               Visible="@ShowValidation" />
+                        </div>
+                        @if (firstNameError)
+                        {
+                            <span id="@($"first-name-error-{idx}")" class="field-inline-error">
+                                @(string.IsNullOrWhiteSpace(emp.FirstName)
+                                    ? "First Name is required."
+                                    : firstNameProblem ?? "Duplicate name found.")
+                            </span>
+                        }
+                    </td>
+                    <td class="col-ssn">
+                        <div class="@GetSsnWrapperClass(ssnError, ssnTouched)"
+                             @onblur="@(() => { emp.SSNTouched = true; StateHasChanged(); })">
+                            <OutlinedSSNInput Id="@($"ssn-{idx}")"
+                                              Label=""
+                                              AriaLabelledBy="@($"ssn-header employee-{idx}")"
+                                              Value="@(emp.SSN ?? string.Empty)"
+                                              ValueChanged="@(val => { emp.SSN = val; OnEmployeeChanged.InvokeAsync(); })"
+                                              ValueExpression="@(() => emp.SSN)"
+                                              IsFocused="@emp.IsSSNFocused"
+                                              IsFocusedChanged="@(val => emp.IsSSNFocused = val)"
+                                              ShowSSN="@emp.IsSSNVisible"
+                                              ShowSSNChanged="@(val => emp.IsSSNVisible = val)"
+                                              Visible="false" />
+                        </div>
+                        @if (ssnTouched)
+                        {
+                            if (string.IsNullOrWhiteSpace(emp.SSN))
+                            {
+                                <span id="@($"ssn-error-{idx}")" class="field-inline-error">Employee's Social Security Number is Required. If not known, enter all zeros.</span>
+                            }
+                            else if (!ssnFormatValid)
+                            {
+                                <span id="@($"ssn-error-{idx}")" class="field-inline-error">Please enter a valid SSN.</span>
+                            }
+                            else if (isDuplicateSSN)
+                            {
+                                <span id="@($"ssn-error-{idx}")" class="field-inline-error">This SSN is already used for another employee.</span>
+                            }
+                        }
+                    </td>
+                    <td class="col-wages">
+                        <div class="outlined-wages-wrapper"
+                             @onblur="@(() => emp.WagesTouched = true)">
+                            <div class="@("outlined-wages-input-wrapper" + (wagesError ? " outlined-wages-input-wrapper--error" : ""))">
+                                <span class="currency-symbol">$</span>
+                                <InputNumber class="table-input wages-input"
+                                             id="@($"wages-{idx}")"
+                                             aria-labelledBy="@($"wage-header employee-{idx}")"
+                                             placeholder="0.00"
+                                             @bind-Value="emp.QuarterlyWages"
+                                             @bind-Value:after="@(() => OnEmployeeChanged.InvokeAsync())"
+                                             ParsingErrorMessage="@EmployeeFieldRules.WagesNotANumberMessage" />
+                            </div>
+                        </div>
+                        @if (wagesError)
+                        {
+                            <span id="@($"wages-error-{idx}")" class="field-inline-error">
+                                @(wagesTooLarge ? EmployeeFieldRules.WagesTooLargeMessage
+                                    : wagesNegative ? EmployeeFieldRules.WagesNegativeMessage
+                                    : "Quarterly wages are required.")
+                            </span>
+                        }
+                    </td>
+                    <td class="col-actions text-center">
+                        <button class="btn-remove action-btn" type="button"
+                                aria-label="Remove employee @(idx + 1)"
+                                @onclick="() => OpenRemoveModal(emp)">
+                            <img src="@Assets["icons/trash.svg"]" class="action-icon" alt="" />
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="wage-entry-footer">
+    <Button Variant="ButtonVariant.Secondary" OnClick="AddEmployeeRow">
+        <img src="@Assets["icons/add.svg"]" alt="" class="add-icon" />
+        <span>ADD EMPLOYEE</span>
+    </Button>
+</div>
+<RemoveEmployeeModal IsVisible="_showRemoveModal"
+                     OnCancel="CancelRemove"
+                     OnConfirm="ConfirmRemove" />
+@code {
+    [Parameter] public string? ReportingQuarter { get; set; }
+    [Parameter] public string? SelectedReason { get; set; }
+    [Parameter] public List<string> AvailableReasons { get; set; } = [];
+    [Parameter] public EventCallback<string?> SelectedReasonChanged { get; set; }
+    [Parameter] public bool ShowValidation { get; set; }
+    [Parameter] public AddNewEmployeeModel Model { get; set; } = default!;
+    [Parameter] public bool ShowValidationBanner { get; set; }
+    [Parameter] public string BannerMessage { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnEmployeeChanged { get; set; }
+    private bool _showRemoveModal = false;
+    private string? _sortColumn;
+    private bool _sortAscending = true;
+    private EmployeeEntryModel? _employeeToRemove;
+    private bool _allSSNVisible = false;
+    private string GetSsnWrapperClass(bool ssnError, bool ssnTouched)
+    {
+        var classes = new List<string>();
+        if (ssnTouched)
+            classes.Add("ssn-touched");
+        if (ssnError)
+            classes.Add("ssn-error-wrapper");
+        return string.Join(" ", classes);
+    }
+    private void ToggleAllSSN()
+    {
+        _allSSNVisible = !_allSSNVisible;
+        foreach (var emp in Model.EmployeeEntryModels)
+        {
+            emp.IsSSNVisible = _allSSNVisible;
+        }
+    }
+    private async Task Sort(string column)
+    {
+        var activeTag = await JSRuntime.InvokeAsync<string>(
+            "eval", "document.activeElement.tagName.toLowerCase()");
+        if (activeTag == "input" || activeTag == "textarea")
+            return;
+        if (_sortColumn == column)
+            _sortAscending = !_sortAscending;
+        else
+        {
+            _sortColumn = column;
+            _sortAscending = true;
+        }
+    }
+    private async Task HandleHeaderKeyDown(KeyboardEventArgs e, string column)
+    {
+        if (e.Key == "Enter" || e.Key == " ")
+            await Sort(column);
+    }
+    private MarkupString GetSortIcon(string column)
+    {
+        string path;
+        string altText;
+        if (_sortColumn == column)
+        {
+            path = _sortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            altText = _sortAscending ? "Sorted ascending" : "Sorted descending";
+        }
+        else
+        {
+            path = "images/sort/sort-icon.svg";
+            altText = "Not sorted";
+        }
+        return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' alt='{altText}' />");
+    }
+    private string? GetAriaSort(string column)
+    {
+        return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
+    }
+    private IEnumerable<EmployeeEntryModel> GetSortedEmployees()
+    {
+        var query = Model.EmployeeEntryModels.AsQueryable();
+        query = _sortColumn switch
+        {
+            "lastName" => _sortAscending ? query.OrderBy(e => e.LastName).ThenBy(e=>e.FirstName) : query.OrderByDescending(e => e.LastName),
+            "firstName" => _sortAscending ? query.OrderBy(e => e.FirstName) : query.OrderByDescending(e => e.FirstName),
+            "ssn" => _sortAscending ? query.OrderBy(e => e.SSN) : query.OrderByDescending(e => e.SSN),
+            "wages" => _sortAscending ? query.OrderBy(e => e.QuarterlyWages) : query.OrderByDescending(e => e.QuarterlyWages),
+            _ => query
+        };
+        return query;
+    }
+    private async Task HandleReasonChanged(string? value)
+    {
+        SelectedReason = value;
+        await SelectedReasonChanged.InvokeAsync(value);
+    }
+    private async Task AddEmployeeRow()
+    {
+        Model.EmployeeEntryModels.Add(new EmployeeEntryModel
+        {
+            AddedAfterValidation = ShowValidation
+        });
+        var newIdx = Model.EmployeeEntryModels.Count - 1;
+        await Task.Delay(50);
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval",
+                $"document.getElementById('last-name-{newIdx}')?.focus()");
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit already torn down (idle timeout, navigation, refresh) —
+            // nothing to focus on a disconnected client, safe to ignore.
+        }
+        catch (JSException)
+        {
+            // eval may be blocked by CSP on this environment, or the element
+            // wasn't found in time — non-fatal, focus is a nice-to-have here.
+        }
+    }
+    private void OpenRemoveModal(EmployeeEntryModel employee)
+    {
+        _employeeToRemove = employee;
+        _showRemoveModal = true;
+    }
+    private void CancelRemove()
+    {
+        _showRemoveModal = false;
+        _employeeToRemove = null;
+    }
+    private void ConfirmRemove()
+    {
+        if (_employeeToRemove != null)
+        {
+            Model.EmployeeEntryModels.Remove(_employeeToRemove);
+        }
+        _showRemoveModal = false;
+        _employeeToRemove = null;
+    }
+}

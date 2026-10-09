@@ -1,0 +1,57 @@
+@page "/quarterly-tax/wage-upload"
+@page "/quarterly-tax/test/wage-upload"
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.WageUpload
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<div class="page-content @(_isSourceTestEnv ? "test-env-page" : "")">
+    <TestEnvironmentBanner IsTestEnvironment="@_isSourceTestEnv"
+                           Description="Files uploaded here are validated only - nothing is filed against a live UI account." />
+    @if (_pageState == PageState.Confirmation)
+    {
+       <WageUploadConfirmation ConfirmationNumber="@_confirmationNumber"
+                       ReportType="@ConfirmationReportType"
+                       ContactEmail="@_reportData.ContactData.UploadEmail"
+                       IsSourceTestEnv="@_isSourceTestEnv" />
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else
+    {
+        <AnnouncementBanner AnnouncementType="@(_isSourceTestEnv ? AnnouncementType.VRUNPAGES : AnnouncementType.WAGETAXFILING)" />
+
+        <Wizard Steps="@_wizardSteps"
+                @bind-CurrentStep="@_currentStep"
+                UseTextStepper="true"
+                StepWidth="200"
+                ShowCancelButton="false"
+                ShowBackButton="true"
+                ShowSaveAndQuitButton="false"
+                OnBackClick="HandleBackClick"
+                OnActionClick="HandleActionClick"
+                AutoNavigateOnAction="false"
+                DisableBackOnFirstStep="false">
+
+            <CascadingValue Value="_editContext" IsFixed="false">
+                <ValidationErrorSummary ShowSummary="@_showValidationSummary"
+                                        FieldIds="@_fieldIds"
+                                        SummaryId="wage-upload-validation-summary" />
+            </CascadingValue>
+            @if (_currentStep == 1)
+            {
+                <ContactInformationEntry Model="@_reportData.ContactData"
+                                         @ref="_contactInfoRef" />
+            }
+            else if (_currentStep == 2)
+            {
+                <WageFileUploadEntry Model="@_reportData" @ref="_wageFileUploadEntryRef" />
+            }
+        </Wizard>
+    }
+
+</div>

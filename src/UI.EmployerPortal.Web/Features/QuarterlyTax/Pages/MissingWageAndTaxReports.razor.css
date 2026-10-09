@@ -1,0 +1,89 @@
+.page-content {
+    max-width: var(--width-quarterly-tax);
+}
+
+.page-header {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 115.99999999999999%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-top:24px;
+}
+.active-audit {
+    background-color: #F5E9EA;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 1px solid #C82838;
+    border-bottom: 1px solid #C82838;
+    border-left: 5px solid #C82838;
+    border-right: 1px solid #C82838;
+    border-color: #C82838;
+}
+
+.missing-reports {
+    background-color: #FFFCF3;
+    padding: 10px;
+    border-radius: 5px;
+    border-top: 1px solid #FBB829;
+    border-bottom: 1px solid #FBB829;
+    border-left: 5px solid #FBB829;
+    border-right: 1px solid #FBB829;
+    border-color: #FBB829;
+}
+
+.error-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: black;
+    padding: 10px;
+}
+
+.custom-header th {
+    background-color: #F3F3F3;
+    color: black;
+    border-bottom: solid;
+    border-width: 1px;
+    border-bottom: 1px solid #ADADAD;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.custom-row td {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 150%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.custom-cell-late {
+    font-weight: 700 !important;
+    color: #C82838;
+}
+
+.custom-cell-due-soon {
+    font-weight: 700 !important;
+    color: #D55C05;
+}
+
+.custom-cell-report-needed {
+    font-weight: 700 !important;
+    color: #198754;
+}
+
+.custom-cell-action {
+    font-weight: 700 !important;
+    color: #0D6EFD;
+}

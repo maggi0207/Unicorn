@@ -1,0 +1,241 @@
+@media print {
+    .print-target {
+        height: auto !important;
+        min-height: auto !important;
+    }
+}
+
+.no-wage-report-banner {
+    max-width: 700px;
+    text-align:left;
+    margin: 16px auto 0;
+}
+
+.confirmation-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1038px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    font-family: Verdana;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* ----- Header Section ----- */
+
+.confirmation-title {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 115.99999999999999%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
+.confirmation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 14px;
+    color: #000000;
+    font-family: Verdana
+}
+
+.meta-label {
+    font-weight: 700;
+    font-size: 16px;
+    font-family: Verdana
+}
+
+.meta-item {
+    font-size: 16px;
+    font-family: Verdana
+}
+
+.header-divider {
+    border: none;
+    border-top: 1px solid #ADADAD;
+    margin: 16px 0 24px 0;
+}
+
+.options-divider {
+    border: none;
+    border-top: 1px solid #E6E6E6;
+    margin: 12px 0 12px 0;
+}
+/* ----- Success Section ----- */
+.success-section {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.success-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.success-icon {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.success-text {
+    font-size: 25px;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.confirmation-number-section {
+    margin-top: 8px;
+}
+
+.confirmation-number-label {
+    font-size: 16px;
+    color: #000000;
+    font-weight: 700;
+    font-family: Verdana;
+    margin: 0 0 0 0;
+}
+
+.confirmation-number-value {
+    font-weight: 700;
+    color: #003663;
+    margin: 0;
+    font-family: Verdana;
+    letter-spacing: 0%;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* ----- What's Next Section ----- */
+
+.whats-next-section {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.whats-next-title {
+    font-size: 25px;
+    font-weight: 700;
+    font-family: Verdana;
+    color: #000000;
+    margin: 0 0 16px 0;
+}
+
+.note-text {
+    font-size: 16px;
+    color: #000000;
+    margin: 0 0 8px 0;
+    font-weight: 400;
+    font-family: Verdana;
+}
+
+.note-label {
+    font-weight: 700;
+    font-size: 16px;
+    color: #000000;
+    font-family: Verdana
+}
+
+.missing-reports-text {
+    color: #000000;
+    margin: 0 0 24px 0;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+/* ----- Action Buttons ----- */
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+/*------ Email Subscription link*/
+
+.email-subscription-section {
+    padding-top: 6px;
+}
+
+.email-subscription-link {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    color: #0D6EFD;
+}
+
+/* ----- Save Page Link ----- */
+.save-page-section {
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}
+
+    .save-page-section ::deep button {
+        font-family: Verdana;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 160%;
+        letter-spacing: 0%;
+        vertical-align: middle;
+        color: #0D6EFD;
+        cursor: pointer;
+    }
+
+        .save-page-section ::deep button:hover {
+            text-decoration: underline;
+        }
+
+        .save-page-section ::deep button:focus {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+.save-icon {
+    display: inline-flex;
+    width: 12px;
+    height: 12px;
+}
+
+
+/* ----- Responsive ----- */
+
+
+
+@media (max-width: 480px) {
+       .confirmation-page {
+        padding: 16px 12px;
+    }
+
+       .confirmation-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+       .success-text {
+        font-size: 18px;
+    }
+
+       .confirmation-number-value {
+        font-size: 18px;
+    }
+}

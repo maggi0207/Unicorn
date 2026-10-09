@@ -1,0 +1,84 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<div class="confirmation-page">
+    <div class="confirmation-header">
+        <h1 class="confirmation-title">Confirmation</h1>
+        <div class="confirmation-meta">
+            <span class="meta-item">
+                <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+            </span>
+        </div>
+    </div>
+
+    <hr class="header-divider" />
+
+    <div class="success-section">
+        <div class="success-message">
+            <h2 class="success-text">  <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" /> Your @ReportingQuarter Wage Report Adjustment has been submitted.</h2>
+        </div>
+        <div class="confirmation-number-section">
+            <p class="confirmation-number-label">Confirmation Number:</p>
+            <p class="confirmation-number-value">@ConfirmationNumber</p>
+        </div>
+    </div>
+
+    <hr class="options-divider" />
+
+    <div class="whats-next-section">
+        <h2 class="whats-next-title">What's Next?</h2>
+
+        @* --- Wage Mismatch View --- *@
+        <div class="text-content-div">
+            <div class="content-inner-div">
+                <p class="text-content">
+                    Your wage report adjustment has been submitted. You will receive an e-mail notification when your adjustment has been processed, or to notify you if we encounter any problems processing your adjustment.
+                </p>
+
+                <p class="text-content">
+                    <strong>   Note:</strong>  Your adjustment must be approved and processed by the Department before it will be reflected in your quarterly wage report(s).
+                </p>
+
+                <p class="text-content">
+                    It may be necessary to file a tax report adjustment for Q/YYYY based on your changes to the wage report for the same quarter. The wage adjustment(s) you have submitted will not automatically adjust the amounts reported on your quarterly tax report. If you would like to review the tax report before filing an adjustment, select "Review Tax Report." If you know a tax report adjustment is needed, select "Adjust Another Report.”
+                </p>
+
+                <div class="action-buttons">
+                    <Button Text="REVIEW TAX REPORT"
+                            Variant="ButtonVariant.Secondary"
+                            Size="ButtonSize.Medium"
+                            OnClick="@HandleReviewTaxReportClicked"
+                            AriaLabel="REVIEW TAX REPORT" />
+                    <Button Text="ADJUST ANOTHER REPORT"
+                            Variant="ButtonVariant.Secondary"
+                            Size="ButtonSize.Medium"
+                            OnClick="@HandleAdjustAnotherReportClicked" />
+                    @if (_hasOutstandingBalance)
+                    {
+                        <Button Text="PAYMENT OPTIONS"
+                                Variant="ButtonVariant.Secondary"
+                                Size="ButtonSize.Medium"
+                                OnClick="@HandlePaymentOptionsClicked"
+                                AriaLabel="Payment options" />
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="options-divider" />
+
+    <div class="save-page-section">
+        <Button Variant="ButtonVariant.Secondary"
+                ShowBorder="false"
+                OnClick="HandleSavePageClicked"
+                AriaLabel="Save this page for your records">
+            <span class="save-icon">
+                <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            </span>
+            Save this page for your records
+        </Button>
+    </div>
+</div>
+

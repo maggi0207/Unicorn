@@ -1,0 +1,321 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers;
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes;
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models;
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services;
+@using Microsoft.AspNetCore.Components.Forms;
+
+@inject IQuarterlyTaxCalculatorService Calculator
+@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
+
+<div class="tax-entry-container">
+    <header class="tax-report-header">
+        <h1 class="page-header">@HeaderTitle</h1>
+        <div class="tax-header-meta">
+            <span class="tax-meta-label">@ReportingQuarterLabel</span>
+            <span class="tax-meta-value">@TaxDataEntry.ReportingQuarter</span>
+            <span class="tax-meta-label due-date-label">@DueDateLabel</span>
+            <span class="tax-meta-value">@TaxDataEntry.DueDate.ToString("M/d/yyyy")</span>
+        </div>
+    </header>
+
+    <div class="tax-instructions-section">
+        @if (IsReadonly)
+        {
+            <p class="tax-information">
+                The following information is on file for the reporting quarter.
+            </p>
+
+        }
+        else
+        {
+            <p class="tax-instructions">
+                Enter the employee count for each month, total covered gross wages, and less exclusions for wages over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold(). Wage fields must contain a decimal to identify cents.
+            </p>
+
+        }
+
+        <p class="tax-note">
+            <span class="tax-note-label">Note:</span>
+            <span class="tax-note-text">Tax or wage reports submitted after the due date may result in interest and/or penalty charges.</span>
+        </p>
+
+        <p class="monthly-tax-description">
+            1. Monthly data should count all full-time and part-time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+        </p>
+    </div>
+
+    <CascadingValue Value="_editContext" IsFixed="false">
+
+        <DataAnnotationsValidator />
+
+        <ValidationErrorSummary ShowSummary="_showErrors"
+                                FieldIds="_fieldIds"
+                                SummaryId="modal-validation-summary" />
+
+        <div class="LowerGridDisplay">
+
+            <div class="grid-item indent-month">
+                <label for="employee-count-month1">
+                    1a. Employee Count 1st Month - @TaxDataEntry.MonthName1
+                </label>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox InputType="@InputDataTypes.NumericOnly"
+                                Id="employee-count-month1"
+                                AriaLabel="Employee Count 1st Month"
+                                IntValue="@((int?)TaxDataEntry.EmployeeCountMonth1)"
+                                IntValueExpression="@(() => (int?)TaxDataEntry.EmployeeCountMonth1)"
+                                Max="999999"
+                                IntValueChanged="@((int? v) => { TaxDataEntry.EmployeeCountMonth1 = v ?? 0; })"
+                                IsReadonly="@IsReadonly"
+                                CssClass="@(IsReadonly ? "form-control textboxReadOnlyBackgroundColor" : "form-control numeric-input-with-icon")" />
+            </div>
+
+            <div class="grid-item indent-month">
+                <label for="employee-count-month2">
+                    1b. Employee Count 2nd Month - @TaxDataEntry.MonthName2
+                </label>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox InputType="@InputDataTypes.NumericOnly"
+                                Id="employee-count-month2"
+                                AriaLabel="Employee Count 2nd Month"
+                                IntValue="@((int?)TaxDataEntry.EmployeeCountMonth2)"
+                                IntValueExpression="@(() => (int?)TaxDataEntry.EmployeeCountMonth2)"
+                                Max="999999"
+                                IntValueChanged="@((int? v) => { TaxDataEntry.EmployeeCountMonth2 = v ?? 0; })"
+                                IsReadonly="@IsReadonly"
+                                CssClass="@(IsReadonly ? "form-control textboxReadOnlyBackgroundColor" : "form-control numeric-input-with-icon")" />
+            </div>
+
+            <div class="grid-item indent-month">
+                <label for="employee-count-month3">
+                    1c. Employee Count 3rd Month - @TaxDataEntry.MonthName3
+                </label>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox InputType="@InputDataTypes.NumericOnly"
+                                Id="employee-count-month3"
+                                AriaLabel="Employee Count 3rd Month"
+                                IntValue="@((int?)TaxDataEntry.EmployeeCountMonth3)"
+                                IntValueExpression="@(() => (int?)TaxDataEntry.EmployeeCountMonth3)"
+                                Max="999999"
+                                IntValueChanged="@((int? v) => { TaxDataEntry.EmployeeCountMonth3 = v ?? 0; })"
+                                IsReadonly="@IsReadonly"
+                                CssClass="@(IsReadonly ? "form-control textboxReadOnlyBackgroundColor" : "form-control numeric-input-with-icon")" />
+            </div>
+
+            <div class="grid-item @(IsOutOfBalance ? "gross-wages-label-row" : "")">
+                <label for="total-gross-covered-wages">
+                    2. Total Gross Covered Wages
+                </label>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox InputType="@InputDataTypes.Currency"
+                                Id="total-gross-covered-wages"
+                                AriaLabel="Total Gross Covered Wages"
+                                Value="@TaxDataEntry.TotalGrossCoveredWages"
+                                ValueExpression="@(() => (decimal?)TaxDataEntry.TotalGrossCoveredWages)"
+                                ValueChanged="HandleGrossWagesChanged"
+                                Max="@TaxEntryModel.MaxGrossWagesAmount"
+                                OnBlurCallback="HandleGrossWagesBlur"
+                                IsReadonly="@(IsReadonly || IsGrossWagesReadonly)"
+                                CssClass="@((IsReadonly || IsGrossWagesReadonly) ? "form-control textboxReadOnlyBackgroundColor" : "form-control numeric-input-with-icon")" />
+
+                @if (IsOutOfBalance)
+                {
+                    <div class="error-message">
+                        <span class="error-icon">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="#C82838">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                                10-4.48 10-10S17.52 2 12 2zm1
+                                15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                            </svg>
+                        </span>
+
+                        <span class="error-text">
+                            Values Out of Balance.
+
+                            Wages Previously Reported:
+                            @TaxDataEntry.PreviouslyReportedGrossWages?.ToString("C")
+                        </span>
+                    </div>
+                }
+            </div>
+
+            @if (IsOutOfBalance && !IsReadonly)
+            {
+                <div class="grid-item indent-month discrepancy-row">
+                    <label class="discrepancy-label"
+                           for="gross-wage-discrepancy">
+                        @_discrepancyQuestionText
+                    </label>
+                </div>
+
+                <div class="grid-item discrepancy-row">
+                    <OutlinedTextArea Id="gross-wage-discrepancy"
+                                      Value="@TaxDataEntry.GrossWageDiscrepancyExplanation"
+                                      ValueChanged="@((string v) => TaxDataEntry.GrossWageDiscrepancyExplanation = v)"
+                                      For="@(() => TaxDataEntry.GrossWageDiscrepancyExplanation)"
+                                      Rows="4"
+                                      MaxLength="2000"
+                                      Placeholder="Explain the discrepancy" />
+                </div>
+            }
+
+            <div class="grid-item">
+                <label for="exclusion-amount">
+                    3. Less Exclusions for Wages Over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold()
+                </label>
+            </div>
+
+            <div class="grid-item">
+
+                @if (IsReadonly)
+                {
+                    <NumericTextBox InputType="@InputDataTypes.Currency"
+                                    Id="readonly-exclusion-amount"
+                                    AriaLabel="@($"Less Exclusions for Wages Over {@TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold()}")"
+                                    Value="@TaxDataEntry.ExclusionOverride.EffectiveAmount"
+                                    IsReadonly="true"
+                                    ShowCurrencyIcon="false"
+                                    CssClass="form-control textboxReadOnlyBackgroundColor"
+                                    DecimalPlaces="2" />
+                }
+                else if (TaxDataEntry.AllowDirectExclusionEntry)
+                {
+                    <NumericTextBox Id="exclusion-amount"
+                                    AriaLabel="@($"Less Exclusions for Wages Over {@TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold()}")"
+                                    InputType="@InputDataTypes.Currency"
+                                    Value="@TaxDataEntry.ExclusionOverride.OverrideAmount"
+                                    ValueExpression="@(() => (decimal?)TaxDataEntry.ExclusionOverride.OverrideAmount)"
+                                    ValueChanged="HandleDirectExclusionChanged"
+                                    ShowCurrencyIcon="false"
+                                    CssClass="form-control"
+                                    DecimalPlaces="2"
+                                    Min="0"
+                                    AriaDescribedby="@(_exclusionExceedsWages ? "exclusion-amount-error" : null)"/>
+
+                    @if (_exclusionExceedsWages)
+                    {
+                        <div id="exclusion-amount-error" class="error-message">
+                            <span class="error-icon">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="#C82838">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+                                    10-4.48 10-10S17.52 2 12 2zm1
+                                    15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                </svg>
+                            </span>
+
+                            <span class="error-text">
+                                Exclusion amount cannot exceed Total Gross Covered Wages (@TaxDataEntry.TotalGrossCoveredWages.ToString("C")).
+                            </span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <ExclusionAmountEditor ExclusionOverride="TaxDataEntry.ExclusionOverride"
+                                           TotalGrossCoveredWages="TaxDataEntry.TotalGrossCoveredWages"
+                                           OnExclusionUpdated="HandleExclusionChanged"
+                                           ExclusionReasons="ExclusionReasons" />
+                }
+            </div>
+
+            <div class="grid-item">
+                <label for="defined-taxable-payroll"> 4. Defined (Taxable) Payroll</label>
+                <span id="defined-payroll-info" class="hint-text">Calculated: Line 2 minus Line 3</span>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox Id="defined-taxable-payroll"
+                                AriaLabel="Defined Taxable Payroll"
+                                Value="@TaxDataEntry.DefinedTaxablePayroll"
+                                InputType="@InputDataTypes.Currency"
+                                IsReadonly="true"
+                                ShowCurrencyIcon="false"
+                                CssClass="form-control textboxReadOnlyBackgroundColor"
+                                DecimalPlaces="2"
+                                AriaDescribedby="defined-payroll-info" />
+            </div>
+
+            <div class="grid-item">
+                <label for="tax-rate">5. @TaxDataEntry.TaxYear Tax Rate</label>
+                <span id="tax-rate-info" class="hint-text">Based on account experience</span>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox Id="tax-rate"
+                                AriaLabel="@($"{TaxDataEntry.TaxYear} Tax Rate")"
+                                Value="@TaxDataEntry.TaxRate"
+                                InputType="@InputDataTypes.DecimalOnly"
+                                IsReadonly="true"
+                                CssClass="form-control textboxReadOnlyBackgroundColor"
+                                DecimalPlaces="4"
+                                AriaDescribedby="tax-rate-info" />
+            </div>
+
+            <div class="grid-item">
+                <label for="tax-assessed">
+                    6. Tax Assessed
+                </label>
+            </div>
+
+            <div class="grid-item">
+                <NumericTextBox Id="tax-assessed"
+                                AriaLabel="Tax Assessed"
+                                Value="@TaxDataEntry.TaxAssessed"
+                                InputType="@InputDataTypes.Currency"
+                                IsReadonly="true"
+                                ShowCurrencyIcon="false"
+                                CssClass="form-control textboxReadOnlyBackgroundColor"
+                                DecimalPlaces="2" />
+            </div>
+
+        </div>
+
+    </CascadingValue>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string HeaderTitle { get; set; } = "Tax Report";
+
+    [Parameter]
+    public string ReportingQuarterLabel { get; set; } = "Reporting Quarter:";
+
+    [Parameter]
+    public string DueDateLabel { get; set; } = "Due Date:";
+
+    [Parameter]
+    public TaxEntryModel TaxDataEntry { get; set; } = new();
+
+    [Parameter]
+    public bool IsGrossWagesReadonly { get; set; }
+
+    [Parameter]
+    public bool IsReadonly { get; set; }
+
+    [Parameter]
+    public EventCallback<decimal> OnExclusionUpdated { get; set; }
+
+    public List<string> ExclusionReasons { get; set; } = new()
+    {
+        "Missing or Incorrect SSN",
+        "Employee(s) Working in Multiple States",
+        "Reporting Changes Due to Transfer of Business Activity",
+        "Wage Reports Missing for Previous Quarters in this Calendar Year"
+    };
+
+    private const string _discrepancyQuestionText =
+        "2a. Gross covered wages do not match previously reported wage report. Please explain why the values are different.";
+}

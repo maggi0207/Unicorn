@@ -1,0 +1,78 @@
+@page "/tax-wage-report-adjustments/wage-adjustment-by-quarter"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.EmployeeWageEntry
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Wage Adjustment by Quarter</PageTitle>
+@if (_isSubmitting || _isLoading)
+{
+    <LoadingSpinner Message="@( _isSubmitting ? "Submitting adjustment...." : "Loading...")"/>
+}
+else if (_pageState == PageState.Confirmation)
+{
+
+<AdjustmentConfirmation ConfirmationNumber="@_reportModel.ConfirmationNumber"
+                        ReportingQuarter="@_reportModel.SelectedQuarterKey" />
+}
+else
+{
+    <div class="page-content">
+        <EditForm EditContext="_editContext"
+                  OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <Wizard Steps="@_wizardSteps"
+                    @bind-CurrentStep="@_currentStep"
+                    UseTextStepper="true"
+                    ShowNavigationButtons="true"
+                    OnActionClick="HandleActionClick"
+                    OnCancelClick="HandleCancelClick"
+                    OnSaveAndQuitClick="HandleSaveAndQuitClick"
+                    AutoNavigateOnAction="false"
+                    OnBackClick="HandleBackClick"
+                    AutoNavigateOnBack="false"
+                    DisableBackOnFirstStep="false"
+                    ShowBackButton="@(_currentStep != 1)"
+                    ShowSaveAndQuitButton="@(_currentStep != 1)">
+
+                @if (_currentStep == 1)
+                {
+                    <ValidationErrorSummary ShowSummary="_showValidationSummary" FieldIds="_fieldIds" SummaryId="wage-adj-validation-summary" />
+                        <QuarterYearDropdownList Id="quarter-year-select"
+                        Value="@_reportModel.SelectedQuarterKey"
+                        ValueChanged="HandleEditQuarter"
+                        For="@(_filedWageQuarters.Count > 0 ? () => _reportModel.SelectedQuarterKey : null)"
+                        AvailableQuarters="@_filedWageQuarters"/>
+                }
+                else if (_currentStep == 2)
+                {
+                    <ValidationErrorSummary ShowSummary="_showValidationSummary" FieldIds="_fieldIds" SummaryId="wage-adj-step2-validation-summary" />
+                    <EmployeeWageAdjustments ReportingQuarter="@_reportModel.SelectedQuarterKey" @ref="_employeeWageAdjustments"
+                    EmployeesData="@_reportModel.Employees" />
+                }
+                else if (_currentStep == 3)
+                {
+                    <ValidationErrorSummary ShowSummary="_showValidationSummary" FieldIds="_fieldIds" SummaryId="wage-adj-submit-validation-summary" />
+                    <AdjustmentVerification ReportingQuarter="@_reportModel.SelectedQuarterKey"
+                    AdjustmentEmployees="@_reportModel.Employees.AdjustmentEmployees"
+                    AdjustmentReasons="@_reportModel.Employees.AdjustmentReasons"
+                                            OnEditEmployees="HandleEditEmployees"/>
+                }
+
+            </Wizard>
+        </EditForm>
+
+        <BackButtonModal IsOpen="@_showBackModel" OnClose="CloseBackModel" OnRemoveDataConfirmed="ContinueBack"></BackButtonModal>
+        <SaveAndQuitModal IsOpen="@_showSaveAndQuitModal"
+            OnClose ="HandleSaveAndQuitModalClose"
+            OnConfirm = "HandleSaveAndQuitModalConfirm" />
+
+        <UnsavedChangesModal IsOpen="@_showCancelModal"
+                             OnStay="HandleCancelModalStay"
+                             OnCancelReport="HandleCancelModalConfirm" />
+
+    </div>
+}

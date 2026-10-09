@@ -1,0 +1,167 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using System.ComponentModel.DataAnnotations
+
+<div class="contact-info-entry">
+    @if (ShowHeader)
+    {
+        <h1 class="page-title">Contact Information</h1>
+        <p class="page-subtitle">
+            Required, including an email address and phone number, in order to upload wage report files.
+        </p>
+        <div class="divider"></div>
+    }
+
+    <CascadingValue Value="@_editContext" IsFixed="true">
+
+        <DataAnnotationsValidator />
+        <ValidationErrorSummary ShowSummary="@(_formSubmitted && _hasValidationErrors)"
+                                FieldIds="_fieldIds"
+                                FieldResolver="ResolveField"
+                                SummaryId="contact-info-validation-summary" />
+
+        @* ================= BUSINESS UPLOADING THE FILE ================= *@
+        <h2 class="section-header">Business Uploading the File</h2>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Business Name"
+                                   Id="bus-name"
+                                   @bind-Value="Model.BusinessName"
+                                   For="() => Model.BusinessName"
+                                   Visible="@IsVisible(() => Model.BusinessName)" />
+            </div>
+        </div>
+
+        <div class="address-wrapper">
+            <AddressField Address="Model.MailingAddress"
+                          Legend="Address Item 0"
+                          Visible="@IsAddressVisible(Model.MailingAddress)"
+                          SuiteAptLabel="Suite, Apt., Attn., etc (optional)"
+                          ZipExtensionLabel="+4 (optional)"
+                          AddressLine3InternationalLabel="Address Line 3 (optional)"
+                          AddressLine4InternationalLabel="Address Line 4 (optional)"
+                          ShowFax="true"
+                          FaxNumber="@Model.FaxNumber"
+                          FaxNumberChanged="val => Model.FaxNumber = val ?? string.Empty"
+                          FaxFor="() => Model.FaxNumber" />
+        </div>
+
+        @* ================= FILE UPLOAD CONTACT ================= *@
+        <div class="section-header">File Upload Contact</div>
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Contact Name"
+                                   Id="upload-contact-name"
+                                   @bind-Value="Model.ContactName"
+                                   For="() => Model.ContactName"
+                                   Visible="@IsVisible(() => Model.ContactName)" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <PhoneNumberField Label="Phone Number"
+                              Id="upload-phone"
+                              @bind-Value="Model.UploadPhoneNumber"
+                              For="() => Model.UploadPhoneNumber"
+                              Extension="@Model.UploadExt"
+                              ExtensionChanged="val => Model.UploadExt = val ?? string.Empty"
+                              ShowCountryCode="true"
+                              CountryCode="+1"
+                              CountryCodeDisabled="true"
+                              ExtensionLabel="Ext. (optional)"
+                              Numeric="true"
+                              Visible="@IsVisible(() => Model.UploadPhoneNumber)" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Email Address"
+                                   Id="upload-email"
+                                   Type="email"
+                                   @bind-Value="Model.UploadEmail"
+                                   For="() => Model.UploadEmail"
+                                   OnBlur="HandleUploadEmailBlur"
+                                   Visible="@IsVisible(() => Model.UploadEmail)"
+                                   Required="true" />
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Confirm Email Address"
+                                   Id="upload-confirm-email"
+                                   Type="email"
+                                   @bind-Value="Model.ConfirmUploadEmail"
+                                   For="() => Model.ConfirmUploadEmail"
+                                   OnBlur="HandleUploadEmailBlur"
+                                   Visible="@IsVisible(() => Model.ConfirmUploadEmail)"
+                                   Required="true" />
+            </div>
+        </div>
+
+        @* ================= CONTACT INFORMATION FOR RECORDS ================= *@
+        <h2 class="section-header">Contact Information for Records (after the file has been processed)</h2>
+
+        <label class="checkbox-label" for="sameAsUpload">
+            <input id="sameAsUpload"
+                   type="checkbox"
+                   checked="@Model.SameAsFileUpload"
+                   @onchange="@(e => OnCheckboxChanged((bool)(e.Value ?? false)))" />
+            <strong>Same as File Upload Contact</strong>
+        </label>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Contact Name"
+                                   Id="record-contact-name"
+                                   @bind-Value="Model.RecordContactName"
+                                   For="() => Model.RecordContactName"
+                                   Visible="@IsVisible(() => Model.RecordContactName)"
+                                   Disabled="@Model.SameAsFileUpload"
+                                   Required="true" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <PhoneNumberField Label="Phone Number"
+                              Id="record-phone"
+                              @bind-Value="Model.RecordPhone"
+                              For="() => Model.RecordPhone"
+                              Extension="@Model.RecordExt"
+                              ExtensionChanged="val => Model.RecordExt = val ?? string.Empty"
+                              ShowCountryCode="true"
+                              CountryCode="+1"
+                              CountryCodeDisabled="true"
+                              ExtensionLabel="Ext. (optional)"
+                              Visible="@IsVisible(() => Model.RecordPhone)"
+                              Numeric="true"
+                              Disabled="@Model.SameAsFileUpload" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Email Address"
+                                   Id="record-email"
+                                   Type="email"
+                                   @bind-Value="Model.RecordEmail"
+                                   For="() => Model.RecordEmail"
+                                   OnBlur="HandleRecordEmailBlur"
+                                   Visible="@IsVisible(() => Model.RecordEmail)"
+                                   Disabled="@Model.SameAsFileUpload"
+                                   Required="true"/>
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Confirm Email Address"
+                                   Id="record-confirm-email"
+                                   Type="email"
+                                   @bind-Value="Model.ConfirmationRecordEmail"
+                                   For="() => Model.ConfirmationRecordEmail"
+                                   OnBlur="HandleRecordEmailBlur"
+                                   Visible="@IsVisible(() => Model.ConfirmationRecordEmail)"
+                                   Disabled="@Model.SameAsFileUpload"
+                                   Required="true" />
+            </div>
+        </div>
+    </CascadingValue>
+</div>

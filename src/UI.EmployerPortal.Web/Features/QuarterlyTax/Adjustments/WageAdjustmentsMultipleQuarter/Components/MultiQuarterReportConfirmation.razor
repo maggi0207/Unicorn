@@ -1,0 +1,66 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading confirmation..." />
+}
+else
+{
+    <div class="confirmation-page">
+        <div class="confirmation-header">
+            <h1 class="confirmation-title">Confirmation</h1>
+            @* <div class="confirmation-meta">
+                <span class="meta-item">
+                    <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+                </span>
+            </div> *@
+        </div>
+
+        <hr class="header-divider" />
+
+        <div class="success-section">
+            <div class="success-message">
+                <span class="success-icon">
+                    <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+                </span>
+                <h2 class="success-text">Your Wage Adjustment has been submitted.</h2>
+            </div>
+            <div class="confirmation-number-section">
+                <p class="confirmation-number-label">Confirmation Number:</p>
+                <p class="confirmation-number-value">@ConfirmationNumber</p>
+            </div>
+        </div>
+
+        <hr class="options-divider" />
+        <div class="whats-next-section">
+            <div class="action-buttons">
+                <Button Text="ADJUST ANOTHER REPORT"
+                        Variant="ButtonVariant.Secondary"
+                        Size="ButtonSize.Medium"
+                        OnClick="HandleAdjustAnotherReportClicked" />
+                @if (_hasOutstandingBalance)
+
+                {
+                    <Button Text="PAYMENT OPTIONS"
+                            Variant="ButtonVariant.Secondary"
+                            Size="ButtonSize.Medium"
+                            OnClick="HandlePaymentOptionsClicked" />
+                }
+            </div>
+        </div>
+        <hr class="options-divider" />
+
+        <div class="save-page-section">
+            <Button Variant="ButtonVariant.Secondary"
+                    ShowBorder="false"
+                    OnClick="HandleSavePageClicked"
+                    AriaLabel="Save this page for your records">
+                <span class="save-icon">
+                    <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+                </span>
+                Save this page for your records
+            </Button>
+        </div>
+    </div>
+}

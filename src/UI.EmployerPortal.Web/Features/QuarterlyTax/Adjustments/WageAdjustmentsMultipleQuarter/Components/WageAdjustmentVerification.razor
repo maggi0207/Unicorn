@@ -1,0 +1,315 @@
+@using System.Globalization
+@using Microsoft.FluentUI.AspNetCore.Components.DesignTokens
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.Models
+@using static UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.WageAdjustmentsMultipleQuarter.WageAdjustmentsMultipleQuarterReport
+<div style="background-color:#F3F3F3">
+    <div class="collapsible-section">
+        <button type="button"
+                class="section-header"
+                @onclick="ToggleEmployeesExpanded"
+                aria-expanded="@_employeesExpanded.ToString()"
+                aria-controls="employees-section-content">
+            <h2 class="section-title" style="color:black">Adjustments</h2>
+            <div class="header-right">
+                <img src="images/menu/submenu-arrow.svg"
+                     alt=""
+                     width="20"
+                     height="20"
+                     class="chevron-icon @(_employeesExpanded ? "rotated" : "")"
+                     aria-hidden="true" />
+            </div>
+        </button>
+        @if (_employeesExpanded)
+        {
+
+            <br />
+            <div class="content-grid">
+                <div class="content-column">
+                    <table class="" style="table-layout: fixed; width: 100%" aria-label="Employee">
+
+                        <thead>
+                            <tr class="header-row" style="background-color:#F3F3F3">
+                                <th scope="col"  style="width: 180px;background-color:#F3F3F3;">
+                                    <div class="header-content header-content-left">
+                                    </div>
+                                </th>
+                                <th scope="col"  style="width: 180px;background-color:#F3F3F3;">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold fs-sm">Last Name</span>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="width: 180px;background-color:#F3F3F3;">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold fs-sm">First Name</span>
+                                    </div>
+                                </th>
+                                <th scope="col"  style="width: 180px;background-color:#F3F3F3;">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold fs-sm">SSN
+                                            <button type="button"
+                                            class="toggle-btn"
+                                            aria-label="@(ShowAllSSN ? "Hide All SSN" : "Show All SSN")"
+                                            @onclick="ToggleAllVisibility">
+                                                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    @if (ShowAllSSN)
+                                                    {
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    }
+                                                    else
+                                                    {
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                    }
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           <tr class="data-row">
+                               <th  scope="row" class="fw-normal fs-md"><b>Previously Reported</b></th>
+                               <td class="fw-normal fs-md">@EmployeeIdentifierViewModel.LastName</td>
+                               <td class="fw-normal fs-md">@EmployeeIdentifierViewModel.FirstName</td>
+                               <td class="fw-normal fs-md">
+                                    @_displaySSN
+                                    <button type="button"
+                                    class="toggle-btn"
+                                    @onclick="ToggleVisibility"
+                                    aria-label="@(ShowSSNView ? "Hide Previously Reported SSN" : "Show Previously Reported SSN")">
+                                        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            @if (ShowSSNView)
+                                            {
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            }
+                                            else
+                                            {
+                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                                            }
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                           <tr class="data-row">
+                               <th scope="row" class="fw-normal fs-md"><b>Corrected Information</b></th>
+                               <td class="fw-normal fs-md">@EmployeeIdentifierModel.LastName</td>
+                               <td class="fw-normal fs-md">@EmployeeIdentifierModel.FirstName</td>
+                               <td class="fw-normal fs-md">
+
+                                    @_displaySSNEdited
+                                    @if (!string.IsNullOrEmpty(_displaySSNEdited))
+                                    {
+                                        <button type="button"
+                                        class="toggle-btn"
+                                        @onclick="ToggleVisibilitySSNEdited"
+                                        aria-label="@(ShowSSNViewEdited ? "Hide Corrected Information SSN" : "Show Corrected Information SSN")">
+                                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                @if (ShowSSNViewEdited)
+                                                {
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                }
+                                                else
+                                                {
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                }
+                                            </svg>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <div style="padding-left:10px;">
+                        <h3 id="wage-adjustments-heading" class="wage-adjustments">Wage Adjustments</h3>
+                    </div>
+                    <table class="" style="table-layout: fixed; width: 100%" aria-labelledby="wage-adjustments-heading">
+                        <thead>
+                            <tr class="header-row">
+                                <th scope="col" class="" style="width: 140px;">
+                                    <div class="header-content header-content-left" style="background-color:#F3F3F3">
+                                        <span class="header-label fw-bold fs-sm">Quarter & Year</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="" style="width: 150px;">
+                                    <div class="header-content header-content-left" style="background-color:#F3F3F3">
+                                        <span class="header-label fw-bold fs-sm">Quarterly Wages</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="" style="width: 200px;">
+                                    <div class="header-content header-content-left" style="background-color:#F3F3F3">
+                                        <span class="header-label fw-bold fs-sm">Adjusted Quarterly Wages</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="" style="width: 380px;">
+                                    <div class="header-content header-content-left" style="background-color:#F3F3F3">
+                                        <span class="header-label fw-bold fs-sm">Adjustment Reason Wages</span>
+                                    </div>
+                                </th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var quarterWage in MultiQuarterWageAdjustment)
+                            {
+
+                                @if (quarterWage.AdjustedQuarterlyWage.HasValue)
+                                {
+                                    <tr class="data-row">
+                                        <th  scope="row" class="fw-normal fs-md">&nbsp;<span>Q</span>@quarterWage.Quarter @quarterWage.Year </th>
+                                        <td class="fw-normal fs-md">&nbsp;<span>$</span>@quarterWage.QuarterlyWage </td>
+
+                                        <td class="fw-normal fs-md">
+                                            @if (quarterWage.AdjustedQuarterlyWage != null)
+                                            {
+                                                <b>
+                                                    <span>$</span>
+                                                    @quarterWage.AdjustedQuarterlyWage?.ToString("N2", CultureInfo.InvariantCulture)
+                                                </b>
+                                            }
+
+                                        </td>
+                                        <td class="fw-normal fs-md">
+                                            <b>
+                                                @DropDownItemsForReason.FirstOrDefault(x => x.Value.ToString() == quarterWage.AdjustmentReason)?.Text
+                                            </b>
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="edit-column">
+                    <button type="button" class="edit-link" aria-label="Edit tax report details" @onclick="TriggerEdit">
+                        <span class="edit-icon"> <img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" /> </span> Edit
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+
+    [Parameter]
+    public EmployeeIdentifierModel EmployeeIdentifierModel { get; set; } = new();
+
+    [Parameter]
+    public EmployeeIdentifierViewModel EmployeeIdentifierViewModel { get; set; } = new();
+
+    [Parameter]
+    public List<WageAdjustmentModelOnly> MultiQuarterWageAdjustment { get; set; } = new();
+
+    [Parameter]
+    public List<DropDownItem> DropDownItemsForReason { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnEditClick { get; set; }
+
+
+    private bool _employeesExpanded = true;
+
+    private async Task TriggerEdit()
+    {
+        await OnEditClick.InvokeAsync();
+    }
+
+    private void ToggleEmployeesExpanded()
+    {
+        _employeesExpanded = !_employeesExpanded;
+    }
+
+    private string? _displaySSN = string.Empty;
+    private bool ShowSSNView = false;
+    private bool ShowAllSSN = false;
+
+    private string? _displaySSNEdited = string.Empty;
+    private bool ShowSSNViewEdited = false;
+
+    [Parameter]
+    public EventCallback<bool> ShowSSNChanged { get; set; }
+
+    [Parameter]
+    public bool ShowSSN { get; set; }
+
+    private void ToggleAllVisibility()
+    {
+        ShowAllSSN = !ShowAllSSN;
+        if (ShowAllSSN)
+        {
+            if (!ShowSSNView)
+            {
+                _displaySSN = EmployeeIdentifierViewModel.SSN;
+                ShowSSNView = !ShowSSNView;
+            }
+            if (!ShowSSNViewEdited)
+            {
+                _displaySSNEdited = EmployeeIdentifierModel.SSN;
+                ShowSSNViewEdited = !ShowSSNViewEdited;
+            }
+        }
+        else
+        {
+            if (ShowSSNView)
+            {
+                _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+                ShowSSNView = !ShowSSNView;
+            }
+            if (ShowSSNViewEdited)
+            {
+                _displaySSNEdited = SsnHelper.MaskSSN(EmployeeIdentifierModel.SSN);
+                ShowSSNViewEdited = !ShowSSNViewEdited;
+            }
+        }
+
+    }
+
+    private void ToggleVisibility()
+    {
+        ShowSSNView = !ShowSSNView;
+        if (ShowSSNView)
+        {
+            _displaySSN = EmployeeIdentifierViewModel.SSN;
+        }
+        else
+        {
+            _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+        }
+
+    }
+    private void ToggleVisibilitySSNEdited()
+    {
+        ShowSSNViewEdited = !ShowSSNViewEdited;
+        if (ShowSSNViewEdited)
+        {
+            _displaySSNEdited = EmployeeIdentifierModel.SSN;
+        }
+        else
+        {
+            _displaySSNEdited = SsnHelper.MaskSSN(EmployeeIdentifierModel.SSN);
+        }
+
+    }
+    protected override void OnParametersSet()
+    {
+
+        _displaySSN = SsnHelper.MaskSSN(EmployeeIdentifierViewModel.SSN);
+        _displaySSNEdited = SsnHelper.MaskSSN(EmployeeIdentifierModel.SSN);
+
+    }
+}
+
+

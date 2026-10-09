@@ -1,0 +1,80 @@
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+<PageTitle>Confirmation</PageTitle>
+
+<div class="confirmation-page">
+<div class="confirmation-header">
+<h1 id="confirmation-heading" class="confirmation-title" tabindex="-1">Confirmation</h1>
+        <div class="confirmation-meta">
+            <span class="meta-item">
+                <span class="meta-label">Reporting Quarter:</span> @ReportingQuarter
+            </span>
+            <span class="meta-item">
+                <span class="meta-label">Due Date:</span> @DueDate?.ToString("M/d/yyyy")
+            </span>
+            <span class="meta-item">
+                <span class="meta-label">Effective Date:</span> @EffectiveDate?.ToString("M/d/yyyy")
+            </span>
+        </div>
+    </div>
+    <hr class="header-divider" />
+    <div class="success-section">
+        <div class="success-message" role="alert">
+            <span class="success-icon">
+                <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+            </span>
+            <h2 class="success-text">Your First Quarter Deferral election has been submitted.</h2>
+        </div>
+        <div class="confirmation-number-section">
+            <p class="confirmation-number-label">Confirmation Number:</p>
+            <p class="confirmation-number-value">@ConfirmationNumber</p>
+        </div>
+    </div>
+    <hr class="options-divider" />
+    <div class="whats-next-section">
+        <h2 class="whats-next-title">What's Next?</h2>
+        <div class="policy-highlights">
+            <p class="note-label">You will be qualified for deferral this year provided you:</p>
+            <ul>
+                <li class="note-text">Have a first quarter tax liability of $1,000 or more.</li>
+                <li class="note-text">Pay all outstanding amounts due for prior quarters, including interest, penalties, or other fees, by April 30.</li>
+                <li class="note-text">File your tax and wage reports electronically for all calendar quarters of the year elected for deferral.</li>
+                <li class="note-text">File your first quarter contribution/wage report and pay at least 40% of the first quarter tax liability by April 30.</li>
+                <li class="note-text">Pay the next 30% of the first quarter and all second quarter tax liability by July 31.</li>
+                <li class="note-text">Pay the next 20% of the first quarter and all third quarter tax liability by October 31.</li>
+                <li class="note-text">Pay the remaining 10% of the first quarter and all fourth quarter tax liability by January 31 of the next year.</li>
+            </ul>
+            <p class="body-text">
+
+                If you fail to qualify or are subsequently disqualified from deferral based on failure to meet any of the above requirements, you will receive a Tax Deficiency Initial Determination for the full amount of tax due for first quarter including interest assessed retroactive to April 30.
+            </p>
+            <p class="body-text">
+
+                Please note that any deferral amount not paid prior to July 31 will not be included in your account balance for purposes of computing your tax rate for the next calendar year. This could result in being assigned a higher rate.
+            </p>
+            <p class="body-text">
+
+                If you have any questions, please call (608) 261-6700.
+            </p>
+        </div>
+        <div class="action-buttons">
+            <Button Text="FILE ANOTHER REPORT"
+                    Variant="ButtonVariant.Secondary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleFileAnotherReportClicked"
+                    AriaLabel="File another report" />
+        </div>
+    </div>
+    <hr class="options-divider" />
+    <div class="save-page-section">
+        <Button Variant="ButtonVariant.Secondary"
+                ShowBorder="false"
+                OnClick="HandleSavePageClicked"
+                AriaLabel="Click here to save this page for your records">
+            <span class="save-icon">
+                <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            </span>
+            Click here to save this page for your records
+        </Button>
+    </div>
+</div>

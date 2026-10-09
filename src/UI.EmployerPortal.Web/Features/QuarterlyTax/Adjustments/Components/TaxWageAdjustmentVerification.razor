@@ -1,0 +1,175 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+
+@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
+
+<div class="verification-container">
+
+    <h1 class="page-title">Verification</h1>
+    <p class="verification-subtitle"> <strong>Reporting Quarter:</strong> @PreviousTaxWageAdjustmentModel.PreviousQuarterYear </p>
+    <div class="custom-border"></div><br />
+    <p class="instructions">
+        Verify the information below and then click <strong>"Submit Adjustment."</strong>
+    </p>
+
+    <section class="section-card">
+        <div class="section-header">
+            <h2 class="section-title">Tax Report Adjustment Details</h2>
+
+            <div class="edit-column">
+                    <button type="button"
+                            class="chevron-border"
+                            @onclick="ToggleExpand"
+                            aria-expanded="@_isExpanded"
+                            aria-controls="tax-details-content"
+                            aria-label="@(_isExpanded ? "Collapse Tax Report Adjustment Details" : "Expand Tax Report Adjustment Details")">
+                        <img src="images/menu/submenu-arrow.svg"
+                             alt=""
+                             width="24"
+                             height="24"
+                             class="chevron-icon @(_isExpanded ? "rotated" : "")"
+                             aria-hidden="true" />
+                    </button>
+                    <button type="button" class="edit-link" @onclick="@HandleEditAdjustmentsClick" aria-label="Edit tax report details">
+                    <span class="edit-icon"> <img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" /> </span> Edit
+                </button>
+            </div>
+        </div>
+        @if (_isExpanded)
+        {
+            <div id="tax-details-content">
+                <p class="section-description">
+                    1. Monthly data should count all full‑time and part‑time workers in covered employment who worked during or received pay for the payroll period which includes the 12th of the month.
+                </p>
+
+                <div class="table-scroll">
+                    <table class="adjustment-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col" class="bold-value">Previously Reported</th>
+                                <th scope="col" class="bold-value">Corrected Information</th>
+                                <th scope="col" class="bold-value">Adjustment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="subSection">1a. Employee Count 1st Month - @PreviousTaxWageAdjustmentModel.PreviousMonth1</th>
+                                <td class="bold-value">@PreviousTaxWageAdjustmentModel.PreviousEmployeeCountQtr1</td>
+                                <td class="bold-value">@TaxAndWageAdjustmentEntryModel.EmployeeCountQtr1</td>
+                                <td class="bold-value">@AdjustedTaxWageModel.AdjustedEmployeeCountQtr1</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="subSection">1b. Employee Count 2nd Month - @PreviousTaxWageAdjustmentModel.PreviousMonth2</th>
+                                <td class="bold-value">@PreviousTaxWageAdjustmentModel.PreviousEmployeeCountQtr2</td>
+                                <td class="bold-value">@TaxAndWageAdjustmentEntryModel.EmployeeCountQtr2</td>
+                                <td class="bold-value">@AdjustedTaxWageModel.AdjustedEmployeeCountQtr2</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="subSection">1c. Employee Count 3rd Month - @PreviousTaxWageAdjustmentModel.PreviousMonth3</th>
+                                <td class="bold-value">@PreviousTaxWageAdjustmentModel.PreviousEmployeeCountQtr3</td>
+                                <td class="bold-value">@TaxAndWageAdjustmentEntryModel.EmployeeCountQtr3</td>
+                                <td class="bold-value">@AdjustedTaxWageModel.AdjustedEmployeeCountQtr3</td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">2. Total Gross Covered Wages</th>
+                                <td class="bold-value">@((PreviousTaxWageAdjustmentModel.PreviousTotalGrossCoveredWages ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((TaxAndWageAdjustmentEntryModel.TotalGrossCoveredWages ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((AdjustedTaxWageModel.AdjustedTotalGrossCoveredWages ?? 0).ToString("C"))</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3. Less Exclusions for Wages Over @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold("C0")</th>
+                                <td class="bold-value">@((PreviousTaxWageAdjustmentModel.PreviousLessExclusionWages ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((TaxAndWageAdjustmentEntryModel.LessExclusionWages ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((AdjustedTaxWageModel.AdjustedLessExclusionWages ?? 0).ToString("C"))</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4. Defined (Taxable) Payroll</th>
+                                <td class="bold-value">@((PreviousTaxWageAdjustmentModel.PreviousDefinedTaxableIncome ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((TaxAndWageAdjustmentEntryModel.DefinedTaxableIncome ?? 0).ToString("C"))</td>
+                                <td class="bold-value">@((AdjustedTaxWageModel.AdjustedDefinedTaxableIncome ?? 0).ToString("C"))</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <dl class="adjustment-summary">
+                    <div class="summary-row">
+                        <dt>5. Adjustment Reason</dt>
+                        <dd class="bold-value">@TaxAndWageAdjustmentEntryModel.ReasonText</dd>
+                    </div>
+                    <div class="summary-row">
+                        <dt>6. Current Tax Rate</dt>
+                        <dd class="bold-value">@TaxAndWageAdjustmentEntryModel.CurrentTaxRate.ToString("F4")</dd>
+                    </div>
+                    <div class="summary-row">
+                        <dt>7. Tax Assessed (Overpaid)</dt>
+                        <dd class="bold-value">
+                            @if (AdjustedTaxWageModel.AdjustedTaxAssessed.HasValue)
+                            {
+                                @AdjustedTaxWageModel.AdjustedTaxAssessed!.Value.ToString("$#,##0.00;($#,##0.00)")
+                            }
+                            else
+                            {
+                                @:$0.00
+                            }
+                        </dd>
+                    </div>
+                    @if (!string.IsNullOrEmpty(@TaxAndWageAdjustmentEntryModel.WageChangeText))
+                    {
+                        <div class="summary-row">
+                            <dt>8. Reason for Wage Change</dt>
+                            <dd class="bold-value">@TaxAndWageAdjustmentEntryModel.WageChangeText</dd>
+                        </div>
+                    }
+                </dl>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+
+    [Parameter]
+    public TaxAndWageAdjustmentEntryModel TaxAndWageAdjustmentEntryModel { get; set; } = new();
+
+    [Parameter]
+    public PreviousTaxWageAdjustmentModel PreviousTaxWageAdjustmentModel { get; set; } = new();
+
+    [Parameter]
+    public AdjustedTaxWageModel AdjustedTaxWageModel { get; set; } = new();
+
+    private bool _isExpanded;
+
+    /// <summary>
+    /// Event callback invoked when the Edit link is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnEditAdjustments { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the component is initially expanded.
+    /// </summary>
+    [Parameter]
+    public bool IsExpanded { get; set; } = true;
+
+    /// <summary>
+    /// OnInitialized
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        _isExpanded = IsExpanded;
+    }
+
+    private void ToggleExpand()
+    {
+        _isExpanded = !_isExpanded;
+    }
+
+    private async Task HandleEditAdjustmentsClick()
+    {
+        await OnEditAdjustments.InvokeAsync();
+    }
+
+}

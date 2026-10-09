@@ -1,0 +1,452 @@
+@page "/quarterly-tax/wage-upload-details"
+@page "/quarterly-tax/test/wage-upload-details"
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<div class="wage-container @(_isSourceTestEnv ? "test-env-page" : "")">
+
+    <!--SECTION 1-->
+    <section class="primary-content">
+        <PageTitle>@TestEnvironmentSource.Title("Wage File Upload Details", _isSourceTestEnv)</PageTitle>
+        <h1 class="page-header">@TestEnvironmentSource.Heading("Wage File Upload Details", _isSourceTestEnv)</h1>
+        <TestEnvironmentBanner IsTestEnvironment="@_isSourceTestEnv"
+                               Description="These are the results of a test upload." />
+        <p class="description">
+            This screen displays detailed information about a wage upload file, including the file name, upload date, file status and
+            error count. If the test file contained any errors that would cause the report(s) within the file to be rejected, the errors for
+            those report(s) display on this screen.
+        </p>
+
+        <p class="description">
+            For more information on the action you would take to correct errors in your file, select the Wage Report Error Messages from the
+            Employer Home page.
+        </p>
+    </section>
+
+    <!--SECTION 2-->
+    <section class="ownership-card" role="region" aria-labelledby="statusHeading">
+
+        <div class="status-layout">
+
+            <div class="status-item">
+                <div>
+                    <div class="label">File Status</div>
+                    <div class="value-bold">@Model.FileStatus</div>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div>
+                    <div class="label">Reports Accepted </div>
+                    <div class="value-bold">@Model.ReportsAccepted</div>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div>
+                    <div class="label">Reports Rejected</div>
+                    <div class="value-bold">@Model.ReportsRejected</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!--SECTION 3-->
+    <div class="info-note" role="note">
+        <div class="info-note-icon">
+            <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/information-notification.svg" alt="Information" />
+        </div>
+        <div class="info-note-text">
+            Please note that it is possible for some reports that are accepted for processing to take
+            one to two business days to post to the account(s).
+        </div>
+    </div>
+
+    <!--SECTION 4-->
+    <section class="ownership-card" role="region" aria-labelledby="fileDetailsHeading">
+        <div class="grid-layout">
+            <div>
+                <span class="label">File Name</span>
+                <span class="value-bold">@Model.FileName</span>
+            </div>
+
+            <div>
+                <span class="label">Upload Date</span>
+                <span class="value-bold">
+                    @(Model.UploadDate?.ToString("MM/dd/yyyy"))
+                </span>
+            </div>
+            <div>
+                <span class="label">Uploaded By</span>
+                <span class="value-bold">@Model.UploadedBy</span>
+            </div>
+
+            <div>
+                <span class="label">File Type</span>
+                <span class="value-bold">@Model.FileType</span>
+            </div>
+
+        </div>
+
+        <div class="grid-layout">
+            <div>
+                <span class="label">File Size</span>
+                <span class="value-bold">@Model.FileSize</span>
+            </div>
+
+            <div>
+                <span class="label">Record Count</span>
+                <span class="value-bold">@Model.RecordCount</span>
+            </div>
+
+            <div>
+                <span class="label">Valid Format</span>
+                <span class="value-bold">@Model.IsValidFormat</span>
+            </div>
+
+            <div>
+                <span class="label">Non Fatal Errors</span>
+                <span class="value-bold">@Model.NonFatalErrors</span>
+            </div>
+
+            <div>
+                <span class="label">Fatal Errors</span>
+                <span class="value-bold">@Model.FatalErrors</span>
+            </div>
+        </div>
+    </section>
+
+    <br />
+    <!--Fatal errors-->
+    @*  <section class="ownership-card" aria-live="assertive" role="region" aria-labelledby="fatalErrorsHeading"> *@
+    <div class="sub-header">Fatal Errors</div>
+
+    <p class="section-text">
+        The following errors require correction before the wage report(s) can be processed.
+        Please correct the errors and resubmit the report(s).
+    </p>
+
+    @if (Model.FatalErrorRows.Any())
+    {
+        <div class="table-container">
+            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Fatal Errors">
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell col-ui" tabindex="0"
+                            @onclick="@(() => SortFatal("uiAccount"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "uiAccount"))"
+                            aria-sort="@GetFatalAriaSort("uiAccount")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label multiline">UI<br />Account</span>
+                                @GetFatalSortIcon("uiAccount")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-fein" tabindex="0"
+                            @onclick="@(() => SortFatal("fein"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "fein"))"
+                            aria-sort="@GetFatalAriaSort("fein")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label">FEIN</span>
+                                @GetFatalSortIcon("fein")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-quarter" tabindex="0"
+                            @onclick="@(() => SortFatal("quarterYear"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "quarterYear"))"
+                            aria-sort="@GetFatalAriaSort("quarterYear")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label multiline">Quarter<br />/Year</span>
+                                @GetFatalSortIcon("quarterYear")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-ssn" tabindex="0"
+                            @onclick="@(() => SortFatal("ssn"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "ssn"))"
+                            aria-sort="@GetFatalAriaSort("ssn")">
+                            <div class="header-content header-content-left">
+                                <span class="header-label">SSN</span>
+                                @GetFatalSortIcon("ssn")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-error" tabindex="0"
+                            @onclick="@(() => SortFatal("errorNumber"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "errorNumber"))"
+                            aria-sort="@GetFatalAriaSort("errorNumber")">
+                            <div class="header-content header-content-right">
+                                <div class="header-inline">
+                                    <div class="header-label-stacked">
+                                        <span>Error</span>
+                                        <span class="hash">#</span>
+                                    </div>
+                                </div>
+                                @GetFatalSortIcon("errorNumber")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-desc" tabindex="0"
+                            @onclick="@(() => SortFatal("description"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "description"))"
+                            aria-sort="@GetFatalAriaSort("description")">
+                            <div class="header-content">
+                                <span class="header-label">Description</span>
+                                @GetFatalSortIcon("description")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-data" tabindex="0"
+                            @onclick="@(() => SortFatal("data"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "data"))"
+                            aria-sort="@GetFatalAriaSort("data")">
+                            <div class="header-content header-content-right">
+                                <span class="header-label">Data</span>
+                                @GetFatalSortIcon("data")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-line" tabindex="0"
+                            @onclick="@(() => SortFatal("line"))"
+                            @onkeydown="@(e => HandleHeaderKeyDown(e, "line"))"
+                            aria-sort="@GetFatalAriaSort("line")">
+                            <div class="header-content header-content-right">
+                                <div class="header-inline">
+                                    <div class="header-label-stacked">
+                                        <span>Line</span>
+                                        <span class="hash">#</span>
+                                    </div>
+                                </div>
+                                @GetFatalSortIcon("line")
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in PagedFatalErrors)
+                    {
+                        <tr class="data-row">
+                            <td class="col-ui">@row.UIAccountNumber</td>
+                            <td class="col-fein">@row.FEIN</td>
+                            <td class="col-quarter">@row.QuarterYear</td>
+                            <td class="col-ssn">@row.SSN</td>
+                            <td class="col-error">@row.ErrorNumber</td>
+                            <td class="col-desc">@row.Description</td>
+                            <td class="col-data">@row.Data</td>
+                            <td class="col-line">@row.LineNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- PAGINATION -->
+            @if (Model.FatalErrorRows.Count() > 5)
+            {
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-container" aria-label="Fatal errors pagination">
+                        <!-- Rows per page -->
+                        <div class="rows-per-page">
+                            <label>Rows per page</label>
+                            <select class="page-size-select" @onchange="HandleFatalPageSizeChanged">
+                                <option value="5" selected="@(_fatalPageSize == 5)">5</option>
+                                <option value="10" selected="@(_fatalPageSize == 10)">10</option>
+                                <option value="25" selected="@(_fatalPageSize == 15)">25</option>
+                            </select>
+                        </div>
+                        <!-- Page info -->
+                        <span class="page-info" aria-live="polite">
+                            @FatalStart-@FatalEnd of @Model.FatalErrorRows.Count()
+                        </span>
+                        <!-- Buttons -->
+                        <button class="paging-btn" @onclick="FatalFirst" disabled="@(_fatalCurrentPage <= 1)">
+                            <img src="@Assets[_fatalCurrentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="FatalPrev" disabled="@(_fatalCurrentPage <= 1)">
+                            <img src="@Assets[_fatalCurrentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="FatalNext" disabled="@(_fatalCurrentPage >= FatalTotalPages)">
+                            <img src="@Assets[_fatalCurrentPage >= FatalTotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="FatalLast" disabled="@(_fatalCurrentPage >= FatalTotalPages)">
+                            <img src="@Assets[_fatalCurrentPage >= FatalTotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" />
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+    }
+    else
+    {
+        @foreach (var msg in Model.FileErrors)
+        {
+            <p class="success-text">@msg</p>
+        }
+    }
+    <br />
+    @*  </section> *@
+
+    <!--Non Fatal Errors-->
+    @*  <section class="ownership-card" aria-live="assertive"> *@
+        
+    <div class="sub-header">Non Fatal Errors</div>
+
+    <p class="section-text">
+        The following data require manual review by the department. Please review to ensure there are no errors. You will
+        be contacted if more information is needed.
+    </p>
+
+    @if (Model.NonFatalErrorRows.Any())
+    {
+        <div class="table-container">
+            <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Non Fatal Errors">
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell col-ui" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("uiAccount")"
+                            @onclick="@(() => SortNonFatal("uiAccount"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "uiAccount"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label multiline">UI<br />Account</span>
+                                @GetNonFatalSortIcon("uiAccount")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-fein" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("fein")"
+                            @onclick="@(() => SortNonFatal("fein"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "fein"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label">FEIN</span>
+                                @GetNonFatalSortIcon("fein")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-quarter" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("quarterYear")"
+                            @onclick="@(() => SortNonFatal("quarterYear"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "quarterYear"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label multiline">Quarter<br />/Year</span>
+                                @GetNonFatalSortIcon("quarterYear")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-ssn" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("ssn")"
+                            @onclick="@(() => SortNonFatal("ssn"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "ssn"))">
+                            <div class="header-content header-content-left">
+                                <span class="header-label">SSN</span>
+                                @GetNonFatalSortIcon("ssn")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-error" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("errorNumber")"
+                            @onclick="@(() => SortNonFatal("errorNumber"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "errorNumber"))">
+                            <div class="header-content header-content-right">
+                                <div class="header-inline">
+                                    <div class="header-label-stacked">
+                                        <span>Error</span>
+                                        <span class="hash">#</span>
+                                    </div>
+                                </div>
+                                @GetNonFatalSortIcon("errorNumber")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-desc" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("description")"
+                            @onclick="@(() => SortNonFatal("description"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "description"))">
+                            <div class="header-content">
+                                <span class="header-label">Description</span>
+                                @GetNonFatalSortIcon("description")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-data" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("data")"
+                            @onclick="@(() => SortNonFatal("data"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "data"))">
+                            <div class="header-content header-content-right">
+                                <span class="header-label">Data</span>
+                                @GetNonFatalSortIcon("data")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell col-line" tabindex="0"
+                            aria-sort="@GetNonFatalAriaSort("line")"
+                            @onclick="@(() => SortNonFatal("line"))"
+                            @onkeydown="@(e => HandleNonFatalHeaderKeyDown(e, "line"))">
+                            <div class="header-content header-content-right">
+                                <div class="header-inline">
+                                    <div class="header-label-stacked">
+                                        <span>Line</span>
+                                        <span class="hash">#</span>
+                                    </div>
+                                </div>
+                                @GetNonFatalSortIcon("line")
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in PagedNonFatalErrors)
+                    {
+                        <tr class="data-row">
+                            <td class="col-ui">@row.UIAccountNumber</td>
+                            <td class="col-fein">@row.FEIN</td>
+                            <td class="col-quarter">@row.QuarterYear</td>
+                            <td class="col-ssn">@row.SSN</td>
+                            <td class="col-error">@row.ErrorNumber</td>
+                            <td class="col-desc">@row.Description</td>
+                            <td class="col-data">@row.Data</td>
+                            <td class="col-line">@row.LineNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+               
+            @if (Model.NonFatalErrorRows.Count() > 5)
+            {
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-container">
+                        <div class="rows-per-page">
+                            <label>Rows per page</label>
+                            <select class="page-size-select" @onchange="HandleNonFatalPageSizeChanged">
+                                <option value="5" selected="@(_nonFatalPageSize == 5)">5</option>
+                                <option value="10" selected="@(_nonFatalPageSize == 10)">10</option>
+                                <option value="25" selected="@(_nonFatalPageSize == 25)">25</option>
+                            </select>
+                        </div>
+                        <!-- Page info -->
+                        <span class="page-info">
+                            @NonFatalStart-@NonFatalEnd of @Model.NonFatalErrorRows.Count()
+                        </span>
+                        <button class="paging-btn"
+                                disabled="@(_nonFatalCurrentPage <= 1)"
+                                @onclick="NonFatalFirstPage">
+                            <img src="@Assets[_nonFatalCurrentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" />
+                        </button>
+                        <button class="paging-btn"
+                                disabled="@(_nonFatalCurrentPage <= 1)"
+                                @onclick="NonFatalPreviousPage">
+                            <img src="@Assets[_nonFatalCurrentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" />
+                        </button>
+                        <button class="paging-btn"
+                                disabled="@(_nonFatalCurrentPage >= NonFatalTotalPages)"
+                                @onclick="NonFatalNextPage">
+                            <img src="@Assets[_nonFatalCurrentPage >= NonFatalTotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" />
+                        </button>
+                        <button class="paging-btn"
+                                disabled="@(_nonFatalCurrentPage >= NonFatalTotalPages)"
+                                @onclick="NonFatalLastPage">
+                            <img src="@Assets[_nonFatalCurrentPage >= NonFatalTotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" />
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @foreach (var msg in Model.Warnings)
+        {
+            <p class="success-text">@msg</p>
+        }
+    }
+    @* </section> *@
+
+</div>

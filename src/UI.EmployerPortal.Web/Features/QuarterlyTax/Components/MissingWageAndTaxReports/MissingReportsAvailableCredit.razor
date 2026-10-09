@@ -1,0 +1,44 @@
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+
+@if (_showMessage)
+{
+    <div class="available-credit-page" aria-labelledby="available-credit-heading">
+        <h3 id="available-credit-heading" class="available-credit">Available Credit</h3>
+        <div class="available-credit-body">
+            <span class="available-credit-amount" aria-label="@($"Total Available Credit: {availableCredit}")">@availableCredit</span>
+            <br />
+            <span class="available-credit">Total Available Credit</span>
+            <br />
+            <p class="available-credit-text">@availableCreditText</p>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    [Inject]
+    private ITaxAndWageEntryService TaxAndWageEntryService { get; set; } = default!;
+
+    private string availableCredit = String.Empty;
+    private bool _showMessage { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAvailableCredit();
+    }
+
+    private const string availableCreditText = "Your available credit will be applied to any liability created when " +
+    "filing quarterly reports through this application. If you have questions before filing this report about the " +
+    "available credit in this account, you can contact us at (608) 261-6700 or email us at taxnet@dwd.wisconsin.gov.";
+
+    private async Task GetAvailableCredit()
+    {
+        var result = await TaxAndWageEntryService.GetAvailableCredit();
+        if(result == 0)
+        {
+            _showMessage = false;
+        }
+        availableCredit = result.ToString("C2");
+    }
+}

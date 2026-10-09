@@ -1,0 +1,112 @@
+@page "/quarterly-tax/tax-report-only"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Pages
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.TaxEntry
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Tax Report</PageTitle>
+<div class="page-content">
+    @if (_pageState == PageState.Confirmation && IsTaxWageUploadFlow)
+    {
+        <TaxWageUploadConfirmation ReportingQuarter="@_reportData.ReportingQuarter"
+                                   DueDate="@_reportData.DueDate"
+                                   EffectiveDate="@DateTime.Now"
+                                   ConfirmationNumber="@_confirmationNumber" />
+    }
+    else if (_pageState == PageState.Confirmation)
+    {
+        <ReportConfirmation ReportingQuarter="@_reportData.ReportingQuarter"
+                            DueDate="@_reportData.DueDate"
+                            EffectiveDate="@DateTime.Now"
+                            ConfirmationNumber="@_confirmationNumber"
+                            FiledQuarter="@_reportData.Quarter"
+                            FiledYear="@_reportData.TaxYear"
+                            FiledFilingType="@_reportData.FilingType"
+                            RequiresWageAdjustment="@(!string.IsNullOrWhiteSpace(_reportData.TaxEntryData.GrossWageDiscrepancyExplanation))" />
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading report data..." />
+    }
+    else
+    {
+
+        <EditForm EditContext="_editContext">
+            <DataAnnotationsValidator />
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
+            <Wizard Steps="@_wizardSteps"
+                    @bind-CurrentStep="@_currentStep"
+                    UseTextStepper="true"
+                    ShowCancelButton="true"
+                    ShowBackButton="true"
+                    OnBackClick="HandleBackClick"
+                    OnCancelClick="HandleCancel"
+                    OnSaveAndQuitClick="HandleSaveAndQuitClick"
+                    OnActionClick="HandleActionClick"
+                    AutoNavigateOnAction="false"
+                    DisableBackOnFirstStep="false">
+
+                @if (_currentStep == 1)
+                {
+                    <TaxEntry TaxDataEntry="@_reportData.TaxEntryData"
+                              @ref="_taxEntryRef" />
+                }
+                else if (_hasSubjectivityStep && _currentStep == 2)
+                {
+                    <SubjectivityQuestionsStep Categories="@_subjectivityResponse?.EmployerPortalPayrollQuestionCategories"
+                                               Answers="@_subjectivityAnswers"
+                                               AnswersChanged="@(a => _subjectivityAnswers = a)"
+                                               ShowValidation="@_showValidationSummary"
+                                               FieldIds="@_validationFieldIds"
+                                               @ref="_subjectivityStepRef" />
+                }
+                else if ((_hasSubjectivityStep && _currentStep == 3) || (!_hasSubjectivityStep && _currentStep == 2))
+                {
+                    @VerificationHeader
+                    <TaxDetails ReportData="@_reportData.TaxDetailsData"
+                                OnEdit="HandleTaxDetailsEdit" />
+                    @if (_hasSubjectivityStep && _subjectivityResponse != null)
+                    {
+                        <SubjectivityDetails Categories="@_subjectivityResponse.EmployerPortalPayrollQuestionCategories"
+                                             Answers="@_subjectivityAnswers"
+                                             OnEdit="HandleSubjectivityEdit" />
+                    }
+                }
+
+            </Wizard>
+        </EditForm>
+    }
+</div>
+
+
+<LeaveReportModal IsOpen="@_showLeaveModal"
+                  OnClose="HandleLeaveModalClose"
+                  OnConfirm="HandleLeaveModalConfirm" />
+
+<SaveAndQuitModal IsOpen="@_showSaveAndQuitModal"
+                  OnClose="HandleSaveAndQuitModalClose"
+                  OnConfirm="HandleSaveAndQuitModalConfirm"
+                  HasSubjectivity="@_hasSubjectivityStep" />
+
+<UnsavedChangesModal IsOpen="@_showUnsavedChangesModal"
+                     OnStay="HandleUnsavedChangesStayOnReport"
+                     OnCancelReport="HandleUnsavedChangesCancelReport" />
+@code {
+    private RenderFragment VerificationHeader =>
+        @<text>
+            <h1 class="page-title">Verification</h1>
+            <div class="page-subheader">
+                <span class="subheader-item"><strong>Reporting Quarter:</strong> <span Class="subheader-value">@_reportData.ReportingQuarter</span></span>
+                <span class="subheader-item"><strong>Due Date:</strong> <span Class="subheader-value">@_reportData.DueDate.ToString("M/d/yyyy")</span></span>
+                <span class="subheader-item"><strong>Effective Date:</strong> <span Class="subheader-value">@DateTime.Now.ToString("M/d/yyyy")</span></span>
+            </div>
+            <p class="body-text">Verify the information below and then click "Submit Report."</p>
+            <p class="note-text"> <strong>Note:</strong> Tax or wage reports submitted after the due date may result in interest and/or penalty charges.</p>
+        </text>;
+}

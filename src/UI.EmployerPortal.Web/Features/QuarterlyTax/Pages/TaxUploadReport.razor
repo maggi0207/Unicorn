@@ -1,0 +1,71 @@
+@page "/quarterly-tax/tax-file-upload"
+@page "/quarterly-tax/test/tax-file-upload"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.TaxUpload
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.WageUpload
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@TestEnvironmentSource.Title("Tax File Upload", _isSourceTestEnv)</PageTitle>
+<div class="page-content @(_isSourceTestEnv ? "test-env-page" : "")">
+    <TestEnvironmentBanner
+        IsTestEnvironment="@_isSourceTestEnv"
+        Description="Files uploaded here are validated only - nothing is filed against a live UI account." />
+
+    <AnnouncementBanner AnnouncementType="@(_isSourceTestEnv ? AnnouncementType.VRUNPAGES : AnnouncementType.WAGETAXFILING)" />
+
+    @if (_isSubmitted)
+    {
+        <TaxUploadConfirmation
+            ConfirmationNumber="@_confirmationNumber"
+            IsSourceTestEnv="@_isSourceTestEnv"
+            OnFileAnotherReportClicked="HandleFileAnotherReportClick" />
+    }
+    else if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else
+    {
+        <CascadingValue Value="_editContext" IsFixed="false">
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary"
+                                    FieldIds="@_fieldIds"
+                                    SummaryId="tax-upload-validation-summary" />
+        </CascadingValue>
+
+        <div class="tax-upload-header">
+            <h1 class="page-title">Tax Report File Upload</h1>
+
+            <p class="page-subtitle">
+                This screen allows you to upload tax report files. You will also need to provide an email address and phone number.
+            </p>
+
+        <div class="header-divider"></div>
+
+        <ExternalLink Url="https://dwd.wisconsin.gov/uitax/taxreportfilelayout.htm" Text="Tax Report File Layout"/>
+
+        </div>
+
+        <ContactInformationEntry Model="@_reportData.ContactData"
+                                 @ref="_contactInfoRef"
+                                 ShowHeader="false"/>
+        <TaxFileUploadEntry Model="@_reportData"
+                            @ref="_taxFileUploadEntryRef" />
+        <div class="button-bar">
+            <Button Text="BACK"
+                    Variant="ButtonVariant.Secondary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleBackClick"
+                    AriaLabel="Go back" />
+            <Button Text="SUBMIT REPORT"
+                    Variant="ButtonVariant.Primary"
+                    Size="ButtonSize.Medium"
+                    OnClick="HandleSubmitClick"
+                    AriaLabel="Submit tax report" />
+        </div>
+    }
+</div>

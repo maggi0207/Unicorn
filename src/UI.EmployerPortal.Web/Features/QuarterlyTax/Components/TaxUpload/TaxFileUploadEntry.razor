@@ -1,0 +1,129 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.Extensions
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Services
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+
+@inject IConfiguration Configuration
+@inject ITaxFileUploadService TaxFileUploadService
+@inject IUploadFolderResolver UploadFolderResolver
+
+<div class="tax-file-upload-entry">
+
+
+    <div class="upload-section">
+        <FileUpload2 @ref="_fileUploadRef"
+                     Title="Tax Report File Upload"
+                     OnFileUpload="@HandleFileUploaded"
+                     OnFileRemoved="@HandleFileRemoved"
+                     AllowMultiple="false"
+                     FileType="FileAcceptableType.TaxReport"
+                     FolderPath="@_folderPath"
+                     SaveOnUpload="false"
+                     ViewDetailsurl="https://dwd.wisconsin.gov/uitax/taxreportfilelayout.htm"
+                     FileName="@Model.TaxFileData.FileName"
+                     FilePath="@Model.TaxFileData.UploadedFilePath"
+                     @bind-PendingFileBytes="Model.TaxFileData.PendingBytes"
+                     ValidationMessages="@Model.TaxFileData.ValidationMessages"
+                     HasBlockingErrors="@Model.TaxFileData.HasBlockingErrors"
+                     HasWarnings="@Model.TaxFileData.HasWarnings" />
+    </div>
+
+    @if (_isValidating)
+    {
+        <div class="validating-banner">
+            <LoadingSpinner Message="Validating file..." />
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter] public TaxUploadReportModel Model { get; set; } = new();
+
+    private FileUpload2? _fileUploadRef;
+    private bool _isValidating;
+    private string _folderPath = string.Empty;
+    private EditContext _editContext = default!;
+    private ValidationMessageStore? _messageStore;
+    private readonly Dictionary<string, string> _fieldIds = new();
+
+    protected override void OnInitialized()
+    {
+        _folderPath = UploadFolderResolver.Resolve("FileUpload:TaxWageReport:FolderPath") ?? string.Empty;
+        _editContext = new EditContext(Model);
+    }
+
+    public bool IsValid()
+    {
+        _messageStore?.Clear();
+        _messageStore = new ValidationMessageStore(_editContext);
+      
+
+        if (!Model.TaxFileData.IsUploaded)
+        {
+            _messageStore.Add(_editContext.Field(string.Empty), "Please upload a tax report file.");
+            
+        }
+        if (Model.TaxFileData.HasBlockingErrors)
+        {
+            _messageStore.Add(_editContext.Field(string.Empty), "Please fix file errors before continuing.");
+          
+        }
+        _editContext.NotifyValidationStateChanged();
+        var isValid = !_editContext.GetValidationMessages().Any();
+        StateHasChanged();
+        return isValid;
+    }
+
+    public async Task<string?> SaveFileAsync()
+    {
+        return _fileUploadRef != null ? await _fileUploadRef.SavePendingFileAsync() : null;
+    }
+
+    private async Task HandleFileUploaded(string filePath)
+    {
+        var serverFileName = System.IO.Path.GetFileName(filePath);
+        var ext = System.IO.Path.GetExtension(serverFileName);
+        var nameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(serverFileName);
+        var originalName = filePath.ToDisplayFileName();
+
+        Model.TaxFileData.UploadedFilePath = filePath;
+        Model.TaxFileData.FileName = originalName;
+        Model.TaxFileData.IsUploaded = true;
+        Model.TaxFileData.ValidationMessages.Clear();
+        Model.TaxFileData.HasBlockingErrors = false;
+        Model.TaxFileData.HasWarnings = false;
+        Model.TaxFileData.ValidationMessages = [];
+       
+
+        _isValidating = true;
+        StateHasChanged();
+
+        var fileContent = _fileUploadRef?.GetPendingFileContent(lineCount: 5);
+
+        if (!string.IsNullOrEmpty(fileContent))
+        {
+            var result = await TaxFileUploadService.ValidateTaxUploadFileAsync(fileContent, originalName, ext);
+
+            if (result.RuleViolations != null && result.RuleViolations.Length > 0)
+            {
+                Model.TaxFileData.HasBlockingErrors = true;
+                Model.TaxFileData.ValidationMessages = result.RuleViolations
+                    .Select(r => new FileValidationMessage { Message = r.RuleViolation })
+                    .ToList();
+            }
+
+            Model.TaxFileData.RecordCount = result.RecordCount;
+        }
+        _isValidating = false;
+        StateHasChanged();
+    }
+
+    private void HandleFileRemoved()
+    {
+        Model.TaxFileData = new TaxFileUploadModel();
+    }
+}

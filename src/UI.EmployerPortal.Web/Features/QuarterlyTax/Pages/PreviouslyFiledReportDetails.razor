@@ -1,0 +1,66 @@
+@page "/quarterly-tax/previously-filed/details"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@QuarterYear Tax &amp; Wage Report</PageTitle>
+
+<div class="pfr-details-page">
+
+    <a href="quarterly-tax/previously-filed" class="pfr-back-link"><img src="@Assets["images/menu/hide-menu.svg"]" alt="" width="24" height="24" aria-hidden="true" /> Back</a>
+
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading report details..." />
+    }
+    else if (_details is null)
+    {
+        <p>No report data found for @QuarterYear.</p>
+    }
+    else
+    {
+        <h1 class="pfr-details-title">@_details.QuarterYear Tax &amp; Wage Report</h1>
+
+        <div class="pfr-subheading">
+            <span><strong>Due Date:</strong> @_details.DueDate.ToString("M/d/yyyy")</span>
+            <span><strong>Effective Date:</strong> @_details.EffectiveDate.ToString("M/d/yyyy")</span>
+        </div>
+
+        <div class="pfr-print-section">
+            <span class="pfr-print-icon">&#128438;</span>
+            <a href="#" class="pfr-print-link" @onclick="HandlePrint" @onclick:preventDefault="true">Print this page for your records.</a>
+            <div class="pfr-print-note">Do not mail printed version to UI.</div>
+        </div>
+
+        <div class="pfr-two-column">
+            <div class="pfr-reports-column">
+                <div class="pfr-employer-inline">
+                    <h2 class="pfr-employer-title">Employer Details</h2>
+                    <div class="pfr-employer-inline-row">
+                        <div class="pfr-employer-field">
+                            <span class="pfr-employer-label">Employer Legal Name:</span>
+                            <span class="pfr-employer-value">@_details.EmployerLegalName</span>
+                        </div>
+                        <div class="pfr-employer-field">
+                            <span class="pfr-employer-label">FEIN:</span>
+                            <span class="pfr-employer-value">@_details.EmployerFein</span>
+                        </div>
+                    </div>
+                    <div class="pfr-employer-inline-row">
+                        <div class="pfr-employer-field">
+                            <span class="pfr-employer-label">Employer Address:</span>
+                            <span class="pfr-employer-value">@_details.EmployerAddress</span>
+                        </div>
+                        <div class="pfr-employer-field">
+                            <span class="pfr-employer-label">Employer Phone Number:</span>
+                            <span class="pfr-employer-value">@_details.EmployerPhone</span>
+                        </div>
+                    </div>
+                </div>
+                <TaxDetails ReportData="@_details.TaxDetails" IsExpanded="true" ConfirmationNumber="@_details.TaxConfirmationNumber" ShowEdit="false" /> <br />
+                <WageDetails @ref="_wageDetails" WageData="@_details.WageDetails" IsExpanded="true" ConfirmationNumber="@_details.WagesConfirmationNumber" ShowEdit="false" />
+            </div>
+        </div>
+    }
+</div>

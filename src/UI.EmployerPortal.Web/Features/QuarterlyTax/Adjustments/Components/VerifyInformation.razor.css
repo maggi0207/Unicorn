@@ -1,0 +1,251 @@
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 8px;
+    font-family: Verdana;
+    width: 100%;
+    height: 37px;
+}
+
+.title-divider {
+    border: 0;
+    border-top: 1px solid #D1D5DB;
+    margin-bottom: 16px;
+    opacity: 1;
+}
+
+.instruction-text {
+    font-size: 16px;
+    color: #000000;
+    margin-bottom: 24px;
+    font-family: Verdana;
+    font-weight: 400;
+}
+
+.summary-section {
+    background-color: #F3F3F3;
+    border: none;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 24px;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.summary-header {
+    margin: 0;
+    padding: 0;
+}
+
+.header-icon img {
+    width: 16px;
+    height: 16px;
+}
+
+.summary-title {
+    font-family: Verdana;
+    font-size: 25px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1.16;
+    letter-spacing: 0%;
+}
+
+.btn-edit {
+    background: none;
+    border: none;
+    color: #005A9C;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 26px;
+}
+
+    .btn-edit img {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+    }
+
+    .btn-edit span {
+        font-family: Verdana;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.16;
+        color: #003663;
+    }
+
+.box-content p {
+    font-family: Verdana;
+    font-size: 14px;
+    color: #333333;
+    margin: 0;
+}
+
+.verification-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: transparent !important;
+    --bs-table-bg: transparent !important;
+    --bs-table-accent-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+}
+
+    .verification-table thead th {
+        background-color: #E1E1E1;
+        border: none;
+        color: #000000;
+        font-family: Verdana;
+        font-size: 14px;
+        height: 56px;
+        vertical-align: middle;
+        font-weight: 700;
+        padding: 0 16px;
+    }
+
+    .verification-table tbody tr {
+        height: 56px;
+    }
+
+    .verification-table tbody td {
+        border-top: 1px solid #ADADAD;
+        border-bottom: none;
+        padding: 0 16px;
+        font-size: 14px;
+        vertical-align: middle;
+        background-color: transparent !important;
+        font-family: Verdana;
+    }
+
+.text-end {
+    text-align: right !important;
+}
+
+.reason-label {
+    font-size: 14px;
+    color: #000000;
+    font-family: Verdana;
+    margin-bottom: 4px;
+}
+
+.reason-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.sub-heading {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.table, .table tr, .table td {
+    --bs-table-border-color: transparent !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.sort-button {
+    border: none;
+    background-color: inherit;
+    height: 100%;
+}
+
+.sort-button:focus {
+    outline: 2px solid var(--color-blue-focus, #003663);
+    outline-offset: -2px;
+}
+
+.sort-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+    cursor: pointer;
+    color: #003663;
+}
+
+.justify-content-end {
+    justify-content: flex-end;
+}
+
+.validation-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #c82838;
+    padding: 12px 1px;
+    font-size: 14px;
+    font-family: Verdana;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+
+.collapse-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: none !important;
+    outline: none;
+}
+
+    .collapse-btn:hover {
+        background-color: transparent !important;
+        opacity: 0.7;
+    }
+
+    .collapse-btn:focus {
+        outline: none;
+        box-shadow: none !important;
+    }
+
+    .collapse-btn img {
+        width: 24px;
+        height: 24px;
+        display: block;
+        transition: transform 0.2s ease;
+    }
+.ssn-toggle-all-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    color: #333;
+}
+
+    .ssn-toggle-all-btn:hover {
+        opacity: 0.7;
+    }
+
+.visibility-icon {
+    width: 20px;
+    height: 20px;
+}
+.table-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}

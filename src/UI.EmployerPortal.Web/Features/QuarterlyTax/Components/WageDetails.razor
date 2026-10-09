@@ -1,0 +1,235 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components;
+
+@if (WageData != null)
+{
+    <div class="wage-details-container" @attributes="AdditionalAttributes">
+        <button type="button"
+                class="header-row"
+                @onclick="ToggleExpand"
+                aria-expanded="@_isExpanded.ToString().ToLower()"
+                aria-controls="wage-details-content">
+            <h2 class="title">Wage Report Details</h2>
+            <img src="images/menu/submenu-arrow.svg"
+                 alt=""
+                 width="24"
+                 height="24"
+                 class="chevron-icon @(_isExpanded ? "rotated" : "")"
+                 aria-hidden="true" />
+        </button>
+
+        @if (!string.IsNullOrEmpty(ConfirmationNumber))
+        {
+            <p class="confirmationNumber">
+                <span>The wage report confirmation number is not a payment confirmation number.</span>
+                <span>Confirmation Number for Wage Report: <b>@ConfirmationNumber</b></span>
+            </p>
+        }
+
+        @if (_isExpanded)
+        {
+            <div id="wage-details-content">
+
+                @if (ShowEdit)
+                {
+                    <div class="edit-column">
+                        <button type="button" class="edit-link" @onclick="HandleEditClick" aria-label="Edit wage report details">
+                            <span class="edit-icon">
+                                <img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+                            </span>
+                            Edit
+                        </button>
+                    </div>
+                }
+
+                <div class="content-column">
+                    <h3 class="section-title">Total Gross Covered Wages</h3>
+
+                    <div class="total-wages">
+                        @WageData.TotalGrossCoveredWages.ToString("C2")
+                    </div>
+
+                    <div class="quarterly-section">
+                        <div class="quarterly-header">
+                            <h3 class="quarterly-title">Quarterly Wage Amounts</h3>
+                        </div>
+
+                        @if (!ShowEdit)
+                        {
+                            <div class="wage-print-only">
+                                <table class="wage-table" aria-label="Quarterly wage amounts by employee">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="table-header">Last Name</th>
+                                            <th scope="col" class="table-header">First Name</th>
+                                            <th scope="col" class="table-header">SSN</th>
+                                            <th scope="col" class="table-header">Quarterly Wages</th>
+                                            <th scope="col" class="table-header">Save for Next Quarter</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var employee in _isPreparingPrint ? GetSortedEmployees() : Enumerable.Empty<EmployeeWageData>())
+                                        {
+                                            <tr>
+                                                <td class="table-cell">@employee.LastName</td>
+                                                <td class="table-cell">@employee.FirstName</td>
+                                                <td class="table-cell">@GetDisplaySSN(employee.SSN)</td>
+                                                <td class="table-cell">@employee.QuarterlyWages.ToString("C2")</td>
+                                                <td class="table-cell">@employee.SaveForNextQuarter</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if(!_isPreparingPrint)
+                        {
+                            <div class="table-container @(!ShowEdit ? "wage-screen-only" : "")">
+                                <table class="wage-table" aria-label="Quarterly wage amounts by employee">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 175px" scope="col" class="table-header sortable" aria-sort="@GetAriaSort("LastName")">
+                                                <div class="header-content">
+                                                    <button type="button" class="header-sort-button" @onclick="@(() => Sort("LastName"))">
+                                                        <span>Last Name</span>
+                                                        @GetSortIcon("LastName")
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="width: 175px" scope="col" class="table-header sortable" aria-sort="@GetAriaSort("FirstName")">
+                                                <div class="header-content">
+                                                    <button type="button" class="header-sort-button" @onclick="@(() => Sort("FirstName"))">
+                                                        <span>First Name</span>
+                                                        @GetSortIcon("FirstName")
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="width: 200px" scope="col" class="table-header sortable" aria-sort="@GetAriaSort("SSN")">
+                                                <div class="header-content">
+                                                    <button type="button" class="header-sort-button" @onclick="@(() => Sort("SSN"))">
+                                                        <span>SSN</span>
+                                                        @GetSortIcon("SSN")
+                                                    </button>
+                                                    <button type="button"
+                                                            class="visibility-icon-button"
+                                                            @onclick="ToggleAllSSNs"
+                                                            @onclick:stopPropagation="true"
+                                                            aria-label="@(_showAllSSNs ? "Hide all SSNs" : "Show all SSNs")"
+                                                            title="@(_showAllSSNs ? "Hide all SSNs" : "Show all SSNs")">
+                                                        @if (_showAllSSNs)
+                                                        {
+                                                            <!-- Visibility ON icon (eye open) -->
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor" />
+                                                            </svg>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- Visibility OFF icon (eye with slash) -->
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" fill="currentColor" />
+                                                            </svg>
+                                                        }
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="width: 225px" scope="col" class="table-header sortable" aria-sort="@GetAriaSort("QuarterlyWages")">
+                                                <div class="header-content">
+                                                    <button type="button" class="header-sort-button" @onclick="@(() => Sort("QuarterlyWages"))">
+                                                        <span>Quarterly Wages</span>
+                                                        @GetSortIcon("QuarterlyWages")
+                                                    </button>
+                                                </div>
+                                            </th>
+                                            <th style="width: 150px"  scope="col" class="table-header sortable" aria-sort="@GetAriaSort("SaveForNextQuarter")">
+                                                <div class="header-content">
+                                                    <button type="button" class="header-sort-button" @onclick="@(() => Sort("SaveForNextQuarter"))">
+                                                        <span>Save for Next Quarter</span>
+                                                        @GetSortIcon("SaveForNextQuarter")
+                                                    </button>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var employee in GetPagedEmployees())
+                                        {
+                                            <tr>
+                                                <td class="table-cell" title="@employee.LastName">@employee.LastName</td>
+                                                <td class="table-cell" title="@employee.FirstName">@employee.FirstName</td>
+                                                <td class="table-cell ssn-cell">
+                                                    <span class="ssn-text">@GetDisplaySSN(employee.SSN)</span>
+                                                    <button type="button"
+                                                            class="visibility-icon-button"
+                                                            @onclick="@(() => ToggleSSNVisibility(employee.SSN))"
+                                                            aria-label="@(IsSSNVisible(employee.SSN) ? "Hide SSN" : "Show SSN") for @employee.FirstName @employee.LastName"
+                                                            title="@(IsSSNVisible(employee.SSN) ? "Hide SSN" : "Show SSN") for @employee.FirstName @employee.LastName">
+                                                        @if (IsSSNVisible(employee.SSN))
+                                                        {
+                                                            <!-- Visibility ON icon (eye open) -->
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor" />
+                                                            </svg>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- Visibility OFF icon (eye with slash) -->
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" fill="currentColor" />
+                                                            </svg>
+                                                        }
+                                                    </button>
+                                                </td>
+                                                <td class="table-cell">@employee.QuarterlyWages.ToString("C2")</td>
+                                                <td class="table-cell center-align">@employee.SaveForNextQuarter</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        @if (TotalEmployeeCount > 0 && !_isPreparingPrint)
+                        {
+                            <div class="d-flex justify-content-end wage-screen-only">
+                                <div class="pagination-container" aria-label="Wage report pagination">
+                                    <div class="rows-per-page">
+                                        <label for="wage-page-size-select" class="rows-count">Rows per page</label>
+                                        <select id="wage-page-size-select" class="page-size-select" @onchange="HandlePageSizeChange">
+                                            <option value="50" selected="@(_pageSize == 50)">50</option>
+                                            <option value="100" selected="@(_pageSize == 100)">100</option>
+                                            <option value="1000" selected="@(_pageSize == 1000)">1000</option>
+                                            <option value="10000" selected="@(_pageSize == 10000)">10000</option>
+                                        </select>
+                                    </div>
+                                    <span class="page-info" aria-live="polite">
+                                        <span class="visually-hidden">Displaying&nbsp;</span>
+                                        @PaginationStart-@PaginationEnd of @TotalEmployeeCount
+                                        <span class="visually-hidden">&nbsp;records</span>
+                                    </span>
+                                    <button class="paging-btn" type="button" @onclick="GoToFirstPage" disabled="@(_currentPage <= 1)" aria-label="First page">
+                                        <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="" />
+                                    </button>
+                                    <button class="paging-btn" type="button" @onclick="GoToPreviousPage" disabled="@(_currentPage <= 1)" aria-label="Previous page">
+                                        <img src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" alt="" />
+                                    </button>
+                                    <button class="paging-btn" type="button" @onclick="GoToNextPage" disabled="@(_currentPage >= TotalPages)" aria-label="Next page">
+                                        <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" alt="" />
+                                    </button>
+                                    <button class="paging-btn" type="button" @onclick="GoToLastPage" disabled="@(_currentPage >= TotalPages)" aria-label="Last page">
+                                        <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" alt="" />
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="wage-details-container" @attributes="AdditionalAttributes">
+        <p class="no-data">No wage report data available.</p>
+    </div>
+}

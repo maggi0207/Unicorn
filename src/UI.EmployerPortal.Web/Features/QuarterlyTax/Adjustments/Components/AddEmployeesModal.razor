@@ -1,0 +1,156 @@
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@if (IsOpen)
+{
+    <div class="add-employees-backdrop" @onclick="Close">
+        <div class="add-employees-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="add-employees-title" @ref="_modalElement">
+            <div class="modal-header">
+                <h3 class="modal-title" id="add-employees-title">Add Employees to Adjustment</h3>
+                <button type="button" class="modal-close" @onclick="Close" aria-label="Close">&#x2715;</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="sub-title">Search for Employees to Add to Adjustment</p>
+                <p class="sub-title2">Enter Last Name, First Name, or SSN</p>
+                <div class="search-wrapper">
+                    <label for="employee-search-input" class="visually-hidden">Search employees</label>
+                    <input id="employee-search-input"
+                           type="text"
+                           class="search-input"
+                           placeholder="Enter Last Name, First Name, or SSN"
+                           value="@_searchText"
+                           @oninput="HandleSearchInput"
+                           aria-label="Enter Last Name, First Name, or SSN" />
+                </div>
+
+                <div class="table-actions">
+                    <button type="button" class="add-all-link" @onclick="HandleAddAll"
+                            aria-label="Add all filtered employees to adjustment">
+                        Add All to Adjustment
+                    </button>
+                </div>
+
+                <h4 class="section-heading">Previously Reported Employees</h4>
+
+                <div class="table-container">
+                    <table class="employees-table" aria-label="Previously reported employees">
+                        <thead>
+                            <tr class="header-row">
+                                <th scope="col" class="header-cell">Last Name</th>
+                                <th scope="col" class="header-cell">First Name</th>
+                                <th scope="col" class="header-cell header-cell-ssn">
+                                    <div class="ssn-col">
+                                        <div class="ssn-header-content">
+                                    <span>SSN</span>
+                                    <button type="button"
+                                            class="ssn-toggle-btn"
+                                            @onclick:stopPropagation="true"
+                                            @onclick="ToggleSsnVisibility"
+                                            title="@(_ssnVisible ? "Hide all SSNs" : "Show all SSNs")"
+                                            aria-label="@(_ssnVisible ? "Hide all SSNs" : "Show all SSNs")">
+                                        <img src="@(_ssnVisible? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                    </button>
+                                    </div>
+                                    </div>
+                                </th>
+                                <th scope="col" class="header-cell header-cell-action">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in PagedEmployees)
+                            {
+                                var isAdded = _addedEmployeeKeys.Contains(GetEmployeeKey(employee));
+                                <tr @key="GetEmployeeKey(employee)" class="data-row">
+                                    <td class="data-cell">@employee.LastName</td>
+                                    <td class="data-cell">@employee.FirstName</td>
+                                    <td class="data-cell">
+                                          <div class="ssn-col">
+                                        <div class="ssn-header-content">
+                                        <span> @MaskSsn(employee.SSN, GetEmployeeKey(employee))</span>
+                                        <button type="button"
+                                                class="ssn-toggle-btn"
+                                                @onclick:stopPropagation="true"
+                                                @onclick="() => ToggleRowSsnVisibility(GetEmployeeKey(employee))"
+                                                title="@(_ssnVisible ? "Hide SSN" : "Show SSN")"
+                                                aria-label="@(_visibleSsnKeys.Contains(GetEmployeeKey(employee)) ? "Hide SSN for" : "Show SSN for") @employee.FirstName @employee.LastName">
+                                            <img src="@(_visibleSsnKeys.Contains(GetEmployeeKey(employee)) ? Assets["icons/visibility-on.svg"] : Assets["icons/visibility-off.svg"])" alt="" class="visibility-icon" />
+                                        </button>
+                                        </div></div>
+                                    </td>
+                                    <td class="data-cell action-cell">
+                                        @if (isAdded)
+                                        {
+                                            <span class="added-indicator">Added</span>
+                                            <span class="action-separator">|</span>
+                                            <button type="button" class="remove-link"
+                                                    @onclick="() => HandleRemoveEmployee(employee)"
+                                                    aria-label="Remove @employee.FirstName @employee.LastName from adjustment">
+                                                Remove
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="add-link"
+                                                    @onclick="() => HandleAddEmployee(employee)"
+                                                    aria-label="Add @employee.FirstName @employee.LastName to adjustment">
+                                                Add to Adjustment
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            @if (!FilteredEmployees.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="no-results">No employees found.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if (FilteredEmployees.Any())
+            {
+                <div class="pagination">
+                    <div class="pagination-rows">
+                        <span>Rows per page</span>
+                        <select class="pagination-select" value="@_pageSize" @onchange="HandlePageSizeChange">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="pagination-info">
+                        <span>@PaginationLabel</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button type="button" class="page-btn" disabled="@(_currentPage == 1)"
+                                @onclick="GoToFirstPage" aria-label="First page">
+                            |&lt;
+                        </button>
+                        <button type="button" class="page-btn" disabled="@(_currentPage == 1)"
+                                @onclick="GoToPreviousPage" aria-label="Previous page">
+                            &lt;
+                        </button>
+                        <button type="button" class="page-btn" disabled="@(_currentPage == TotalPages)"
+                                @onclick="GoToNextPage" aria-label="Next page">
+                            &gt;
+                        </button>
+                        <button type="button" class="page-btn" disabled="@(_currentPage == TotalPages)"
+                                @onclick="GoToLastPage" aria-label="Last page">
+                            &gt;|
+                        </button>
+                    </div>
+                </div>
+            }
+            <div class="modal-footer">
+                <Button Text="CLOSE & CONTINUE"
+                        Variant="ButtonVariant.Primary"
+                        OnClick="Close" />
+            </div>
+        </div>
+    </div>
+}

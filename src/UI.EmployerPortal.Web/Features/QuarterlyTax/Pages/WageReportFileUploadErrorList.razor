@@ -1,0 +1,140 @@
+@page "/quarterly-tax/wage-report-file-upload-error-list"
+
+<PageTitle>Wage File Upload Error List</PageTitle>
+
+<div class="wuel-page">
+
+    <div class="wuel-header">
+        <h1 class="wuel-title">Wage File Upload Error List</h1>
+        <p class="wuel-subtitle fs-md">
+            This screen displays the error numbers and error messages for all errors that could be found in a wage report upload file, as well as information about the actions necessary to correct the errors.
+        </p>
+    </div>
+
+    <div class="table-container">
+        <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Wage report file upload error list">
+            <caption class="visually-hidden">Wage report file upload error numbers, messages, and corrective actions</caption>
+            <colgroup>
+                <col style="width: 90px;" />
+                <col style="width: 280px;" />
+                <col />
+            </colgroup>
+            <thead>
+                <tr class="header-row">
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Error #</span>
+                        </div>
+                    </th>
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Error Message</span>
+                        </div>
+                    </th>
+                    <th scope="col" class="header-cell header-cell-static">
+                        <div class="header-content header-content-left">
+                            <span class="header-label fw-bold fs-md">Corrective Action</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var error in _errors)
+                {
+                    <tr class="data-row">
+                        <th scope="row" class="fw-bold fs-md">@error.Number</th>
+                        <td class="fw-normal fs-md">@error.Message</td>
+                        <td class="fw-normal fs-md">@((MarkupString)error.CorrectiveAction)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    private record ErrorEntry(int Number, string Message, string CorrectiveAction);
+
+    private readonly List<ErrorEntry> _errors =
+        [
+        new(200,
+        "Account Number must contain only numeric characters.",
+        "Please review and correct the account number."),
+        new(201,
+            "The Account Number provided could not be found in our system.",
+            "Please review and correct the account number. Also, check to ensure that account number field has not shifted out of position within the file."),
+        new(202,
+            "Check digit does not match Account Number provided.",
+            "Check Digit is the last character in the account number field. Please review and correct the account number."),
+        new(203,
+            "Cannot upload Wage Report to a Non-Profit Employer Account that has been Closed for a reason other than transferred.",
+            "Please review to make sure you are submitting your wage report for the correct account and make the necessary corrections."),
+        new(204,
+            "Employer account status is Closed or Preliminary Closed and the last payroll date is before the start date of the quarter being reported.",
+            "Please review to make sure you are submitting your wage report for the correct account and make the necessary corrections."),
+        new(205,
+            "Employee Wage Amount contains non-numeric characters.",
+            "Please review and correct the wage amount so that it contains only numeric characters."),
+        new(206,
+            "The Employer Record contains an invalid Record Code.",
+            "The Record Code must be 01 in the WI UI Format. Please review and correct the Record Code."),
+        new(207,
+            "The Employee Record contains an invalid Record Code.",
+            "The Record Code must be 01 in the IRS/SSA Tape, Wisconsin UI, and Tab-Delimited Text File Formats. Please review and correct the Record Code."),
+        new(208,
+            "The Employer Record contains an invalid State Code.",
+            "The State Code must be 55 in the IRS SSA Tape Format."),
+        new(209,
+            "The Employee Record contains an invalid State Code.",
+            "The State Code must be 55 in the IRS SSA Tape Format."),
+        new(210,
+            "Employee Last name is missing or contains numeric characters.",
+            "Please review and correct, or provide, the employee\u2019s last name. For Federal IRS/SSA Tape and Diskette Formats, also check to make sure the file has a name code in the Name Code field, either \u201cS\u201d if the surname appears first in the employee name field or \u201cF\u201d if the first name appears first in the employee name field."),
+        new(211,
+            "Invalid year - year has to be either the current year or the previous four years.",
+            "Please review and correct the year. Valid values for the year are current year or the previous three years."),
+        new(212,
+            "Invalid Quarter value for your file type. Valid values for the quarter are: WI UI Format - 1, 2, 3, 4; IRS SSA Tape - 03, 06, 09, 12; IRS SSA Disk - 01, 02, 03, 04.",
+            "Please replace the invalid quarter value with a valid quarter value. Valid values for the quarter are: WI UI Format - 1, 2, 3, 4; IRS SSA Tape - 03, 06, 09, 12; IRS SSA Disk - 01, 02, 03, 04."),
+        new(213,
+            "The wage report was uploaded as an Original wage report; however, a wage report already exists for the same quarter/year under this employer account number. You may only replace or append to existing wage reports.",
+            "Please review the report to ensure you are submitting it to the correct account and for the correct quarter/year. If you wish to replace, or append (add to) an existing wage report, select the Replacement Wage Report or Appended Wage Report option when you upload your wage file."),
+        new(214,
+            "When appending to or replacing an existing Wage report, only one report can be uploaded at a time.",
+            "Please review your file to ensure that it contains data for only one account and quarter/year."),
+        new(215,
+            "A wage report cannot be uploaded for a future quarter.",
+            "Please review and correct the quarter/year. Valid values are the current quarter/year and any quarter in the previous 3 years."),
+        new(216,
+            "The wage report was uploaded as a Replacement or an Append; however, there is no existing report for the same quarter/year under this employer account number. You may only replace or append to existing wage reports.",
+            "Please review the report to ensure you are submitting it to the correct account and for the correct quarter/year. If you are uploading an original wage report for a given account, quarter and year, select the Original Wage Report option when you upload your wage file."),
+        new(217,
+            "Employee First Name contains numeric characters.",
+            "Please review and correct the employee first name."),
+        new(218,
+            "Report filed for a quarter prior to first quarter of payroll.",
+            "Please review the report to ensure that you are submitting it for the correct account number and the correct quarter/year. A report cannot be filed for a quarter/year prior to the first quarter of payroll."),
+        new(219,
+            "The account number has been Cancelled or is a Duplicate Account.",
+            "Please review the report to ensure that you are submitting it for the correct Account Number."),
+        new(400,
+            "The first name is missing.",
+            "Please provide a first name for the employee (if applicable). For Federal IRS/SSA Tape and Diskette Formats, also check to make sure the file has a name code in the Name Code field, either \u201cS\u201d if the surname appears first in the employee name field or \u201cF\u201d if the first name appears first in the employee name field."),
+        new(401,
+            "The SSN is missing, non-numeric or is a bad SSN. Examples of a bad SSN include: \u201c123456789,\u201d \u201c111111111,\u201d \u201c222222222,\u201d and \u201c1.\u201d",
+            "Please provide a valid SSN containing all numeric characters. If you do not have an SSN for the employee, fill the field with all zeroes."),
+        new(500,
+            "The file format is invalid. Acceptable file formats are: Wisconsin UI Format, IRS SSA Tape Format, IRS SSA Disk Format.",
+            "Please review your file to ensure that it is in one of three acceptable file formats and to ensure that there is a carriage return at the end of each row of data. Information about acceptable wage file formats can be found at: <a href=\"https://dwd.wisconsin.gov/ui201/w3201.htm\" target=\"_blank\">https://dwd.wisconsin.gov/ui201/w3201.htm</a>."),
+        new(501,
+            "You have exceeded the maximum number of files you can upload.",
+            "You must re-login to our website to upload any remaining files. You may upload up to 3 separate files during a single login session."),
+        new(502,
+            "The file name contains invalid characters.",
+            "The following characters are invalid for your file name: \\ Back-Slash / Forward-Slash : Colon * Asterisk ? Question Mark \" Double Quotes < Less Than Sign > Greater Than Sign | Pipe. Please rename your file omitting any invalid characters and resubmit your file."),
+        new(503,
+            "The file size must be no larger than 10MB in length.",
+            "Consider using our Secure File Transfer Protocol (FTPS) to submit large wage files. Information about FTPS can be found at our site. Otherwise, you will need to divide your file into smaller files and upload each of the smaller files separately.")
+            ];
+}

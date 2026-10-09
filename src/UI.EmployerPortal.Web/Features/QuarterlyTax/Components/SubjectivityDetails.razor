@@ -1,0 +1,85 @@
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+ 
+@if (Categories != null && Answers != null && Answers.Any())
+{
+<div class="subjectivity-details-container mb-4" @attributes="AdditionalAttributes">
+<button type="button"
+                class="header-row"
+                @onclick="ToggleExpand"
+                aria-expanded="@_isExpanded"
+                aria-controls="subjectivity-details-content">
+<h2 class="title">Subjectivity Details</h2>
+<img src="images/menu/submenu-arrow.svg"
+                 alt=""
+                 width="24"
+                 height="24"
+                 class="chevron-icon @(_isExpanded ? "rotated" : "")"
+                 aria-hidden="true" />
+</button>
+        @if (_isExpanded)
+        {
+<div id="subjectivity-details-content" class="content-grid">
+                @if (OnEdit.HasDelegate)
+                {
+<div class="edit-column">
+<button type="button" class="edit-link" @onclick="HandleEditClick" aria-label="Edit subjectivity details">
+<span class="edit-icon">
+<img src="@Assets["icons/edit.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+</span>
+                            Edit
+</button>
+</div>
+                }
+<div class="content-column">
+<div class="subjectivity-details-list">
+                        @foreach (var category in Categories)
+                        {
+                            @if (category.TaxThresholds != null)
+                            {
+                                @foreach (var threshold in category.TaxThresholds)
+                                {
+                                    @if (threshold.EmployerPortalPayrollQuestions != null)
+                                    {
+                                        @foreach (var question in threshold.EmployerPortalPayrollQuestions)
+                                        {
+<SubjectivityDetailNode Question="@question" Answers="@Answers" />
+                                        }
+                                    }
+                                }
+                            }
+                        }
+</div>
+</div>
+</div>
+        }
+</div>
+}
+ 
+@code {
+    [Parameter]
+    public EmployerPortalPayrollQuestionsCategoryProxy[]? Categories { get; set; }
+ 
+    [Parameter]
+    public Dictionary<int, string>? Answers { get; set; }
+ 
+    [Parameter]
+    public EventCallback OnEdit { get; set; }
+ 
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+ 
+    private bool _isExpanded = true;
+ 
+    private void ToggleExpand()
+    {
+        _isExpanded = !_isExpanded;
+    }
+ 
+    private async Task HandleEditClick()
+    {
+        if (OnEdit.HasDelegate)
+        {
+            await OnEdit.InvokeAsync();
+        }
+    }
+}

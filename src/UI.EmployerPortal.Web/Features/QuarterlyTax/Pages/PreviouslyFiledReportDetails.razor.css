@@ -1,0 +1,206 @@
+.pfr-details-page {
+    padding: 24px;
+    max-width: var(--width-quarterly-tax);
+}
+
+.pfr-back-link {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: var(--color-link, #0057A8);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+    .pfr-back-link:hover {
+        text-decoration: none;
+    }
+
+.pfr-details-title {
+    font-family: Verdana, sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    padding-bottom: 10px;
+    margin-bottom: 0;
+}
+
+.pfr-subheading {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 12px;
+}
+
+.pfr-status-balanced {
+    color: var(--color-text-body-success, #1A8922);
+    font-weight: 600;
+}
+
+.pfr-status-out-of-balance {
+    color: var(--color-text-body-error, #C82838);
+    font-weight: 600;
+}
+
+.pfr-two-column {
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+}
+
+.pfr-employer-card {
+    flex: 0 0 199px;
+    border-radius: 4px;
+    padding: 16px 20px;
+    align-self: stretch;
+    background-color: #F3F3F3;
+}
+
+.pfr-employer-title {
+    font-family: Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    margin-bottom: 12px;
+}
+
+.pfr-employer-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+}
+
+.pfr-employer-label {
+    font-weight: 600;
+    line-height: 160%;
+    color: #000000;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+}
+
+.pfr-employer-value {
+    font-weight: 400;
+    line-height: 160%;
+    color: #000000;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+}
+
+.pfr-reports-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.pfr-print-section {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.pfr-print-icon {
+    margin-right: 4px;
+    color: var(--color-link, #0057A8);
+}
+
+.pfr-print-link {
+    color: var(--color-link, #0057A8);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+    .pfr-print-link:hover {
+        text-decoration: none;
+    }
+
+.pfr-print-note {
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.pfr-employer-inline {
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #F3F3F3;
+    width: 100%;
+}
+
+.pfr-employer-inline-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+    .pfr-employer-inline-row .pfr-employer-field {
+        flex: 1 1 300px;
+    }
+
+.pfr-oob-info-text {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 160%;
+    color: rgb(0, 0, 0);
+}
+
+.pfr-oob-warning {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.pfr-oob-body {
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}
+
+.pfr-oob-table th {
+    font-family: Verdana;
+    text-align: right;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-bottom: 1px solid #ccc;
+}
+
+    .pfr-oob-table th:first-child {
+        text-align: left;
+    }
+
+.pfr-oob-table td {
+    text-align: right;
+    padding: 4px 12px;
+}
+
+.pfr-oob-row-label {
+    text-align: right !important;
+    font-weight: 600;
+}
+
+.pfr-oob-reason {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.pfr-oob-reason-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.pfr-oob-submit {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+}

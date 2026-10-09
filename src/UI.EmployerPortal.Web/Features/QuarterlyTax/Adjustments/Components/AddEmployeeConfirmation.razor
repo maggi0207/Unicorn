@@ -1,0 +1,138 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject IDashboardOrchestrator DashboardOrchestrator
+@inject IEmployerAccountService EmployerAccountService
+@inject ISessionManager SessionManager
+
+@if (!string.IsNullOrWhiteSpace(ConfirmationNumber))
+{
+    <div class="confirmation-container">
+        <h1 class="conf-title">Confirmation</h1>
+        <div class="conf-meta">
+            Reporting Quarter: <span>@ReportingQuarter</span>
+        </div>
+        <div class="conf-content-box">
+            <div class="success-section">
+                <div class="success-message">
+                    <span class="success-icon">
+                        <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" />
+                    </span>
+                    <h2 class="success-text">Your @ReportingQuarter Wage report Adjustment has been submitted.</h2>
+                </div>
+            </div>
+            <div class="conf-number">
+                <span class="conf-number-label">Confirmation Number:</span>
+                <span class="conf-number-value">@ConfirmationNumber</span>
+            </div>
+            <div class="conf-whats-next">
+                <h2 class="conf-whats-next-title">What's Next?</h2>
+                <div class="conf-text-wrapper">
+                    <p>
+                        Your request to add employees to an existing wage report has been
+                        submitted. It will be processed and reflected in your quarterly wage
+                        report(s) in 1-2 days.
+                    </p>
+                    <p>
+                        <strong>It may be necessary to file a tax report adjustment</strong>
+                        for @ReportingQuarter based on your changes to the wage report for
+                        the same quarter. The wage adjustment(s) you have submitted will not
+                        automatically adjust the amounts reported on your quarterly tax report.
+                        If you would like to review the tax report before filing an adjustment,
+                        select "Review Tax Report." If you know a tax report adjustment is
+                        needed, select "File Tax Adjustment."
+                    </p>
+                </div>
+            </div>
+            <div class="conf-actions">
+                <Button Text="REVIEW TAX REPORT"
+                        Variant="ButtonVariant.Secondary"
+                        OnClick="GoToReview" />
+                <Button Text="FILE TAX ADJUSTMENT"
+                        Variant="ButtonVariant.Secondary"
+                        OnClick="GoToAdjustment" />
+                @if (_hasOutstandingBalance)
+                {
+                    <Button Text="PAYMENT OPTIONS"
+                            Variant="ButtonVariant.Secondary"
+                            OnClick="GoToPaymentOptions" />
+                }
+            </div>
+            <div class="conf-save">
+                <Button Variant="ButtonVariant.Secondary"
+                        ShowBorder="false"
+                        OnClick="PrintConfirmation"
+                        AriaLabel="Save this page for your records">
+                    <span class="save-icon">
+                        <img src="@Assets["icons/download-icon.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+                    </span>
+                    Save this page for your records
+                </Button>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public string? ReportingQuarter { get; set; }
+    [Parameter] public string? ConfirmationNumber { get; set; }
+
+    private bool _hasOutstandingBalance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var account = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+        if (account is not null)
+        {
+            var remainingBalance = await EmployerAccountService.GetRemainingBalance(account.Id);
+            _hasOutstandingBalance = remainingBalance > 0m;
+ 
+            if (account.BalanceDue != remainingBalance)
+            {
+                var updatedAccount = account with { BalanceDue = remainingBalance };
+                var selected = await SessionManager.GetAsync<SelectedEmployerAccount>();
+                if (selected is not null)
+                {
+                    await SessionManager.SetAsync(selected with { EmployerAccount = updatedAccount });
+                }
+            }
+        }
+    }
+
+    private void GoToReview()
+    {
+        NavigationManager.NavigateTo("quarterly-tax/previously-filed", forceLoad: true);
+    }
+
+    private void GoToAdjustment()
+    {
+        NavigationManager.NavigateTo("tax-wage-report-adjustments/adjustments", forceLoad: true);
+    }
+
+    private void GoToPaymentOptions()
+    {
+        NavigationManager.NavigateTo("billing-payments/payment-options");
+    }
+
+    private async Task PrintConfirmation()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("printElement", ".confirmation-container");
+            //await JS.InvokeVoidAsync("window.print");
+        }
+        catch (TaskCanceledException)
+        {
+            // Expected - browser print dialog suspends JS execution
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected during print - safe to ignore
+        }
+    }
+}

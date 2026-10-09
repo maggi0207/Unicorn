@@ -1,0 +1,38 @@
+@if (WageData is { IsOutOfBalance: true })
+{
+    <div class="out-of-balance-banner" role="alert">
+        <img src="@Assets["icons/warning-notification.svg"]" alt="" width="20" height="20" aria-hidden="true" />
+        <span class="out-of-balance-banner-text">
+            <strong>Total Gross Wages Out-of-Balance:</strong> Check the details below and edit to fix.
+        </span>
+    </div>
+
+    <div class="out-of-balance-card">
+        <h2 class="out-of-balance-title">Total Gross Wages Out-of-Balance</h2>
+        <p class="out-of-balance-text">
+            <img src="@Assets["icons/warning-notification.svg"]" alt="" width="16" height="16" aria-hidden="true" />
+            The total gross wages previously reported on the tax report do not match the total being
+            reported on this wage report. If needed, edit the wage report to correct the amounts.
+            If the tax report is incorrect, you will be able to file an adjustment after submitting
+            this wage report.
+        </p>
+        <dl class="out-of-balance-amounts">
+            <div class="amount-row">
+                <dt>Tax Report Gross Wages</dt>
+                <dd>@WageData.TaxReportGrossWages.ToString("C2")</dd>
+            </div>
+            <div class="amount-row">
+                <dt>Wage Report Gross Wages</dt>
+                <dd>@WageData.TotalGrossCoveredWages.ToString("C2")</dd>
+            </div>
+        </dl>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Gets or sets the wage report data used to determine and display out-of-balance status.
+    /// </summary>
+    [Parameter]
+    public WageDetailsModel? WageData { get; set; }
+}

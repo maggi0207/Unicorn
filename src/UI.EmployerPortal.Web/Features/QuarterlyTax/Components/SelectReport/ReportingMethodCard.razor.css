@@ -1,0 +1,86 @@
+.method-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    border: 1px solid var(--color-gray-light, #E6E6E6);
+    border-top: none;
+    background-color: var(--color-white, #fff);
+    cursor: pointer;
+    transition: background-color 0.15s ease, outline 0.1s ease;
+    box-sizing: border-box;
+    width: 100%;
+    outline: 2px solid transparent;
+    box-shadow: 0px 1px 5px 0px #00000033, 0px 3px 1px 0px #0000001F, 0px 2px 2px 0px #00000024;
+    margin-bottom: 10px;
+}
+
+    .method-card:first-of-type {
+        border-top: 1px solid var(--color-gray-light, #E6E6E6);
+    }
+
+    .method-card:hover:not(.method-card--disabled) {
+        background-color: #f5f8fc;
+    }
+
+    /* Focus ring sits OUTSIDE the card (positive offset) so it stays visible
+       even on a selected card, whose ring is drawn inside (offset -2px).
+       #1a3a6b on a white/light background exceeds the 3:1 contrast minimum. */
+    .method-card:focus {
+        outline: 2px solid var(--color-blue-focus, #1a3a6b);
+        outline-offset: 2px;
+    }
+
+/* Selected — full border outline around the entire card */
+.method-card--selected {
+    outline: 2px solid var(--color-header-nav, #1a3a6b);
+    outline-offset: -2px;
+    background-color: #f0f4fb;
+    span {
+        font-weight: 700;
+    }
+}
+
+.method-card--disabled {
+    cursor: default;
+    background-color: var(--color-white, #fff);
+    opacity: 0.6;
+}
+
+.method-card--error,
+.method-card--error:focus,
+.method-card--error.method.method-card--selected {
+    outline: 2px solid #c82838 !important;
+    outline-offset: 2px;
+}
+
+/* ── Text ─────────────────────────────────────────────── */
+.method-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.method-card-title {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.method-card-title--disabled {
+    color: #666;
+}
+
+.method-card-description {
+    font-size: 14px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.method-card-description--disabled {
+    color: #666;
+}
+
+.method-card-title--bold{
+    font-weight:700;
+}

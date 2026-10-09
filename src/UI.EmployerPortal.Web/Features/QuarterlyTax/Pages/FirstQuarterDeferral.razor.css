@@ -1,0 +1,141 @@
+/* ── Page wrapper ───────────────────────────────────────────────── */
+
+.page-content {
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+    margin-top:24px;
+}
+
+/* ── Page title  e.g. "Verification" ───────────────────────────── */
+
+.page-title {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 32px;
+    line-height:116%;
+    color: var(--color-text-body-black,#000000);
+    font-style: normal;
+    margin-top:24px;
+    margin-bottom:6px;
+}
+
+.page-title:focus {
+    outline: none;
+}
+
+/* ── Sub-header row  (Reporting Quarter / Due Date / Effective Date)
+
+   Spec: width 990, height 80, gap 8, border-bottom 1px           */
+
+.page-subheader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--color-stroke-dark-divider-header-validation, #ADADAD);
+    margin-bottom: 16px;
+    font-family: Verdana;
+    font-size: medium;
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* ── Body text (Bold) ───────────────────────────────────────────── */
+
+.body-text-bold {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 20px;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 24px;
+}
+
+/* ── Body text
+
+   Spec: Verdana, weight 400, 16px, line-height 160%              */
+
+.body-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+}
+
+/* ── Bullet list ────────────────────────────────────────────────── */
+
+ul {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    font-style: normal;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text, black);
+    margin-bottom: 24px;
+    padding-left: 24px;
+}
+
+    ul li {
+        margin-bottom: 8px;
+    }
+
+/* ── Note text ──────────────────────────────────────────────────── */
+
+.note-text {
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: medium;
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+    margin-bottom: 1rem;
+}
+
+/* ── Checkbox ───────────────────────────────────────────────────── */
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.form-check-input {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.form-check-label {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: medium;
+    color: black;
+    cursor: pointer;
+}
+
+/* ── Navigation buttons row ─────────────────────────────────────── */
+
+.page-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+    width: 100%;
+}
+
+.page-navigation-left {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.page-navigation-right {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}

@@ -1,0 +1,190 @@
+@using Microsoft.AspNetCore.Components.Forms;
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@if (IsOpen)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content @(IsEditMode ? "" : "modal-content--add")" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="add-edit-employee-modal-title" @ref="_modalElement">
+            <div class="modal-header">
+                <h3 id="add-edit-employee-modal-title" class="modal-title">@(IsEditMode ? "Edit Employee" : "Add Employee")</h3>
+                <button type="button" class="modal-close" @onclick="Close" aria-label="Close">x</button>
+            </div>
+
+            <CascadingValue Value="_editContext" IsFixed="false">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    <ValidationErrorSummary ShowSummary="_showErrors"
+                                            FieldIds="_fieldIds"
+                                            SummaryId="modal-validation-summary"/>
+                    <div class="field-row">
+                        <OutlinedTextField Id="modal-last-name"
+                                           Label="Last Name"
+                                           @bind-Value="_employee.LastName" />
+                        <OutlinedTextField Id="modal-first-name"
+                                           Label="First Name"
+                                           @bind-Value="_employee.FirstName" />
+                        <OutlinedSSNInput Id="modal-ssn"
+                                          Label="SSN"
+                                          @bind-Value="_employee.SSN"
+                                          IsFocused="@_ssnFocused"
+                                          IsFocusedChanged="(val) => _ssnFocused = val"
+                                          ShowSSN="@_showSSN"
+                                          ShowSSNChanged="(val) => _showSSN = val"
+                                          Visible="_showErrors" />
+                        @if (!IsEditMode)
+                        {
+                            <div class="wages-field">
+                                <label for="modal-wages" class="wages-field__label">Quarterly Wages</label>
+                                <NumericTextBox Id="modal-wages"
+                                                InputType="InputDataTypes.Currency"
+                                                @bind-Value="_employee.QuarterlyWages"
+                                                Visible="@_showErrors"
+                                                ShowCurrencyIcon="false" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <Button Text="CANCEL"
+                                Variant="Button.ButtonVariant.Secondary"
+                                ShowBorder="false"
+                                OnClick="Close" />
+                        <Button Text="@(IsEditMode ? "UPDATE EMPLOYEE" : "ADD EMPLOYEE")"
+                                Variant="Button.ButtonVariant.Secondary"
+                                OnClick="Save" />
+                    </div>
+                </CascadingValue>
+            </div>
+        </div>
+    }
+
+@code {
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public EmployeeWageEntryData Employee { get; set; } = new();
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<EmployeeWageEntryData> OnSave { get; set; }
+    [Parameter] public List<string> ExistingSSNs { get; set; } = new();
+    private ElementReference _modalElement;
+    private IJSObjectReference? _module;
+    private bool _wasOpen;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _modalElement);
+        }
+        else if (!IsOpen && _wasOpen)
+        {
+            _wasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+    }
+
+    private EmployeeWageEntryData _employee = new();
+    private EditContext _editContext = default!;
+    private ValidationMessageStore? _messageStore;
+    private bool _ssnFocused;
+    private bool _showSSN;
+    private bool _showErrors;
+    private bool _previousIsOpen;
+
+    private readonly Dictionary<string, string> _fieldIds = new()
+    {
+        [nameof(EmployeeWageEntryData.LastName)] = "modal-last-name",
+        [nameof(EmployeeWageEntryData.FirstName)] = "modal-first-name",
+        [nameof(EmployeeWageEntryData.SSN)] = "modal-ssn",
+        [nameof(EmployeeWageEntryData.QuarterlyWages)] = "modal-wages",
+    };
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_employee);
+        _editContext.OnFieldChanged += OnFieldChanged;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsOpen && !_previousIsOpen)
+        {
+            _employee = new EmployeeWageEntryData
+            {
+                Id = Employee.Id,
+                LastName = Employee.LastName,
+                FirstName = Employee.FirstName,
+                SSN = FormatSSN(Employee.SSN),
+                QuarterlyWages = Employee.QuarterlyWages,
+                SaveForNextQuarter = Employee.SaveForNextQuarter
+            };
+            _editContext = new EditContext(_employee);
+            _editContext.OnFieldChanged += OnFieldChanged;
+            _messageStore = null;
+            _ssnFocused = false;
+            _showSSN = false;
+            _showErrors = false;
+        }
+
+        _previousIsOpen = IsOpen;
+    }
+
+    private void OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        // Clear only the CHANGED field's manual messages, so the user gets immediate feedback that
+        // this error is resolved without disturbing the others.
+        //
+        // This used to clear the whole store, which was harmless while the store held nothing but the
+        // duplicate-SSN error. It stopped being harmless once "Quarterly wage is required." joined it:
+        // blurring Last Name or First Name fired this and silently wiped the wage error from both the
+        // summary and the field. SSN appeared immune only because OutlinedSSNInput notifies on the
+        // FIRST blur only, while OutlinedTextField notifies on every one.
+        if (_messageStore is not null)
+        {
+            _messageStore.Clear(e.FieldIdentifier);
+            _editContext.NotifyValidationStateChanged();
+        }
+        StateHasChanged();
+    }
+
+    private Task Save()
+    {
+        _messageStore?.Clear();
+        _editContext.NotifyValidationStateChanged();
+
+        if (!_editContext.Validate())
+        {
+            _showErrors = true;
+            return Task.CompletedTask;
+        }
+
+        var normalizedSSN = _employee.SSN?.Replace("-", "") ?? string.Empty;
+        var isDuplicate = ExistingSSNs.Any(ssn => string.Equals(ssn.Replace("-", ""), normalizedSSN, StringComparison.OrdinalIgnoreCase));
+
+        if (isDuplicate && normalizedSSN != "000000000")
+        {
+            _messageStore ??= new ValidationMessageStore(_editContext);
+            _messageStore.Add(_editContext.Field(nameof(EmployeeWageEntryData.SSN)), "An employee with this SSN already exists.");
+
+            _showErrors = true;
+            _editContext.NotifyValidationStateChanged();
+            return Task.CompletedTask;
+        }
+
+        return OnSave.InvokeAsync(_employee);
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+
+    private Task HandleBackdropClick() => Close();
+
+    private static string FormatSSN(string value) => SsnHelper.FormatSSN(value);
+}

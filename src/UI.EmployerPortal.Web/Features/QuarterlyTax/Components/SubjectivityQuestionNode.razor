@@ -1,0 +1,227 @@
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
+ 
+@if (Question != null)
+{
+    <div id="@($"question_section_{Question.EmployerPortalQuestionSK}")" class="ui-radio-section mb-4">
+        @if (Question.ControlTypeCodeSK == 0 || Question.ControlTypeCodeSK == 9)
+        {
+            <p id="@($"question_label_{Question.EmployerPortalQuestionSK}")" class="ui-text mb-3" tabindex="-1">
+                @Question.QuestionText
+            </p>
+        }
+        else
+        {
+            <p id="@($"question_label_{Question.EmployerPortalQuestionSK}")" class="ui-text fw-bold mb-2" tabindex="-1">
+                @Question.QuestionText
+            </p>
+ 
+            @switch (Question.ControlTypeCodeSK)
+            {
+                case 2:
+                    <InputDate id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                               @bind-Value="DateValue"
+                               @onblur="HandleBlur"
+                               class="form-control ui-date-input"
+                               DisplayName="@Question.QuestionText" />
+                    break;
+ 
+                case 3:
+                    <input id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                           type="text"
+                           inputmode="numeric"
+                           class="form-control ui-date-input"
+                           maxlength="25"
+                           value="@CurrentAnswer"
+                           @oninput="@(e => OnNumericInput(e.Value?.ToString() ?? string.Empty))"
+                           @onblur="HandleBlur" />
+                    break;
+ 
+                case 4:
+                    if (IsSingleSelectCheckbox())
+                    {
+                        var (opt1Val, opt1Lbl, opt2Val, opt2Lbl) = GetBinaryCheckboxLabels();
+                        <div class="d-flex align-items-center gap-4 mt-2" id="@($"question_input_{Question.EmployerPortalQuestionSK}")">
+                            <div class="form-check">
+                                <input id="@($"question_input_{Question.EmployerPortalQuestionSK}_opt1")"
+                                       type="checkbox"
+                                       class="form-check-input"
+                                       checked="@(string.Equals(CurrentAnswer, opt1Val, StringComparison.OrdinalIgnoreCase))"
+                                       @onchange="@(async () => await OnSingleCheckboxToggle(opt1Val))"
+                                       @onblur="HandleBlur" />
+                                <label class="form-check-label fw-normal" for="@($"question_input_{Question.EmployerPortalQuestionSK}_opt1")">
+                                    @opt1Lbl
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input id="@($"question_input_{Question.EmployerPortalQuestionSK}_opt2")"
+                                       type="checkbox"
+                                       class="form-check-input"
+                                       checked="@(string.Equals(CurrentAnswer, opt2Val, StringComparison.OrdinalIgnoreCase))"
+                                       @onchange="@(async () => await OnSingleCheckboxToggle(opt2Val))"
+                                       @onblur="HandleBlur" />
+                                <label class="form-check-label fw-normal" for="@($"question_input_{Question.EmployerPortalQuestionSK}_opt2")">
+                                    @opt2Lbl
+                                </label>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-2" id="@($"question_input_{Question.EmployerPortalQuestionSK}")">
+                            @foreach (var opt in GetCheckboxOptions())
+                            {
+                                var optId = $"question_cb_{Question.EmployerPortalQuestionSK}_{opt.Replace(" ", "_")}";
+                                <div class="form-check mb-1">
+                                    <input id="@optId"
+                                           type="checkbox"
+                                           class="form-check-input"
+                                           checked="@IsMultiCheckboxSelected(opt)"
+                                           @onchange="@(async () => await OnMultiCheckboxToggle(opt))"
+                                           @onblur="HandleBlur" />
+                                    <label class="form-check-label fw-normal" for="@optId">
+                                        @opt
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    }
+                    break;
+ 
+                case 5: // Radio Button
+                    var radioOptions = GetRadioOptions();
+                    <div class="d-flex align-items-center gap-4 mt-2" id="@($"question_radio_{Question.EmployerPortalQuestionSK}")" tabindex="-1">
+                        @for (int i = 0; i < radioOptions.Count; i++)
+                        {
+                            var opt = radioOptions[i];
+                            var optId = $"question_radio_{Question.EmployerPortalQuestionSK}_opt{i}";
+                            <div class="form-check">
+                                <input id="@optId"
+                                       type="radio"
+                                       name="@($"question_radio_group_{Question.EmployerPortalQuestionSK}")"
+                                       class="form-check-input"
+                                       value="@opt.Value"
+                                       checked="@(string.Equals(CurrentAnswer, opt.Value, StringComparison.OrdinalIgnoreCase))"
+                                       @onchange="@(async () => await OnAnswerChanged(opt.Value ?? string.Empty))"
+                                       @onblur="HandleBlur" />
+                                <label class="form-check-label fw-normal" for="@optId">
+                                    @opt.Label
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    break;
+
+ 
+                case 6:
+                case 7:
+                    var dropdownOptions = GetDropdownOptions();
+                    <div @onblur="HandleBlur">
+                        <OutlinedSelectField Value="@CurrentAnswer"
+                                             ValueChanged="@((string v) => OnAnswerChanged(v ?? string.Empty))"
+                                             Id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                                             AriaLabelledBy="@($"question_label_{Question.EmployerPortalQuestionSK}")"
+                                             Options="@dropdownOptions"
+                                             Visible="true" />
+                    </div>
+                    break;
+ 
+                case 8:
+                    var multiOptions = GetDropdownOptions();
+                    <div @onblur="HandleBlur">
+                        <OutlinedSelectField Value="@CurrentAnswer"
+                                             ValueChanged="@((string v) => OnAnswerChanged(v ?? string.Empty))"
+                                             Id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                                             AriaLabelledBy="@($"question_label_{Question.EmployerPortalQuestionSK}")"
+                                             Options="@multiOptions"
+                                             Visible="true" />
+                    </div>
+                    break;
+ 
+                case 1:
+                default:
+                    if (IsQuarterYearQuestion())
+                    {
+                        <input id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                               type="text"
+                               class="form-control ui-date-input"
+                               placeholder="Q-YYYY"
+                               maxlength="6"
+                               value="@CurrentAnswer"
+                               @oninput="OnQuarterYearInput"
+                               @onblur="HandleBlur" />
+                    }
+                    else
+                    {                        
+                        <textarea id="@($"question_input_{Question.EmployerPortalQuestionSK}")"
+                                  class="form-control ui-textarea-input"
+                                  rows="3"
+                                  maxlength="1000"
+                                  value="@CurrentAnswer"
+                                  @oninput="@(e => OnTextInput(e.Value?.ToString() ?? string.Empty))"
+                                  @onblur="HandleBlur"></textarea>
+                        <div id="@($"question_input_{Question.EmployerPortalQuestionSK}_charcount")" class="master-charcount">
+                        @(CurrentAnswer?.Length ?? 0) / 1000
+                        </div>
+ 
+                    }
+                    break;
+            }
+ 
+            @if (ShouldShowError())
+            {
+                @if (IsRequiredAndEmpty())
+                {
+                    <div class="field-error mt-2" role="alert">
+                        <span class="field-error__icon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="8" fill="#D32F2F" />
+                                <text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text>
+                            </svg>
+                        </span>
+                        <span class="field-error__text">This field is required.</span>
+                    </div>
+                }
+                else if (IsInvalidDate())
+                {
+                    <div class="field-error mt-2" role="alert">
+                        <span class="field-error__icon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="8" fill="#D32F2F" />
+                                <text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text>
+                            </svg>
+                        </span>
+                        <span class="field-error__text">Date must be between 01/01/@(DateTime.Today.Year - 4) and today.</span>
+                    </div>
+                }
+                else if (IsInvalidQuarterYear())
+                {
+                    <div class="field-error mt-2" role="alert">
+                        <span class="field-error__icon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="8" fill="#D32F2F" />
+                                <text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text>
+                            </svg>
+                        </span>
+                        <span class="field-error__text">Quarter and Year must be between 1-@(DateTime.Today.Year - 4) and 4-@(DateTime.Today.Year).</span>
+                    </div>
+                }
+                else if (IsTextTooLong())
+                {
+                    <div class="field-error mt-2" role="alert">
+                        <span class="field-error__icon" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="8" fill="#D32F2F" />
+                                <text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text>
+                            </svg>
+                        </span>
+                        <span class="field-error__text">Cannot exceed 1000 characters.</span>
+                    </div>
+                }
+            }
+        }
+    </div>
+}
+ 
+

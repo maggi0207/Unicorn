@@ -1,0 +1,90 @@
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    z-index: 10000;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.modal-content {
+    max-width: 100%;
+    max-width: 745px;
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 11px 15px rgba(0,0,0,0.20), 0 9px 46px rgba(0,0,0,0.12);
+    margin: auto;
+}
+
+.modal-content--add{
+    max-width: 960px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 2px solid #e6e6e6;
+}
+
+.modal-title {
+    margin: 0;
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 1.16;
+    color: #003663;
+}
+
+.modal-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: #003663;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+}
+
+
+.field-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.wages-field {
+    position: relative;
+    width: 100%;
+    max-width: 330px;
+}
+
+.wages-field__label{
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    padding: 0 6px;
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #333;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 16px 24px 24px 24px;
+}

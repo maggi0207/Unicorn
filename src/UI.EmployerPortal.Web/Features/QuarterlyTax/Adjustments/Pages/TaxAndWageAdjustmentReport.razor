@@ -1,0 +1,669 @@
+@page "/tax-wage-report-adjustments/tax-report-adjustment"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageAdjustmentService
+@using WageTaxFilingPayrollQuestionsResponse = UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService.WageTaxFilingPayrollQuestionsResponse
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Wizards
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.QuarterlyTax
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Adjustments.Models
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@inject IWageAdjustmentService _wageAdjustmentService
+
+
+<PageTitle>Tax Report Adjustment</PageTitle>
+@if (_pageState == PageState.Confirmation)
+{
+    <ReportConfirmationAdjustments ConfirmationNumber="@_saveTaxAdjustmentResponse!.ConfirmationNumber"
+                                   DueDate="@_taxAndWageAdjustmentEntryModel.DueDate"
+                                   ReportingQuarter="@_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousQuarterYear"
+                                   FileName="Tax-And-Wage-Adjustment"
+                                   EffectiveDate="@DateTime.Now"
+                                   ShowNoWageReportWarning="@_showNoWageReportWarning" />
+}
+else
+{
+    <div class="page-content">
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading..." />
+        }
+        <div class="@(_isLoading ? "display:none" : null)">
+            <EditForm EditContext="_editContext">
+
+                <Wizard Steps="@_wizardSteps"
+                        @bind-CurrentStep="@CurrentStep"
+                        UseTextStepper="true"
+                        ShowNavigationButtons="@_showNavButtons"
+                        OnActionClick="HandleActionClick"
+                        OnBackClick="HandleBackClick"
+                        ShowBackButton="@_showBackButton"
+                        OnCancelClick="HandleCancelClick"
+                        ShowSaveAndQuitButton="false"
+                        AutoNavigateOnAction="false">
+
+                    <DataAnnotationsValidator />
+                    <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
+                    @if (_currentStep == 1)
+                    {
+                        <QuarterYearDropdownList Value="@_wageAdjustmentQuarterYearModel.QuarterYear"
+                                                 ValueChanged="@(QuarterYearChanged)"
+                                                 For="@(() => _wageAdjustmentQuarterYearModel.QuarterYear)"
+                                                 Label="Select Quarter & Year"
+                                                 Heading="Select Quarter & Year"
+                                                 SubText="Select a previously submitted report to adjust."
+                                                 Placeholder="Quarter & Year"
+                                                 Disabled="false"
+                                                 Required="true"
+                                                 AvailableQuarters="@_filedWageQuarters" />
+
+                    }
+                    else if (_currentStep == 2)
+                    {
+                        <TaxWageAdjustmentEntry @ref="_taxWageAdjustmentEntry" AdjustedTaxWageModel="@_adjustedTaxWageModel" PreserveData="@_preserveData" HasRendered="@_hasRendered" TaxNewAndWageModel="@_taxAndWageAdjustmentEntryModel" QuarterYear="@_wageAdjustmentQuarterYearModel.QuarterYear" DueDate="@_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousDueDate"></TaxWageAdjustmentEntry>
+                    }
+                    else if (_hasSubjectivityStep && _currentStep == 3)
+                    {
+                        <SubjectivityQuestionsStep Categories="@_subjectivityResponse?.EmployerPortalPayrollQuestionCategories"
+                                                   Answers="@_subjectivityAnswers"
+                                                   AnswersChanged="@(a => _subjectivityAnswers = a)"
+                                                   ShowValidation="@_showValidationSummary"
+                                                   FieldIds="@_validationFieldIds"
+                                                   @ref="_subjectivityStepRef" />
+                    }
+                    else if ((_hasSubjectivityStep && _currentStep == 4) || (!_hasSubjectivityStep && _currentStep == 3))
+                    {
+                        <TaxWageAdjustmentVerification PreviousTaxWageAdjustmentModel="@_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues" TaxAndWageAdjustmentEntryModel="@_taxAndWageAdjustmentEntryModel" AdjustedTaxWageModel="@_adjustedTaxWageModel" OnEditAdjustments="HandleTaxDetailsEdit"></TaxWageAdjustmentVerification>
+                        @if (_hasSubjectivityStep && _subjectivityResponse != null)
+                        {
+                            <SubjectivityDetails Categories="@_subjectivityResponse.EmployerPortalPayrollQuestionCategories"
+                                                 Answers="@_subjectivityAnswers"
+                                                 OnEdit="HandleSubjectivityEdit" />
+                        }
+                    }
+                </Wizard>
+            </EditForm>
+        </div>
+    </div>
+    <BackButtonModal IsOpen="@_showModal" OnClose="@CloseModal" OnRemoveDataConfirmed="@ContinueBack"></BackButtonModal>
+    <UnsavedChangesModal IsOpen="@_showUnsavedChangesModal"
+                         OnStay="HandleUnsavedChangesStayOnReport"
+                         OnCancelReport="HandleUnsavedChangesCancelReport" />
+
+}
+
+@code {
+
+    [Inject]
+    private ITaxAndWageEntryService TaxAndWageEntryService { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    [Inject]
+    private IUserAccountService UserAccountService { get; set; } = default!;
+
+    [Inject]
+    private IConfiguration Configuration { get; set; } = default!;
+
+    [Inject]
+    private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
+
+    private bool _showBackButton => _currentStep > 1 && !_showModal;
+
+    public required WageAdjustmentReasonsModel reasons { get; set; }
+
+    private string? SelectedQuarterYear { get; set; }
+
+    private bool _showValidationSummary;
+
+    private EditContext _editContext = new EditContext(new object());
+    private int _currentStep = 1;
+    private MissingReportModel? _missingReportModel = new();
+    private List<QuarterlyReportSelectionMethod> _quarterlyReportSelectionMethods = new();
+    private bool _showNavButtons { get; set; } = true;
+    private string? QuarterAndTaxYear { get; set; }
+    private string? StepperCssClass { get; set; }
+    private List<SelectOption> quarterOptions { get; set; } = new List<SelectOption>();
+    private PageState _pageState = PageState.Wizard;
+    private bool _showModal { get; set; }
+    private bool _preserveData { get; set; }
+    private List<string> _filedWageQuarters = new();
+
+    private TaxWageAdjustmentEntry? _taxWageAdjustmentEntry;
+    private AdjustedTaxWageModel _adjustedTaxWageModel = new();
+    private TaxAndWageAdjustmentEntryModel _taxAndWageAdjustmentEntryModel = new();
+    private WageAdjustmentQuarterYearModel _wageAdjustmentQuarterYearModel = new();
+    private SaveTaxAdjustmentResponse _saveTaxAdjustmentResponse = new();
+    private bool _hasRendered { get; set; }
+    private ValidationMessageStore? _messageStore;
+    private bool _showUnsavedChangesModal;
+    private bool _interceptBackNav;
+    private int _stepBeforeModal;
+    private bool _isLoading;
+    private bool _showNoWageReportWarning;
+
+    private WageTaxFilingPayrollQuestionsResponse? _subjectivityResponse;
+    private Dictionary<int, string> _subjectivityAnswers = new();
+    private SubjectivityQuestionsStep? _subjectivityStepRef;
+    private bool _hasSubjectivityStep;
+
+    private int CurrentStep
+    {
+        get => _currentStep;
+        set
+        {
+
+            if (_interceptBackNav && _currentStep == 2 && value == 1)
+            {
+                return;
+            }
+
+            _currentStep = value;
+        }
+    }
+
+    private readonly Dictionary<string, string> _validationFieldIds = new()
+    {
+        [nameof(WageAdjustmentQuarterYearModel.QuarterYear)] = "quarter-year-select",
+        [nameof(TaxAndWageAdjustmentEntryModel.EmployeeCountQtr1)] = "employee-count-month1",
+        [nameof(TaxAndWageAdjustmentEntryModel.TotalGrossCoveredWages)] = "total-gross-covered-wages",
+        [nameof(TaxAndWageAdjustmentEntryModel.DefinedTaxableIncome)] = "exclusion-amount",
+        [nameof(TaxAndWageAdjustmentEntryModel.CodeSK)] = "reasons",
+        [nameof(TaxAndWageAdjustmentEntryModel.WageChangeText)] = "wages-explanation",
+    };
+
+    private readonly List<WizardStep> _wizardSteps =
+   [
+        new WizardStep {StepNumber = 1, Title = "Select Report to Adjust", ActionButtonText="Continue" },
+        new WizardStep {StepNumber = 2, Title = "Enter Adjustments", ActionButtonText="Continue" },
+        new WizardStep {StepNumber = 3, Title = "Verify Information", ActionButtonText="SUBMIT ADJUSTMENT" }
+   ];
+
+    /// <summary>
+    ///
+    /// </summary>
+    public enum PageState
+    {
+        /// <summary>
+        /// wizard page
+        /// </summary>
+        Wizard,
+        /// <summary>
+        /// confimation
+        /// </summary>
+        Confirmation
+    }
+
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        _showValidationSummary = false;
+        _editContext = new EditContext(_wageAdjustmentQuarterYearModel);
+        _messageStore = new ValidationMessageStore(_editContext);
+        await LoadFiledWageQuarters();
+    }
+
+    /// <summary>
+    /// Builds the Quarter &amp; Year options from the employer's filed wage reports. Only
+    /// quarters with a submitted wage report can be adjusted, so the dropdown must offer
+    /// those rather than a rolling calendar range.
+    /// </summary>
+    private async Task LoadFiledWageQuarters()
+    {
+        var filedReports = await TaxAndWageEntryService.GetPreviouslyFiledReportsAsync();
+        var minYear = DateTime.Now.Year - 4;
+        _filedWageQuarters = filedReports
+            .Where(report => report.HasTaxReport && report.Quarter > 0 && report.Year >= minYear)
+            .OrderByDescending(report => report.Year)
+            .ThenByDescending(report => report.Quarter)
+            .Select(report => $"Q{report.Quarter} {report.Year}")
+            .Distinct()
+            .ToList();
+
+        if (_filedWageQuarters.Count == 0)
+        {
+            _messageStore?.Add(
+                _editContext.Field(string.Empty),
+                "There are no previously filed wage reports available to adjust.");
+            _showValidationSummary = true;
+            _editContext.NotifyValidationStateChanged();
+        }
+    }
+
+    private string GetUserEmail()
+    {
+        return UserAccountService.GetUserID() ?? "";
+
+    }
+
+    private async Task HandleActionClick()
+    {
+        await JS.InvokeVoidAsync("scrollToTop");
+        _isLoading = true;
+        StateHasChanged();
+        await OnNextAsync();
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private void CloseModal(bool preserveData)
+    {
+
+        _showModal = false;
+        _interceptBackNav = false;
+        _preserveData = preserveData;
+        _currentStep = 2;
+    }
+
+    private void ContinueBack()
+    {
+        _showModal = false;
+        _interceptBackNav = false;
+        _preserveData = false;
+        _currentStep = 1;
+        _subjectivityAnswers.Clear();
+        if (_hasSubjectivityStep)
+        {
+            _hasSubjectivityStep = false;
+            _wizardSteps.RemoveAll(s => s.Title == "Subjectivity Questions");
+            for (var i = 0; i < _wizardSteps.Count; i++)
+            {
+                _wizardSteps[i].StepNumber = i + 1;
+            }
+        }
+        _messageStore?.Clear();
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private Task HandleBackClick()
+    {
+        _showValidationSummary = false;
+
+        if (_currentStep == 1)
+        {
+            _hasRendered = false;
+            _messageStore?.Clear();
+            _editContext.NotifyValidationStateChanged();
+        }
+        if (_currentStep == 2)
+        {
+            var isSame = _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues != null &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousEmployeeCountQtr1 == _taxAndWageAdjustmentEntryModel.EmployeeCountQtr1 &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousEmployeeCountQtr2 == _taxAndWageAdjustmentEntryModel.EmployeeCountQtr2 &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousEmployeeCountQtr3 == _taxAndWageAdjustmentEntryModel.EmployeeCountQtr3 &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousTotalGrossCoveredWages == _taxAndWageAdjustmentEntryModel.TotalGrossCoveredWages &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousLessExclusionWages == _taxAndWageAdjustmentEntryModel.LessExclusionWages &&
+                        _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousDefinedTaxableIncome == _taxAndWageAdjustmentEntryModel.DefinedTaxableIncome &&
+                        _taxAndWageAdjustmentEntryModel.CodeSK == null &&
+                        string.IsNullOrWhiteSpace(_taxAndWageAdjustmentEntryModel.WageChangeText);
+            if (isSame)
+            {
+                _interceptBackNav = false;
+                _preserveData = false;
+                _currentStep = 1;
+                _messageStore?.Clear();
+                _editContext.NotifyValidationStateChanged();
+                return Task.CompletedTask;
+            }
+
+            _stepBeforeModal = _currentStep;  // should be 2
+            _interceptBackNav = true;
+            _hasRendered = true;
+            _showModal = true;
+            _currentStep = 2;
+            return Task.CompletedTask;
+        }
+        if (_currentStep >= 3)
+        {
+            _hasRendered = true;
+            _editContext = new EditContext(_wageAdjustmentQuarterYearModel);
+            _messageStore = new ValidationMessageStore(_editContext);
+            _editContext.NotifyValidationStateChanged();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleCancelClick()
+    {
+        if (_currentStep >= 2)
+        {
+            _showUnsavedChangesModal = true;
+            StateHasChanged();
+        }
+        else
+        {
+            NavigationManager.NavigateTo("tax-wage-report-adjustments/adjustments", forceLoad: true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+    }
+
+    private async Task QuarterYearChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            _wageAdjustmentQuarterYearModel.QuarterYear = value;
+        }
+        else
+        {
+            _wageAdjustmentQuarterYearModel.QuarterYear = null;
+        }
+    }
+
+    private void HandleTaxDetailsEdit()
+    {
+        _currentStep = 2;
+    }
+
+    private void HandleSubjectivityEdit()
+    {
+        _currentStep = 3;
+    }
+
+    private void HandleQuarterYearDetailsEdit()
+    {
+        _currentStep = 1;
+    }
+
+    private void HandleUnsavedChangesStayOnReport()
+    {
+        _showUnsavedChangesModal = false;
+    }
+
+    private async Task HandleUnsavedChangesCancelReport()
+    {
+        _showUnsavedChangesModal = false;
+
+        NavigationManager.NavigateTo("tax-wage-report-adjustments/adjustments", true);
+    }
+
+    private static bool HasActualQuestions(WageTaxFilingPayrollQuestionsResponse? response)
+    {
+        return response != null
+            && response.NumberOfPayrollQuestions > 0
+            && response.EmployerPortalPayrollQuestionCategories != null
+            && response.EmployerPortalPayrollQuestionCategories.Any(c =>
+                c.TaxThresholds != null && c.TaxThresholds.Any(t =>
+                    t.EmployerPortalPayrollQuestions != null
+                    && t.EmployerPortalPayrollQuestions.Length > 0));
+    }
+
+    private async Task OnNextAsync()
+    {
+        var ok = await ProcessCurrentStepAsync();
+
+        if (ok)
+        {
+            if (_currentStep < _wizardSteps.Count)
+            {
+                if (_currentStep == 1)
+                {
+                    _hasRendered = false;
+                    _adjustedTaxWageModel = new AdjustedTaxWageModel();
+                    _taxAndWageAdjustmentEntryModel.CodeSK = null;
+                    _subjectivityAnswers.Clear();
+                    _messageStore?.Clear();
+                    _editContext.NotifyValidationStateChanged();
+                }
+                if (_currentStep == 2)
+                {
+                    _preserveData = true;
+                }
+
+                _currentStep++;
+            }
+            StateHasChanged();
+        }
+    }
+
+    private async Task<bool> ProcessCurrentStepAsync()
+    {
+        switch (_currentStep)
+        {
+            case 1:
+                if (_filedWageQuarters.Count == 0)
+                {
+                    _showValidationSummary = true;
+                    return false;
+                }
+
+                _messageStore?.Clear();
+                _editContext.NotifyValidationStateChanged();
+
+                if (!_editContext.Validate())
+                {
+                    _showValidationSummary = true;
+                    return false;
+                }
+                else
+                {
+                    _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues = new PreviousTaxWageAdjustmentModel();
+                    _showValidationSummary = false;
+                    string? input = _wageAdjustmentQuarterYearModel.QuarterYear;
+
+                    var parts = input!.Split(' ');
+
+                    int quarter = int.Parse(parts[0].Replace("Q", ""));
+                    int year = int.Parse(parts[1]);
+
+                    var response = await _wageAdjustmentService.GetTaxAdjustmentReport(year, quarter);
+
+                    if (response.TaxReports.Any())
+                    {
+
+                        foreach (var report in response.TaxReports)
+                        {
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousEffectiveDate = report.EffectiveDate;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr1 = report.EmployeeMonthOneCount;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr2 = report.EmployeeMonthTwoCount;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousEmployeeCountQtr3 = report.EmployeeMonthThreeCount;
+
+                            if (report.Quarter is not null)
+                            {
+                                _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousQuarter = report.Quarter;
+                                _taxAndWageAdjustmentEntryModel.Quarter = report.Quarter.Value;
+                            }
+                            else
+                            {
+                                _taxAndWageAdjustmentEntryModel.Quarter = quarter;
+                            }
+
+                            if (report.Year is not null)
+                            {
+                                _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousYear = report.Year;
+                                _taxAndWageAdjustmentEntryModel.Year = report.Year.Value;
+                            }
+                            else
+                            {
+                                _taxAndWageAdjustmentEntryModel.Year = year;
+                            }
+
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousLessExclusionWages = report.ExclusionAmount;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousDueDate = report.DueDate;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousDefinedTaxableIncome = report.TaxablePayrollAmount;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousTotalGrossCoveredWages = report.GrossWageAmount;
+                            _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousCurrentTaxRate = report.Rate;
+
+                        }
+                        if (_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousTotalGrossCoveredWages == 0)
+                        {
+                            var wageReport = await _wageAdjustmentService.LoadWageReportAsync(quarter, year);
+                            _showNoWageReportWarning = wageReport is null;
+                        }
+                        else
+                        {
+                            _showNoWageReportWarning = false;
+                        }
+                        return true;
+
+                    }
+                    else
+                    {
+                        _messageStore?.Clear();
+                        foreach (var error in response.RuleViolations)
+                        {
+                            _messageStore?.Add(_editContext.Field(string.Empty), "No tax report was found to adjust");
+                        }
+                        _editContext.NotifyValidationStateChanged();
+
+                        _showValidationSummary = true;
+
+                        return false;
+                    }
+                }
+
+            case 2:
+                _messageStore?.Clear();
+
+                var step2Results = _taxWageAdjustmentEntry?.Validate() ?? Array.Empty<ValidationResult>();
+
+                if (step2Results.Any())
+                {
+                    foreach (var step2Result in step2Results)
+                    {
+                        var memberName = step2Result.MemberNames.FirstOrDefault() ?? string.Empty;
+                        _messageStore?.Add(_editContext.Field(memberName), step2Result.ErrorMessage ?? string.Empty);
+                    }
+                    _editContext.NotifyValidationStateChanged();
+                    _showValidationSummary = true;
+                    return false;
+                }
+                else
+                {
+                    _editContext.NotifyValidationStateChanged();
+                    _showValidationSummary = false;
+                }
+
+                int adjQuarter = _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues?.PreviousQuarter
+                ?? _taxAndWageAdjustmentEntryModel.Quarter;
+                int adjYear = _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues?.PreviousYear
+                ?? _taxAndWageAdjustmentEntryModel.Year ?? 0;
+
+                _subjectivityResponse = await TaxAndWageEntryService.GetSubjectivityQuestionsAsync(
+                _taxAndWageAdjustmentEntryModel.TotalGrossCoveredWages ?? 0m,
+                adjQuarter,
+                adjYear);
+
+                if (HasActualQuestions(_subjectivityResponse))
+                {
+                    if (!_hasSubjectivityStep)
+                    {
+                        _hasSubjectivityStep = true;
+                        _wizardSteps.Insert(2, new WizardStep { StepNumber = 3, Title = "Subjectivity Questions", ActionButtonText = "Continue" });
+                        for (var i = 0; i < _wizardSteps.Count; i++)
+                        {
+                            _wizardSteps[i].StepNumber = i + 1;
+                        }
+                    }
+                }
+                else
+                {
+                    if (_hasSubjectivityStep)
+                    {
+                        _hasSubjectivityStep = false;
+                        _subjectivityAnswers.Clear();
+                        _wizardSteps.RemoveAll(s => s.Title == "Subjectivity Questions");
+                        for (var i = 0; i < _wizardSteps.Count; i++)
+                        {
+                            _wizardSteps[i].StepNumber = i + 1;
+                        }
+                    }
+                }
+                return true;
+            case 3:
+                if (_hasSubjectivityStep)
+                {
+                    if (_subjectivityStepRef != null && !_subjectivityStepRef.IsValid())
+                    {
+                        _showValidationSummary = true;
+                        return false;
+                    }
+                    return true;
+                }
+                return await SubmitAdjustmentReportAsync();
+            case 4:
+                return await SubmitAdjustmentReportAsync();
+        }
+        return true;
+    }
+
+    private async Task<bool> SubmitAdjustmentReportAsync()
+    {
+        if (_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousTotalGrossCoveredWages != _taxAndWageAdjustmentEntryModel.TotalGrossCoveredWages || _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousLessExclusionWages != _taxAndWageAdjustmentEntryModel.LessExclusionWages)
+        {
+            _taxAndWageAdjustmentEntryModel.HasPayrollAdjustment = true;
+        }
+        else
+        {
+            _taxAndWageAdjustmentEntryModel.HasPayrollAdjustment = false;
+        }
+
+        if (_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousQuarter.HasValue)
+        {
+            _taxAndWageAdjustmentEntryModel.Quarter = _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousQuarter.Value;
+        }
+        if (_taxAndWageAdjustmentEntryModel.PreviousTaxWageValues!.PreviousYear.HasValue)
+        {
+            _taxAndWageAdjustmentEntryModel.Year = _taxAndWageAdjustmentEntryModel.PreviousTaxWageValues.PreviousYear.Value;
+        }
+
+        _taxAndWageAdjustmentEntryModel.ContactEmailAddress = this.GetUserEmail();
+
+        var result = await _wageAdjustmentService.SaveTaxReportAdjustment(_taxAndWageAdjustmentEntryModel);
+
+        if (!string.IsNullOrWhiteSpace(result.ConfirmationNumber))
+        {
+            await JS.InvokeVoidAsync("scrollToTop");
+            _saveTaxAdjustmentResponse = result;
+            _showValidationSummary = false;
+            _showNavButtons = false;
+            _pageState = PageState.Confirmation;
+            return true;
+        }
+
+        if (result.RuleViolations.Any())
+        {
+            _messageStore?.Clear();
+
+            var messageStore = new ValidationMessageStore(_editContext);
+            foreach (var error in result.RuleViolations)
+            {
+                messageStore?.Add(_editContext.Field(string.Empty), error.RuleID + " " + error.RuleViolation);
+            }
+            _editContext.NotifyValidationStateChanged();
+
+            _showValidationSummary = true;
+
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(result.ConfirmationNumber))
+        {
+            _messageStore?.Clear();
+            _messageStore?.Add(_editContext.Field(string.Empty),
+                Configuration["Messages:TechnicalDifficulties"]
+                ?? "We are currently experiencing technical difficulties. Please try again later.");
+            _editContext.NotifyValidationStateChanged();
+            _showValidationSummary = true;
+            return false;
+        }
+        return true;
+    }
+}

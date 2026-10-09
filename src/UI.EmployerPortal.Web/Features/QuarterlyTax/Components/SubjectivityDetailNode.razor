@@ -1,0 +1,73 @@
+@using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
+ 
+@if (Question != null && Question.ControlTypeCodeSK != 0 && Question.ControlTypeCodeSK != 9 && Answers != null && Answers.TryGetValue(Question.EmployerPortalQuestionSK, out var answer) && !string.IsNullOrWhiteSpace(answer))
+{
+    <div class="subjectivity-detail-item">
+        <div class="question-text">@Question.QuestionText</div>
+        <div class="answer-text">@FormatAnswer(answer)</div>
+    </div>
+    @if (Question.SubsequentQuestions != null && Question.SubsequentQuestions.Length > 0)
+    {
+        @foreach (var childQuestion in Question.SubsequentQuestions)
+        {
+            @if (IsChildVisible(childQuestion, answer))
+            {
+                <SubjectivityDetailNode Question="@childQuestion" Answers="@Answers" />
+            }
+        }
+    }
+}
+ 
+@code {
+    [Parameter]
+    public EmployerPortalQuestionProxy Question { get; set; } = default!;
+ 
+    [Parameter]
+    public Dictionary<int, string> Answers { get; set; } = default!;
+ 
+    private static string FormatAnswer(string raw)
+    {
+        return raw.ToLowerInvariant() switch
+        {
+            "yes" => "Yes",
+            "true" => "True",
+            "no" => "No",
+            "false" => "False",
+            _ => raw
+        };
+    }
+ 
+    private bool IsChildVisible(EmployerPortalQuestionProxy childQuestion, string parentAnswer)
+    {
+        if (string.IsNullOrWhiteSpace(parentAnswer))
+        {
+            return false;
+        }
+ 
+        if (Question.Conditions == null || Question.Conditions.Length == 0)
+        {
+            return true;
+        }
+ 
+        foreach (var cond in Question.Conditions)
+        {
+            if (cond.QuestionSK == 0 || cond.QuestionSK == childQuestion.EmployerPortalQuestionSK)
+            {
+                if (string.Equals(cond.Input, parentAnswer, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+ 
+                if ((cond.Input.Equals("dateValue", StringComparison.OrdinalIgnoreCase) ||
+                     cond.Input.Equals("textValue", StringComparison.OrdinalIgnoreCase) ||
+                     cond.Input.Equals("listValue", StringComparison.OrdinalIgnoreCase)) &&
+                    !string.IsNullOrWhiteSpace(parentAnswer))
+                {
+                    return true;
+                }
+            }
+        }
+ 
+        return false;
+    }
+}

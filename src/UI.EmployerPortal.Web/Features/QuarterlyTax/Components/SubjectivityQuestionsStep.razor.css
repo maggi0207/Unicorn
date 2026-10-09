@@ -1,0 +1,36 @@
+.ui-subjectivity-step {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    gap: 24px;
+}
+
+.page-title {
+    font-family: Verdana, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin: 0;
+}
+
+.page-subtitle {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 25.6px;
+    color: #000000;
+    margin: 0;
+}
+
+.subjectivity-banner ::deep br {
+    display: none;
+}
+
+.subjectivity-banner {
+    margin-bottom: -12px;
+}

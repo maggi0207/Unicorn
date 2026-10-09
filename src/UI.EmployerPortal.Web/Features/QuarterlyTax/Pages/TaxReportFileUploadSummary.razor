@@ -1,0 +1,155 @@
+@page "/quarterly-tax/tax-file-upload-summary"
+@page "/quarterly-tax/test/tax-file-upload-summary"
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components
+@using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Models
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@TestEnvironmentSource.Title("Tax Report File Summary", _isSourceTestEnv)</PageTitle>
+<div class="page-content @(_isSourceTestEnv ? "test-env-page" : "")">
+    <h1 class="page-header">@TestEnvironmentSource.Heading("Tax Report File Summary", _isSourceTestEnv)</h1>
+    <TestEnvironmentBanner
+        IsTestEnvironment="@_isSourceTestEnv"
+        Description="This list shows test uploads only." />
+
+    <hr class="section-divider" aria-hidden="true" />
+    <AnnouncementBanner AnnouncementType="@(_isSourceTestEnv ? AnnouncementType.VRUNPAGES : AnnouncementType.WAGETAXFILING)" />
+    @if(_isSourceTestEnv)
+    {
+        <p class="page-description">
+            Only <strong>TEST</strong> tax report files uploaded by this user ID are shown below. Click the file name to view the test tax report file details.
+        </p>
+    }
+    else
+    {
+        <p class="page-description">
+            Only tax report files uploaded by this user ID are shown below. Click the file name to view the tax report file details.
+        </p>
+        <p class="payment-message">
+            A
+            <a href="esp/make-ach-payment" class="inline-link">payment</a> is required if the file status is <strong>"Review Completed - Pending Initiation of EFT Payment”.</strong>
+        </p>
+    }
+    @if (_gridData == null)
+    {
+        <p role="status" aria-live="polite">Loading...</p>
+    }
+    else if (!_gridData.Any())
+    {
+        <p role="status">@(_isSourceTestEnv ? "No uploaded test tax report files found." : "No uploaded tax report files found.")</p>
+    }
+    else
+    {
+        <div class="file-count">
+            @EndRow of @_gridData.Count() Files
+        </div>
+        <div class="table-container">
+            <table class="table" aria-label="Uploaded wage files">
+                <caption class="visually-hidden">
+                    List of previously uploaded tax report files
+                </caption>
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell" style="width:176px" tabindex="0" aria-sort="@GetAriaSort("fileName")" @onclick="@(() => Sort("fileName"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "fileName"))">
+                            <div class="header-content">
+                                <span class="header-label">File Name</span>
+                                @GetSortIcon("fileName")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:127px" tabindex="0" aria-sort="@GetAriaSort("uploadDate")" @onclick="@(() => Sort("uploadDate"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "uploadDate"))">
+                            <div class="header-content">
+                                <span class="header-label">Upload Date/Time</span>
+                                @GetSortIcon("uploadDate")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:180px" tabindex="0" aria-sort="@GetAriaSort("confirmationNumber")" @onclick="@(() => Sort("confirmationNumber"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "confirmationNumber"))">
+                            <div class="header-content">
+                                <span class="header-label">Confirmation Number</span>
+                                @GetSortIcon("confirmationNumber")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:192px" tabindex="0" aria-sort="@GetAriaSort("fileStatus")" @onclick="@(() => Sort("fileStatus"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "fileStatus"))">
+                            <div class="header-content">
+                                <span class="header-label">File Status</span>
+                                @GetSortIcon("fileStatus")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:127px" tabindex="0" aria-sort="@GetAriaSort("statusDateTime")" @onclick="@(() => Sort("statusDateTime"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "statusDateTime"))">
+                            <div class="header-content">
+                                <span class="header-label">Status Date/Time</span>
+                                @GetSortIcon("statusDateTime")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:92px" tabindex="0" aria-sort="@GetAriaSort("reportCount")" @onclick="@(() => Sort("reportCount"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "reportCount"))">
+                            <div class="header-content">
+                                <span class="header-label">Report Count</span>
+                                @GetSortIcon("reportCount")
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:96px" tabindex="0" aria-sort="@GetAriaSort("errorCount")" @onclick="@(() => Sort("errorCount"))" @onkeydown="@(e => HandleHeaderKeyDown(e, "errorCount"))">
+                            <div class="header-content">
+                                <span class="header-label">Error Count</span>
+                                @GetSortIcon("errorCount")
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var file in PagedGridData)
+                    {
+                        <tr class="custom-row">
+                            <td>
+                                <a href="#" @onclick="@(() => NavigateToDetails(file))" @onclick:preventDefault="true" class="file-link" aria-label=@($"View upload details for file uploaded on {file.FileName}")>
+                                    @file.FileName
+                                </a>
+                            </td>
+                            <td> @file.UploadDate.ToString("MM/dd/yyyy hh:mm:ss tt")</td>
+                            <td class="confirmation-cell">@file.ConfirmationNumber</td>
+                            <td>@file.FileStatus</td>
+                            <td> @file.StatusDate?.ToString("MM/dd/yyyy hh:mm:ss tt")</td>
+                            <td>@file.ReportCount</td>
+                            <td>
+                                @TaxFileStatus.CountOrNotApplicable(file.ErrorCount, file.FileStatus)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- PAGINATION -->
+            @if (_gridData.Count() > _pageSize)
+            {
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-container" aria-label="Tax report pagination">
+                        <!-- Rows per page -->
+                        <div class="rows-per-page">
+                            <label>Rows per page</label>
+                            <select class="page-size-select" @onchange="HandlePageSizeChanged">
+                                <option value="10" selected="@(_pageSize == 10)">10</option>
+                                <option value="25" selected="@(_pageSize == 25)">25</option>
+                                <option value="50" selected="@(_pageSize == 50)">50</option>
+                            </select>
+                        </div>
+                        <!-- Page info -->
+                        <span class="page-info" aria-live="polite">
+                            @StartRow-@EndRow of @_gridData.Count()
+                        </span>
+                        <!-- Buttons -->
+                        <button class="paging-btn" @onclick="FirstPage" disabled="@(_currentPage <= 1)">
+                            <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="PreviousPage" disabled="@(_currentPage <= 1)">
+                            <img src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="NextPage" disabled="@(_currentPage >= TotalPages)">
+                            <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" />
+                        </button>
+                        <button class="paging-btn" @onclick="LastPage" disabled="@(_currentPage >= TotalPages)">
+                            <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" />
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

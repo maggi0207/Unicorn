@@ -1,0 +1,449 @@
+.add-employees-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--width-quarterly-tax);
+    padding: 24px 16px;
+    color: #000000;
+    box-sizing: border-box;
+}
+
+.add-employees-container ::deep .master-select-field {
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 24px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.employee-table {
+    caption-side: unset;;
+}
+
+.header-row {
+    min-height: 56px;
+}
+
+.header-cell {
+    padding: 0 !important;
+    background-color: var(--color-gray-light, #f5f5f5) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--color-gray-medium, #d1d5db) !important;
+    vertical-align: middle;
+    user-select: none;
+    height: 56px !important;
+}
+
+.sort-button {
+    border: none;
+    background-color: inherit;
+    height: 100%;
+}
+
+.sort-button:focus {
+    outline: 2px solid var(--color-blue-focus, #003663);
+    outline-offset: -2px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 var(--spacing-sm, 8px);
+}
+
+.header-content-left {
+    justify-content: space-between;
+}
+
+.header-content-right {
+    justify-content: flex-end;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-content-center {
+    justify-content: center;
+    gap: var(--spacing-sm, 8px);
+}
+
+.header-label-small {
+    line-height: 1.2;
+    text-align: center;
+}
+
+::deep .sort-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.data-row {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .data-row td {
+        vertical-align: top;
+        padding: 12px 8px 8px 0;
+    }
+
+        .data-row td:first-child {
+            padding-left: 8px;
+        }
+
+.col-last-name,
+.col-first-name,
+.col-ssn,
+.col-wages,
+.col-actions {
+    vertical-align: top;
+    padding-top: 12px;
+}
+
+.col-actions {
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+.col-last-name ::deep .validation-message,
+.col-first-name ::deep .validation-message,
+.col-ssn ::deep .validation-message,
+.col-wages ::deep .validation-message {
+    display: block;
+    font-size: 12px;
+    color: #c82838;
+    margin-top: 4px;
+    min-height: 18px;
+    line-height: 1.3;
+    font-family: Verdana;
+}
+
+.ssn-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ssn-text {
+    font-family: Verdana;
+    letter-spacing: 0.5px;
+}
+
+.ssn-toggle-all-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .ssn-toggle-all-btn:hover {
+        opacity: 0.7;
+    }
+
+.ssn-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+    .ssn-toggle-btn:hover {
+        opacity: 0.7;
+    }
+
+.visibility-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .action-btn:hover {
+        opacity: 0.7;
+    }
+
+.action-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md, 16px);
+    padding: var(--spacing-sm, 8px) 0;
+}
+
+.rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs, 4px);
+}
+
+.page-info {
+    white-space: nowrap;
+    margin-right: 16px;
+}
+
+.page-size-select {
+    width: 3.5rem;
+    padding-right: 24px !important;
+    padding-left: 6px !important;
+    background-position: right 4px center !important;
+    background-size: 12px !important;
+}
+
+.paging-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+    .paging-btn:disabled {
+        cursor: default;
+    }
+
+.wage-entry-footer {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+}
+
+.visibility-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.sort-icon-image {
+    width: 16px !important;
+    height: 16px !important;
+    display: inline-block !important;
+}
+
+::deep .table-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--color-input-border);
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+    ::deep .table-input:focus {
+        outline: none;
+        border-color: #005a9c;
+    }
+
+::deep .ssn-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+::deep .ssn-input {
+    padding-right: 40px !important;
+}
+
+::deep .ssn-eye-icon {
+    position: absolute;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+::deep .wages-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 48px;
+    border: 1px solid #ADADAD;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+    ::deep .wages-wrapper:focus-within {
+        border-color: #005a9c;
+    }
+
+::deep .currency-symbol {
+    padding-left: 12px;
+    color: #333;
+    font-size: 14px;
+    user-select: none;
+}
+
+::deep .wages-input {
+    border: none !important;
+    outline: none !important;
+    height: 100% !important;
+    padding-left: 4px !important;
+    background: transparent;
+}
+
+.outlined-wages-input-wrapper:has(.invalid) {
+    border-color: #c82838 !important;
+}
+
+::deep .wages-input:focus {
+    border: none !important;
+    outline: none !important;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+    .btn-remove:hover {
+        opacity: 0.7;
+    }
+
+.step-title {
+    font-family: Verdana;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.subtitle-label {
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 700;
+    width: 171px;
+}
+
+.outlined-wages-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.outlined-wages-label {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    background: white;
+    padding: 0 4px;
+    font-size: 12px;
+    color: #4a4a4a;
+    font-family: Verdana, sans-serif;
+    z-index: 1;
+}
+
+.outlined-wages-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-input-border);
+    border-radius: 4px;
+    height: 56px;
+    padding: 0 12px;
+    background: white;
+}
+
+    .outlined-wages-input-wrapper:focus-within {
+        border-color: #005a9c;
+    }
+
+.outlined-wages-input {
+    border: none !important;
+    outline: none !important;
+    width: 100%;
+    font-size: 14px;
+    font-family: Verdana, sans-serif;
+    background: transparent;
+    padding-left: 4px;
+}
+
+.field-error-wrapper ::deep input,
+.field-error-wrapper ::deep .outlined-text-field {
+    border-color: #c82838 !important;
+    border: 1px solid #c82838 !important;
+}
+
+::deep .nb-alert-multiline {
+    margin-bottom: 16px;
+}
+
+::deep .master-text-field {
+    max-width: 100%;
+}
+
+.wages-input--error {
+    border: 1px solid #C82838 !important;
+    border-radius: 4px;
+}
+
+.outlined-wages-input-wrapper--error {
+    border-color: #C82838 !important;
+}
+.col-ssn ::deep .master-error {
+    display: none !important;
+}
+
+.ssn-error-wrapper ::deep .master-input {
+    border-color: #c82838 !important;
+}
+.field-inline-error {
+    display: block;
+    font-size: 12px;
+    color: #c82838;
+    margin-top: 4px;
+    min-height: 18px;
+    line-height: 1.3;
+    font-family: Verdana;
+}
