@@ -461,7 +461,7 @@
 /* ── Amount row: input left, link right ─────────────────────────── */
 .ach-payment-amount-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 24px;
     margin-bottom: 24px;
 }
@@ -472,7 +472,7 @@
 }
 
 .ach-amount-due-link {
-    color: #0D6EFD;
+    color: #006BB7;
     text-decoration: none;
     font-family: Verdana;
     font-weight: 700;
@@ -484,6 +484,7 @@
 @media (max-width: 768px) {
     .ach-payment-amount-row {
         flex-direction: column;
+        align-items: flex-start;
         gap: 16px;
     }
 
