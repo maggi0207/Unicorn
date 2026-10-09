@@ -45,6 +45,9 @@
     border: none;
     border-top: 1px solid #E6E6E6;
     margin: 0 0 20px 0;
+    opacity: 1;
+    display: block;
+    width: 100%;
 }
 
 /* Description text below section heading */
@@ -246,7 +249,9 @@
     border: none;
     padding: 0;
     color: #006BFF;
-    text-decoration: underline;
+    text-decoration: underline !important;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
     cursor: pointer;
     font-family: Verdana, sans-serif;
     font-size: 17px;
