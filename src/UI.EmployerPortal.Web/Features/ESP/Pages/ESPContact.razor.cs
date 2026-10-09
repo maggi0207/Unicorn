@@ -103,16 +103,24 @@ public partial class ESPContact
 
         var contactTypeCodeSK = 4;
         var secureUserSK = UserAccountService.GetUserSKClaim();
-
-
         var result = await Espservice.GetESPWebContact(secureUserSK, contactTypeCodeSK);
-
-        if (result != null)
+        if (result?.RuleViolations.Count == 0)
         {
             Model = result;
             InitializedEditContext();
             // _contactexist = true;
         }
+        else
+        {
+            var message = result?.RuleViolations[0];
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                _validationErrors.Add(message);
+            }
+
+        }
+        _showValidationSummary = _validationErrors.Any();
+        StateHasChanged();
     }
     private bool IsVisible(Expression<Func<string?>> @for)
     {
@@ -185,33 +193,32 @@ public partial class ESPContact
     }
     private async Task Save()
     {
+        _contactexist = false;
         _formSubmitted = true;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
         if (!_editContext.Validate())
         {
             OnInvalid();
             return;
         }
-        _showValidationSummary = false;
         var secureUserSK = UserAccountService.GetUserSKClaim();
-        var employerSk = _employerSK?.Id ?? 0;
+
         Model.InternationalFlag = Model.PhoneNumberFormat == "International";
-
-        var result = await Espservice.GetESPWebContact(UserAccountService.GetUserSKClaim(), 4);
-
-        if (result != null)
+        var (success, error) = await Espservice.SaveESPWebContact(Model, secureUserSK);
+        if (success)
         {
-            Model.WebContactInformationsk = result.WebContactInformationsk;
             _contactexist = true;
-            await Espservice.SaveESPWebContact(Model, secureUserSK, employerSk);
         }
         else
         {
-            _contactexist = true;
-            await Espservice.SaveESPWebContact(Model, secureUserSK, employerSk);
+            _validationErrors.Add(error);
+            _showValidationSummary = _validationErrors.Any();
+            StateHasChanged();
         }
 
     }
-    //        // _contactexist = true;
+
 
 
 }

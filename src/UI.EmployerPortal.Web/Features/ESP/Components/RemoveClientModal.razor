@@ -4,7 +4,7 @@
 @if (IsOpen)
 {
     <div class="remove-client-backdrop">
-        <div class="remove-client-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-client-title">
+        <div class="remove-client-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-client-title" @ref="_removeModalRef">
 
             @* ── Header ── *@
             <div class="remove-client-header">

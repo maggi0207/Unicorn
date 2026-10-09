@@ -50,13 +50,17 @@
 }
 
 .bank-name-label {
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 4px;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    margin-bottom: 0;
+    color: #000000;
 }
 
 .bank-name-value {
+    font-weight: 700;
     font-size: 16px;
+    line-height: 160%;
     min-height: 24px;
     color: #000000;
 }
@@ -74,7 +78,8 @@
     color: var(--color-primary, #006bb7);
     text-decoration: underline;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 700;
     background: none;
     border: none;
     padding: 0;
@@ -92,7 +97,7 @@
     border: none;
     padding: 0;
     color: var(--color-primary, #006bb7);
-    font-size: 14px;
+    font-size: 16px;
     font-family: Verdana, sans-serif;
     font-weight: 700;
     text-decoration: underline;
@@ -105,7 +110,9 @@
     }
 
 .iat-region {
-    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .iat-fields {
     display:flex;
@@ -114,12 +121,25 @@
     width: 100%;
 }
 
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
 .pending-table {
+    table-layout: fixed;
     border-collapse: collapse;
     font-family: Verdana, sans-serif;
     font-size: 14px;
-    width: 100%;
+    caption-side: unset;
 }
+    .header-sort-button {
+        background-color: transparent;
+        border: none;
+        height:100%;
+        width: 100%;
+    }
 
     .pending-table .header-row {
         min-height: 56px;
@@ -155,7 +175,7 @@
     .pending-table .header-label {
         font-family: Verdana, sans-serif;
         font-size: 14px;
-        color: var(--color-text, #333333);
+        color: #000000;
     }
 
     .pending-table .data-row:hover {
@@ -166,7 +186,7 @@
         vertical-align: middle;
         padding: 0.5rem;
         border-bottom: 1px solid var(--color-gray-light, #E6E6E6);
-        color: var(--color-text, #333333);
+        color: #000000;
         font-size: 14px;
     }
 

@@ -100,10 +100,6 @@
 
 /* Active sort column — full border per Figma */
 
-.header-cell[aria-sort="ascending"],
-.header-cell[aria-sort="descending"] {
-    border: 1px solid #003663 !important;
-}
 
 .header-content {
     display: flex;
@@ -124,6 +120,7 @@
     font-weight: 700;
     color: #000000;
     flex: 1;
+    white-space: nowrap;
 }
 
 .sort-icon {

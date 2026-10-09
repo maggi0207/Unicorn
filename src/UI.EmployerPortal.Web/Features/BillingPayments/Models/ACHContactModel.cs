@@ -55,7 +55,10 @@ public class ACHContactModel
     /// InternationalFlag
     /// </summary>
     public bool InternationalFlag { get; set; }
-
+    /// <summary>
+    /// Rule violations / error messages returned by the service when the get contact has multiple values.
+    /// </summary>
+    public IReadOnlyList<string> RuleViolations { get; set; } = Array.Empty<string>();
     /// <summary>
     /// check
     /// </summary>

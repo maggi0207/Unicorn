@@ -9,10 +9,8 @@ namespace UI.EmployerPortal.Web.Features.ESP.Services;
 /// </summary>
 public interface IESPPaymentACHContactService
 {
-    ///<summary>Saves Web contact information</summary>
-    Task<string?> SaveWebContact(ESPContactModel model, int secureUserSK, int employersk);
     ///<summary>Saves ESP Web contact information</summary>
-    Task<string?> SaveESPWebContact(ESPContactModel model, int secureUserSK, int employersk);
+    Task<(bool success, string error)> SaveESPWebContact(ESPContactModel model, int secureUserSK);
     /// <summary>
     /// 
     /// </summary>
@@ -35,7 +33,7 @@ internal class ESPPaymentACHContactService : IESPPaymentACHContactService
         _retryPolicy = retryPolicy;
     }
 
-    public async Task<string?> SaveWebContact(ESPContactModel model, int secureUserSK, int employersk)
+    public async Task<(bool success, string error)> SaveESPWebContact(ESPContactModel model, int secureUserSK)
     {
         var wciProxy = new SaveESPWebContactRequest
         {
@@ -47,37 +45,22 @@ internal class ESPPaymentACHContactService : IESPPaymentACHContactService
             EmailAddress = model.Email,
             InternationalPhoneNumberFlag = model.InternationalFlag,
             WebContactSK = model.WebContactInformationsk
-
         };
-
         var response = await _retryPolicy.ExecuteAsync(() =>
         {
             return _espService.SaveWebContactAsync(wciProxy);
         });
 
-        return response?.WebContact?.ToString();
-    }
-    public async Task<string?> SaveESPWebContact(ESPContactModel model, int secureUserSK, int employersk)
-    {
-        var wciProxy = new SaveESPWebContactRequest
+        if (response?.RuleViolations == null || response.RuleViolations.Length == 0)
         {
-            SecureUserSK = secureUserSK,
-            ContactTypeCodeSK = 4,//ESP
-            ContactName = model.ContactName,
-            PhoneNumber = model.PhoneNumber,
-            PhoneNumberExtension = model.PhoneExt,
-            EmailAddress = model.Email,
-            InternationalPhoneNumberFlag = model.InternationalFlag,
-            WebContactSK = model.WebContactInformationsk
+            return (true, string.Empty);
+        }
 
-        };
-
-        var response = await _retryPolicy.ExecuteAsync(() =>
+        var errors = string.Join(" ", response.RuleViolations.Select(v =>
         {
-            return _espService.SaveWebContactAsync(wciProxy);
-        });
-
-        return response?.WebContact?.ToString();
+            return v.RuleViolation;
+        }));
+        return (false, errors);
     }
     public async Task<ESPContactModel?> GetESPWebContact(int secureUserSK, int contactTypeCodeSK)
     {
@@ -91,8 +74,15 @@ internal class ESPPaymentACHContactService : IESPPaymentACHContactService
         {
             return _espService.ObtainWebContactAsync(request);
         });
-
-        return response?.WebContactInformation == null ? null : MapESPcontacttoModel(response.WebContactInformation);
+        return response?.RuleViolations is { Length: > 0 } violations
+        ? new ESPContactModel
+        {
+            RuleViolations = ToMessages(violations.Select(v =>
+            {
+                return v.RuleViolation;
+            }))
+        }
+          : response?.WebContactInformation == null ? (ESPContactModel?) null : MapESPcontacttoModel(response.WebContactInformation);
         ;
     }
 
@@ -109,5 +99,18 @@ internal class ESPPaymentACHContactService : IESPPaymentACHContactService
             PhoneExt = proxy.PhoneNumberExtension,
             WebContactInformationsk = (int) (proxy.WebContactInformationSK ?? 0)
         };
+    }
+    private static List<string> ToMessages(IEnumerable<string?> ruleViolations)
+    {
+        return ruleViolations
+            .Select(v =>
+            {
+                return v ?? string.Empty;
+            })
+            .Where(m =>
+            {
+                return !string.IsNullOrWhiteSpace(m);
+            })
+            .ToList();
     }
 }

@@ -7,9 +7,11 @@
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>ACH Contact Information</PageTitle>
+<div class="bi-page-content">
 <div class="page_wrapper">
-    <h1 class="page-title">Contact Information</h1>
-    <div class="bi-page-content">
+       <div></div>
+        <h1 class="page-title">Contact Information</h1>  
+   
         <EditForm EditContext="@_editContext"
                   OnValidSubmit="HandleContinue"
                   OnInvalidSubmit="OnInvalid"
@@ -27,7 +29,7 @@
                                         Visible="true" />
                     @if (Showback)
                     {
-                        Nav.NavigateTo("billing-payments/bank-account-payment-ach");
+                        Nav.NavigateTo(!string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : "billing-payments/bank-account-payment-ach");
                     }
 
                 }
@@ -44,6 +46,8 @@
                     </div>
                 }
             </div>
+            <div></div>
+            <p></p>
             <p class="contact-subtitle">All fields are required unless noted.</p>
             <div class="bi-fields-grid">
                 <div class="bi-field">

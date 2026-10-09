@@ -32,17 +32,16 @@
 
             <!-- Bank Account Payments (ACH) -->
             <div class="payment-option-card @(_selectedOption == "ach" ? "selected" : "")"
-                 @onclick="SelectAch"
-                 @onkeydown="e => HandleCardKeyDown(e, SelectAch)"
+                 @onclick="HandleContinueACH"               
                  role="radio"
                  aria-checked="@(_selectedOption == "ach" ? "true" : "false")"
-                 aria-label="Bank Account Payments(ACH). Pay your UI taxes electronically online by instructing DWD-UI to deduct payment from your financial institution."
+                 aria-label="Bank Account Payments (ACH). Pay your UI taxes electronically online by instructing DWD-UI to deduct payment from your financial institution."
                  tabindex="@(_selectedOption == "ach" ? "0" : (_selectedOption == null ? "0" : "-1"))">
                 <div class="payment-option-header" aria-hidden="true">
                     <span class="payment-option-icon">
                         <img src="@Assets["images/billing/bank.svg"]" alt="Bank" width="20" height="20" />
                     </span>
-                    <h3 class="payment-option-title fw-bold">Bank Account Payments(ACH)</h3>
+                    <h3 class="payment-option-title fw-bold">Bank Account Payments (ACH)</h3>
                 </div>
                 <p class="payment-option-description" aria-hidden="true">
                     Pay your UI taxes electronically online by instructing DWD-UI to deduct payment from your financial
@@ -51,9 +50,8 @@
             </div>
 
             <!-- Credit/Debit Card Payment -->
-            <div class="payment-option-card @(_selectedOption == "card" ? "selected" : "")"
-                 @onclick="SelectCard"
-                 @onkeydown="e => HandleCardKeyDown(e, SelectCard)"
+            <div class="payment-option-card @(_selectedOption == "card" ? "selected" : "")"                 
+                 @onclick="HandleContinueCard"  
                  role="radio"
                  aria-checked="@(_selectedOption == "card" ? "true" : "false")"
                  aria-label="Credit/Debit Card Payment. Select this option to make a payment by credit or debit card."
@@ -74,6 +72,7 @@
             @_selectionAnnouncement
         </div>
     </section>
+    
 
     <!-- Other Options Section -->
     <section class="billing-section" aria-labelledby="other-options-heading">
@@ -148,14 +147,11 @@
             </p>
         </div>
     </section>
-
     <!-- Footer Actions -->
     <nav class="billing-footer" aria-label="Page actions">
         <BillingButtonBar ShowBack="@IsFlowEntry"
-                          ShowContinue="true"
                           OnBack="GoBack"
-                          OnContinue="HandleContinue"
-                          ContinueText="MAKE A PAYMENT"
+                          ShowContinue="false"
                           ButtonWidth="200">
         </BillingButtonBar>
     </nav>
@@ -175,9 +171,6 @@
     private string _selectionAnnouncement = string.Empty;
     private bool _showValidationSummary;
     private List<string> _validationErrors = new();
-
-    private void SelectAch() => SelectPaymentOption("ach", "Bank Account Payments (ACH) selected");
-    private void SelectCard() => SelectPaymentOption("card", "Credit/Debit card payment selected");
 
     protected override async Task OnInitializedAsync()
     {
@@ -228,9 +221,20 @@
     //         ShowNavigationError();
     //     }
     // }
-
-    private async Task HandleContinue()
+    private async Task HandleContinueACH()
     {
+      await HandleContinue("ach");
+    }
+     private async Task HandleContinueCard()
+    {
+      await HandleContinue("card");
+    }
+
+
+    private async Task HandleContinue(string option)
+    {
+        _selectedOption = option;
+
         if (!ValidatePayment())
         {
             StateHasChanged();
@@ -302,4 +306,5 @@
         _showValidationSummary = true;
         StateHasChanged();
     }
+
 }

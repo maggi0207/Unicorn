@@ -17,6 +17,7 @@
         <div class="ach-payment-amount-row">
             <div class="ach-payment-amount-field">
                 <OutlinedTextField Label="Payment Amount"
+                                   Id="ach-payment-amount"
                                    Type="text"
                                    InputMode="decimal"
                                    Value="@_displayAmount"
@@ -28,7 +29,7 @@
                                    ForceError="@(AmountError is not null)"
                                    ForceErrorMessage="@AmountError"/>
             </div>
-            <a href="@ReturnUrl"
+            <a href="javascript:void(0);" onclick="@HandleAmountDueLink"
                    class="ach-amount-due-link"
                    aria-label="View Amount Due Details">
                 Amount Due Details
@@ -39,6 +40,15 @@
                             Draft="Draft"
                             InitialSettlementDate="InitialSettlementDate"
                             SettlementDateChanged="SettlementDateChanged" />
+                            <br />
+    @* ── Hint text ── *@
+    <p id="settlementDateHint" class="ach-settlement-hint">
+        The settlement date is the date the funds are withdrawn from your bank account.
+        The next possible settlement date is the next business day and is updated each
+        business day at 07:00 PM CT. You may select a settlement date up to 365 calendar
+        days in the future. Weekends and Federal Reserve Holidays are not valid settlement
+        days. The settlement date selected does not change your UI tax due date.
+    </p>
     </EditForm>
 </div>
 
@@ -48,6 +58,7 @@
     [Parameter] public EventCallback<decimal> AmountChanged { get; set; }
     [Parameter] public EventCallback<DateOnly> SettlementDateChanged { get; set; }
     [Parameter] public EventCallback OnAmountInput { get; set; }
+    [Parameter] public EventCallback OnAmountBlurEvent { get; set; }
     [Parameter] public AchPaymentFormModel Draft { get; set; } = new();
     [Parameter] public string? ReturnUrl { get; set; }
 
@@ -72,7 +83,7 @@
         }
         _editContext = new EditContext(Draft);
         _editContext = new EditContext(_formModel);
-        
+
         if(Draft.ValidatedAmount is > 0)
         {
             _amount = Draft.ValidatedAmount.Value;
@@ -136,6 +147,7 @@
             //_formModel.Amount = string.IsNullOrWhiteSpace(cleaned) ? null : _displayAmount;
         }
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.Amount)));
+        await OnAmountBlurEvent.InvokeAsync();
         StateHasChanged();
     }
 
@@ -153,6 +165,10 @@
             && liveValue <= MaxAmount)
         {
             AmountError = null;
+        }
+        else
+        {
+            ValidateAmount(cleaned);
         }
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(AchPaymentFormModel.Amount)));
         await OnAmountInput.InvokeAsync();
@@ -200,4 +216,16 @@
     }
 
     private static string FormatAmount(decimal value) => $"$ {value:N2}";
+
+    private void HandleAmountDueLink()
+    {
+        if (!string.IsNullOrWhiteSpace(ReturnUrl) && ReturnUrl.Contains("voluntary-contribution"))
+        {
+            Nav.NavigateTo("billing-payments/voluntary-contribution");
+        }
+        else
+        {
+            Nav.NavigateTo("billing-payments/billing");
+        }
+    }
 }

@@ -78,9 +78,9 @@
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col" class="header-cell col-service-fee header-cell-static">
-                                <div class="header-content header-content-right"
-                                    aria-sort="@GetAriaSort("serviceFee")">
+                            <th scope="col" class="header-cell col-service-fee"
+                                aria-sort="@GetAriaSort("serviceFee")">
+                                <div class="header-content header-content-right">
                                     <button type="button" class="sort-button" @onclick="@(() => Sort("serviceFee"))">
                                         <span class="header-label">Service Fee</span>
                                         <span aria-hidden="true">@GetSortIcon("serviceFee")</span>

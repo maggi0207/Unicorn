@@ -32,6 +32,29 @@ public partial class EspRegistration
     private PageState _pageState = PageState.Entry;
     private bool _isLoading;
     private EspRegistrationEntry? _entryRef;
+    private bool _shouldSetFocusForReviewPage;
+    private bool _shouldSetFocusForEditPage;
+    private const string EditPageId = "edit-heading";
+    private const string ReviewPageId = "review-heading";
+
+    /// <summary>
+    /// Sets focus at the top of the page when moving between Edit and Review pages
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldSetFocusForReviewPage)
+        {
+            _shouldSetFocusForReviewPage = false;
+            await JS.InvokeVoidAsync("focusElement", ReviewPageId);
+        }
+        else if (_shouldSetFocusForEditPage)
+        {
+            _shouldSetFocusForEditPage = false;
+            await JS.InvokeVoidAsync("focusElement", EditPageId);
+        }
+    }
 
     private async Task HandleContinue()
     {
@@ -43,14 +66,14 @@ public partial class EspRegistration
         }
 
         _pageState = PageState.Review;
-        await JS.InvokeVoidAsync("scrollToTop");
+        _shouldSetFocusForReviewPage = true;
     }
 
     private async Task HandleEdit()
     {
         ClearRuleViolations();
         _pageState = PageState.Entry;
-        await JS.InvokeVoidAsync("scrollToTop");
+        _shouldSetFocusForEditPage = true;
     }
 
     private void HandleCancel()

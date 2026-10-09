@@ -7,9 +7,11 @@
         <h1 class="page-title">Manage Bank Accounts</h1>
         <hr class="page-divider" />
 
-        <NotificationBanner NotificationType="NotificationType.Confirmation"
+        <div role="alert">
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
                             Title="Bank Account information saved"
                             Visible="true" />
+        </div>
 
         <div class="info-panel">
             <div class="info-panel-row">
@@ -45,7 +47,7 @@
             <div class="accordion-header d-flex justify-content-between align-items-center"
                  role="button"
                  tabindex="0"
-                 aria-expanded="@_expanded"
+                 aria-expanded="@_expanded.ToString()"
                  aria-controls="bank-info-accordion-body"
                  @onclick="ToggleAccordion"
                  @onkeydown="HandleAccordionKeyDown">

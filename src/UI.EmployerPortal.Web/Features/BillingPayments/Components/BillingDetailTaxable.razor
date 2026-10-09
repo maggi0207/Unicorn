@@ -39,22 +39,27 @@ else
                 @if (_showValidationSummary && _validationErrors.Any())
                 {
                     <NotificationBanner NotificationType="NotificationType.Alert"
-                    MessageStyle="MessageStyle.MultiLine"
-                    Messages="_validationErrors"
-                    DismissButton="false" />
+                                        Title="Please fix the following errors:"
+                                        MessageStyle="MessageStyle.MultiLine"
+                                        Messages="_validationErrors"
+                                        MessageFieldIds="_validationFieldIds"
+                                        DismissButton="false" />
+                   // <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
                 }
 
                 <AnnouncementBanner AnnouncementType="AnnouncementType.TAXABLEBILLINGDETAIL" />
 
                 @* ── Current Liability ── *@
                 <section class="billing-detail-section" aria-labelledby="current-liability-heading">
+                    <br />
                     <h2 id="current-liability-heading" class="billing-detail-section-heading">Current Liability</h2>
                     <hr class="billing-detail-divider" aria-hidden="true" />
                     <p class="billing-detail-liability-amount">@CurrentLiability.ToString("C")</p>
-                </section>
+                
 
-                @* ── Billing Detail Table ── *@
-                <div class="billing-detail-table-wrapper" role="region" aria-label="Billing detail table">
+                  @* ── Billing Detail Table ── *@
+                  <div class="billing-detail-table-wrapper" role="region" aria-label="Billing detail table">
                     <table class="billing-detail-table">
                         <caption class="visually-hidden">
                             View billing details (column headers with buttons are sortable).
@@ -64,12 +69,12 @@ else
                                 @foreach (var col in BillColumns)
                                 {
                                     <th scope="col"
-                                    class="billing-detail-th"
-                                    aria-sort="@GetAriaSort(col.Key, _billSortColumn, _billSortAscending)">
+                                        class="billing-detail-th"
+                                        aria-sort="@GetAriaSort(col.Key, _billSortColumn, _billSortAscending)">
                                         <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
                                             <button type="button"
-                                            class="billing-detail-sort-btn"
-                                            @onclick="() => SortBills(col.Key)">
+                                                    class="billing-detail-sort-btn"
+                                                    @onclick="() => SortBills(col.Key)">
                                                 <span class="header-label">@col.Label</span>
                                                 <span aria-hidden="true">@GetSortIcon(col.Key, _billSortColumn, _billSortAscending)</span>
                                             </button>
@@ -99,12 +104,13 @@ else
                             </tr>
                         </tfoot>
                     </table>
-                </div>
-
+                  </div>
+                </section>
                 @* ── Credits Section — only when credits exist ── *@
                 @if (_model.Credits.Any())
                 {
-                    <hr class="billing-detail-section-divider" aria-hidden="true">
+                    //<hr class="billing-detail-section-divider" aria-hidden="true">
+                    <br />
                     <section class="billing-detail-section" aria-labelledby="credits-heading">
                         <h2 id="credits-heading" class="billing-detail-section-heading">Credits</h2>
                         <hr class="billing-detail-divider" aria-hidden="true" />
@@ -120,8 +126,8 @@ else
                                         @foreach (var col in CreditColumns)
                                         {
                                             <th scope="col"
-                                            class="billing-detail-th"
-                                            aria-sort="@GetAriaSort(col.Key, _creditSortColumn, _creditSortAscending)">
+                                                class="billing-detail-th"
+                                                aria-sort="@GetAriaSort(col.Key, _creditSortColumn, _creditSortAscending)">
                                                 <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
                                                     <button type="button" class="billing-detail-sort-btn" @onclick="() => SortCredits(col.Key)">
                                                         <span class="header-label">@col.Label</span>
@@ -151,25 +157,23 @@ else
                                 </tfoot>
                             </table>
                         </div>
+                    </section>
 
                         @if (_isEligibleForRefund)
                         {
                             <div class="billing-detail-refund-action">
                                 <Button Variant="Button.ButtonVariant.Secondary"
-                                Size="Button.ButtonSize.Medium"
-                                AriaLabel="Request a refund"
-                                OnClick="HandleRequestRefund">
+                                        Size="Button.ButtonSize.Medium"
+                                        AriaLabel="Request a refund"
+                                        OnClick="HandleRequestRefund">
                                     REQUEST A REFUND
                                 </Button>
                             </div>
+                            
                         }
-                    </section>
+                    
                 }
-                @* ── Payment Summary ── *@
-                @if (!_model.Credits.Any())
-                {
-                    <hr class="billing-detail-section-divider" aria-hidden="true" />
-                }
+                <br /><br />
                 <section class="billing-detail-section" aria-labelledby="payment-summary-heading">
                     <h2 id="payment-summary-heading" class="billing-detail-section-heading">Payment</h2>
                     <hr class="billing-detail-divider" aria-hidden="true" />
@@ -208,7 +212,7 @@ else
                             <span class="billing-detail-summary-value fw-bold">@_model.TotalOutstandingBalance.ToString("C")</span>
                         </div>
                         <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Total Pending EFT Payments</span>
+                            <span class="billing-detail-summary-label">Pending EFT Payments</span>
                             <span class="billing-detail-summary-value">@_model.TotalEftPayments.ToString("C")</span>
                         </div>
 
@@ -217,16 +221,16 @@ else
                             <label for="amount-to-pay" class="billing-detail-summary-label fw-bold">Amount to Pay</label>
                             <div class="billing-detail-amount-input">
                                 <OutlinedTextField Label=""
-                                Id="amount-to-pay"
-                                Type="text"
-                                InputMode="decimal"
-                                Value="@_displayAmount"
-                                ValueChanged="OnAmountChanged"
-                                OnBlur="OnAmountBlur"
-                                Required="true"
-                                Placeholder="0.00"
-                                ForceError="@(_amountError is not null)"
-                                ForceErrorMessage="@_amountError" />
+                                                   Id="amount-to-pay"
+                                                   Type="text"
+                                                   InputMode="decimal"
+                                                   Value="@_displayAmount"
+                                                   ValueChanged="OnAmountChanged"
+                                                   OnBlur="OnAmountBlur"
+                                                   Required="true"
+                                                   Placeholder="0.00"
+                                                   ForceError="@(_amountError is not null)"
+                                                   ForceErrorMessage="@_amountError" />
                             </div>
                         </div>
                     </div>
@@ -234,17 +238,17 @@ else
 
                 <nav class="billing-footer" aria-label="Page actions">
                     <BillingButtonBar ShowBack="false"
-                    ShowContinue="true"
-                    ShowCancel="false"
-                    ContinueText="SELECT PAYMENT OPTIONS"
-                    ButtonWidth="300"
-                    OnContinue="HandleContinue" />
+                                      ShowContinue="true"
+                                      ShowCancel="false"
+                                      ContinueText="SELECT PAYMENT OPTIONS"
+                                      ButtonWidth="300"
+                                      OnContinue="HandleContinue" />
                 </nav>
             </div>
         }
     </main>
 
-    @code {
+@code {
 
     [Inject]
     private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
@@ -256,6 +260,7 @@ else
     private bool _isEligibleForRefund;
     private bool _showValidationSummary;
     private readonly List<string> _validationErrors = new();
+    private List<string> _validationFieldIds = [];
     private bool _isLoading = true;
     private string _displayAmount = string.Empty;
     private string? _amountError;
@@ -325,7 +330,7 @@ else
         }
         var (sessionAmount, IsCalculated) = await BankAccountOrchestrator.GetPaymentToSessionWithStatusAsync();
 
-        if (!string.IsNullOrWhiteSpace(sessionAmount) )
+        if (!string.IsNullOrWhiteSpace(sessionAmount))
         {
             if (!IsCalculated)
             {
@@ -426,21 +431,29 @@ else
     private async Task OnAmountChanged(string raw)
     {
         _displayAmount = raw;
-        var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
-        if (!string.IsNullOrWhiteSpace(cleaned)
-            && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
-                System.Globalization.CultureInfo.InvariantCulture, out var v)
-            && v >= MinAmount && v <= MaxAmount)
+        if (_showValidationSummary)
         {
-            _amountError = null;
+            Validate();
+        }
+        else
+        {   
+            var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
+            if (!string.IsNullOrWhiteSpace(cleaned)
+                && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.InvariantCulture, out var v)
+                && v >= MinAmount && v <= MaxAmount)
+            {
+                _amountError = null;
+            }
         }
         await Task.CompletedTask;
     }
 
     private async Task OnAmountBlur()
     {
-        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
-        ValidateAmount(cleaned);
+        //var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        //ValidateAmount(cleaned);
+        Validate();
         if (_amountError is null)
             _displayAmount = _amount.ToString("C");
         await Task.CompletedTask;
@@ -484,11 +497,15 @@ else
     private bool Validate()
     {
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
 
         var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
         ValidateAmount(cleaned);
         if (_amountError is not null)
+        {
             _validationErrors.Add(_amountError);
+            _validationFieldIds.Add("amount-to-pay");
+        }
 
         _showValidationSummary = _validationErrors.Any();
         return !_showValidationSummary;
@@ -503,7 +520,7 @@ else
         }
 
         _bpayment.AmountToPay = decimal.TryParse(_displayAmount.Replace("$", "").Replace(",", "").Trim(), out var val) ? val : 0;
-        await BankAccountOrchestrator.SavePaymentToSessionAsync(_bpayment.AmountToPay.ToString(),"Payment");
+        await BankAccountOrchestrator.SavePaymentToSessionAsync(_bpayment.AmountToPay.ToString(), "Payment");
         Nav.NavigateTo(BuildPath($"/billing-payments/payment-options") + "?source=flow&returnUrl=billing-payments/billing-detail");
     }
 

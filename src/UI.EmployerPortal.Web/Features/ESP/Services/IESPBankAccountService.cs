@@ -30,7 +30,7 @@ internal interface IESPBankAccountService
     /// Inactivates the specified bank account for the currently selected employer
     /// Returns a result indicating success or the first rule violation message.
     /// </summary>
-    Task<SaveBankAccountResult> InactivateBankAccountAsync(int bankAccountSk, int employerAccountSk);
+    Task<SaveBankAccountResult> InactivateBankAccountAsync(int bankAccountSk, int secureUserSk);
 
     /// <summary>
     /// Loads a single bank account by SK and maps it to a <see cref="BankAccountModel"/> for pre-populating the edit form.

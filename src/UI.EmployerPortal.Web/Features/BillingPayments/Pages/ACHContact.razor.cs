@@ -17,6 +17,9 @@ namespace UI.EmployerPortal.Web.Features.BillingPayments.Pages;
 /// </summary>
 public partial class ACHContact
 {
+    /// <summary> Return Url for Levy </summary>
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject]
     private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
@@ -110,12 +113,23 @@ public partial class ACHContact
 
         var result = await ContactInformationService.GetEmployerWebContact(secureUserSK, employerSk, contactTypeCodeSK);
 
-        if (result != null)
+        if (result?.RuleViolations.Count == 0)
         {
             Model = result;
             InitializedEditContext();
             // _contactexist = true;
         }
+        else
+        {
+            var message = result?.RuleViolations[0];
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                _validationErrors.Add(message);
+            }
+
+        }
+        _showValidationSummary = _validationErrors.Any();
+        StateHasChanged();
     }
     private bool IsVisible(Expression<Func<string?>> @for)
     {
@@ -180,41 +194,41 @@ public partial class ACHContact
 
     private void GoBack()
     {
-        //Nav.NavigateTo(Nav.BaseUri);
         if (Showback)
         {
-            Nav.NavigateTo("billing-payments/bank-account-payment-ach");
+            Nav.NavigateTo(!string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : "billing-payments/bank-account-payment-ach");
         }
     }
     private async Task Save()
     {
         _contactexist = false;
         _formSubmitted = true;
+        _validationErrors.Clear();
+        _validationFieldIds.Clear();
         if (!_editContext.Validate())
         {
             OnInvalid();
             return;
         }
-        _showValidationSummary = false;
         var secureUserSK = UserAccountService.GetUserSKClaim();
         var employerSk = _employerSK?.Id ?? 0;
         Model.InternationalFlag = Model.PhoneNumberFormat == "International";
+        var (success, error) = await ContactInformationService.SaveWebContact(Model, secureUserSK, employerSk);
 
-        var result = await ContactInformationService.GetEmployerWebContact(UserAccountService.GetUserSKClaim(), _employerSK?.Id ?? 0, 4);
-        if (result != null)
+        if (success)
         {
-            Model.WebContactInformationsk = result.WebContactInformationsk;
             _contactexist = true;
-            await ContactInformationService.SaveWebContact(Model, secureUserSK, employerSk);
         }
         else
         {
-            _contactexist = true;
-            await ContactInformationService.SaveWebContact(Model, secureUserSK, employerSk);
+
+            _validationErrors.Add(error);
+            _showValidationSummary = _validationErrors.Any();
+            StateHasChanged();
         }
 
     }
-    //        // _contactexist = true;
+
 
 
 }

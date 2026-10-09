@@ -3,30 +3,31 @@
 @using UI.EmployerPortal.Web.Features.ESP.Components
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
-
+<PageTitle>Employer Service Provider Registration</PageTitle>
 <div class="page-content esp-registration-page">
-    <h1 class="page-title">Employer Service Provider Registration</h1>
-
     @if (_isLoading)
     {
         <LoadingSpinner Message="Submitting..." />
     }
     else if (_pageState == PageState.Submitted)
     {
-        <NotificationBanner NotificationType="NotificationType.Confirmation"
-                            Message="You have successfully completed the Employer Service Provider registration" />
+        <div role="alert">
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+                Message="You have successfully completed the Employer Service Provider registration" />
+        </div>
     }
     else
     {
         @if (_ruleViolationMessages.Count > 0)
         {
-            <NotificationBanner NotificationType="NotificationType.Alert"                                
+            <NotificationBanner NotificationType="NotificationType.Alert"
                                     MessageStyle="MessageStyle.MultiLine"
                                     Messages="_ruleViolationMessages" />
         }
 
         @if (_pageState == PageState.Entry)
         {
+            <h1 id="@EditPageId" class="page-title" tabindex="-1">Employer Service Provider Registration</h1>
             <EspRegistrationEntry Model="_model" @ref="_entryRef" />
 
             <div class="esp-button-bar esp-button-bar--end">
@@ -43,6 +44,7 @@
         }
         else if (_pageState == PageState.Review)
         {
+            <h1 id="@ReviewPageId" class="page-title" tabindex="-1">Review Employer Service Provider Registration</h1>
             <p class="page-subtitle">Carefully review all the information and Submit to save after updates.</p>
 
             <div class="esp-edit-bar">

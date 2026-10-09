@@ -32,6 +32,7 @@ public record EspFtpsRegistrationModel : IValidatableObject
     public string? City { get; set; }
 
     /// <summary>State / province abbreviation of the mailing address.</summary>
+    [Required(ErrorMessage = "Select a state/province")]
     public string? State { get; set; }
 
     /// <summary>5-digit ZIP code.</summary>
@@ -42,7 +43,7 @@ public record EspFtpsRegistrationModel : IValidatableObject
     [RegularExpression(@"^\d{4}$", ErrorMessage = "Zip +4 is not a valid format.")]
     public string? ZipExt { get; set; }
 
-    /// <summary>Optional ZIP+4 extension.</summary>
+    /// <summary>Canadian postal code.</summary>
     [RegularExpression(@"^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$", ErrorMessage = "Canadian Postal Code is not a valid format.")]
     public string? CanadianPostalCode { get; set; }
 

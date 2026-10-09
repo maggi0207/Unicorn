@@ -106,7 +106,9 @@
 /* Payment Activity table */
 
 .activity-table {
-    width: 100%;
+    width: 619px;
+    max-width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-family: Verdana, sans-serif;
 }
@@ -126,14 +128,11 @@
     user-select: none;
 }
 
-.activity-header-cell.col-active-sort {
-    border: 1px solid #003663;
-}
-
 .activity-header-content {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     gap: 4px;
 }
 
@@ -145,7 +144,7 @@
 
 .col-date        { width: 130px; }
 .col-action      { width: 112px; }
-.col-description { width: auto; }
+.col-description { width: 377px; }
 
 .activity-data-cell {
     padding: 8px;
@@ -156,6 +155,8 @@
     font-weight: 400;
     color: #000000;
     vertical-align: top;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .no-activity-text {

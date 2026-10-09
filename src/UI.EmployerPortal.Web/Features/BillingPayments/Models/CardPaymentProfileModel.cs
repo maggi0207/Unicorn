@@ -81,6 +81,11 @@ public class CardPaymentProfileModel
     /// <summary>RegistrationSK.</summary>    
     public int RegistrationSK { get; set; } = 0;
 
+    // ── Payment Information ──────────────────────────────────────────────
+    /// <summary>Amount.</summary>  
+    [Required(ErrorMessage = "Payment Amount is required")]
+    public string Amount { get; set; } = string.Empty;
+
     // ── Session ──────────────────────────────────────────────────────────
 
     /// <summary>Session key used to persist this model across the card payment flow.</summary>

@@ -1,6 +1,7 @@
 @page "/esp/account/clients/add"
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
 
 <PageTitle>Get Client Access</PageTitle>
@@ -16,21 +17,35 @@
         </div>
     </div>
     <div class="gca-body">
-        @if (_successMessage != null)
-        {
-            <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                Message="@_successMessage" />
-        }
+        <div aria-live="polite">
+            @if (_successMessage != null)
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Message="@_successMessage" />
+            }
+        </div>
         @if (_ruleViolationMessages.Count > 0)
         {
             <NotificationBanner NotificationType="NotificationType.Alert"
                                 MessageStyle="MessageStyle.MultiLine"
-                                Messages="_ruleViolationMessages" />
+                                Messages="_ruleViolationMessages"
+                                MessageFieldIds="_validationFieldIds" />
         }
         @* ── Section bar ── *@
         <div class="gca-section-bar">Enter Access Key</div>
 
-        <EditForm EditContext="_editContext" OnValidSubmit="HandleContinue">
+        @if (_showValidationSummary && _validationErrors.Any())
+        {
+            <div class="fix-section-width" style="max-width:684px;">
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_validationErrors"
+                                    MessageFieldIds="_validationFieldIds"
+                                    DismissButton="false" />
+            </div>
+        }
+
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleContinue" OnInvalidSubmit="HandleFormInvalid">
             <DataAnnotationsValidator />
             <div class="gca-main-body">
                 <p class="gca-description">Enter your access key and the associated UI Account Number.</p>
@@ -41,7 +56,8 @@
                                    Placeholder="Enter Access Key"
                                    FormatText="Access key is case sensitive."
                                    Disabled="@_isLoading"
-                                   Required="true" />
+                                   Required="true"
+                                   Visible="@_showValidation"/>
 
                 <OutlinedTextField Label="UI Account Number"
                                    Id="gca-account"
@@ -51,7 +67,15 @@
                                    Mask="000000-000-0"
                                    InputMode="numeric"
                                    Disabled="@_isLoading"
-                                   Required="true" />
+                                   Required="true"
+                                   Visible="@_showValidation"/>
+
+                <button type="button"
+                        class="gca-request-key-link"
+                        @onclick="OpenRequestAccessKeyModal"
+                        disabled="@_isLoading">
+                    Don't have an access key?
+                </button>
             </div>
 
             @* ── Footer ── *@
@@ -63,18 +87,31 @@
                     BACK
                 </Button>
 
-                <Button Type="submit"
-                        Disabled="@_isLoading">
+                <Button Type="submit">
                     @if (_isLoading)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span class="gca-btn-content">
+                            SUBMITTING...
+                            <img src="@Assets["icons/button-next.svg"]" alt="" aria-hidden="true" class="gca-btn-icon" />
+                        </span>
                     }
-                    <span class="gca-btn-content">
-                        CONTINUE
-                        <img src="@Assets["icons/button-next.svg"]" alt="" aria-hidden="true" class="gca-btn-icon" />
-                    </span>
+                    else
+                    {
+                        <span class="gca-btn-content">
+                            CONTINUE
+                            <img src="@Assets["icons/button-next.svg"]" alt="" aria-hidden="true" class="gca-btn-icon" />
+                        </span>
+                    }
                 </Button>
             </div>
         </EditForm>
     </div>
 </div>
+
+<RequestAccessKeyModal IsOpen="_isRequestKeyModalOpen"
+                       IsBusy="_isMailingKey"
+                       ServiceError="@_mailKeyError"
+                       OnCancel="CloseRequestAccessKeyModal"
+                       OnClearServiceError="ClearMailKeyError"
+                       OnMailAccessKey="HandleMailAccessKey" />

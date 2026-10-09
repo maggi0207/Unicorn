@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using UI.EmployerPortal.Generated.ServiceClients.EFTPaymentService;
 using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.BillingPayments.Models;
 using UI.EmployerPortal.Web.Features.BillingPayments.Services;
+using UI.EmployerPortal.Web.Features.Dashboard;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 
 namespace UI.EmployerPortal.Web.Features.BillingPayments.Pages;
 
@@ -19,6 +22,9 @@ public partial class PaymentHistoryDetails
     [Inject] private IPaymentDetailService PaymentDetailService { get; set; } = default!;
     [Inject] private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private IEFTPaymentService PaymentService { get; set; } = default!;
+    [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
 
     private PaymentDetailModel? _payment;
     private bool _isLoading;
@@ -31,6 +37,7 @@ public partial class PaymentHistoryDetails
 
     private string _activitySortColumn = "date";
     private bool _activitySortAscending = false;
+    private string _paymentDescription = "Payment";
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -50,6 +57,19 @@ public partial class PaymentHistoryDetails
 
         try
         {
+            var employerSK = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            var secureUserSK = UserAccountService.GetUserSKClaim();
+
+            var paymentResponse = await PaymentService.LoadEFTPaymentAsync(EftPaymentSk, secureUserSK, employerSK?.Id ?? 0);
+            if (paymentResponse != null)
+            {
+                var eftPayment = paymentResponse?.EFTPayment;
+                if (eftPayment != null)
+                {
+                    _paymentDescription = eftPayment.EFTPaymentTypeCodeDescription;
+                }
+            }
+
             _payment = await PaymentDetailService.GetPaymentDetailAsync(EftPaymentSk);
 
             if (_payment is null)

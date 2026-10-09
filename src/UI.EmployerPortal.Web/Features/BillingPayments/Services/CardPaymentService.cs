@@ -290,51 +290,24 @@ internal sealed partial class CardPaymentService : ICardPaymentService
             var payLoadObject = JsonSerializer.Serialize(payload);
             var tokenPrefix = token?.Length > 8 ? token[..8] + "..." : "(short)";
             var fullToken = $"token={token}&digisign={digiSign}&customer_account_reference={customerAccountReference}&customer_reference={customerReference}";
-            Log.Info($"[STEP 1] ConfirmPaymentAsync invoked |" +
-                $"CustomerAccountReference={customerAccountReference}, " +
-                $"digiSign={digiSign}, " +
-                $"payload={payLoadObject}, " +
-                $"customerReference={customerReference}, " +
-                $"Amount={request.Amount:F2}, " +
-                $"FullToken={fullToken}");
-            await WritePaymentLogAsync(
-                $"[STEP 1] ConfirmPaymentAsync invoked |" +
-                $"CustomerAccountReference={customerAccountReference}, " +
-                $"Amount={request.Amount:F2}, " +
-                $"TokenPrefix={tokenPrefix}"
-                );
 
-            Log.Info($"[STEP 2] Fetching ebill configuration from cache / WDV service");
-            await WritePaymentLogAsync($"[STEP 2] Fetching ebill configuration from cache / WDV service");
             var ebillConfig = await _cardPaymentSystem.GetEBillConfigurationAsync();
             if (ebillConfig is null)
             {
-                Log.Error($"[STEP 2] FAILED. eBill configuration null");
-                await WritePaymentLogAsync($"[STEP 2] FAILED. eBill configuration null");
-                LogOrbipayCredentialsIncomplete(_logger);
                 return new OrbipayConfirmationResult
                 {
                     Success = false,
                     ErrorDescription = "Payment provider credentials are incomplete."
                 };
             }
-            Log.Info($"[STEP 2] OK. eBill configuration retrived");
-            await WritePaymentLogAsync($"[STEP 2] OK. eBill configuration retrived");
-
-            Log.Info($"[STEP 3] Getting Card payment registration");
-            await WritePaymentLogAsync($"[STEP 3] Getting Card payment registration");
 
             var employer = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
             var userSk = _userAccountService.GetUserSKClaim();
             var empSk = employer?.Id ?? 0;
 
             var cardPaymentReg = await _cardPaymentSystem.ObtainPortalRegistrationAsync(userSk, empSk);
-            //var cardPaymentReg = await _cardPaymentSystem.ObtainPortalRegistrationAsync(10021377, 7174161);
             if (cardPaymentReg is null)
             {
-                Log.Error($"[STEP 3] FAILED. Card payment registration");
-                await WritePaymentLogAsync($"[STEP 3] FAILED. Card payment registration");
-                LogOrbipayCredentialsIncomplete(_logger);
                 return new OrbipayConfirmationResult
                 {
                     Success = false,
@@ -342,10 +315,6 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 };
             }
             var cardRegistrationSK = cardPaymentReg.RegistrationSK;
-
-
-            Log.Info($"[STEP 4] Validating Orbipay credentials");
-            await WritePaymentLogAsync($"[STEP 4] Validating Orbipay credentials");
             var clientKey = ebillConfig.TaxClientKey ?? string.Empty;
             var signatureKey = ebillConfig.TaxSecretKey ?? string.Empty;
             var clientApiKey = ebillConfig.TaxAPIKey ?? string.Empty;
@@ -360,33 +329,19 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 string.IsNullOrWhiteSpace(clientPrivateKey) ||
                 string.IsNullOrWhiteSpace(hwfPublicKey))
             {
-                Log.Error($"[STEP 4] Failed: One or more Orbipay credentials are missing or empty");
-                await WritePaymentLogAsync($"[STEP 4] Failed: One or more Orbipay credentials are missing or empty");
-                LogOrbipayCredentialsIncomplete(_logger);
                 return new OrbipayConfirmationResult
                 {
                     Success = false,
                     ErrorDescription = "Payment provider credentials are incomplete."
                 };
             }
-
-            Log.Info($"[STEP 4] OK: Credentials validated | LiveMode={liveMode}");
-            await WritePaymentLogAsync($"[STEP 4] OK: Credentials validated | LiveMode={liveMode}");
-            Log.Info($"[STEP 5] Building custom fields and InvocationContext");
-            await WritePaymentLogAsync($"[STEP 5] Building custom fields and InvocationContext");
             var customFields = BuildCustomFields(request, ebillConfig);
             var invocationContext = new InvocationContext(clientApiKey, clientPrivateKey, hwfPublicKey, _idempotentRequestKey);
-            //var invocationContext = new InvocationContext(clientApiKey, clientPrivateKey, hwfPublicKey);
 
             var customFieldsLog = string.Join(", ", customFields.Select(kv =>
             {
                 return $"{kv.Key}={kv.Value}";
             }));
-            //var invocationContextLog = string.Join(", ", invocationContext.GetType()
-            //                        .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).Select(p =>
-            //                        {
-            //                            return $"{p.Name}-{p.GetValue(invocationContext)}";
-            //                        }));
 
             var invocationContextLog = $"InvocationContext | " +
             $"clientApiKey={clientApiKey}, " +
@@ -394,153 +349,15 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 $"hwfPublicKey={hwfPublicKey}, " +
                 $"_idempotentRequestKey={_idempotentRequestKey}";
 
-            //Log.Info($"[STEP 6] Calling Orbipay payment.Confirm() | " +
-            //        $"CustomerAccountReference={customerAccountReference}, \n Amount={request.Amount:F2}," +
-            //        $"\n Token={token}, \n DigiSign={digiSign}, \n ClientKey={clientKey}, " +
-            //        $"\n SignatureKey={signatureKey}, \n ClientApiKey={clientApiKey}, \n ClientKey={clientKey}, " +
-            //        $"\n CustomFields={customFieldsLog}, \n InvocationContext={invocationContextLog}, " +
-            //        $"\n LiveMode={liveMode}"
-            //        );
-            //await WritePaymentLogAsync($"[STEP 6] Calling Orbipay payment.Confirm() | " +
-            //        $"CustomerAccountReference={customerAccountReference}, \n Amount={request.Amount:F2}," +
-            //        $"\n Token={token}, \n DigiSign={digiSign}, \n ClientKey={clientKey}, " +
-            //        $"\n SignatureKey={signatureKey}, \n ClientApiKey={clientApiKey}, \n ClientKey={clientKey}, " +
-            //        $"\n CustomFields={customFieldsLog}, \n InvocationContext={invocationContextLog}, " +
-            //        $"\n LiveMode={liveMode}"
-            //        );
-
-            // call new payment method
-            //var payment = new Com.Alacriti.Checkout.Api.Payment(customerAccountReference, request.Amount.ToString("F2", CultureInfo.InvariantCulture))
-            //    .withToken(token, digiSign)
-            //    .forClient(clientKey, signatureKey, clientApiKey)
-            //    .withCustomFields(customFields)
-            //    .confirm(invocationContext, liveMode);
-
-            //Log.Info($"[STEP 7] Orbipay response received | " +
-            //        $"IsNull={payment is null}, " +
-            //        $"HasError={payment?.Error is not null}");
-            //await WritePaymentLogAsync($"[STEP 7] Orbipay response received | " +
-            //        $"IsNull={payment is null}, " +
-            //        $"HasError={payment?.Error is not null}");
-
-            //if (payment is null)
-            //{
-            //    Log.Error($"[STEP 7 Orbipay returned a null payment object");
-            //    await WritePaymentLogAsync($"[STEP 7 Orbipay returned a null payment object");
-            //    return new OrbipayConfirmationResult
-            //    {
-            //        Success = false,
-            //        ErrorDescription = "Card payment failed"
-            //    };
-            //}
-
-            //if (payment.Error is null)
-            //{
-            //    Log.Info(
-            //        $"[STEP 8] Payment Success | " +
-            //        $"ConfirmationNumber={payment.ConfirmationNumber}, " +
-            //        $"RawAmount={payment.Amount}, " +
-            //        $"PaymentMethod={payment.PaymentMethod}, " +
-            //        $"Feeamount={payment.Fee?.Feeamount ?? "(none)"}, " +
-            //        $"PaymentDate={payment.PaymentDate}");
-            //    await WritePaymentLogAsync(
-            //        $"[STEP 8] Payment Success | " +
-            //        $"ConfirmationNumber={payment.ConfirmationNumber}, " +
-            //        $"RawAmount={payment.Amount}, " +
-            //        $"PaymentMethod={payment.PaymentMethod}, " +
-            //        $"Feeamount={payment.Fee?.Feeamount ?? "(none)"}, " +
-            //        $"PaymentDate={payment.PaymentDate}");
-            //}
-            //if (payment is not null && payment.Error is null)
-            //{
-            //var convenienceFee = 0m;
-            //if (!string.IsNullOrWhiteSpace(payment.Fee?.Feeamount))
-            //{
-            //    _ = decimal.TryParse(payment.Fee.Feeamount, NumberStyles.Number, CultureInfo.InvariantCulture, out convenienceFee);
-            //}
-
-            //var amount = request.Amount;
-            //if (!string.IsNullOrWhiteSpace(payment.Amount))
-            //{
-            //    _ = decimal.TryParse(payment.Amount, NumberStyles.Number, CultureInfo.InvariantCulture, out amount);
-            //}
-
-            ////DateTime? paymentDate = null;
-            ////if (!string.IsNullOrWhiteSpace(payment.PaymentDate) &&
-            ////    DateTime.TryParse(payment.PaymentDate, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
-            ////{
-            ////    paymentDate = parsedDate;
-            ////}
-
-            //DateTime? paymentDate = null;
-            //var paymentDateText = Convert.ToString(payment.PaymentDate, CultureInfo.InvariantCulture);
-            //if (!string.IsNullOrWhiteSpace(paymentDateText) &&
-            //    DateTime.TryParse(paymentDateText, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsedDate))
-            //{
-            //    paymentDate = parsedDate;
-            //}
-
-            //var lastFour = payment.FundingAccount?.AccountNumber;
-            //if (!string.IsNullOrWhiteSpace(lastFour) && lastFour.Length > 4)
-            //{
-            //    lastFour = lastFour[^4..];
-            //}
-
-            //Log.Info(
-            //    $"[STEP 8] Parsed | " +
-            //    $"ConvenienceFee={convenienceFee}, " +
-            //    $"LastFour={lastFour}, " +
-            //    $"PaymentDate={paymentDate:0}");
-            //await WritePaymentLogAsync(
-            //    $"[STEP 8] Parsed | " +
-            //    $"ConvenienceFee={convenienceFee}, " +
-            //    $"LastFour={lastFour}, " +
-            //    $"PaymentDate={paymentDate:0}");
-
-            //Log.Info(
-            //    $"[STEP 9] Persisting payment to SUITES | " +
-            //    $"ConfirmationNumber={payment.ConfirmationNumber}");
-            //await WritePaymentLogAsync(
-            //    $"[STEP 9] Persisting payment to SUITES | " +
-            //    $"ConfirmationNumber={payment.ConfirmationNumber}");
-
-            //save payment method
-            //await SaveERPortalPaymentAsync(payment, request, lastFour, convenienceFee);
-
-            //var req = new StreamReader(Request.InputStream, Request.ContentEncoding);
-            //string tokenstring = HttpUtility.UrlDecode(req.ReadToEnd());
             var requestJson = JsonSerializer.Serialize(request);
-            // var tempToken = !string.IsNullOrWhiteSpace(token) ? token : "";
-            Log.Info($"SaveCardPaymentAsync | " +
-                        $"token={fullToken}, Request={requestJson}, SecureUserSk={secureUserSK}, cardRegistrationSK={cardRegistrationSK}");
-            await WritePaymentLogAsync(
-                $"SaveCardPaymentAsync | " +
-                $"Token={fullToken}, " +
-                $"Request={requestJson}, " +
-                $"CardRegistrationSK={cardRegistrationSK}, " +
-                $"SecureUserSk={secureUserSK}");
-
             var paymentResponse = await SaveCardPaymentAsync(fullToken, request, secureUserSK, cardRegistrationSK);
-            //LogPaymentConfirmed(_logger, payment.ConfirmationNumber, amount);
-            await WritePaymentLogAsync(
-                $"PaymentResponse: {paymentResponse}");
-            //Log.Info(
-            //    $"[STEP 9] OK: payment saved to SUITES | " +
-            //    $"ConfirmationNumber={payment.ConfirmationNumber}");
-            //await WritePaymentLogAsync(
-            //    $"[STEP 9] OK: payment saved to SUITES | " +
-            //    $"ConfirmationNumber={payment.ConfirmationNumber}");
+
             if (paymentResponse != null)
             {
                 var errorMessage = paymentResponse.RuleViolations?.Length > 0 ? paymentResponse.RuleViolations[0].RuleViolation : "";
                 var confirmationNumber = string.IsNullOrWhiteSpace(paymentResponse.ConfirmationNumber) ? null : paymentResponse.ConfirmationNumber;
-                await WritePaymentLogAsync(
-                            $"paymentResponse | " +
-                            $"ConfirmationNumber={confirmationNumber}, " +
-                            $"RuleViolation={errorMessage}, " +
-                            $"PhoneNumber={paymentResponse?.CollectionsPhoneNumber}");
 
-                return paymentResponse?.RuleViolations?.Length > 0
+                return paymentResponse?.RuleViolations?.Length > 0 && !string.IsNullOrWhiteSpace(paymentResponse.ErrorDescription)
                     ? new OrbipayConfirmationResult
                     {
                         Success = false,
@@ -561,59 +378,7 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                         PaymentDate = DateTime.UtcNow
                     };
             }
-            //}
 
-            //var errors = payment?.Error?.ToList() ?? [];
-            //var errorMessage = string.Join(" ", errors.Select(e =>
-            //{
-            //    return e.Message;
-            //}).Where(m =>
-            //{
-            //    return !string.IsNullOrWhiteSpace(m);
-            //}));
-            //var errorField = string.Join(" ", errors.Select(e =>
-            //{
-            //    return e.Field;
-            //}).Where(f =>
-            //{
-            //    return !string.IsNullOrWhiteSpace(f);
-            //}));
-            //var errorCode = string.Join(" ", errors.Select(e =>
-            //{
-            //    return e.Code;
-            //}).Where(c =>
-            //{
-            //    return !string.IsNullOrWhiteSpace(c);
-            //}));
-
-            //Log.Error(
-            //        $"[STEP 10] payment DECLINED by Orbipay | " +
-            //        $"ErrorCode={errorCode}, ErrorField={errorField}, ErrorMessage={errorMessage}");
-            //await WritePaymentLogAsync(
-            //        $"[STEP 10] payment DECLINED by Orbipay | " +
-            //        $"ErrorCode={errorCode}, ErrorField={errorField}, ErrorMessage={errorMessage}");
-
-            //var displayErrorCodes = (string?) ebillConfig.DisplayErrorCodes ?? string.Empty;
-            //var displayError = errors.Any(e =>
-            //{
-            //    return !string.IsNullOrWhiteSpace(e.Code) &&
-            //                    e.Code != "0" &&
-            //                    displayErrorCodes.Contains(e.Code, StringComparison.OrdinalIgnoreCase);
-            //});
-
-            //var phoneNumber = (string?) ebillConfig.EmployerCollectionsPhoneNumber ?? string.Empty;
-
-            //LogPaymentError(_logger, errorMessage, errorCode);
-
-            //return new OrbipayConfirmationResult
-            //{
-            //    Success = false,
-            //    ErrorDescription = string.IsNullOrWhiteSpace(errorMessage) ? "Card payment failed." : errorMessage,
-            //    ErrorField = errorField,
-            //    ErrorCode = errorCode,
-            //    PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber,
-            //    DisplayError = displayError ? "true" : "false"
-            //};
             return new OrbipayConfirmationResult
             {
                 Success = false,
@@ -627,8 +392,6 @@ internal sealed partial class CardPaymentService : ICardPaymentService
         catch (CommunicationException ex)
         {
             Log.Error($"[ERROR] CommunicationException while contacting Orbipay | {ex.GetType().Name}: {ex.Message}", ex);
-            await WritePaymentLogAsync($"[ERROR] CommunicationException while contacting Orbipay | {ex.GetType().Name}: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}");
-
             LogCommunicationErrorWithAlacritiApi(_logger, ex);
             return new OrbipayConfirmationResult
             {
@@ -639,12 +402,11 @@ internal sealed partial class CardPaymentService : ICardPaymentService
         catch (Exception ex)
         {
             Log.Error($"[ERROR] Unexpected exception in ConfirmPaymentAsync | {ex.GetType().Name}: {ex.Message}", ex);
-            await WritePaymentLogAsync($"[ERROR] Unexpected exception in ConfirmPaymentAsync | {ex.GetType().Name}: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}");
             LogErrorConfirmingOrbipayPayment(_logger, ex);
             return new OrbipayConfirmationResult
             {
                 Success = false,
-                ErrorDescription = "An error occurred while processing your payment."
+                ErrorDescription = "There was an error while attempting to process the payment. The request cannot be completed with the given funding source as it does not have sufficient balance. Choose a different type of funding source and try again. Please contact your financial institution or select Continue to update the payment."
             };
         }
     }
@@ -664,7 +426,6 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 CardType = payment.PaymentMethod,
                 Amount = request.Amount
             };
-            //paymentProxy.RegistrationSk = request.RegistrationSk;
             if (convenienceFee != 0m)
             {
                 paymentProxy.Fee = convenienceFee;
@@ -695,7 +456,6 @@ internal sealed partial class CardPaymentService : ICardPaymentService
                 SecureUserSK = secureUserSK,
                 TokenRequestString = tokenString,
                 VoluntaryPayment = request.IsVoluntary
-
             };
             return await _cardPaymentSystem.SaveEmployerPortalCardPaymentAsync(paymentRequest);
         }
@@ -728,9 +488,7 @@ internal sealed partial class CardPaymentService : ICardPaymentService
     {
         var sb = new StringBuilder();
         var q = '"';
-
         sb.AppendLine($"<button id={q}orbipay-checkout-button{q} type={q}button{q} style={q}display:none;{q}>Pay</button>");
-
         sb.AppendLine($"<form id={q}{formId}{q} action={q}javascript:void(0){q} method={q}POST{q}>");
         sb.AppendLine($"<script id={q}{scriptId}{q} src={q}{hostedFormUrl}{q}");
         sb.AppendLine($"data-prevent_posting={q}true{q}");
@@ -762,10 +520,8 @@ internal sealed partial class CardPaymentService : ICardPaymentService
         {
             sb.AppendLine($"data-customer_postal_code={q}{HtmlEncode(zip)}{q}>");
         }
-
         sb.AppendLine("</script>");
         sb.AppendLine("</form>");
-
         return sb.ToString();
     }
 
@@ -887,20 +643,6 @@ internal sealed partial class CardPaymentService : ICardPaymentService
             : country;
     }
 
-    private static async Task WritePaymentLogAsync(string message)
-    {
-        const string LogFile = @"\\WWWMAD0D7933\vol1\AppLogs\UI\Tax\EmployerPortal\payment_responses.txt";
-        try
-        {
-            var timestamp = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:sss.fff zzz", CultureInfo.InvariantCulture);
-            var line = $"[{timestamp}] {message}{Environment.NewLine}";
-            await File.AppendAllTextAsync(LogFile, line);
-        }
-        catch
-        {
-            throw;
-        }
-    }
     #region LoggerMessage Delegates
 
     [LoggerMessage(

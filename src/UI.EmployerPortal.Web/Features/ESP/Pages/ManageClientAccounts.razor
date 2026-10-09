@@ -62,30 +62,26 @@
 
         <div class="table-container">
             <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Client accounts">
-                <caption class="visually-hidden">List of client accounts with UI account number and actions</caption>
+                <caption class="visually-hidden">List of client accounts with UI account number and actions (column headers with buttons are sortable).</caption>
                 <thead>
                     <tr class="header-row">
-                        <th scope="col" class="header-cell"
-                            @onclick="@(() => Sort("accountName"))"
-                            @onkeydown="@(e => HandleHeaderKeyDown(e, "accountName"))"
-                            tabindex="0"
-                            aria-sort="@GetAriaSort("accountName")">
+                        <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountName")">
                             <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Account Name</span>
-                                @GetSortIcon("accountName")
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountName"))">
+                                    <span class="header-label fw-bold fs-sm">Account Name</span>
+                                    <span aria-hidden="true">@GetSortIcon("accountName")</span>
+                                </button>
                             </div>
                         </th>
-                        <th scope="col" class="header-cell"
-                            @onclick="@(() => Sort("uiAccountNumber"))"
-                            @onkeydown="@(e => HandleHeaderKeyDown(e, "uiAccountNumber"))"
-                            tabindex="0"
-                            aria-sort="@GetAriaSort("uiAccountNumber")">
+                        <th scope="col" class="header-cell" aria-sort="@GetAriaSort("uiAccountNumber")">
                             <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">UI Account No.</span>
-                                @GetSortIcon("uiAccountNumber")
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("uiAccountNumber"))">
+                                    <span class="header-label fw-bold fs-sm">UI Account No.</span>
+                                    <span aria-hidden="true">@GetSortIcon("uiAccountNumber")</span>
+                                </button>
                             </div>
                         </th>
-                        <th scope="col" class="header-cell actions-cell" hidden="@(!IsEspUserManager())">
+                        <th scope="col" class="header-cell actions-cell" hidden="@(!_isEspUserManager)">
                             <div class="header-content header-content-left">
                                 <span class="header-label fw-bold fs-sm">Actions</span>
                             </div>
@@ -98,10 +94,11 @@
                         <tr class="data-row">
                             <td class="fw-bold fs-md">@client.AccountName</td>
                             <td class="fw-normal fs-md">@FormatUiAccountNumber(client.UIAccountNumber)</td>
-                            <td hidden="@(!IsEspUserManager())">
+                            <td hidden="@(!_isEspUserManager)">
                                 <div class="action-buttons">
                                     <button class="btn btn-sm p-1 action-btn" title="Remove client" @onclick="() => HandleDeleteClick(client)">
-                                        <img src="@Assets["icons/trash.svg"]" alt="Remove" class="action-icon" />
+                                        <span class="visually-hidden">Remove @client.AccountName</span>
+                                        <img src="@Assets["icons/trash.svg"]" alt="" class="action-icon" />
                                     </button>
                                 </div>
                             </td>
@@ -149,4 +146,4 @@
                    ErrorMessage="@_removeError"
                    ClientDisplayName="@(_clientToRemove?.AccountName ?? string.Empty)"
                    OnCancel="CloseRemoveModal"
-                   OnConfirm="ConfirmRemoveAsync" />
+                   OnConfirm="ConfirmRemoveAsync"/>

@@ -39,6 +39,7 @@
                 <BillingPaymentsHeader Amount="@_employer?.BalanceDue" ReturnUrl="@ReturnUrl" />
 
                 <h1 class="page-title fw-bold">Credit/Debit Card Registration Profile</h1>
+                <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     @if (_showValidationSummary && _validationErrors.Any())
                     {
@@ -63,7 +64,7 @@
                         </p>
 
                         <div class="card-accepted-logos" aria-label="Accepted card types">
-                            <img src="images/billing/cards.svg" alt="cards" height="28" />
+                            <img src="images/billing/cards.svg" alt="cards" />
                         </div>
 
                         <p class="card-all-required-note">All fields are required.</p>
@@ -131,7 +132,9 @@
                                                  ValueChanged="v => _profile.State = v"
                                                  Options="_stateOptions"
                                                  Placeholder="Select State"
-                                                 Visible="_showValidation" />
+                                                 Visible="_showValidation"
+                                                 ForceError="@(_showValidation && string.IsNullOrWhiteSpace(_profile.State))"
+                                                 ForceErrorMessage="State is required"/>
                         }
                         <div class="bi-zip-row">
                             <div class="bi-zip-field">
@@ -159,6 +162,7 @@
                             Telephone number of the person making the payment online.
                         </p>
                         <PhoneNumberField @bind-Value="_profile.PhoneNumber"
+                                          Id="card-phone"
                                           For="() => _profile.PhoneNumber"
                                           Visible="true"
                                           Numeric="true"
@@ -176,6 +180,34 @@
                                            Visible="_showValidation"
                                            MaxLength="100" />
 
+                        <div class="ach-payment-info-section" role="group" aria-labelledby="payment-info-heading">
+                            <h2 id="payment-info-heading" class="ach-payment-info-title fw-bold">Payment Information</h2>
+                            <hr class="ach-section-divider" aria-hidden="true" />
+
+                            <div class="ach-payment-amount-row">
+                                <div class="ach-payment-amount-field">
+                                    <OutlinedTextField Label="Payment Amount"
+                                                       Id="card-amount"
+                                                       Type="text"
+                                                       InputMode="decimal"
+                                                       Value="@_displayAmount"
+                                                       ValueChanged="OnAmountChanged"
+                                                       OnBlur="OnAmountBlur"
+                                                       Required="true"
+                                                       Placeholder="0.00"
+                                                       For="() => _profile.Amount"
+                                                       ForceError="@(AmountError is not null)"
+                                                       ForceErrorMessage="@AmountError"
+                                                       Visible="_showValidation" />
+                                </div>
+                                <a href="javascript:void(0);" onclick="@HandleAmountDueLink"
+                                       class="ach-amount-due-link"
+                                       aria-label="View Amount Due Details">
+                                    Amount Due Details
+                                </a>
+                            </div>
+                        </div>
+
                         <p class="card-effective-date-note">
                             Note that the payment is effective as of the date you make it. It can take up to
                             two business days after the settlement date to post to your account.
@@ -187,6 +219,7 @@
             else if (_step == CardStep.Verification)
             {
                 <h1 class="billing-section-title fw-bold">Payment Verification</h1>
+                <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     @if (_cardPaymentError is not null)
                     {
@@ -205,7 +238,6 @@
                                                 DismissButton="false" />
                         </div>
                     }
-
                     <p class="section-description">Please verify the payment information is correct.</p>
 
                     <div class="ach-info-card">
@@ -244,9 +276,10 @@
             else if (_step == CardStep.Confirmation)
             {
                 <h1 class="billing-section-title fw-bold">Card Payment Confirmation</h1>
+                <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                        Message="Payment Request Submitted"
+                                        Message="Payment request submitted"
                                         DismissButton="false" />
 
                     <p class="section-description">A confirmation email has been sent.</p>
@@ -311,6 +344,7 @@
 @code {
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
     [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
+    [Inject] private IEmployerAccountService EmployerAccountService { get; set; } = default!;
     [Inject] private IUserAccountService UserAccountService { get; set; } = default!;
     [Inject] private IContactInformationService ContactInformationService { get; set; } = default!;
     [Inject] private IEftPaymentService EftPaymentService { get; set; } = default!;
@@ -331,6 +365,10 @@
     private EditContext _editContext = default!;
 
     private decimal _paymentAmount;
+    private string _displayAmount = string.Empty;
+    private string? AmountError { get; set; }
+    private const decimal MinAmount = 0.01m;
+    private const decimal MaxAmount = 999_999_999.99m;
     private string _confirmationNumber = string.Empty;
     private int _registrationSk;
 
@@ -373,6 +411,7 @@
         if (!string.IsNullOrEmpty(sessionTask))
         {
             _paymentAmount = decimal.Parse(sessionTask);
+            _displayAmount = FormatAmount(_paymentAmount);
         }
 
         //_paymentAmount = sessionTask.Result?.AmountToPay ?? 0m;
@@ -411,12 +450,22 @@
         try
         {
             var employer = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+            if (employer is not null)
+            {
+                // The session snapshot's BalanceDue can be stale (e.g. after a payment), so refresh it live.
+                var freshBalance = await EmployerAccountService.GetRemainingBalance(employer.Id);
+                employer = employer with { BalanceDue = freshBalance };
+            }
             _employer = employer;
             var userSk = UserAccountService.GetUserSKClaim();
             var empSk = employer?.Id ?? 0;
 
             //_profile = await CardPaymentService.GetCardProfileAsync(10021377, 7174161);
             _profile = await CardPaymentService.GetCardProfileAsync(userSk, empSk);
+            if (_paymentAmount > 0)
+            {
+                _profile.Amount = _displayAmount;
+            }
             //if (string.IsNullOrWhiteSpace(_profile.Country) && _unitedStatesCodeSK > 0)
             if (string.IsNullOrWhiteSpace(_profile.Country) && us is not null)
             {
@@ -434,7 +483,7 @@
                 if (int.TryParse(_profile.Country, out int codeSk))
                 {
                     var countrySelection = countries.FirstOrDefault(c => c.CodeSK == codeSk);
-                    if(countrySelection is not null)
+                    if (countrySelection is not null)
                     {
                         _profile.Country = countrySelection.ShortDescription;
                     }
@@ -517,13 +566,13 @@
                 PhoneNumber = _profile.PhoneNumber,
                 State = _profile.State,
                 RegistrationFound = _profile.RegistrationFound,
-                ISOCountryCode3 = _profile.ISOCountryCode3                
+                ISOCountryCode3 = _profile.ISOCountryCode3
             };
             _registrationSk = await CardPaymentService.SaveCardProfileAsync(userSk, empSk, regToSave);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            Logger.LogError(ex,"Failed to save card registration profile.");
+            Logger.LogError(ex, "Failed to save card registration profile.");
             _validationFieldIds.Add("An error occured while saving your registration. Please try again.");
             _showValidationSummary = true;
             _isLoading = false;
@@ -542,13 +591,14 @@
     private void OnFormInvalid()
     {
         _showValidation = true;
+        ValidateStep1();
         _showValidationSummary = true;
-        _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
-        _validationFieldIds.Clear();
-        foreach (var message in _validationErrors)
-        {
-            _validationFieldIds.Add(GetFieldIdForMessage(message));
-        }
+        // _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
+        // _validationFieldIds.Clear();
+        // foreach (var message in _validationErrors)
+        // {
+        //     _validationFieldIds.Add(GetFieldIdForMessage(message));
+        // }
         StateHasChanged();
     }
 
@@ -591,6 +641,18 @@
     {
         _cardPaymentError = null;
         Nav.NavigateTo("billing-payments/billing");
+    }
+
+    private void HandleAmountDueLink()
+    {
+        if (!string.IsNullOrWhiteSpace(ReturnUrl) && ReturnUrl.Contains("voluntary-contribution"))
+        {
+            Nav.NavigateTo("billing-payments/voluntary-contribution");
+        }
+        else
+        {
+            Nav.NavigateTo("billing-payments/billing");
+        }
     }
 
     private async Task LaunchPaymentModal()
@@ -714,23 +776,42 @@
         _validationErrors.Clear();
         _validationFieldIds.Clear();
 
-        if (!_editContext.Validate())
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(cleaned);
+        if (AmountError is not null)
         {
-            _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
+            _profile.Amount = string.IsNullOrWhiteSpace(cleaned) ? string.Empty : _displayAmount;
+            _editContext.NotifyFieldChanged(_editContext.Field(nameof(_profile.Amount)));
+        }
+
+        bool isContextValid = _editContext.Validate();
+        bool hasCustomErrors = false;
+        _validationErrors = _editContext.GetValidationMessages().Distinct().ToList();
+
+        if(AmountError is not null && !_validationErrors.Contains(AmountError))
+        {
+            _validationErrors.Add(AmountError);
+            hasCustomErrors = true;
+        }
+
+        if (_showState && string.IsNullOrWhiteSpace(_profile.State))
+        {
+            if (!_validationErrors.Contains("State is required"))
+            {
+                _validationErrors.Add("State is required");
+                //_validationFieldIds.Add("card-state");
+            }
+            hasCustomErrors = true;
+        }
+
+        if(!isContextValid || hasCustomErrors)
+        {
             foreach (var message in _validationErrors)
             {
                 _validationFieldIds.Add(GetFieldIdForMessage(message));
             }
             return false;
         }
-
-        if (_showState && string.IsNullOrWhiteSpace(_profile.State))
-        {
-            _validationErrors.Add("State is required");
-            _validationFieldIds.Add("card-state");
-            return false;
-        }
-
         return true;
     }
 
@@ -744,6 +825,7 @@
     {
         return message switch
         {
+            var m when m.Contains("Payment Amount", StringComparison.OrdinalIgnoreCase) => "card-amount",
             var m when m.Contains("First name", StringComparison.OrdinalIgnoreCase) => "card-first-name",
             var m when m.Contains("Last name", StringComparison.OrdinalIgnoreCase) => "card-last-name",
             var m when m.Contains("Phone", StringComparison.OrdinalIgnoreCase) => "card-phone",
@@ -756,6 +838,121 @@
             _ => string.Empty
         };
     }
+
+    private async Task OnAmountBlur()
+    {
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        ValidateAmount(cleaned);
+
+        if (AmountError is null)
+        {
+            _displayAmount = FormatAmount(_paymentAmount);
+            _profile.Amount = _displayAmount;
+        }
+        else
+        {
+            _paymentAmount = 0;
+            _profile.Amount = string.IsNullOrWhiteSpace(cleaned) ? string.Empty : _displayAmount;
+        }
+        UpdateAmountErrorInSummary();
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(_profile.Amount)));
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+
+    private void OnAmountChanged(string raw)
+    {
+        _displayAmount = raw;
+        _profile.Amount = string.IsNullOrWhiteSpace(raw) ? string.Empty : raw;
+
+        var cleaned = _displayAmount.Replace("$", "").Replace(",", "").Trim();
+        if (!string.IsNullOrWhiteSpace(cleaned)
+            && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture, out var liveValue)
+            && liveValue >= MinAmount
+            && liveValue <= MaxAmount)
+        {
+            AmountError = null;
+        }
+        else
+        {
+            ValidateAmount(cleaned);
+        }
+
+        if (_showValidationSummary)
+        {
+            UpdateAmountErrorInSummary();
+        }
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(_profile.Amount)));
+    }
+
+    private void UpdateAmountErrorInSummary()
+    {
+        for(int i = _validationErrors.Count - 1; i >=0; i--)
+        {
+            if(_validationErrors[i].Contains("Payment Amount", StringComparison.OrdinalIgnoreCase))
+            {
+                _validationErrors.RemoveAt(i);
+                if(i < _validationFieldIds.Count)
+                {
+                    _validationFieldIds.RemoveAt(i);
+                }
+            }
+        }
+
+        if(AmountError is not null)
+        {
+            _validationErrors.Add(AmountError);
+            _validationFieldIds.Add("card-amount");
+            _showValidationSummary = true;
+        }
+        else if (!_validationErrors.Any())
+        {
+            _showValidationSummary = false;
+        }
+    }
+
+    private void ValidateAmount(string raw)
+    {
+        var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
+
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            AmountError = "Payment Amount is required";
+            _paymentAmount = 0;
+            return;
+        }
+
+        if (!decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+        {
+            AmountError = "Payment Amount must include 2 decimal places. It must be numeric and in a valid format.";
+            _paymentAmount = 0;
+            return;
+        }
+
+        if (value < MinAmount)
+        {
+            AmountError = value <= 0
+                            ? $"Payment Amount must be greater than $0.00."
+                            : $"Payment Amount must be at least {FormatAmount(MinAmount)}.";
+            _paymentAmount = 0;
+            return;
+        }
+
+        if (value > MaxAmount)
+        {
+            AmountError = $"Payment Amount cannot exceed {FormatAmount(MaxAmount)}.";
+            _paymentAmount = 0;
+            return;
+        }
+
+        _paymentAmount = value;
+        AmountError = null;
+    }
+
+    private static string FormatAmount(decimal value) => $"$ {value:N2}";
 
     private Task OnPaymentCancelled()
     {

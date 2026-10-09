@@ -4,9 +4,16 @@
 }
 
 .ach-payment-info-title {
-    font-size: 16px;
     color: #003663;
     margin-bottom: 8px;
+    border-bottom: 1px solid #003663;
+    font-family: Verdana;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 18px;
+    leading-trim: NONE;
+    line-height: 160%;
+    letter-spacing: 0%;
 }
 
 .ach-section-divider {

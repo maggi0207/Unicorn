@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Features.ESP.Models;
 using UI.EmployerPortal.Web.Features.ESP.Services;
@@ -46,6 +45,7 @@ public partial class ManageClientAccounts
 
     private string _sortColumn = "accountName";
     private bool _sortAscending = true;
+    private bool _isEspUserManager = false;
 
     private List<EspClientModel> FilteredClients
     {
@@ -100,6 +100,7 @@ public partial class ManageClientAccounts
     protected override async Task OnInitializedAsync()
     {
         await LoadClientsAsync();
+        _isEspUserManager = await IsEspUserManagerAsync();
     }
 
     private async Task LoadClientsAsync()
@@ -163,14 +164,6 @@ public partial class ManageClientAccounts
     private string? GetAriaSort(string column)
     {
         return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
-    }
-
-    private void HandleHeaderKeyDown(KeyboardEventArgs e, string column)
-    {
-        if (e.Key is "Enter" or " ")
-        {
-            Sort(column);
-        }
     }
 
     private void HandleSearchInput(ChangeEventArgs e)
@@ -293,8 +286,8 @@ public partial class ManageClientAccounts
             : uiAccountNumber ?? string.Empty;
     }
 
-    private bool IsEspUserManager()
+    private async Task<bool> IsEspUserManagerAsync()
     {
-        return UserAccountService.IsEspUserManager();
+        return await UserAccountService.IsEspUserManagerAsync();
     }
 }

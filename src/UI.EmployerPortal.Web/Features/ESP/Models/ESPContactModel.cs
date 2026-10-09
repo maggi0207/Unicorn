@@ -54,10 +54,15 @@ public class ESPContactModel
     /// InternationalFlag
     /// </summary>
     public bool InternationalFlag { get; set; }
+    /// <summary>
+    /// Rule violations / error messages returned by the service when the get contact has multiple values.
+    /// </summary>
+    public IReadOnlyList<string> RuleViolations { get; set; } = Array.Empty<string>();
 
     /// <summary>
     /// check
     /// </summary>
+    /// 
     public class ConfirmEmailvalidationAttribute : ValidationAttribute
     {
         /// <summary>
@@ -72,12 +77,12 @@ public class ESPContactModel
             var confirmEmail = value as string;
             if (string.IsNullOrWhiteSpace(confirmEmail))
             {
-                return new ValidationResult("Verify Email Address is required.");
+                return new ValidationResult("Verify Email Address is required.", new[] { validationContext.MemberName! });
             }
             var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             return !regex.IsMatch(confirmEmail)
-                ? new ValidationResult("Invalid email format.")
-                : confirmEmail != model.Email ? new ValidationResult("Email addresses do not match.") : ValidationResult.Success;
+                ? new ValidationResult("Invalid email format.", new[] { validationContext.MemberName! })
+                : confirmEmail != model.Email ? new ValidationResult("Email addresses do not match.", new[] { validationContext.MemberName! }) : ValidationResult.Success;
         }
     }
     /// <summary>

@@ -26,6 +26,11 @@ public sealed record EspPaymentHistoryItem
     public string ConfirmationId { get; init; } = string.Empty;
 
     /// <summary>
+    /// Unique confirmation identifier for the payment.
+    /// </summary>
+    public string FileUploadConfirmationNumber { get; init; } = string.Empty;
+
+    /// <summary>
     /// Current status description from the service (e.g. "Pending", "Cancelled").
     /// </summary>
     public string Status { get; init; } = string.Empty;

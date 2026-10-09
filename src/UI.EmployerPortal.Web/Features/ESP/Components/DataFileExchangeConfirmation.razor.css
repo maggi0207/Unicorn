@@ -7,7 +7,7 @@
     font-weight: 700;
     color: #000;
     margin: 0 0 8px;
-    margin-top:24px;
+    margin-top: 24px;
 }
 
 .title-divider {
@@ -42,15 +42,15 @@
     margin-bottom: 24px;
 }
 
-.upload-message strong{
-    max-width:990px;
-    margin: 0 auto 24px;
-}
+    .upload-message strong {
+        max-width: 990px;
+        margin: 0 auto 24px;
+    }
 
 .summary-card {
     background: #F3F3F3;
     border-radius: 6px;
-    width:643px;
+    width: 643px;
     max-width: 100%;
     margin: 0 auto 32px;
     padding: 24px;
@@ -104,6 +104,12 @@
 .button-area {
     display: flex;
     justify-content: center;
+}
+
+.button-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
 }
 
 /* ----- Save Page Link ----- */

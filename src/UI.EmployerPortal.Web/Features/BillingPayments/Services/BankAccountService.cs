@@ -267,6 +267,10 @@ internal class BankAccountService : IBankAccountService
                                     Text: c.LongDescription,
                                     ShortCode: c.ShortDescription ?? string.Empty);
             })
+                .OrderBy(c =>
+                {
+                    return c.Text;
+                }, StringComparer.OrdinalIgnoreCase)
                 .ToList() ?? [];
         }
         catch (CommunicationException)

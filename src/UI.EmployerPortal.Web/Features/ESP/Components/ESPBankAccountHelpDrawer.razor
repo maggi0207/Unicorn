@@ -7,7 +7,7 @@
            aria-modal="true"
            aria-labelledby="help-drawer-title"
            @onkeydown="HandleKeyDown"
-           tabindex="-1">
+           @ref="_modalElement">
 
         <div class="help-drawer-header">
             <div class="help-drawer-title-row">
@@ -15,7 +15,7 @@
                 <h2 id="help-drawer-title" class="help-drawer-title">Bank Account Help</h2>
             </div>
             <button type="button" class="help-drawer-cancel" aria-label="Close Bank Account Help panel" @onclick="HandleClose">
-                Cancel <img src="@Assets["icons/close_x_blue.svg"]" width="14" height="14" alt="" aria-hidden="true" />
+                Close <img src="@Assets["icons/close_x_blue.svg"]" width="14" height="14" alt="" aria-hidden="true" />
             </button>
         </div>
 
@@ -59,7 +59,7 @@
                     that you have identified the check number and routing number, the last number is
                     your bank account number.
                 </p>
-                 <img src="images\billing\bankaccounthelp.jpg" class="help-check-image" alt="Sample check showing routing number, account number, and check number locations" />
+                <img src="@Assets["images/billing/BankAccountHelp.svg"]" class="help-check-image" alt="Sample check showing routing number, account number, and check number locations" />
             </section>
 
             <div class="help-drawer-footer">

@@ -93,6 +93,17 @@ public interface IESPOrchestrator
     /// Stores the selected file upload sk in session storage.
     /// </summary>
     Task SaveFileUploadDetailSkToSessionAsync(long sk);
+
+    /// <summary>
+    /// Stores the selected file confirmation number in session storage.
+    /// </summary>
+    Task SaveFileConfirmationToSessionAsync(string fileConfirmationNumber);
+
+    /// <summary>
+    /// GetFileConfirmationFromSessionAsync
+    /// </summary>
+    /// <returns></returns>
+    Task<string> GetFileConfirmationFromSessionAsync();
 }
 
 /// <summary>
@@ -280,6 +291,19 @@ internal class ESPOrchestrator : IESPOrchestrator
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>() ?? new SelectedEmployerAccount();
         selectedEmployer.SelectedFileUploadDetailSK = sk;
         await _sessionManager.SetAsync(selectedEmployer);
+    }
+
+    public async Task SaveFileConfirmationToSessionAsync(string fileConfirmationNumber)
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>() ?? new SelectedEmployerAccount();
+        selectedEmployer.SelectedFileConfirmation = fileConfirmationNumber;
+        await _sessionManager.SetAsync(selectedEmployer);
+    }
+
+    public async Task<string> GetFileConfirmationFromSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        return selectedEmployer?.SelectedFileConfirmation ?? string.Empty;
     }
 
     public async Task<int> GetFileUploadDetailSkFromSessionAsync()

@@ -28,6 +28,7 @@
     font-weight: 700;
     color: #000000;
     margin: 0;
+    margin-top:15px;
 }
 
 .page-subtitle {
@@ -92,7 +93,7 @@
 .billing-payments-container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    /*gap: 24px;*/
     width: 100%;
 }
 
@@ -151,15 +152,24 @@
     margin-bottom: 0.25rem;
 }
 
-.section-divider,
+/*.section-divider,
 .option-divider {
     border-top: 1px solid #ccc;
     margin: 0.5rem 0;
+}*/
+
+.section-divider,
+.option-divider {
+    border: none;
+    border-top: 1px solid #003663;
+    margin: var(--spacing-sm) 0;
+    gap: 16px;
 }
 
 .section-description {
     margin-bottom: 1rem;
-    color: #555;
+    color: #000;
+    font-weight:500;
 }
 
 /* Payment Option Cards */
@@ -433,4 +443,58 @@
 
 .ach-print-section .ach-info-card-header-actions {
     display: none !important;
+}
+
+
+/* ── Payment Information Section ────────────────────────────────── */
+.ach-payment-info-title {
+    font-size: 16px;
+    color: #003663;
+    margin-bottom: 8px;
+}
+
+.ach-section-divider {
+    border: none;
+    margin: 8px 0 20px;
+}
+
+/* ── Amount row: input left, link right ─────────────────────────── */
+.ach-payment-amount-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.ach-payment-amount-field {
+    flex: 0 0 330px;
+    min-width: 0;
+}
+
+.ach-amount-due-link {
+    color: #0D6EFD;
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    vertical-align: middle;
+}
+
+    .ach-amount-due-link:hover {
+        text-decoration: underline;
+    }
+
+@media (max-width: 768px) {
+    .ach-payment-amount-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .ach-payment-amount-field {
+        flex: 1;
+    }
+
+    .ach-amount-due-link {
+        padding-top: 0;
+    }
 }

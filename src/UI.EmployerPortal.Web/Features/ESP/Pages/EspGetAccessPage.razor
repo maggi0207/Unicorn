@@ -21,25 +21,29 @@
         </div>
     </div>
     <div class="gak-body">
-        @if (_successMessage != null)
-        {
-            <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                Message="@_successMessage" />
-        }
-        @if (_serviceError != null)
-        {
-            <NotificationBanner NotificationType="NotificationType.Alert"
-                                Message="@_serviceError" />
-        }
-        @* ── Section bar ── *@
-        <div class="gak-section-bar">Enter Access Key</div>
-
         @* ── EditForm wraps body + footer so submit button is inside the form ── *@
-        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
+        <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
             <DataAnnotationsValidator />
+            <ValidationErrorSummary ShowSummary="_showValidationError" FieldIds="_fieldIds" />
+            <div role="status">
+                @if (_successMessage != null)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                        Message="@_successMessage" />
+                }
+            </div>
+            <div role="alert">
+                @if (_serviceError != null)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        Message="@_serviceError" />
+                }
+            </div>
+            @* ── Section bar ── *@
+            <div class="gak-section-bar">Enter Access Key</div>
             <div class="gak-main-body">
                 <p class="gak-description">Enter your access key and the associated ESP FEIN.</p>
-               
+
                 <OutlinedTextField Label="Access Key"
                                    Id="gak-key"
                                    @bind-Value="_form.AccessKey"
@@ -73,7 +77,7 @@
                     @if (_isLoading)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-  
+
                     }
                     <span class="esp-btn-content">
                         CONTINUE

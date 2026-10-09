@@ -46,8 +46,8 @@ else
                 </div>
 
                 <div class="billing-row">
-                    <span class="label">Total Pending EFT Payments</span>
-                    <span class="value" aria-label="Total Pending EFT Payments">
+                    <span class="label">Pending EFT Payments</span>
+                    <span class="value" aria-label="Pending EFT Payments">
                         @Model.TotalEFTPayments.ToString("C")                      
                     </span>
                 </div>
@@ -74,6 +74,9 @@ else
                     </span>
                 </div>
             </div>
+            <p class="billing-description">
+                If you have any questions regarding the balance due, please email UIReimburseErs@dwd.wisconsin.gov or call the Reimbursement Specialist at (608) 266-9989.
+            </p>
 
             <h3 id="payment-method-heading" class="section-title">
                 Payment Method

@@ -38,6 +38,7 @@ public class BankAccountModel : IValidatableObject
     /// Confirmation entry for <see cref="AccountNumber"/>. Must match exactly.
     /// </summary>
     [Required(ErrorMessage = "Re-enter Account Number is required")]
+    [Compare(nameof(AccountNumber), ErrorMessage = "Account numbers do not match")]
     public string? ConfirmAccountNumber { get; set; }
 
     /// <summary>
@@ -151,14 +152,14 @@ public class BankAccountModel : IValidatableObject
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(AccountNumber) &&
-            !string.IsNullOrWhiteSpace(ConfirmAccountNumber) &&
-            AccountNumber != ConfirmAccountNumber)
-        {
-            yield return new ValidationResult(
-                "Account numbers do not match",
-                [nameof(ConfirmAccountNumber)]);
-        }
+        //if (!string.IsNullOrWhiteSpace(AccountNumber) &&
+        //    !string.IsNullOrWhiteSpace(ConfirmAccountNumber) &&
+        //    AccountNumber != ConfirmAccountNumber)
+        //{
+        //    yield return new ValidationResult(
+        //        "Account numbers do not match",
+        //        [nameof(ConfirmAccountNumber)]);
+        //}
 
         if (IsInternational)
         {

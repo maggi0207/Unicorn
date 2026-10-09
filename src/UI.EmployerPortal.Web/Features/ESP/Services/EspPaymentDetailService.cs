@@ -89,6 +89,7 @@ internal sealed class EspPaymentDetailService : IEspPaymentDetailService
             return new EspPaymentDetailModel
             {
                 ConfirmationNumber = payment.ConfirmationID ?? string.Empty,
+                FileUploadConfirmationNumber = payment.FileUploadConfirmationNumber ?? string.Empty,
                 TransactionDateTime = payment.LastSubmitDate,
                 Amount = payment.Amount,
                 SettlementDate = payment.SettlementDate.HasValue

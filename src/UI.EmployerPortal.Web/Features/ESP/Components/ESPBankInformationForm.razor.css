@@ -114,12 +114,25 @@
     width: 100%;
 }
 
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .pending-table {
+    table-layout: fixed;
     border-collapse: collapse;
     font-family: Verdana, sans-serif;
     font-size: 14px;
-    width: 100%;
+    caption-side: unset;
 }
+
+    .header-sort-button {
+        background-color: transparent;
+        border: none;
+        height:100%;
+        width: 100%;
+    }
 
     .pending-table .header-row {
         min-height: 56px;

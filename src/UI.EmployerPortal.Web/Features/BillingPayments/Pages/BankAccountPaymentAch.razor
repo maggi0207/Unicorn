@@ -2,6 +2,8 @@
 
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.Ach.Models
+@using UI.EmployerPortal.Razor.SharedComponents.Ach.Services
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Auth
 @using UI.EmployerPortal.Web.Features.BillingPayments.Components
@@ -11,7 +13,6 @@
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
 @using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services
-@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 @inject IJSRuntime JS
 @inject NavigationManager Nav
@@ -41,6 +42,7 @@
                         <NotificationBanner NotificationType="NotificationType.Alert"
                                             MessageStyle="MessageStyle.MultiLine"
                                             Messages="_validationErrors"
+                                            MessageFieldIds="_validationFieldIds"
                                             DismissButton="false" />
                     </div>
                 }
@@ -66,7 +68,8 @@
                                            AmountChanged="OnAmountChanged"
                                            SettlementDateChanged="OnSettlementDateChanged"
                                            OnAmountInput="OnPaymentAmountInput"
-                                           ReturnUrl="@ReturnUrl"/>
+                                           OnAmountBlurEvent="OnPaymentAmountBlur"
+                                           ReturnUrl="@ReturnUrl" />
                 </section>
             }
             else if (_step == AchStep.VerifyAuthorize)
@@ -79,6 +82,7 @@
                         <NotificationBanner NotificationType="NotificationType.Alert"
                                             MessageStyle="MessageStyle.MultiLine"
                                             Messages="_validationErrors"
+                                            MessageFieldIds="_validationFieldIds"
                                             DismissButton="false" />
                     </div>
                 }
@@ -118,7 +122,9 @@
                                         aria-controls="verify-payment-info-body"
                                         aria-label="@(_verifyAuthorizePaymentExpanded ? "Collapse Payment Information" : "Expand Payment Information")"
                                         @onclick="() => _verifyAuthorizePaymentExpanded = !_verifyAuthorizePaymentExpanded">
-                                    <span aria-hidden="true">@((MarkupString)(_verifyAuthorizePaymentExpanded ? "&#8963;" : "&#8964;"))</span>
+                                    <img src="@Assets["icons/chevron_up.svg"]"
+                                         class="accordion-caret @(_verifyAuthorizePaymentExpanded ? "" : "accordion-caret--collapsed")"
+                                         width="24" height="24" aria-hidden="true" alt="" />
                                 </button>
                             </div>
                         </div>
@@ -178,10 +184,9 @@
             {
                 @* ── STEP: Confirmation ───────────────────────────────────── *@
                 <h1 class="billing-section-title-black fw-bold">EFT Payment Confirmation</h1>
-
                 <div class="fix-section-width">
                     <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                        Message="Payment Request Submitted"
+                                        Message="Payment request submitted"
                                         DismissButton="false" />
                 </div>
 
@@ -192,8 +197,8 @@
 
                 <div class="ach-confirmation-actions">
                     <a href="#" class="ach-print-link" @onclick="HandlePrint"
-                           aria-label="Print this page for your records" @onclick:preventDefault>
-                        &#128438; Print page for your records
+                       aria-label="Print this page for your records" @onclick:preventDefault>
+                        <img src="icons/print.svg" /> Print page for your records
                     </a>
                     @* <button type="button"
                         class="ach-print-link btn-link"
@@ -233,6 +238,7 @@
                         <NotificationBanner NotificationType="NotificationType.Alert"
                                             MessageStyle="MessageStyle.MultiLine"
                                             Messages="_validationErrors"
+                                            MessageFieldIds="_validationFieldIds"
                                             DismissButton="false" />
                     </div>
                 }
@@ -256,7 +262,8 @@
                     <AchBankInfoDisplay BankAccounts="_bankAccounts"
                                         BankAccount="_bankAccount"
                                         ReadOnly="true"
-                                        ShowEditLink="true" />
+                                        ShowEditLink="true"
+                                        EftPaymentSkParam="EftPaymentSkParam" />
                 </section>
 
                 <section class="billing-section" aria-label="Payment Information" aria-labelledby="edit-payment-info-heading">
@@ -272,11 +279,11 @@
                         <AchPaymentInformation @ref="_paymentInfoRef"
                                                InitialAmount="_confirmedAmount"
                                                InitialSettlementDate="_confirmedSettlementDate"
-                                               Draft="_paymentDraft"                                              
+                                               Draft="_paymentDraft"
                                                AmountChanged="OnAmountChanged"
                                                SettlementDateChanged="OnSettlementDateChanged"
                                                OnAmountInput="OnPaymentAmountInput"
-                                               ReturnUrl="@ReturnUrl"/>
+                                               ReturnUrl="@ReturnUrl" />
                     </div>
                 </section>
             }
@@ -350,8 +357,6 @@
                 {
                     @* ── STEP: Print Preview ── *@
                     <h1 class="billing-section-title-black fw-bold">EFT Payment Confirmation</h1>
-
-                    @* Hidden from @media print via CSS *@
                     <div class="ach-print-actions fix-section-width ach-no-print" aria-hidden="false">
                         <button type="button"
                                 class="btn btn-primary ach-print-btn"
@@ -362,7 +367,6 @@
                             </svg> PRINT
                         </button>
                     </div>
-
                     @* ── Accessible print layout ── *@
                     <div class="print-section" id="print-section" role="document" aria-label="EFT Payment Confirmation">
                         <section class="billing-section ach-print-section" aria-labelledby="print-business-information">
@@ -394,7 +398,7 @@
                                     </div>
                                     <div class="ach-print-dl-item">
                                         <dt class="ach-info-label">Transaction Date/Time</dt>
-                                        <dd class="ach-info-value">@_transactionDateTime.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")</dd>                                          
+                                        <dd class="ach-info-value">@_transactionDateTime.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")</dd>
                                     </div>
                                     <div class="ach-print-dl-item">
                                         <dt class="ach-info-label">Description</dt>
@@ -463,7 +467,13 @@
                                         </div>
                                         <div class="ach-print-dl-item">
                                             <dt class="ach-info-label">Phone Number</dt>
-                                            <dd class="ach-info-value">@_contactInfo.PhoneNumber</dd>
+                                            <dd class="ach-info-value">
+                                                @_contactInfo.PhoneNumber
+                                                @if (!string.IsNullOrWhiteSpace(_contactInfo.PhoneExt))
+                                                {
+                                                    <span>Ext. @_contactInfo.PhoneExt</span>
+                                                }
+                                            </dd>
                                         </div>
                                         <div class="ach-print-dl-item ach-print-dl-item--full">
                                             <dt class="ach-info-label">Email Address</dt>
@@ -484,7 +494,7 @@
 
                 <div class="fix-section-width" style="max-width:684px;">
                     <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                        Message="Payment Request Submitted"
+                                        Message="Payment request submitted"
                                         DismissButton="false" />
                 </div>
 
@@ -495,7 +505,7 @@
 
                 <div class="ach-confirmation-actions fix-section-width">
                     <a href="#" class="ach-print-link" @onclick="HandlePrint" @onclick:preventDefault>
-                        🖨 Print page for your records
+                        <img src="icons/print.svg" />  Print page for your records
                     </a>
                     <button class="btn btn-danger ach-cancel-payment-btn" @onclick="HandleCancelPayment">
                         CANCEL PAYMENT
@@ -627,6 +637,7 @@
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
     [Inject] private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
     [Inject] private IEftPaymentService PaymentService { get; set; } = default!;
+    [Inject] private IFederalReserveHolidayService HolidayService { get; set; } = default!;
 
     [SupplyParameterFromQuery(Name = "amount")]
     public string? AmountParam { get; set; } = string.Empty;
@@ -659,6 +670,7 @@
 
     private bool _showValidationSummary;
     private List<string> _validationErrors = new();
+    private List<string> _validationFieldIds = [];
     private EmployerAccount? _employerSK;
 
     // Confirmation step state
@@ -788,6 +800,7 @@
     {
         _showValidationSummary = false;
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
         _authorizationError = null;
 
         switch (_step)
@@ -844,6 +857,7 @@
         {
             _showValidationSummary = false;
             _validationErrors.Clear();
+            _validationFieldIds.Clear();
             _authorizationError = null;
 
             switch (_step)
@@ -855,7 +869,7 @@
                         return;
                     }
 
-                    _confirmedAmount = _paymentInfoRef!.GetAmount();                  
+                    _confirmedAmount = _paymentInfoRef!.GetAmount();
 
                     _confirmedSettlementDate = _paymentInfoRef.GetSettlementDate();
                     _cameFromEdit = false;
@@ -871,7 +885,25 @@
                         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
                         return;
                     }
-                    var paymentType = Enum.TryParse<PaymentType>(_description.Replace(" ",""), true, out var parsedType) ? (int)parsedType : (int)PaymentType.Payment;
+
+                    await HolidayService.LoadAsync();
+                    var minDate = HolidayService.FirstAvailableSettlementDate;
+                    if (minDate == default)
+                    {
+                        minDate = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
+                    }
+                    var adjustedMinDate = GetAdjustedMinDate(minDate);
+                    if(_confirmedSettlementDate < adjustedMinDate)
+                    {
+                        NavigateToStep(_cameFromEdit ? AchStep.Edit : AchStep.Entry, "Return to Entry step due to invalid settlement date");
+                        _validationErrors.Add("The cutoff time has passed for the selected settlement date. Please select a new settlement date.");
+                        _validationFieldIds.Add("");
+                        _showValidationSummary = true;
+                        await JS.InvokeVoidAsync("window.scrollTo",0,0);
+                        return;
+                    }
+
+                    var paymentType = Enum.TryParse<PaymentType>(_description.Replace(" ", ""), true, out var parsedType) ? (int)parsedType : (int)PaymentType.Payment;
                     EftPaymentRequest eFTPaymentRequest = new EftPaymentRequest();
                     eFTPaymentRequest.PaymentAmount = _confirmedAmount;
                     eFTPaymentRequest.PaymentSettlementDate = (DateTime)_confirmedSettlementDate.ToDateTime(TimeOnly.MinValue);
@@ -961,26 +993,39 @@
     {
         _showValidationSummary = false;
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
         NavigateToStep(AchStep.Edit, "You are now on the Edit Payment step");
     }
 
     private async Task<bool> ValidateEntryAsync()
     {
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
 
         if (_contactInfo is null)
+        {
             _validationErrors.Add("Contact Information is required. Please add your contact details");
+            _validationFieldIds.Add("");
+        }
 
         if (_bankAccount is null)
+        {
             _validationErrors.Add("Bank Information is required. Please add a bank account");
+        }
 
         if (_paymentInfoRef is not null && !await _paymentInfoRef.ValidateAsync())
         {
             if (_paymentInfoRef.AmountError is not null)
+            {
                 _validationErrors.Add(_paymentInfoRef.AmountError);
+                _validationFieldIds.Add("ach-payment-amount");
+            }
 
             if (_paymentInfoRef.DateError is not null)
+            {
                 _validationErrors.Add(_paymentInfoRef.DateError);
+                _validationFieldIds.Add("");
+            }
         }
 
         _showValidationSummary = _validationErrors.Count > 0;
@@ -994,7 +1039,9 @@
 
         _authorizationError = "You must accept the authorization to proceed";
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
         _validationErrors.Add(_authorizationError);
+        _validationFieldIds.Add("achAuthorizeCheckbox");
         _showValidationSummary = true;
         return false;
     }
@@ -1034,7 +1081,7 @@
                         </div>
                         <div class="ach-info-field">
                             <span class="ach-info-label">Description</span>
-                            <strong class="ach-info-value">Payment</strong>
+                            <strong class="ach-info-value">@_description</strong>
                         </div>
                         <div class="ach-info-field">
                             <span class="ach-info-label">Payment Amount</span>
@@ -1061,6 +1108,7 @@
     {
         _showValidationSummary = false;
         _validationErrors.Clear();
+        _validationFieldIds.Clear();
     }
 
     private void OnPaymentAmountInput()
@@ -1069,7 +1117,71 @@
         {
             _showValidationSummary = false;
             _validationErrors.Clear();
+            _validationFieldIds.Clear();
+            UpdateAmountErrorInSummary();
             StateHasChanged();
         }
+    }
+    private void OnPaymentAmountBlur()
+    {
+        UpdateAmountErrorInSummary();
+    }
+
+    private void UpdateAmountErrorInSummary()
+    {
+        for (int i = _validationErrors.Count - 1; i >= 0; i--)
+        {
+            if (i < _validationErrors.Count && _validationErrors[i] == "ach-payment-amount")
+            {
+                _validationErrors.RemoveAt(i);
+                _validationFieldIds.RemoveAt(i);
+            }
+        }
+
+        if (_paymentInfoRef?.AmountError is not null)
+        {
+
+            _validationErrors.Add(_paymentInfoRef.AmountError);
+            _validationFieldIds.Add("ach-payment-amount");
+            _showValidationSummary = true;
+        }
+        else if (!_validationErrors.Any())
+        {
+            _showValidationSummary = false;
+        }
+    }
+
+    private DateOnly NextValidSettlementDate(DateOnly from)
+    {
+        var candidate = from.AddDays(1);
+        while (candidate.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
+                || HolidayService.IsFederalReserveHoliday(candidate))
+        {
+            candidate = candidate.AddDays(1);
+        }
+        return candidate;
+    }
+
+    private DateOnly GetAdjustedMinDate(DateOnly baseMinDate)
+    {
+        TimeZoneInfo cstZone;
+        try
+        {
+            cstZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            cstZone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+        }
+
+        var cstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, cstZone);
+        var today = DateOnly.FromDateTime(cstTime.Date);
+        var expectedStandardMinDate = NextValidSettlementDate(today);
+
+        if (cstTime.Hour >= 19 && baseMinDate <= expectedStandardMinDate)
+        {
+            return NextValidSettlementDate(baseMinDate);
+        }
+        return baseMinDate;
     }
 }

@@ -7,14 +7,17 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .modal-container {
-    width: 743px;
+    max-width: 743px;
     background: #ffffff;
     border-radius: 4px;
     box-shadow: 0 11px 15px rgba(0, 0, 0, 0.20), 0 9px 46px rgba(0, 0, 0, 0.12);
     overflow: hidden;
+    margin: auto;
 }
 /* HEADER */
 .modal-header {

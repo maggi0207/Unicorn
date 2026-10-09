@@ -68,6 +68,19 @@ public interface IBankAccountOrchestrator
     /// GetPendingReimbursePaymentToSessionAsync
     /// </summary>
     /// <returns></returns>
+    Task<String?> GetVCEstPayrollToSessionAsync();
+
+
+    /// <summary>
+    /// Stores the selected payment in session storage.
+    /// </summary>
+    Task SaveVCEstPayrollToSessionAsync(string amount);
+
+
+    /// <summary>
+    /// GetPendingReimbursePaymentToSessionAsync
+    /// </summary>
+    /// <returns></returns>
     Task<String?> GetVCPaymentToSessionAsync();
 
 
@@ -255,6 +268,17 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
     }
 
+    public async Task SaveVCEstPayrollToSessionAsync(string amount)
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        if (selectedEmployer != null)
+        {
+            selectedEmployer.SelectVCEstPayroll = amount;
+            await _sessionManager.SetAsync(selectedEmployer);
+        }
+    }
+
+
     public async Task<String?> GetPaymentToSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -284,6 +308,17 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         {
             null => null,
             _ => selectedEmployer.EmployerAccount != null ? (selectedEmployer?.SelectVCPayment) : null,
+        };
+
+    }
+
+    public async Task<String?> GetVCEstPayrollToSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        return selectedEmployer switch
+        {
+            null => null,
+            _ => selectedEmployer.EmployerAccount != null ? (selectedEmployer?.SelectVCEstPayroll) : null,
         };
 
     }

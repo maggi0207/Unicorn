@@ -11,7 +11,7 @@
     <BankInformationForm OnSaved="HandleSaved"
                          OnBack="HandleBackToList"
                          OnCancel="HandleBackToList"
-                         Showback="_canGoBack"/>
+                         Showback="_canGoBack" />
 }
 else if (_pageState == BankAccountPageState.EditForm)
 {
@@ -41,7 +41,7 @@ else
                         <NotificationBanner NotificationType="NotificationType.Confirmation"
                                             Title="Bank account deleted successfully"
                                             Visible="true"
-                                            DismissButton="true"/>
+                                            DismissButton="true" />
                     }
                 </div>
                 <h2 class="section-title">Accounts</h2>
@@ -49,7 +49,7 @@ else
 
                 @if (_isLoading)
                 {
-                    <LoadingSpinner Message="Loading accounts, Please wait..."/>
+                    <LoadingSpinner Message="Loading accounts, Please wait..." />
                 }
                 else if (IsPendingPaymentError)
                 {
@@ -83,7 +83,7 @@ else
                     <p class="page-subtitle">Select an account to edit.</p>
                     <div class="table-container">
                         <table class="accounts-table"
-                            aria-label="Bank accounts">
+                               aria-label="Bank accounts">
                             <caption class="visually-hidden">
                                 View bank accounts (column headers with buttons are sortable).
                             </caption>
@@ -113,7 +113,7 @@ else
                                             </button>
                                         </div>
                                     </th>
-                                    <th scope="col" class="header-cell"aria-sort="@GetAriaSort("accountType")">
+                                    <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountType")">
                                         <div class="header-content header-content-left">
                                             <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountType"))">
                                                 <span class="header-label fw-bold">Type</span>
@@ -137,7 +137,7 @@ else
                                             </button>
                                         </div>
                                     </th>
-                                    <th scope="col" class="header-cell header-cell-static" >
+                                    <th scope="col" class="header-cell header-cell-static">
                                         <div class="header-content header-content-center">
                                             <span class="header-label fw-bold">Remove</span>
                                         </div>
@@ -197,6 +197,6 @@ else
     </div>
 
     <RemoveBankAccountModal IsVisible="_showRemoveModal"
-                     OnCancel="CancelRemove"
-                     OnConfirm="ConfirmRemove" />
+                            OnCancel="CancelRemove"
+                            OnConfirm="ConfirmRemove" />
 }

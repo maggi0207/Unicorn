@@ -49,12 +49,10 @@ internal class ESPBankAccountService : IESPBankAccountService
 
 
     /// <inheritdoc/>
-    public async Task<SaveBankAccountResult> InactivateBankAccountAsync(int bankAccountSk, int employerAccountSk)
+    public async Task<SaveBankAccountResult> InactivateBankAccountAsync(int bankAccountSk, int secureUserSk)
     {
         try
         {
-            var secureUserSk = _userAccountService.GetUserSKClaim();
-
             var request = new ESPBankAccountInactivateRequest
             {
                 BankAccountSK = bankAccountSk,
@@ -280,6 +278,10 @@ internal class ESPBankAccountService : IESPBankAccountService
                                     Text: c.LongDescription,
                                     ShortCode: c.ShortDescription ?? string.Empty);
             })
+                .OrderBy(c =>
+                {
+                    return c.Text;
+                }, StringComparer.OrdinalIgnoreCase)
                 .ToList() ?? [];
         }
         catch (CommunicationException)

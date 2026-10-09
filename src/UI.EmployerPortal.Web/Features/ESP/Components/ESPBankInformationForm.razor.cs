@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.ESP.Models;
 
@@ -108,7 +107,8 @@ public partial class ESPBankInformationForm
         await Task.WhenAll(countryTask, usStateTask, canadaTask, editTask, pendingTask);
 
         var countries = await countryTask;
-        _countryOptions = countries.Select(c =>
+        _countryOptions = countries.OrderBy(c => c.Text)
+            .Select(c =>
         {
             return new SelectOption { Value = c.Value, Text = c.Text };
         }).ToList();
@@ -305,6 +305,12 @@ public partial class ESPBankInformationForm
 
     private async Task SaveAsync()
     {
+        if (_isSaving)
+        {
+            // Return if we are already saving to handle repeated button pushes from the user
+            return;
+        }
+
         _isSaving = true;
         _saveError = null;
 
@@ -406,14 +412,5 @@ public partial class ESPBankInformationForm
     {
         return _pendingSortColumn != column ? null : _pendingSortAscending ? "ascending" : "descending";
     }
-
-    private void HandlePendingHeaderKeyDown(KeyboardEventArgs e, string column)
-    {
-        if (e.Key is "Enter" or " ")
-        {
-            SortPending(column);
-        }
-    }
-
 }
 

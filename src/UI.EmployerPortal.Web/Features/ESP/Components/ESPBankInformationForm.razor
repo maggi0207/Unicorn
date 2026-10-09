@@ -1,3 +1,4 @@
+@using Microsoft.FluentUI.AspNetCore.Components
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Razor.SharedComponents;
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
@@ -15,55 +16,52 @@
                                 Title="Pending Payments"
                                 Message="If you update your current bank account information, any pending payments for this bank account will be updated with the new bank account information."
                                 Visible="true" />
-
-            <table class="pending-table"
-                   style="table-layout: fixed; width: 100%;"
-                   aria-label="Pending payments">
-                <thead>
-                    <tr class="header-row">
-                        <th scope="col" class="header-cell"
-                            tabindex="0"
-                            aria-sort="@GetPendingAriaSort("settlementDate")"
-                            @onclick="@(() => SortPending("settlementDate"))"
-                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "settlementDate"))">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold">Pending Payments Settlement Date</span>
-                                @GetPendingSortIcon("settlementDate")
-                            </div>
-                        </th>
-                        <th scope="col" class="header-cell"
-                            tabindex="0"
-                            aria-sort="@GetPendingAriaSort("confirmationNumber")"
-                            @onclick="@(() => SortPending("confirmationNumber"))"
-                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "confirmationNumber"))">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold">Confirmation Number</span>
-                                @GetPendingSortIcon("confirmationNumber")
-                            </div>
-                        </th>
-                        <th scope="col" class="header-cell"
-                            tabindex="0"
-                            aria-sort="@GetPendingAriaSort("amount")"
-                            @onclick="@(() => SortPending("amount"))"
-                            @onkeydown="@(e => HandlePendingHeaderKeyDown(e, "amount"))">
-                            <div class="header-content header-content-left">
-                                <span class="header-label fw-bold">Payment Amount</span>
-                                @GetPendingSortIcon("amount")
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var payment in GetSortedPendingPayments())
-                    {
-                        <tr class="data-row">
-                            <td class="fw-normal">@payment.SettlementDate.ToString("MM/dd/yyyy")</td>
-                            <td class="fw-normal">@payment.ConfirmationNumber</td>
-                            <td class="fw-normal">@payment.Amount.ToString("C")</td>
+            <div class="table-container">
+                <table class="pending-table"
+                    aria-label="Pending payments">
+                    <caption class="visually-hidden">
+                        View pending payments (column headers with buttons are sortable).
+                    </caption>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("settlementDate")">
+                                <div class="header-content header-content-left">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("settlementDate"))">
+                                        <span class="header-label fw-bold">Pending Payments Settlement Date</span>
+                                        <span aria-hidden="true">@GetPendingSortIcon("settlementDate")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("confirmationNumber")">
+                                <div class="header-content header-content-left">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("confirmationNumber"))">
+                                        <span class="header-label fw-bold">Confirmation Number</span>
+                                        <span aria-hidden="true">@GetPendingSortIcon("confirmationNumber")</span>
+                                    </button>
+                                </div>
+                            </th>
+                            <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("amount")">
+                                <div class="header-content header-content-left">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("amount"))"">
+                                        <span class="header-label fw-bold">Payment Amount</span>
+                                        <span aria-hidden="true">@GetPendingSortIcon("amount")</span>
+                                    </button>
+                                </div>
+                            </th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in GetSortedPendingPayments())
+                        {
+                            <tr class="data-row">
+                                <td class="fw-normal">@payment.SettlementDate.ToString("MM/dd/yyyy")</td>
+                                <td class="fw-normal">@payment.ConfirmationNumber</td>
+                                <td class="fw-normal">@payment.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
 
         @if (!string.IsNullOrWhiteSpace(_saveError))
@@ -72,7 +70,6 @@
                                 Title="The following errors need to be fixed before you can continue:"
                                 MessageStyle="MessageStyle.MultiLine"
                                 Messages="@(new List<string> {_saveError })"
-                                MessageFieldIds="@(new List<string> { "bank-nickname" })"
                                 Visible="true" />
         }
 
@@ -161,15 +158,18 @@
                                InputMode="numeric"
                                MaxLength="17" />
 
-            <div class="bank-name-region" role="region" aria-label="Bank Name">
-                <p class="bank-name-label" id="bank-name-label">Bank Name</p>
-                <p class="bank-name-value"
+            @if (!string.IsNullOrWhiteSpace(_model.BankName))
+            {
+                <div class="bank-name-region" role="region" aria-label="Bank Name">
+                    <p class="bank-name-label" id="bank-name-label">Bank Name</p>
+                    <p class="bank-name-value"
                        aria-labelledby="bank-name-label"
                        aria-live="polite"
                        aria-atomic="true">
-                    @(_model.BankName ?? "—")
-                </p>
-            </div>
+                        @_model.BankName
+                    </p>
+                </div>
+            }
 
             <OutlinedSelectField Label="Account Type"
                                  Id="bank-account-type"
@@ -214,14 +214,6 @@
                                             Visible="true" />
                     </div>
  
-                    <h2 class="iat-section-title">Physical Location of Business</h2>
-                    <p class="iat-section-description">
-                        You have indicated that the bank account used to make your electronic payment is funded by a
-                        financial institution outside of the U.S. In order to complete your bank account registration
-                        you must complete all fields below regarding the physical location of your business.
-                        A Post Office Box is not an acceptable address.
-                    </p>
-
                     <OutlinedSelectField Label="Country"
                                          Id="iat-country"
                                          Value="@(_model.IatCountryCode == 0 ? "" : _model.IatCountryCode.ToString())"
@@ -288,7 +280,7 @@
                         </Button>
                     }
                 </div>
-                
+
                 <div class="button-group-right">
                     <Button Variant="Button.ButtonVariant.Primary"
                             Type="submit"

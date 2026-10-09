@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace UI.EmployerPortal.Web.Features.ESP.Components;
 
@@ -7,6 +8,8 @@ namespace UI.EmployerPortal.Web.Features.ESP.Components;
 /// </summary>
 public partial class RemoveClientModal
 {
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
     /// <summary>
     /// Whether the modal is currently displayed.
     /// </summary>
@@ -42,6 +45,32 @@ public partial class RemoveClientModal
     /// </summary>
     [Parameter]
     public EventCallback OnConfirm { get; set; }
+    private ElementReference _removeModalRef;
+    private IJSObjectReference? _module;
+    private bool _wasOpen;
+
+    /// <summary>
+    /// Set and trap focus in modal when it opens
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _removeModalRef);
+        }
+        else if (!IsOpen && _wasOpen)
+        {
+            _wasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+    }
 
     private async Task HandleCancel()
     {

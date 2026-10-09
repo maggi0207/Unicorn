@@ -1,3 +1,7 @@
+.gak-page-container {
+    max-width: 750px;
+    margin: auto;
+}
 
 .account-header {
     width: 100%;
@@ -5,7 +9,6 @@
     padding: 2rem 0px 0px;
     background-color: #ffffff;
     box-sizing: border-box;
-   
 }
 
 .account-details {
@@ -17,6 +20,7 @@
     color: var(--color-text);
     font-weight: 700;
 }
+
 .account-sub-details {
     width: 100%;
     max-width: 920px;
@@ -26,18 +30,18 @@
     color: var(--color-text);
     font-weight: 400;
 }
+
 .account-sub-info {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-lg);
-    padding-left: 15rem;
     font-weight: 400;
 }
+
 .account-info {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-lg);
-    padding-left: 15rem;
 }
 
 .detail-item {
@@ -81,22 +85,21 @@
     font-size: 18px;
     font-weight: var(--font-weight-bold);
     padding: 10px 0px 0px;
-    border-bottom:solid 0.5px;
+    border-bottom: solid 0.5px;
 }
 
 
 
 /* ── Body ────────────────────────────────────────────────────────────────── */
 .gak-body {
-    padding: 20px 24px 0px 0px;
+    padding-top: 20px;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    margin-left: 15rem;
-    margin-right:30rem;
 }
+
 .gak-main-body {
-    padding: 20px 24px 0px 0px;
+    padding-top: 20px;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
@@ -110,21 +113,10 @@
     color: var(--color-text);
 }
 
-::deep .master-text-field {
-    max-width: 80%;
-}
-
-::deep .nb-alert,::deep .nb-confirmation {
-    max-width: 80%
-}
-
-
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 .gak-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6rem 24px 0px 0px;
+    padding-top: 6rem;
 }
-
-

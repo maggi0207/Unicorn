@@ -155,6 +155,6 @@ public partial class PaymentHistory
 
     private void HandleBack()
     {
-        NavigationManager.NavigateTo("billing-payments/make-ach-payment");
+        NavigationManager.NavigateTo("billing-payments/billing");
     }
 }

@@ -23,7 +23,7 @@
 .billing-payments-container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 0px;
     width: 100%;
 }
 
@@ -33,7 +33,6 @@
 
 .billing-section-title {
     max-width: 993px;
-    height: 43px;
     font-family: 'Verdana';
     font-style: normal;
     font-weight: 700;
@@ -42,20 +41,22 @@
     display: flex;
     align-items: center;
     color: #003663;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ADADAD;
 }
 
 .billing-section-title-black {
     max-width: 993px;
-    height: 37px;
-    font-family: Verdana;
+    font-family: 'Verdana';
+    font-style: normal;
     font-weight: 700;
-    font-style: Bold;
     font-size: 32px;
-    leading-trim: NONE;
-    line-height: 116%;
-    letter-spacing: 0%;
-    vertical-align: middle;
+    line-height: 133%;
+    display: flex;
+    align-items: center;
     color: #000000;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ADADAD;
 }
 
 /* ── Inline card (Payment Information sections rendered by the page) */
@@ -117,17 +118,6 @@
     color: #555;
 }
 
-.ach-section-divider {
-    border: none;
-    margin: 10px 0 14px;
-}
-
-.print-ach-section-divider {
-    border: 2px solid #000;
-    margin: 10px 0 14px;
-    opacity: 1;
-}
-
 /* ── Shared info grid (used inside inline cards) ────────────────── */
 .ach-bank-grid {
     display: grid;
@@ -143,7 +133,7 @@
 .ach-info-label, .section-description {
     display: block;
     color: #000000;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
     font-family: Verdana;
     font-weight: 400;
     font-style: Regular;
@@ -343,6 +333,14 @@
     border: none;
 }
 
+.accordion-caret {
+    transition: transform 0.15s ease;
+}
+
+.accordion-caret--collapsed {
+    transform: rotate(180deg);
+}
+
 @media print {
     body > *:not(.print-section) {
         display: none !important;
@@ -444,7 +442,6 @@
 
 .billing-section-title {
     max-width: 993px;
-    height: 43px;
     font-family: 'Verdana';
     font-style: normal;
     font-weight: 700;
@@ -453,6 +450,8 @@
     display: flex;
     align-items: center;
     color: #003663;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ADADAD;
 }
 
 .billing-section-title-black {
@@ -530,7 +529,7 @@
 }
 
 .ach-section-divider {
-    border-top: 2px solid #003663 !important;
+    border-top: 2px solid #ADADAD !important;
     margin: 8px 0 20px !important;
 }
 

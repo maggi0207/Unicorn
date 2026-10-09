@@ -11,24 +11,24 @@
 @if (_pageState == BankAccountPageState.AddForm)
 {
     <ESPBankInformationForm OnSaved="(ba) => HandleSaved(ba)"
-                         OnBack="HandleBackToList"
-                         OnCancel="HandleBackToList"
-                         Showback="_canGoBack"/>
+                            OnBack="HandleBackToList"
+                            OnCancel="HandleBackToList"
+                            Showback="_canGoBack" />
 }
 else if (_pageState == BankAccountPageState.EditForm)
 {
     <ESPBankInformationForm BankAccountSk="_editAccountSk"
-                         OnSaved="HandleSaved"
-                         OnBack="HandleBackToList"
-                         OnCancel="HandleBackToList"
-                         Showback="_canGoBack" />
+                            OnSaved="HandleSaved"
+                            OnBack="HandleBackToList"
+                            OnCancel="HandleBackToList"
+                            Showback="_canGoBack" />
 }
 else if (_pageState == BankAccountPageState.Confirmation)
 {
     <ESPBankAccountSavedConfirmation SavedAccount="_savedAccount"
-                                  OnBack="HandleBackToList"
-                                  OnContinue="HandleBackToList"
-                                  OnViewAccounts="HandleBackToList" />
+                                     OnBack="HandleBackToList"
+                                     OnContinue="HandleBackToList"
+                                     OnViewAccounts="HandleBackToList" />
 }
 else
 {
@@ -43,7 +43,7 @@ else
                         <NotificationBanner NotificationType="NotificationType.Confirmation"
                                             Title="Bank account deleted successfully"
                                             Visible="true"
-                                            DismissButton="true"/>
+                                            DismissButton="true" />
                     }
                 </div>
                 <h2 class="section-title">Accounts</h2>
@@ -51,7 +51,7 @@ else
 
                 @if (_isLoading)
                 {
-                    <LoadingSpinner Message="Loading accounts, Please wait..."/>
+                    <LoadingSpinner Message="Loading accounts, Please wait..." />
                 }
                 else if (IsPendingPaymentError)
                 {
@@ -85,7 +85,7 @@ else
                     <p class="page-subtitle">Select an account to edit.</p>
                     <div class="table-container">
                         <table class="accounts-table"
-                            aria-label="Bank accounts">
+                               aria-label="Bank accounts">
                             <caption class="visually-hidden">
                                 View bank accounts (column headers with buttons are sortable).
                             </caption>
@@ -139,7 +139,7 @@ else
                                             </button>
                                         </div>
                                     </th>
-                                    <th scope="col" class="header-cell header-cell-static" >
+                                    <th scope="col" class="header-cell header-cell-static">
                                         <div class="header-content header-content-center">
                                             <span class="header-label fw-bold">Remove</span>
                                         </div>
@@ -199,6 +199,6 @@ else
     </div>
 
     <RemoveESPBankAccountModal IsVisible="_showRemoveModal"
-                     OnCancel="CancelRemove"
-                     OnConfirm="ConfirmRemove" />
+                               OnCancel="CancelRemove"
+                               OnConfirm="ConfirmRemove" />
 }

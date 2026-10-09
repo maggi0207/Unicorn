@@ -29,10 +29,10 @@
                 </ul>
                 <h3 class="esp-group-title fw-bold">Test Environment</h3>
                 <ul class="esp-link-list">
-                    <li><a href="quarterly-tax/tax-file-upload?source=test-environment">Test Tax File Upload</a></li>
-                    <li><a href="quarterly-tax/tax-file-upload-summary?source=test-environment">Test Tax File Upload Summary</a></li>
-                    <li><a href="quarterly-tax/wage-upload?source=test-environment">Test Wage File Upload</a></li>
-                    <li><a href="quarterly-tax/upload-summary?source=test-environment">Test Wage File Upload Summary</a></li>
+                    <li><a href="quarterly-tax/test/tax-file-upload">Test Tax File Upload</a></li>
+                    <li><a href="quarterly-tax/test/tax-file-upload-summary">Test Tax File Upload Summary</a></li>
+                    <li><a href="quarterly-tax/test/wage-upload">Test Wage File Upload</a></li>
+                    <li><a href="quarterly-tax/test/upload-summary">Test Wage File Upload Summary</a></li>
                 </ul>
             </div>
             <div class="esp-col">
@@ -88,7 +88,7 @@
         <div class="esp-card-columns">
             <div class="esp-col">
                 <ul class="esp-link-list">
-                    @if (!IsEspUser())
+                    @if (!_isEspUser)
                     {
                         <li><a href="esp/account/register">Register as an ESP</a></li>
                         <li><a href="esp/account/get-access">Get ESP Access</a></li>
@@ -96,7 +96,7 @@
                     else
                     {
                         <li><a href="esp/account/clients">Manage Client Accounts</a></li>
-                        if (IsEspUserManager())
+                        if (_isEspUserManager)
                         {
                             <li><a href="esp/account/profile">Manage ESP Profile</a></li>
                             <li><a href="manage-account/account-users">Manage ESP Users</a></li>

@@ -10,14 +10,12 @@ public partial class EspDashboard
 {
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
-
-    private bool IsEspUser()
+    private bool _isEspUser;
+    private bool _isEspUserManager;
+    /// <inheritdoc/>
+    protected override async Task OnInitializedAsync()
     {
-        return UserAccountService.IsEspUser();
-    }
-
-    private bool IsEspUserManager()
-    {
-        return UserAccountService.IsEspUserManager();
+        _isEspUser = await UserAccountService.IsEspUserAsync();
+        _isEspUserManager = await UserAccountService.IsEspUserManagerAsync();
     }
 }

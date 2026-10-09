@@ -79,7 +79,7 @@ public class VoluntaryContribution
         /// </returns>
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            return value is decimal amount && amount <= 0 ? new ValidationResult("Amount To Pay cannot be negative.") : ValidationResult.Success;
+            return value is decimal amount && amount < 0 ? new ValidationResult("Amount To Pay cannot be negative.") : ValidationResult.Success;
         }
     }
 }

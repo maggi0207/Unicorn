@@ -43,6 +43,7 @@
     border-top: 1px solid var(--color-gray-medium, #ADADAD);
     margin: 0 0 32px 0;
 }
+
 .page-subtitle {
     font-family: Verdana, sans-serif;
     font-size: 14px;
@@ -99,12 +100,35 @@
 }
 
 /* Fixed column widths matching Figma proportions — must sum to 100% */
-.col-nickname     { min-width: 120px; width: 20%; }
-.col-bank-name    { min-width: 130px; width: 24%; }
-.col-type         { min-width: 70px;  width: 9%; }
-.col-routing      { min-width: 110px; width: 17%; }
-.col-account      { min-width: 120px; width: 22%; }
-.col-remove       { min-width: 60px;  width: 8%; }
+.col-nickname {
+    min-width: 120px;
+    width: 20%;
+}
+
+.col-bank-name {
+    min-width: 130px;
+    width: 24%;
+}
+
+.col-type {
+    min-width: 70px;
+    width: 9%;
+}
+
+.col-routing {
+    min-width: 110px;
+    width: 17%;
+}
+
+.col-account {
+    min-width: 120px;
+    width: 22%;
+}
+
+.col-remove {
+    min-width: 60px;
+    width: 8%;
+}
 
 .header-row {
     min-height: 56px;

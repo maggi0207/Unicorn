@@ -2,6 +2,7 @@ using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.ESP.Models;
 using UI.EmployerPortal.Web.Features.ESP.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
 namespace UI.EmployerPortal.Web.Features.ESP;
@@ -92,14 +93,16 @@ internal class ESPBankAccountOrchestrator : IESPBankAccountOrchestrator
 {
     private readonly IESPBankAccountService _bankAccountService;
     private readonly ISessionManager _sessionManager;
+    private readonly IUserAccountService _userAccountService;
 
     /// <summary>
     /// Initializes a new instance of <see cref="ESPBankAccountOrchestrator"/>.
     /// </summary>
-    public ESPBankAccountOrchestrator(IESPBankAccountService bankAccountService, ISessionManager sessionManager)
+    public ESPBankAccountOrchestrator(IESPBankAccountService bankAccountService, ISessionManager sessionManager, IUserAccountService userAccountService)
     {
         _bankAccountService = bankAccountService;
         _sessionManager = sessionManager;
+        _userAccountService = userAccountService;
     }
 
     /// <inheritdoc/>
@@ -184,9 +187,9 @@ internal class ESPBankAccountOrchestrator : IESPBankAccountOrchestrator
     /// <inheritdoc/>
     public async Task<SaveBankAccountResult> InactivateBankAccountAsync(int bankAccountSk)
     {
-        var employerSk = await GetEmployerSkAsync();
+        var secureUserSk = _userAccountService.GetUserSKClaim();
 
-        return employerSk is null ? new SaveBankAccountResult(false, "No employer account selected") : await _bankAccountService.InactivateBankAccountAsync(bankAccountSk, employerSk.Value);
+        return secureUserSk == 0 ? new SaveBankAccountResult(false, "No employer account selected") : await _bankAccountService.InactivateBankAccountAsync(bankAccountSk, secureUserSk);
     }
 
     public async Task SavePaymentToSessionAsync(string amount)

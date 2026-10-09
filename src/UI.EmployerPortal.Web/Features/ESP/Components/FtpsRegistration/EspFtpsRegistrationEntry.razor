@@ -2,6 +2,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Razor.SharedComponents.Navigation;
+@using UI.EmployerPortal.Web.Features.Shared.Components
 
 @namespace UI.EmployerPortal.Web.Features.ESP.Components.FtpsRegistration
 
@@ -9,11 +10,13 @@
     <LoadingSpinner Message="Loading..." />
 }
 else {
-    <div class="primary-content">
-        <h1 class="page-header">FTPS Registration</h1>
+    <div class="primary-content" role="form" aria-label="FTPS Registration">
+        <PageHeader Text="FTPS Registration" />
+
         <p class="page-subtitle">Complete this form to request FTPS access.</p>
         <ExternalLink Url="https://www.dwd.wisconsin.gov/uitax/DWDUIServiceProvider-FTPSpecificationsV5.pdf"
-                    Text="FTPS Specifications Document" />
+                    Text="FTPS Specifications Document"
+                    OpenNew="true" />
         <p class="page-subtitle">All fields are required unless noted.</p>
 
         <CascadingValue Value="@_editContext" IsFixed="true">
@@ -66,7 +69,7 @@ else {
                     @if (Model.Country == UnitedStates) {
                         <div class="input-range">
                             <OutlinedTextField Label="Zip Code" Id="esp-ftps-zip" @bind-Value="Model.ZipCode"
-                                            For="() => Model.ZipCode" InputMode="numeric" MaxLength="5" />
+                                            For="() => Model.ZipCode" InputMode="numeric" MaxLength="5" Required="true" />
                             <span>&mdash;</span>
                             <OutlinedTextField Label="+4 (optional)" Id="esp-ftps-zip-ext" @bind-Value="Model.ZipExt"
                                             For="() => Model.ZipExt" InputMode="numeric" MaxLength="4" />
@@ -75,7 +78,7 @@ else {
                     else if (Model.Country == Canada) {
                         <div class="esp-ca-postal-code-field">
                             <OutlinedTextField Label="Postal Code" Id="esp-ftps-ca-postal-code" @bind-Value="Model.CanadianPostalCode"
-                                            For="() => Model.CanadianPostalCode" />
+                                            For="() => Model.CanadianPostalCode" Required="true" />
                         </div>
                     }
                     <div class="esp-fax-field">
@@ -122,7 +125,7 @@ else {
                                             @bind-Value="Model.UploadContactEmail" For="() => Model.UploadContactEmail" />
                         </div>
                         <div class="form-field-half">
-                            <OutlinedTextField Label="Email Address Confirm" Id="esp-ftps-upload-confirm-email" )"
+                            <OutlinedTextField Label="Confirm Email Address" Id="esp-ftps-upload-confirm-email" )"
                                             Type="email" @bind-Value="Model.UploadContactConfirmEmail"
                                             For="() => Model.UploadContactConfirmEmail" />
                         </div>
@@ -170,7 +173,7 @@ else {
                                                     @bind-Value="Model.QuestionsContactEmail" For="() => Model.QuestionsContactEmail" />
                                 </div>
                                 <div class="form-field-half">
-                                    <OutlinedTextField Label="Email Address Confirm" Id="esp-ftps-questions-confirm-email" )"
+                                    <OutlinedTextField Label="Confirm Email Address" Id="esp-ftps-questions-confirm-email" )"
                                                     Type="email" @bind-Value="Model.QuestionsContactConfirmEmail"
                                                     For="() => Model.QuestionsContactConfirmEmail" />
                                 </div>

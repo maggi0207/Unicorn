@@ -57,6 +57,7 @@
 .header-content {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
 }
 
@@ -68,8 +69,8 @@
 }
 
 .sort-icon {
-    margin-left: 6px;
     width: 12px;
+    flex-shrink: 0;
 }
 
 td {

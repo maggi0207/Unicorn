@@ -28,6 +28,28 @@ public partial class EspFtpsRegistration
     private bool _isEntryLoading;
     private bool _isServiceError = false;
     private bool _userAcknowledgedAcceptedUsePolicy;
+    private bool _focusConfirmationHeading;
+    private bool _focusMainContent;
+
+    /// <summary>
+    /// Moves keyboard/screen-reader focus to the top of the new step once it has rendered, so that
+    /// focus lands at the top of the main region rather than remaining on the now-removed button at
+    /// the bottom of the previous step. The confirmation step focuses its heading (the top of that
+    /// step's content); other advances focus the main landmark itself.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusConfirmationHeading)
+        {
+            _focusConfirmationHeading = false;
+            await JS.InvokeVoidAsync("focusElement", "esp-ftps-confirmation-heading");
+        }
+        else if (_focusMainContent)
+        {
+            _focusMainContent = false;
+            await JS.InvokeVoidAsync("focusElement", "main-content");
+        }
+    }
 
     /// <summary>
     /// Reacts to the certification page checkbox
@@ -36,6 +58,16 @@ public partial class EspFtpsRegistration
     private void HandleCertifiedChanged(bool value)
     {
         _userAcknowledgedAcceptedUsePolicy = value;
+    }
+
+    /// <summary>
+    /// Advances from the certification step to the data-entry step, moving focus to the top of the
+    /// main region so keyboard and screen-reader users start at the beginning of the new content.
+    /// </summary>
+    private void HandleContinueToEntry()
+    {
+        _pageState = PageState.Entry;
+        _focusMainContent = true;
     }
 
     /// <summary>
@@ -85,6 +117,7 @@ public partial class EspFtpsRegistration
             else
             {
                 _pageState = PageState.Confirm;
+                _focusConfirmationHeading = true;
             }
         }
         catch (Exception ex)

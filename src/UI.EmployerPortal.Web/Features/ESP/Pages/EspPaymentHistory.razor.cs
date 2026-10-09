@@ -18,7 +18,7 @@ public partial class EspPaymentHistory
     private bool _isLoading;
     private string? _loadError;
     private string _sortColumn = "settlementDate";
-    private bool _sortAscending = true;
+    private bool _sortAscending = false;
 
     /// <inheritdoc />
     protected override async Task OnAuthorizedInitAsync()
@@ -40,7 +40,7 @@ public partial class EspPaymentHistory
             }
             else
             {
-                _payments = result;
+                _payments = result.OrderByDescending(x => x.SettlementDate).ToList();
             }
         }
         finally

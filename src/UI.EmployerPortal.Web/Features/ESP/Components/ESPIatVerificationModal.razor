@@ -1,5 +1,6 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop;
 
 @if (IsVisible)
 {
@@ -10,7 +11,6 @@
              aria-labelledby="iat-verification-modal-title"
              aria-describedby="iat-verification-modal-body"
              @onkeydown="HandleKeyDown"
-             tabindex="-1"
              @ref="_modalRef">
             <div class="modal-header">
                 <h3 id="iat-verification-modal-title" class="modal-title">IAT Bank Account Verification</h3>
@@ -46,28 +46,35 @@
     </div>
 }
 @code {
+    [Inject] private IJSRuntime JSRuntime {get;set;} = default!;
     [Parameter] public bool IsVisible { get; set; }
 
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
 
     private ElementReference _modalRef;
+    private IJSObjectReference? _module;
     private bool _wasVisible;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        //Move focus into modal on open so screen readers announce it immediately
 
+    {
         if (IsVisible && !_wasVisible)
         {
             _wasVisible = true;
-            await _modalRef.FocusAsync();
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _modalRef);
         }
         else if (!IsVisible && _wasVisible)
         {
             _wasVisible = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
         }
     }
+
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
         //Escape key dismissal

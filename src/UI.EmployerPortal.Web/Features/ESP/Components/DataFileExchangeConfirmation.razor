@@ -38,10 +38,13 @@
         What's Next?
     </h2>
     <p class="next-message">Your response file will be available for download within 1 or 2 business days.</p>
-    <p class="note">
-        <strong>Note:</strong>
-        This is <strong>not</strong> a Payment Confirmation Number.
-    </p>
+    <div class="button-bar">
+        <Button Text="Upload Another File"
+                Variant="Button.ButtonVariant.Primary"
+                Size="Button.ButtonSize.Medium"
+                OnClick="HandleUploadAnotherClicked"
+                AriaLabel="Upload Another File" />
+    </div>
 
     <div class="save-page-section">
         <button type="button" class="save-page-link" @onclick="HandleSavePageClicked">
@@ -59,10 +62,16 @@
     /// Gets or sets the confirmation number received from the submit response.
     /// </summary>
     [Parameter] public DataExchangeConfirmationResult? Confirmation { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
     private async Task HandleSavePageClicked()
     {
         await JS.InvokeVoidAsync("printElement", ".confirmation-page");
+    }
+
+    private async Task HandleUploadAnotherClicked()
+    {
+        NavigationManager.NavigateTo("esp/data-exchange/upload", forceLoad: true);
     }
     
 }

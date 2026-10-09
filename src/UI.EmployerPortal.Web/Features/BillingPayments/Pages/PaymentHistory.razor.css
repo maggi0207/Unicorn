@@ -121,9 +121,15 @@
 }
 
 .sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
     border: none;
     background-color: inherit;
     height: 100%;
+    white-space: nowrap;
+    cursor: inherit;
 }
 
 .header-content-right {
@@ -135,7 +141,6 @@
     font-size: 14px;
     font-weight: 700;
     color: #000000;
-    flex: 1;
 }
 
 .sort-icon {

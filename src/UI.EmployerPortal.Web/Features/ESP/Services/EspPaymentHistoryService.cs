@@ -44,10 +44,12 @@ internal sealed class EspPaymentHistoryService : IEspPaymentHistoryService
                         SettlementDate = settlementDate,
                         Amount = p.Amount ?? 0m,
                         ConfirmationId = p.ConfirmationID ?? string.Empty,
+                        FileUploadConfirmationNumber = p.FileUploadConfirmationNumber ?? string.Empty,
                         Status = p.EFTPaymentStatusCodeDescription ?? string.Empty,
                         IsEligibleForAction = isPending && isFutureSettlement
                     };
                 })
+                .OrderByDescending(x => x.SettlementDate)
                 .ToList();
         }
         catch (CommunicationException)

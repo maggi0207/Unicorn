@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
+using UI.EmployerPortal.Web.Features.Shared.Layout;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Features.Shared.Session.Models;
 
@@ -19,12 +19,21 @@ public partial class EspGetAccessPage
     private NavigationManager NavigationManager { get; set; } = default!;
     [Inject]
     private ISessionManager SessionManager { get; set; } = default!;
+    [Inject]
+    private ILayoutOrchestator LayoutOrchestator { get; set; } = default!;
 
     private readonly EspAccessKeyFormModel _form = new();
     private EditContext _editContext = default!;
     private string? _serviceError = null;
     private string? _successMessage = null;
     private bool _isLoading = false;
+    private bool _showValidationError = false;
+
+    private readonly Dictionary<string, string> _fieldIds = new()
+    {
+        { nameof(EspAccessKeyFormModel.AccessKey), "gak-key" },
+        { nameof(EspAccessKeyFormModel.FEIN), "gak-fein" }
+    };
 
     /// <inheritdoc/>
     protected override void OnInitialized()
@@ -34,6 +43,7 @@ public partial class EspGetAccessPage
 
     private async Task HandleValidSubmit()
     {
+        _showValidationError = false;
         _serviceError = null;
         _successMessage = null;
         _isLoading = true;
@@ -43,7 +53,8 @@ public partial class EspGetAccessPage
         if (success)
         {
             await SessionManager.ClearAsync<SessionAllEmployerAccounts>();
-            _successMessage = "ESP Access key activated successfully. Please log out and log back in to apply changes.";
+            await LayoutOrchestator.RequestEmployerListRefreshAsync("ESP account was added");
+            _successMessage = "ESP Access Key activated successfully.";
             _form.AccessKey = string.Empty;
             _form.FEIN = string.Empty;
             _editContext = new EditContext(_form);
@@ -54,28 +65,23 @@ public partial class EspGetAccessPage
         }
     }
 
+    private void HandleInvalidSubmit()
+    {
+        _showValidationError = true;
+    }
+
     private void HandleBack()
     {
         NavigationManager.NavigateTo("esp-dashboard");
     }
 
-    private sealed class EspAccessKeyFormModel : IValidatableObject
+    private sealed class EspAccessKeyFormModel
     {
         [Required(ErrorMessage = "Access Key is required.")]
         public string AccessKey { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "FEIN is required.")]
+        [RegularExpression(@"^\d{2}-\d{7}$", ErrorMessage = "FEIN format is invalid (e.g. 12-3456789).")]
         public string FEIN { get; set; } = string.Empty;
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (string.IsNullOrWhiteSpace(FEIN))
-            {
-                yield return new ValidationResult("FEIN is required.", [nameof(FEIN)]);
-            }
-            else if (!Regex.IsMatch(FEIN, @"^\d{2}-\d{7}$"))
-            {
-                yield return new ValidationResult("FEIN format is invalid (e.g. 12-3456789).", [nameof(FEIN)]);
-            }
-        }
     }
 }

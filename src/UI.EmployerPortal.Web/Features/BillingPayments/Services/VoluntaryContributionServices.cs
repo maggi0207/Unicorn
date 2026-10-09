@@ -76,7 +76,8 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
             TaxSavingsBasedOnEstimatedPayroll = response.TaxSavingsBasedOnEstimatedPayroll,
             TaxablePayRoll = response.TaxablePayRoll,
             VcRequired = response.VcRequired,
-            Lowerrate = response.VoluntaryNextLowerRate
+            Lowerrate = response.VoluntaryNextLowerRate,
+            DisclaimerText = response.DisclaimerText
         };
     }
 
@@ -138,7 +139,7 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
             ReserveFundBalance = response.ReserveFundBalance,
             ReserveFundPercentage = response.ReserveFundPercentage,
             TaxRateForYear = response.TaxRateForYear,
-            TaxSavingsBasedOnEstimatedPayroll = decimal.TryParse(response.Savings, out var saving) ? saving : 0m,
+            TaxSavingsBasedOnEstimatedPayroll = response.TaxSavingsBasedOnEstimatedPayroll,
             TaxablePayRoll = response.TaxablePayRoll,
             VcRequired = response.VcRequired,
             Lowerrate = response.NextLowerRate

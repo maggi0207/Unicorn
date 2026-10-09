@@ -7,15 +7,17 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .modal-container {
     display: flex;
     flex-direction: column;
-    width: 744.54px;
-    max-width: 100%;
+    max-width: 744.54px;
     background: #ffffff;
     box-shadow: 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12), 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
+    margin: auto;
 }
 /* HEADER */
 .modal-header {

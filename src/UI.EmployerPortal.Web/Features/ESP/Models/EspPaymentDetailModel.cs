@@ -7,6 +7,9 @@ public sealed record EspPaymentDetailModel
     /// <summary>Unique confirmation identifier for the payment.</summary>
     public string ConfirmationNumber { get; init; } = string.Empty;
 
+    /// <summary>Unique confirmation identifier for the payment.</summary>
+    public string FileUploadConfirmationNumber { get; init; } = string.Empty;
+
     /// <summary>Date and time the payment was last submitted.</summary>
     public DateTime? TransactionDateTime { get; init; }
 

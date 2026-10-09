@@ -104,6 +104,29 @@
     max-width: 80%;
 }
 
+/* ── "Don't have an access key?" link ─────────────────────────────────────── */
+.gca-request-key-link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-primary);
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-header-nav);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    .gca-request-key-link:hover {
+        text-decoration: underline;
+    }
+
+    .gca-request-key-link:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 .gca-footer {
     display: flex;

@@ -1,6 +1,8 @@
 .form-row {
     display: grid;
-    grid-template-columns: 330px 330px;
+    /* Shrinkable tracks (min 0) so columns reflow instead of overflowing when the
+       viewport is narrowed by browser zoom; they still cap at 330px at full width. */
+    grid-template-columns: repeat(2, minmax(0, 330px));
     gap: 24px;
     margin-bottom: 30px;
 }
@@ -21,6 +23,12 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.input-range ::deep .master-text-field {
+    /* Allow flex items to shrink below their content width so the range reflows
+       under zoom instead of overflowing its column. */
+    min-width: 0;
 }
 
 .input-range ::deep .master-text-field:first-child {

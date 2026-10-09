@@ -41,19 +41,20 @@
     display: flex;
     align-items: center;
     color: #003663;
+    border-bottom: 1px solid #ADADAD;
 }
 
 .billing-section-title-black {
     max-width: 993px;
-    font-family: Verdana;
+    font-family: 'Verdana';
+    font-style: normal;
     font-weight: 700;
-    font-style: Bold;
     font-size: 32px;
-    leading-trim: NONE;
-    line-height: 116%;
-    letter-spacing: 0%;
-    vertical-align: middle;
+    line-height: 133%;
+    display: flex;
+    align-items: center;
     color: #000000;
+    border-bottom: 1px solid #ADADAD;
 }
 
 /* ── Page container ─────────────────────────────────────────────── */
@@ -89,9 +90,7 @@
     color: #003663;
     font-family: Verdana;
     font-weight: 700;
-    font-style: Bold;
     font-size: 25px;
-    leading-trim: NONE;
     line-height: 116%;
     letter-spacing: 0%;
     vertical-align: middle;
@@ -345,6 +344,14 @@
 
 .ach-collapse-btn {
     border: none;
+}
+
+.accordion-caret {
+    transition: transform 0.15s ease;
+}
+
+.accordion-caret--collapsed {
+    transform: rotate(180deg);
 }
 
 /* Print-only: hide browser chrome, show only the printable content */

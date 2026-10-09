@@ -80,6 +80,7 @@ internal sealed class PaymentHistoryService : IPaymentHistoryService
                         IsEligibleForAction = isCurrentUser && isAchDebit && isPending && isFutureSettlement
                     };
                 })
+                .OrderByDescending(x => x.SettlementDate)
                 .ToList();
         }
         catch (CommunicationException)

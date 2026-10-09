@@ -3,6 +3,7 @@ using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.ESP.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
+using UI.EmployerPortal.Web.Features.Shared.Layout;
 using UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services;
 using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
 
@@ -68,6 +69,7 @@ internal class EspAccountService : IEspAccountService
     private readonly IEmployerAccessProvider _employerAccessProvider;
     private readonly IUserAccountService _userAccountService;
     private readonly IAsyncRetryPolicy<EspAccountService> _retryPolicy;
+    private readonly ILayoutOrchestator _layoutOrchestator;
 
     /// <summary>Initializes a new instance of the <see cref="EspAccountService"/> class.</summary>
     public EspAccountService(
@@ -75,13 +77,15 @@ internal class EspAccountService : IEspAccountService
         IEmployerAccountService employerAccountService,
         IEmployerAccessProvider employerAccessProvider,
         IUserAccountService userAccountService,
-        IAsyncRetryPolicy<EspAccountService> retryPolicy)
+        IAsyncRetryPolicy<EspAccountService> retryPolicy,
+        ILayoutOrchestator layoutOrchestator)
     {
         _espService = espService;
         _employerAccountService = employerAccountService;
         _employerAccessProvider = employerAccessProvider;
         _userAccountService = userAccountService;
         _retryPolicy = retryPolicy;
+        _layoutOrchestator = layoutOrchestator;
     }
 
     /// <inheritdoc />
@@ -135,7 +139,7 @@ internal class EspAccountService : IEspAccountService
     /// <inheritdoc />
     public async Task<EspRegistrationModel?> ObtainEspDetailsAsync()
     {
-        var espSk = _userAccountService.GetEspUserSK();
+        var espSk = await _userAccountService.GetEspUserSKAsync();
         if (espSk is null or 0)
         {
             return null;
@@ -153,7 +157,7 @@ internal class EspAccountService : IEspAccountService
     /// <inheritdoc />
     public async Task<ESPResponse> UpdateEspDetailsAsync(EspRegistrationModel model)
     {
-        var espSk = _userAccountService.GetEspUserSK();
+        var espSk = await _userAccountService.GetEspUserSKAsync();
 
         var phoneParsed = TryParsePhone(model.PhoneNumber, out var phoneAreaCode, out var phoneNumber);
         var faxParsed = TryParsePhone(model.FaxNumber, out var faxAreaCode, out var faxNumber);
@@ -266,7 +270,7 @@ internal class EspAccountService : IEspAccountService
     /// <inheritdoc />
     public async Task<List<EspClientModel>> GetClientsAsync()
     {
-        var espSk = _userAccountService.GetEspUserSK();
+        var espSk = await _userAccountService.GetEspUserSKAsync();
         if (espSk is null or 0)
         {
             return [];
@@ -299,7 +303,7 @@ internal class EspAccountService : IEspAccountService
     /// <inheritdoc />
     public async Task<(bool success, string message)> RemoveClientAsync(int commonClientSK)
     {
-        var espSk = _userAccountService.GetEspUserSK();
+        var espSk = await _userAccountService.GetEspUserSKAsync();
         var userSK = _userAccountService.GetUserSKClaim();
         if (espSk is null or 0)
         {
@@ -332,7 +336,7 @@ internal class EspAccountService : IEspAccountService
     public async Task<(bool success, IReadOnlyList<string> ruleViolations)> AddClientAsync(
         string accessKey, string uiAccountNumber)
     {
-        var espSk = _userAccountService.GetEspUserSK();
+        var espSk = await _userAccountService.GetEspUserSKAsync();
         if (espSk is null or 0)
         {
             return (false, ["Unable to determine the current Employer Service Provider."]);
@@ -371,9 +375,8 @@ internal class EspAccountService : IEspAccountService
         else
         {
             await _employerAccessProvider.ResetEmployerAccess();
-            await _employerAccountService.GetEmployerAccounts(true);
+            await _layoutOrchestator.RequestEmployerListRefreshAsync("New Client added to ESP");
         }
-
         return (true, []);
     }
 
