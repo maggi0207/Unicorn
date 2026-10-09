@@ -40,6 +40,7 @@
 
 .ach-amount-due-link {
     color: #0D6EFD;
+    text-decoration: none;
     font-family: Verdana;
     font-weight: 700;
     font-style: Bold;
@@ -49,10 +50,6 @@
     letter-spacing: 0%;
     vertical-align: middle;
 }
-
-    .ach-amount-due-link:hover {
-        text-decoration: underline;
-    }
 
 /* ── Floating Label Fields ──────────────────────────────────────── */
 .ach-floating-field {

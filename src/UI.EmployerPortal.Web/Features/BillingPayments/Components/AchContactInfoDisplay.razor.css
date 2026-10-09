@@ -64,15 +64,16 @@
 .ach-edit-link {
     color: #003663;
     text-decoration: none;
-    font-family: Inter, Verdana, sans-serif;
+    font-family: Verdana, sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: 16px;
     leading-trim: NONE;
-    line-height: 100%;
+    line-height: 1;
     letter-spacing: 0%;
-    display:flex;
+    display: inline-flex;
     align-items:center;
+    gap: 4px;
 }
 
 .ach-add-link {

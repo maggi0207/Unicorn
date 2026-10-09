@@ -473,16 +473,13 @@
 
 .ach-amount-due-link {
     color: #0D6EFD;
+    text-decoration: none;
     font-family: Verdana;
     font-weight: 700;
     font-size: 16px;
     line-height: 160%;
     vertical-align: middle;
 }
-
-    .ach-amount-due-link:hover {
-        text-decoration: underline;
-    }
 
 @media (max-width: 768px) {
     .ach-payment-amount-row {
