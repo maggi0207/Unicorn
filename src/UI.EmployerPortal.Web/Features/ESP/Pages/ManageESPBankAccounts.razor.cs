@@ -230,7 +230,7 @@ public partial class ManageESPBankAccounts
 
         if (_sortColumn == column)
         {
-            path = _sortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            path = _sortAscending ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg";
             altText = _sortAscending ? "Sorted ascending" : "Sorted descending";
         }
         else

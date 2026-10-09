@@ -395,7 +395,7 @@ public partial class BankInformationForm
 
         if (_pendingSortColumn == column)
         {
-            path = _pendingSortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            path = _pendingSortAscending ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg";
             altText = _pendingSortAscending ? "Sorted ascending" : "Sorted descending";
         }
         else

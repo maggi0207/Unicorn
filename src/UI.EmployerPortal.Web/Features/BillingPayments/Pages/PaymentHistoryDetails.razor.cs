@@ -131,7 +131,7 @@ public partial class PaymentHistoryDetails
 
         if (_activitySortColumn == column)
         {
-            path = _activitySortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            path = _activitySortAscending ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg";
             altText = _activitySortAscending ? "Sorted ascending" : "Sorted descending";
         }
         else

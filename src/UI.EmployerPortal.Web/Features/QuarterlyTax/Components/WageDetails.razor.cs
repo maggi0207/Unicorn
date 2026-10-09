@@ -246,7 +246,7 @@ public partial class WageDetails
     private MarkupString GetSortIcon(string column)
     {
         var path = _sortColumn == column
-            ? _sortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg"
+            ? _sortAscending ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg"
             : "images/sort/sort-icon.svg";
 
         return new MarkupString($"<img aria-hidden='true' src='{Assets[path]}' class='sort-icon' alt='' />");

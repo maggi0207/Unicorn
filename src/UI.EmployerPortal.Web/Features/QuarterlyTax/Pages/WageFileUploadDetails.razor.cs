@@ -165,7 +165,7 @@ public partial class WageFileUploadDetails
     private MarkupString GetFatalSortIcon(string column)
     {
         var path = _fatalSortColumn == column
-            ? (_fatalSortAsc ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg")
+            ? (_fatalSortAsc ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg")
             : "images/sort/sort-icon.svg";
         return new MarkupString($"<img src='{Assets[path]}' class='sort-icon' />");
     }
@@ -298,7 +298,7 @@ public partial class WageFileUploadDetails
         string altText;
         if (_nonFatalSortColumn == column)
         {
-            path = _nonFatalSortAscending ? "images/sort/sort-icon-asc.svg" : "images/sort/sort-icon-desc.svg";
+            path = _nonFatalSortAscending ? "images/sort/sort-icon-desc.svg" : "images/sort/sort-icon-asc.svg";
             altText = _nonFatalSortAscending ? "Sorted ascending" : "Sorted descending";
         }
         else
