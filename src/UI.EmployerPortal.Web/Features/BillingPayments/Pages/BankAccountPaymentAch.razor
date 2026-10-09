@@ -62,8 +62,6 @@
                 </section>
 
                 <section class="billing-section" aria-labelledby="payment-info-heading" aria-label="Payment Information">
-                    <h2 id="payment-info-heading" class="billing-section-title-payment fw-bold">Payment Information</h2>
-                    <hr class="payment-section-divider" aria-hidden="true" />
                     <AchPaymentInformation @ref="_paymentInfoRef"
                                            Draft="_paymentDraft"
                                            InitialAmount="_initialAmount"
@@ -270,8 +268,10 @@
 
                 <section class="billing-section" aria-label="Payment Information" aria-labelledby="edit-payment-info-heading">
                     <div class="">
-                        <h2 id="edit-payment-info-heading" class="billing-section-title-payment fw-bold">Payment Information</h2>
-                        <hr class="payment-section-divider" aria-hidden="true" />
+                        <div class="ach-info-card-header">
+                            <h2 class="ach-info-card-title-payment fw-bold">Payment Information</h2>
+                        </div>
+                        <hr class="ach-section-divider" aria-hidden="true" />
                         <div class="ach-info-field ach-confirmation-number-field">
                             <span class="ach-info-label">Confirmation Number</span>
                             <strong class="ach-info-value">@_confirmationNumber</strong>
