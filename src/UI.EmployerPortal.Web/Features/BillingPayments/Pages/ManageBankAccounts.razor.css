@@ -78,18 +78,20 @@
     margin: 0;
     margin-bottom: -1px;
     padding-bottom: 6px;
-    border-bottom: 3px solid #003B70;
     position: relative;
     z-index: 1;
 }
 
-/* Full-width gray divider that sits under the section heading tab */
+/* Full-width blue divider that sits under the section heading tab */
 .section-divider {
     border: none;
-    border-top: 1px solid #D9D9D9;
+    border-top: 1px solid #003B70;
     margin: 0 0 20px 0;
     position: relative;
     z-index: 0;
+    opacity: 1;
+    display: block;
+    width: 100%;
 }
 
 /* ── Accounts table ── */
@@ -249,9 +251,7 @@
     border: none;
     padding: 0;
     color: #006BFF;
-    text-decoration: underline !important;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
+    text-decoration: none !important;
     cursor: pointer;
     font-family: Verdana, sans-serif;
     font-size: 17px;
@@ -260,7 +260,7 @@
 
     .account-link:hover {
         color: #003B70;
-        text-decoration: underline;
+        text-decoration: underline !important;
     }
 
 /* ── Remove / delete button ── */
