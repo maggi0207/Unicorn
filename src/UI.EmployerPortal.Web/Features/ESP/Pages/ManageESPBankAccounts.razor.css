@@ -30,26 +30,33 @@
     gap: 0;
 }
 
+
 .page-title {
     font-family: Verdana, sans-serif;
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 38px;
+    font-weight: 800;
     color: #000000;
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
 }
+
 
 .page-divider {
     border: none;
-    border-top: 1px solid var(--color-gray-medium, #ADADAD);
-    margin: 0 0 32px 0;
+    border-top: 1px solid #E6E6E6;
+    margin: 0 0 20px 0;
+    opacity: 1;
+    display: block;
+    width: 100%;
 }
+
 
 .page-subtitle {
     font-family: Verdana, sans-serif;
-    font-size: 14px;
+    font-size: 19px;
     font-weight: 400;
     color: #000000;
-    margin: 0 0 16px 0;
+    margin: 0 0 20px 0;
 }
 
 .action-row {
@@ -59,35 +66,84 @@
     padding-top: 8px;
 }
 
-/* Section header */
+
 
 .section-title {
     display: block;
     width: fit-content;
     font-family: Verdana, sans-serif;
-    font-size: 14px;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--color-primary, #006bb7);
+    color: #003B70;
     margin: 0;
     margin-bottom: -1px;
-    padding-bottom: 8px;
-    border-bottom: 3px solid var(--color-primary, #006bb7);
+    padding-bottom: 6px;
     position: relative;
     z-index: 1;
 }
 
+
 .section-divider {
     border: none;
-    border-top: 1px solid var(--color-gray-medium, #ADADAD);
-    margin: 0 0 24px 0;
+    border-top: 1px solid #003B70;
+    margin: 0 0 20px 0;
     position: relative;
     z-index: 0;
+    opacity: 1;
+    display: block;
+    width: 100%;
 }
 
-/* Accounts table — grid pattern matches WageAdjustmentQuarter */
+
 
 .table-container {
     overflow: auto;
+}
+
+.accounts-table {
+    border-collapse: collapse;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    caption-side: unset;
+    width: 100%;
+    table-layout: fixed;
+}
+
+
+.col-nickname {
+    min-width: 140px;
+    width: 20%;
+}
+
+.col-bank-name {
+    min-width: 150px;
+    width: 24%;
+}
+
+.col-type {
+    min-width: 80px;
+    width: 10%;
+}
+
+.col-routing {
+    min-width: 120px;
+    width: 17%;
+}
+
+.col-account {
+    min-width: 140px;
+    width: 22%;
+}
+
+.col-remove {
+    min-width: 60px;
+    width: 7%;
+}
+
+
+
+.header-row {
+    min-height: 52px;
 }
 
 .header-sort-button {
@@ -98,61 +154,18 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 8px;
+    gap: 6px;
     padding: 0;
-}
-
-.accounts-table {
-    border-collapse: collapse;
-    font-family: Verdana, sans-serif;
-    font-size: 14px;
-    caption-side: unset;
-    width: 100%;
-    table-layout: fixed;
-}
-
-/* Fixed column widths matching Figma proportions — must sum to 100% */
-.col-nickname {
-    min-width: 120px;
-    width: 20%;
-}
-
-.col-bank-name {
-    min-width: 130px;
-    width: 24%;
-}
-
-.col-type {
-    min-width: 70px;
-    width: 9%;
-}
-
-.col-routing {
-    min-width: 110px;
-    width: 17%;
-}
-
-.col-account {
-    min-width: 120px;
-    width: 22%;
-}
-
-.col-remove {
-    min-width: 60px;
-    width: 8%;
-}
-
-.header-row {
-    min-height: 56px;
+    cursor: pointer;
 }
 
 .header-cell {
-    height: 56px;
-    background-color: #E6E6E6;
+    height: 52px;
+    background-color: #E7E7E7;
     cursor: pointer;
     user-select: none;
     padding: 0 !important;
-    border-bottom: 1px solid var(--color-gray-medium, #ADADAD) !important;
+    border-bottom: 1px solid #ADADAD !important;
     vertical-align: middle;
 }
 
@@ -161,7 +174,7 @@
     }
 
     .header-cell:focus {
-        outline: 2px solid var(--color-primary, #006bb7);
+        outline: 2px solid #003B70;
         outline-offset: -2px;
     }
 
@@ -170,19 +183,19 @@
 }
 
     .header-cell-static:hover {
-        background-color: #E6E6E6;
+        background-color: #E7E7E7;
     }
 
 .header-content {
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 8px var(--spacing-sm, 8px);
+    padding: 8px 10px;
 }
 
 .header-content-left {
     justify-content: flex-start;
-    gap: 8px;
+    gap: 6px;
 }
 
 .header-content-center {
@@ -191,13 +204,14 @@
 
 .cell-remove {
     text-align: center;
-    width: 80px;
 }
+
 
 .header-label {
     font-family: Verdana, sans-serif;
-    font-size: 14px;
-    color: var(--color-text, #333333);
+    font-size: 17px;
+    font-weight: 700;
+    color: #000000;
     white-space: nowrap;
 }
 
@@ -207,91 +221,113 @@
     flex-shrink: 0;
 }
 
+
+
 .data-row:hover {
     background-color: #f5f8fc;
 }
 
 .data-row td {
     vertical-align: middle;
-    padding: 8px;
-    border-bottom: 1px solid var(--color-gray-light, #E6E6E6);
-    color: var(--color-text, #333333);
-    font-size: 14px;
+    padding: 10px 10px;
+    border-bottom: 1px solid #C7C7C7;
+    color: #000000;
+    font-size: 16px;
+    font-weight: 400;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* Nickname link */
+
+.data-row:last-child td {
+    border-bottom: 2px solid #666666;
+}
+
+
 
 .account-link {
     background: none;
     border: none;
     padding: 0;
-    color: var(--color-primary, #006bb7);
-    text-decoration: underline;
+    color: #006BFF;
+    text-decoration: none !important;
     cursor: pointer;
     font-family: Verdana, sans-serif;
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 17px;
+    font-weight: 700;
 }
 
     .account-link:hover {
-        color: var(--color-header-nav, #003663);
+        color: #003B70;
+        text-decoration: underline !important;
     }
 
-/* Delete placeholder button */
+
 
 .delete-btn {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 2px;
+    margin: 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
 }
 
-    .delete-btn img {
-        width: 20px;
-        height: 20px;
+    .delete-btn:hover {
+        opacity: 0.65;
     }
 
-/* Add Account link */
+    .delete-btn:focus {
+        outline: 2px solid #003B70;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+    .delete-btn img {
+        width: 18px;
+        height: 18px;
+        display: block;
+    }
+
+
 
 .add-account-row {
-    padding-top: 8px;
+    padding-top: 14px;
 }
 
 .add-account-link {
     background: none;
     border: none;
     padding: 0;
-    color: var(--color-primary, #006bb7);
+    color: #006BFF;
     text-decoration: none;
     cursor: pointer;
     font-family: Verdana, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
 }
 
     .add-account-link:hover {
-        color: var(--color-header-nav, #003663);
+        color: #003B70;
         text-decoration: underline;
     }
 
-/* Loading and empty states */
+
 
 .loading-text {
     font-family: Verdana, sans-serif;
     font-size: 16px;
-    color: var(--color-text, #333333);
+    color: #333333;
     margin: 0;
 }
 
 .no-accounts-message {
     padding: 24px 12px;
     text-align: center;
-    color: var(--color-text, #333333);
+    color: #333333;
     font-style: italic;
 }
