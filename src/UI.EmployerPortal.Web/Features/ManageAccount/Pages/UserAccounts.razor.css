@@ -258,7 +258,7 @@
     padding: 16px 48px 16px 14px;
     font-family: Verdana;
     font-size: var(--font-size-md);
-    border: 1px solid var(--color-gray-medium);
+    border: 1px solid var(--color-input-border);
     border-radius: 4px;
     background-color: var(--color-white);
     background-image: var(--icon-bg);
@@ -272,7 +272,7 @@
     padding: 16px 48px 16px 14px;
     font-family: Verdana;
     font-size: var(--font-size-md);
-    border: 1px solid var(--color-gray-medium);
+    border: 1px solid var(--color-input-border);
     border-radius: 4px;
     background-color: var(--color-white);
     background-image: var(--icon-bg);
@@ -328,10 +328,15 @@
     border: 0;
 }
 
-/* ── Table container ──────────────────────────────────────────────────────── */
+/* ── Table  ──────────────────────────────────────────────────────── */
+.user-accounts-table {
+    table-layout: fixed;
+    min-width:1024px
+}
+
 .table-container {
     width: 100%;
-    max-width: 1392px;
+    overflow-x: auto;
 }
 
 /* ── Header row ───────────────────────────────────────────────────────────── */
@@ -388,6 +393,21 @@
     flex-shrink: 0;
 }
 
+/* ── Sort table header buttons ────────────────────────────────────────────────────────────── */
+.sort-header-button{
+    all: unset;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-cell:has(.sort-header-button:focus-visible) {
+    outline: 2px solid var(--color-blue-focus);
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 4px #ffffff;
+}
+
 /* ── Data rows ────────────────────────────────────────────────────────────── */
 .data-row:hover {
     background-color: var(--color-gray-lighter);
@@ -432,7 +452,7 @@
 }
 
 .page-size-select {
-    width: 49px;
+    width: 3.5rem;
     padding-right: 24px !important;
     padding-left: 6px !important;
     background-position: right 4px center !important;

@@ -1,0 +1,244 @@
+@page "/manage-account/corporate-office-exclusion"
+@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
+
+@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
+
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+<PageTitle>Corporate Officer Exclusion Reasonableness Worksheet</PageTitle>
+<div class="container-page">
+
+    @if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.Value))
+    {
+        <div class="header-container">
+
+            <h1 class="title">Corporate Officer Exclusion Reasonableness Worksheet</h1>
+            <p class="section-paragraph">
+                This worksheet is designed to calculate the impact on all of your unemployment taxes by taking this exclusion.
+                When you enter the data in the three required fields on the worksheet, you will see what impact taking the
+                exclusion has on you. If you have any questions about this, please <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.
+            </p>
+
+            @if (_saveResponse != null && !_saveResponse.Success)
+            {
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_saveResponse.WarningMessage"
+                                    DismissButton="false">
+                </NotificationBanner>
+            }
+        </div>
+        <div class="page-heading">You must calculate your net savings before electing this exclusion.</div>
+        <div class="table-container">
+            <table class="table" aria-label="Employer accounts">
+                <caption class="visually-hidden">List of employer accounts with balance and status information</caption>
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell" style="width:45px">
+                            <div class="header-content header-content-left">
+                                <span class="header-label fw-bold fs-sm"></span>
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:250px">
+                            <div class="header-content  header-content-left">
+                                <span class="header-label fw-bold fs-sm">Use Payroll Figures (estimates 2026)</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:160px">
+                            <div class="header-content  header-content-right">
+                                <span class="header-label fw-bold fs-sm">Without Exclusion</span>
+                            </div>
+                        </th>
+                        <th scope="col" class="header-cell" style="width:160px">
+                            <div class="header-content  header-content-right">
+                                <span class="header-label-small fw-bold fs-xs">With Exclusion</span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_response != null)
+                    {
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">1.</td>
+                            <td class="fw-normal fs-md  text-left">Payroll subject to FUTA (include only first $7,000 of any employee's wages)</td>
+                            <td class="fw-normal fs-md">
+                                <div class="decimal-input">
+                                    <NumericTextBox Value="@_response.FUTAPayroll"
+                                                    Id="futaPayroll"
+                                                    AriaLabel="Payroll subject to FUTA"
+                                                    IsReadonly="false"
+                                                    ShowCurrencyIcon="false"
+                                                    DecimalPlaces="2"
+                                                    Min="0"
+                                                    Max="1000000000"
+                                                    ValueChanged="OnFUTAPayrollChanged">
+                                    </NumericTextBox>
+                                </div>
+                            </td>
+                            <td class="fw-normal fs-md">@_response.FUTAPayroll.ToString("C")</td>
+                        </tr>
+
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">2.</td>
+                            <td class="fw-normal fs-md  text-left">FUTA Tax (6.000 % times line 1)</td>
+                            <td class="fw-normal fs-md"> @_response.FUTATax.ToString("C")  </td>
+                            <td class="fw-normal fs-md"> @_response.FUTATax.ToString("C")</td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">3.</td>
+                            <td class="fw-normal text-left fs-md">Maximum FUTA Credit Potentially Available  (5.400 % times line 1)</td>
+                            <td class="fw-normal fs-md"> @_response.MaxFUTACreditAvailable.ToString("C")  </td>
+                            <td class="fw-normal fs-md"> @_response.MaxFUTACreditAvailable.ToString("C") </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">4.</td>
+                            <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold() of any employee's wages)</td>
+                            <td class="fw-normal fs-md">
+                                <div class="decimal-input">
+                                    <NumericTextBox Value="@_response.WITaxablePayrollWithoutCOE"
+                                                    Id="WITaxablePayrollWithoutCOE"
+                                                    AriaLabel="Payroll subject to Wisconsin UI tax without corporate officer exclusion"
+                                                    IsReadonly="false"
+                                                    ShowCurrencyIcon="false"
+                                                    DecimalPlaces="2"
+                                                    Min="0"
+                                                    Max="1000000000"
+                                                    ValueChanged="OnWITaxablePayrollWithoutCOEChanged"></NumericTextBox>
+                                </div>
+                            </td>
+                            <td class="fw-normal fs-md">
+                                <div class="decimal-input">
+                                    <NumericTextBox Value="@_response.WITaxablePayrollWithCOE"
+                                                    Id="WITaxablePayrollWithCOE"
+                                                    AriaLabel="Payroll subject to Wisconsin UI tax with corporate officer exclusion"
+                                                    IsReadonly="false"
+                                                    ShowCurrencyIcon="false"
+                                                    DecimalPlaces="2"
+                                                    Min="0"
+                                                    Max="1000000000"
+                                                    ValueChanged="OnWITaxablePayrollWithCOEChanged"></NumericTextBox>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">5.</td>
+                            <td class="fw-normal text-left fs-md">Your 2026 WI UI Tax Rate</td>
+                            <td class="fw-normal fs-md"> @_response.WIUITaxRate.ToString("P") </td>
+                            <td class="fw-normal fs-md"> @_response.WIUITaxRatePercentage.ToString("P") </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">6.</td>
+                            <td class="fw-normal text-left fs-md">WI UI Tax (line 4 times line 5)</td>
+                            <td class="fw-normal fs-md"> @_response.WIUITaxWithoutCOE.ToString("C")  </td>
+                            <td class="fw-normal fs-md"> @_response.WIUITaxWithCOE.ToString("C") </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">7.</td>
+                            <td class="fw-normal text-left fs-md">FUTA Credit for "Implied" Payment of State UI Taxes (5.400 % times line 4)</td>
+                            <td class="fw-normal fs-md"> @_response.FUTACreditWithoutCOE.ToString("C")  </td>
+                            <td class="fw-normal fs-md"> @_response.FUTACreditWithCOE.ToString("C") </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">8.</td>
+                            <td class="fw-normal text-left fs-md">Total FUTA Credit (higher of line 6 or 7, but not more than line 3)</td>
+                            <td class="fw-normal fs-md"> @_response.TotalFUTACreditWithoutCOE.ToString("C")  </td>
+                            <td class="fw-normal fs-md"> @_response.TotalFUTACreditWithCOE.ToString("C") </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">9.</td>
+                            <td class="fw-normal text-left fs-md">Net FUTA Tax (line 2 minus line 8)</td>
+                            <td class="fw-normal fs-md"> @_response.NetFUTATaxWithoutCOE.ToString("C") </td>
+                            <td class="fw-normal fs-md"> @_response.NetFUTATaxWithCOE.ToString("C")  </td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="fw-normal fs-md">10.</td>
+                            <td class="fw-normal text-left fs-md">Total State UI And FUTA Taxes (line 6 plus line 9)</td>
+                            <td class="fw-normal fs-md"> @_response.TotalUITaxWithoutCOE.ToString("C")   </td>
+                            <td class="fw-normal fs-md"> @_response.TotalUITaxWithCOE.ToString("C")</td>
+                        </tr>
+                        <tr class="data-row last-row">
+                            <td class="fw-normal fs-md"></td>
+                            <td class="fw-bold text-left fs-lg" style="text-align:left !important;">Net Savings</td>
+                            <td class="fw-normal fs-md">  </td>
+                            <td class="fw-normal fs-md"> @_response.NetSavings.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="flex-button">
+            <Button Text="CANCEL"
+                    Variant="Button.ButtonVariant.Secondary"
+                    OnClick="HandleBack"
+                    Disabled="_isSaving" />
+            <span>
+                <button disabled="@_isSaving" @onclick="HandleRecalculateAsync" class="btn-recalculate">
+                    <svg aria-hidden="true" class="icon-calender" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.33333 12H6.33333V10.6667H7.66667V9.66667H6.33333V8.33333H5.33333V9.66667H4V10.6667H5.33333V12ZM8.66667 11.5H12V10.5H8.66667V11.5ZM8.66667 9.83333H12V8.83333H8.66667V9.83333ZM4.16667 6.13333H7.5V5.13333H4.16667V6.13333ZM3.33333 14C2.96667 14 2.65278 13.8694 2.39167 13.6083C2.13056 13.3472 2 13.0333 2 12.6667V3.33333C2 2.96667 2.13056 2.65278 2.39167 2.39167C2.65278 2.13056 2.96667 2 3.33333 2H12.6667C13.0333 2 13.3472 2.13056 13.6083 2.39167C13.8694 2.65278 14 2.96667 14 3.33333V12.6667C14 13.0333 13.8694 13.3472 13.6083 13.6083C13.3472 13.8694 13.0333 14 12.6667 14H3.33333ZM9.4 7.3L10.3333 6.36667L11.2667 7.3L11.9667 6.6L11.0333 5.63333L11.9667 4.7L11.2667 4L10.3333 4.93333L9.4 4L8.7 4.7L9.63333 5.63333L8.7 6.6L9.4 7.3Z" fill="#5C6060" />
+                    </svg>
+                    @if (_isRecalculating)
+                    {
+                        <span>RECALCULATING...</span>
+                    }
+                    else
+                    {
+                        <span>RECALCULATE</span>
+                    }
+                </button>
+                <div class="visually-hidden" role="status" aria-live="polite"> @_recalculateStatus</div>
+                <Button Text="SUBMIT ELECTION"
+                        Variant="Button.ButtonVariant.Primary"
+                        OnClick="HandleSaveAsync"
+                        Disabled="_isSaving || _isRecalculating" />
+            </span>
+
+        </div>
+    }
+    else if (_saveResponse !=null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
+    {
+        <div class="header-container">
+            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion Reasonableness Worksheet</h1>
+            <p class="section-paragraph">
+                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
+                <br /> <br />
+                The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
+            </p>
+        </div>
+
+        <div class="summary-card">
+            <div class="item">
+                <div class="label">
+                    Account Number
+                </div>
+
+                <div class="value">
+                    @_saveResponse?.AccountNumber
+                </div>
+            </div>
+            <div class="item">
+                <div class="label">
+                    Legal Name
+                </div>
+
+                <div class="value">
+                    @_saveResponse?.LegalName
+                </div>
+            </div>
+            <div style="grid-column: 1 / -1; font-weight:900">
+                Corporate Officer Exclusion will be effective as of @_saveResponse?.CorporateOfficeExclusionEffectiveDate?.ToString("M/d/yyyy")
+            </div>
+
+        </div>
+
+        <div class="flex-button">
+            <Button Text="BACK"
+                    Variant="Button.ButtonVariant.Secondary"
+                    OnClick="HandleBack"
+                    Disabled="_isSaving" />
+            <Button Text="ACCOUNT SUMMARY"
+                    Variant="Button.ButtonVariant.Primary"
+                    OnClick="HandleASBack" />
+        </div>
+    }
+</div>

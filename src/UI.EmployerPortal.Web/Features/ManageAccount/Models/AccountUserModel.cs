@@ -44,6 +44,10 @@ public sealed record AccountUserModel
     /// SecureUserSk
     /// </summary>
     public int SecureUserSK { get; init; }                   // needed for in-memory CreatedBy lookup
+    /// <summary>
+    ///  for esp users
+    /// </summary>
+    public int EmployerServiceProviderSecureUserSK { get; init; }
 
     /// <summary>
     /// AssignedWebControlSKs

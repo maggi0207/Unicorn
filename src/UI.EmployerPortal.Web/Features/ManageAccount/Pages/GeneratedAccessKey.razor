@@ -8,19 +8,22 @@
 
     <h1 class="generated-key-title">Generate @KeyTypeLabel Access Key</h1>
 
-    @if (_showCopiedBanner)
-    {
-        <div class="generated-key-banner-wrapper">
-            <NotificationBanner NotificationType="NotificationType.Information"
-                                MessageStyle="MessageStyle.SingleLine"
-                                Message="@($"{KeyTypeLabel} access key copied to clipboard")"
-                                DismissButton="true" />
-        </div>
-    }
+    <div role="status">
+        @if (_showCopiedBanner)
+        {
+            <div class="generated-key-banner-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Information"
+                                    MessageStyle="MessageStyle.SingleLine"
+                                    Message="@($"{KeyTypeLabel} access key copied to clipboard")"
+                                    DismissButton="true"
+                                    Announce="false"/>
+            </div>
+        }
+    </div>
 
-    <label class="generated-key-label">@KeyTypeLabel Access Key</label>
+    <label for="access-key" class="generated-key-label">@KeyTypeLabel Access Key</label>
     <div class="generated-key-row">
-        <input class="generated-key-box" readonly value="@(Flow.GeneratedKey ?? string.Empty)" aria-label="Generated access key" />
+        <input id="access-key" class="generated-key-box" readonly value="@(Flow.GeneratedKey ?? string.Empty)" />
         <button type="button" class="generated-key-copy-btn" @onclick="CopyKeyToClipboardAsync">
             <img src="@Assets["icons/file_copy.svg"]" alt="" class="generated-key-copy-icon" />
             COPY
@@ -30,9 +33,18 @@
     <h2 class="generated-key-share-title">Share Access Key</h2>
     <p class="generated-key-text">Please save this key and provide it to the person you want to grant access.</p>
     <p class="generated-key-text generated-key-emphasis">This access key will not be shown again and will expire after seven days.</p>
-    <p class="generated-key-text">
-        The @KeyTypeLabel.ToLower() will need to provide the 10-digit UI account number along with this access key to gain access to this account.
-    </p>
+
+   @if (_isEspUser)
+   {
+           <p class="generated-key-text">
+                The @KeyTypeLabel.ToLower() will need to provide the FEIN from the Employer Service Provider's registration along with this access key to gain access to this account.
+           </p>
+   }
+   else{
+           <p class="generated-key-text">
+                The @KeyTypeLabel.ToLower() will need to provide the 10-digit UI account number along with this access key to gain access to this account.
+            </p>
+   }
 
     <div class="generated-key-footer">
         <Button Text="BACK"

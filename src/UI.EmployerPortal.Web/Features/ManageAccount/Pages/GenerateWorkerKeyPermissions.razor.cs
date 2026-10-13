@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.ManageAccount.Components;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
@@ -15,6 +18,12 @@ public partial class GenerateWorkerKeyPermissions
 {
     [Inject]
     private IAccountUserService AccountUserService { get; set; } = default!;
+
+    [Inject]
+    private IAuthorizationService AuthorizationService { get; set; } = default!;
+
+    [Inject]
+    private IUserAccountService UserAccountService { get; set; } = default!;
 
     [Inject]
     private IGenerateAccessKeyFlow Flow { get; set; } = default!;
@@ -36,6 +45,7 @@ public partial class GenerateWorkerKeyPermissions
 
     private bool _isLoading = true;
     private bool _loadError = false;
+    private bool _isCurrentUserManager = false;
     private bool _isWorking = false;
     private bool _showPermissionValidationError = false;
     private string? _errorMessage = null;
@@ -60,6 +70,14 @@ public partial class GenerateWorkerKeyPermissions
                 return;
             }
 
+            // Only managers may generate access keys - re-checked here so the step cannot be
+            // reached directly, or left open after switching to a worker-access account.
+            _isCurrentUserManager = await IsEmployerManagerAsync();
+            if (!_isCurrentUserManager)
+            {
+                return;
+            }
+
             var users = await AccountUserService.GetAccountUsersAsync(_employerSK);
             var currentUserSK = AccountUserService.GetCurrentUserSk();
             _managerWebUserSecuritySK = users
@@ -79,6 +97,18 @@ public partial class GenerateWorkerKeyPermissions
         {
             _isLoading = false;
         }
+    }
+
+    private async Task<bool> IsEmployerManagerAsync()
+    {
+        var user = UserAccountService.GetCurrentUser();
+        if (user is null)
+        {
+            return false;
+        }
+
+        var result = await AuthorizationService.AuthorizeAsync(user, null, AuthorizationPolicies.RequiresManagerRole);
+        return result.Succeeded;
     }
 
     private void HandleSelectionChanged()

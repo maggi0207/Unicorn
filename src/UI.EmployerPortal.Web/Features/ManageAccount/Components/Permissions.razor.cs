@@ -137,7 +137,9 @@ public partial class Permissions
             return !g.HasSelectAll && g.IsSelected;
         }).Select(g =>
         {
-            return g.WebControlSK;
+            // PermissionWebControlSK, not WebControlSK: for a group collapsed from a single child
+            // these differ, and it is the child the backend grants.
+            return g.PermissionWebControlSK;
         });
 
         return [.. fromItems.Concat(fromNoChildParents)];

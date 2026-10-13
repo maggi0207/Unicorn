@@ -38,6 +38,18 @@ public class PermissionGroup
     public bool HasSelectAll { get; set; } = true;
 
     /// <summary>
+    /// The WebControlSK this group's single row actually grants, for groups rendered as one row
+    /// (<see cref="HasSelectAll" /> false). Defaults to <see cref="WebControlSK" />.
+    ///
+    /// It is separate from <see cref="WebControlSK" /> because the two can differ. A group with
+    /// exactly one child is collapsed to a single row for display, but the permission behind that
+    /// row is still the CHILD's — a parent SK is never sent for a group that has children, so
+    /// granting the parent would quietly grant nothing. <see cref="WebControlSK" /> stays the
+    /// group's own, since display order and the expand/collapse state are keyed on it.
+    /// </summary>
+    public int PermissionWebControlSK { get; set; }
+
+    /// <summary>
     /// IsInterminate
     /// </summary>
     public bool IsIndeterminate => Items.Any(i =>

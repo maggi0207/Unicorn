@@ -4,11 +4,14 @@
 @using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Web.Features.Landing.Components
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Auth;
+
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Account Users</PageTitle>
 
 <div class="page-content" @onclick="CloseRoleDropdown">
-    
+
     @if (_isLoading)
     {
         <LoadingSpinner Message="Loading account users..." />
@@ -24,25 +27,26 @@
         <div>
             <NotificationBanner NotificationType="NotificationType.Alert"
             Title="Access Denied"
-            Message="You account currently does not have access to view this page. Please contact your account manager for further assistance.">
+            Message="Your account currently does not have access to view this page. Please contact your account manager for further assistance.">
             </NotificationBanner>
-        </div>        
+        </div>
     }
     else
     {
         <h1 class="page-title fw-bold">Account Users</h1>
-
-        @if (!string.IsNullOrWhiteSpace(_flashMessage))
-        {
-            <div class="flash-banner-wrapper">
-                <NotificationBanner @key="_flashKey"
-                                    NotificationType="NotificationType.Confirmation"
-                                    MessageStyle="MessageStyle.SingleLine"
-                                    Title="@_flashTitle"
-                                    Message="@_flashMessage"
-                                    DismissButton="true" />
-            </div>
-        }
+        <div aria-live="polite">
+            @if (!string.IsNullOrWhiteSpace(_flashMessage))
+            {
+                <div class="flash-banner-wrapper">
+                    <NotificationBanner @key="_flashKey"
+                                        NotificationType="NotificationType.Confirmation"
+                                        MessageStyle="MessageStyle.SingleLine"
+                                        Title="@_flashTitle"
+                                        Message="@_flashMessage"
+                                        DismissButton="true" />
+                </div>
+            }
+        </div>
         <div class="top-actions">
             <button class="btn generate-key-btn fw-bold" @onclick="NavigateToGenerateKey">GENERATE USER KEY</button>
         </div>
@@ -61,9 +65,10 @@
                                 @onclick="ToggleRoleDropdown"
                                 @onclick:stopPropagation="true"
                                 @onclick:preventDefault="true"
-                                aria-expanded="@_roleDropdownOpen"
-                                aria-haspopup="listbox"
-                                aria-label="Filter by role">
+                                aria-expanded="@(_roleDropdownOpen.ToString())"
+                                aria-haspopup="true"
+                                aria-label="Filter by role"
+                                aria-controls="filter-menu">
                             <span class="role-dropdown-value @(_selectedRoles.Count > 0 ? "hasSelection" : "")">@RoleDisplayText</span>
                             <span class="role-dropdown-arrow @(_roleDropdownOpen ? "open" : "")" aria-hidden="true">
                                 <img src="@Assets["icons/dropdown-arrow.svg"]" alt="" />
@@ -72,12 +77,13 @@
 
                         @if (_roleDropdownOpen)
                         {
-                            <div class="role-dropdown-menu" role="listbox" aria-label="Role options" @onclick:stopPropagation="true">
-                                <div class="role-dropdown-options" role="group" aria-label="Filter options">
+                            <div id="filter-menu" class="role-dropdown-menu" role="menu" aria-label="Role filter options" @onclick:stopPropagation="true">
+                                <div class="role-dropdown-options" aria-label="Filter options">
                                     @foreach (var role in AvailableRoles)
                                     {
                                         <label class="role-dropdown-option">
                                             <input type="checkbox"
+                                                role="menuitemcheckbox"
                                                    checked="@_selectedRoles.Contains(role)"
                                                    @onchange="e => HandleRoleChange(role, (bool)(e.Value ?? false))"
                                                    aria-label="@role" />
@@ -86,7 +92,7 @@
                                     }
                                 </div>
                                 <div class="role-dropdown-actions">
-                                    <button type="button" class="role-dropdown-btn-reset" @onclick="ResetRoleFilter" aria-label="Reset role filter">
+                                    <button type="button" role="meuitem" class="role-dropdown-btn-reset" @onclick="ResetRoleFilter" aria-label="Reset role filter">
                                         RESET
                                     </button>
                                 </div>
@@ -127,68 +133,68 @@
         </div>
 
             <div class="table-container">
-                <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Account users">
-                    <caption class="visually-hidden">List of account users with role and access information</caption>
+                <table class="table  user-accounts-table" aria-label="Account users">
+                    <caption class="visually-hidden">List of account users with role and access information. Table header cells with buttons are sortable.</caption>
                     <thead>
                         <tr class="header-row">
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("lastName"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "lastName"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("lastName")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Last Name</span>
-                                    @GetSortIcon("lastName")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("lastName"))">
+                                        <span class="header-label fw-bold fs-sm">Last Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("lastName")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("firstName"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "firstName"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("firstName")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">First Name</span>
-                                    @GetSortIcon("firstName")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("firstName"))">
+                                        <span class="header-label fw-bold fs-sm">First Name</span>
+                                        <span aria-hidden="true">@GetSortIcon("firstName")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("role"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "role"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("role")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Role</span>
-                                    @GetSortIcon("role")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("role"))">
+                                        <span class="header-label fw-bold fs-sm">Role</span>
+                                        <span aria-hidden="true">@GetSortIcon("role")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("createdBy"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "createdBy"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("createdBy")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Created By</span>
-                                    @GetSortIcon("createdBy")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("createdBy"))">
+                                        <span class="header-label fw-bold fs-sm">Created By</span>
+                                        <span aria-hidden="true">@GetSortIcon("createdBy")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("accessGranted"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "accessGranted"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("accessGranted")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Access Granted</span>
-                                    @GetSortIcon("accessGranted")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("accessGranted"))">
+                                        <span class="header-label fw-bold fs-sm">Access Granted</span>
+                                        <span aria-hidden="true">@GetSortIcon("accessGranted")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell"
-                                @onclick="@(() => Sort("accessKey"))"
-                                @onkeydown="@(e => HandleHeaderKeyDown(e, "accessKey"))"
-                                tabindex="0"
                                 aria-sort="@GetAriaSort("accessKey")">
                                 <div class="header-content header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Access Key</span>
-                                    @GetSortIcon("accessKey")
+                                    <button type="button" class="sort-header-button"
+                                        @onclick="@(() => Sort("accessKey"))">
+                                        <span class="header-label fw-bold fs-sm">Access Key</span>
+                                        <span aria-hidden="true">@GetSortIcon("accessKey")</span>
+                                    </button>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell actions-cell">
@@ -210,14 +216,16 @@
                                 <td class="fw-normal fs-md">@user.AccessKeyMasked</td>
                                 <td>
                                     <div class="action-buttons">
-                                        @if (user.Role == "Worker")
+                                        @if (user.Role == nameof(EmployerRole.Worker) && !_isEspUser)
                                         {
                                             <button class="btn btn-sm p-1 action-btn" title="Edit user" @onclick="() => HandleEditClick(user)">
-                                                <img src="@Assets["icons/edit-pen.svg"]" alt="Edit" class="action-icon" />
+                                                <span class="visually-hidden">Edit @user.FirstName @user.LastName</span>
+                                                <img src="@Assets["icons/edit-pen.svg"]" alt="" class="action-icon" />
                                             </button>
                                         }
                                         <button class="btn btn-sm p-1 action-btn" title="Delete user" @onclick="() => HandleDeleteClick(user)">
-                                            <img src="@Assets["icons/trash.svg"]" alt="Delete" class="action-icon" />
+                                            <span class="visually-hidden">Delete @user.FirstName @user.LastName</span>
+                                            <img src="@Assets["icons/trash.svg"]" alt="" class="action-icon" />
                                         </button>
                                     </div>
                                 </td>

@@ -1,11 +1,12 @@
 @page "/Pages/AccessAccount"
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
-
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 <PageTitle>Get Account Access</PageTitle>
 <div class="gak-page-container">
-        @* ── Header ── *@
+    @* ── Header ── *@
     <div class="account-header">
         <div class="account-details fs-xl">
             <div class="account-info">
@@ -16,11 +17,27 @@
         </div>
         <div class="account-details fs-sm">
             <div class="account-info">
-              <span class="detail-value fw-normal">Access the employer portal.</span>
+                <span class="detail-value fw-normal">Access the Employer Portal.</span>
             </div>
         </div>
     </div>
     <div class="gak-body">
+        <div role="status">
+            @if (_successMessage != null)
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Message="@_successMessage"> </NotificationBanner>
+            }
+        </div>
+        <div role="alert">
+            @if (_serviceError != null)
+            {
+
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    Message="@_serviceError">
+                </NotificationBanner>
+            }
+        </div>
         @* ── Section bar ── *@
         <div class="gak-section-bar">Enter Access Key</div>
 
@@ -28,17 +45,8 @@
         <EditForm EditContext="_editContext" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <div class="gak-main-body">
-                <p class="gak-description">Enter your access key and the associated employer account number.</p>
-                 @if (_successMessage != null) {
-                        <NotificationBanner NotificationType="NotificationType.Confirmation" 
-                                            Message="@_successMessage" > </NotificationBanner>
-                 }
-                @if (_serviceError != null) {
+                <p class="gak-description">Enter your access key and the associated UI Account Number.</p>
 
-                <NotificationBanner NotificationType="NotificationType.Alert"
-                                    Message="@_serviceError">
-                </NotificationBanner>
-                }
 
                 <OutlinedTextField Label="Access Key"
                                    Id="gak-key"
@@ -48,25 +56,32 @@
                                    Disabled="@_isLoading"
                                    Required="true" />
 
-                <OutlinedTextField Label="Employer Account Number"
+                <OutlinedTextField Label="UI Account Number"
                                    Id="gak-account"
                                    @bind-Value="_form.EmployerAccountNumber"
                                    For="@(() => _form.EmployerAccountNumber)"
-                                   Placeholder="Enter Account Number"
+                                   Placeholder="Enter UI Account Number"
                                    Mask="000000-000-0"
                                    InputMode="numeric"
                                    Disabled="@_isLoading"
                                    Required="true" />
+
+                <button type="button"
+                        class="gak-request-key-link"
+                        @onclick="OpenRequestAccessKeyModal"
+                        disabled="@_isLoading">
+                    Don't have an access key?
+                </button>
             </div>
 
             @* ── Footer ── *@
             <div class="gak-footer">
-            <Button Variant="ButtonVariant.Secondary"
-                    Disabled="@_isLoading"
-                    Onclick="HandleBack">
-                <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
-                BACK
-            </Button>
+                <Button Variant="ButtonVariant.Secondary"
+                        Disabled="@_isLoading"
+                        Onclick="HandleBack">
+                    <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                    BACK
+                </Button>
 
                 <Button Type="submit"
                         Disabled="@_isLoading">
@@ -74,9 +89,16 @@
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     }
-                    SUBMIT ACCESS KEY
+                    CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
                 </Button>
             </div>
         </EditForm>
     </div>
 </div>
+
+<RequestAccessKeyModal IsOpen="_isRequestKeyModalOpen"
+                       IsBusy="_isMailingKey"
+                       ServiceError="@_mailKeyError"
+                       OnCancel="CloseRequestAccessKeyModal"
+                       OnClearServiceError="ClearMailKeyError"
+                       OnMailAccessKey="HandleMailAccessKey" />

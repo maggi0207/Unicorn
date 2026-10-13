@@ -3,9 +3,11 @@
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
 @using UI.EmployerPortal.Web.Features.ManageAccount.Models
 @using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Manage Addresses</PageTitle>
 
@@ -20,20 +22,20 @@
         <NotificationBanner NotificationType="NotificationType.Alert"
                             MessageStyle="MessageStyle.MultiLine"
                             Messages='new List<string> { "Unable to load addresses. Please try again." }'
-                            DismissButton="false" />
+                            DismissButton="false"/>
     }
     else
     {
     @if (_showCorrection)
     {
-        <ManageAddressCorrection 
+        <ManageAddressCorrection
             Corrections="_corrections"
             OnEditAddress="HandleCorrectionEdit"
             OnContinue="HandleCorrectionContinue" />
     }
     else if (_showForm && _editContext != null)
     {
-        <h1 class="page-title fw-bold mb-2">@(_isEditMode ? "Edit Address" : "Add Address")</h1>
+        <h1 id="@EditHeadingID" class="page-title fw-bold mb-2" tabindex="-1">@(_isEditMode ? "Edit Address" : "Add Address")</h1>
         <p class="fw-normal fs-md mb-4">All fields are required unless noted.</p>
 
         <UI.EmployerPortal.Web.Features.ManageAccount.Components.AddressForm
@@ -54,57 +56,56 @@
     }
     else
     {
-        <h1 class="page-title fw-bold">Manage Addresses</h1>
+        <h1 id="@ManageHeadingId" class="page-title fw-bold" tabindex="-1">Manage Addresses</h1>
         <p class="fw-normal fs-md mb-3">Add, Edit and Delete business addresses for an account.</p>
-
-        @if (!string.IsNullOrWhiteSpace(_successMessage))
-        {
-            <div class="flash-banner-wrapper">
-                <NotificationBanner @key="_bannerKey"
-                                    NotificationType="NotificationType.Confirmation"
-                                    MessageStyle="MessageStyle.SingleLine"
-                                    Message="@_successMessage"
-                                    DismissButton="true" />
-            </div>
-        }
-        @if (!string.IsNullOrWhiteSpace(_errorMessage))
-        {
-            <div class="flash-banner-wrapper">
-                <NotificationBanner NotificationType="NotificationType.Alert"
-                                    MessageStyle="MessageStyle.SingleLine"
-                                    Message="@_errorMessage"
-                                    DismissButton="false" />
-            </div>
-        }
+        <div role="alert">
+            @if (!string.IsNullOrWhiteSpace(_successMessage))
+            {
+                <div class="flash-banner-wrapper">
+                    <NotificationBanner @key="_bannerKey"
+                                        NotificationType="NotificationType.Confirmation"
+                                        MessageStyle="MessageStyle.SingleLine"
+                                        Message="@_successMessage"
+                                        DismissButton="true" />
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <div class="flash-banner-wrapper">
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        MessageStyle="MessageStyle.SingleLine"
+                                        Message="@_errorMessage"
+                                        DismissButton="false" />
+                </div>
+            }
+        </div>
 
         <div class="table-container">
             <table class="table" style="table-layout: fixed; width: 100%;" aria-label="Employer addresses">
-                <caption class="visually-hidden">List of employer addresses with address type and actions</caption>
+                <caption class="visually-hidden">List of employer addresses with address type and actions (column headers with buttons are sortable).</caption>
                 <thead>
                     <tr class="header-row">
                         <th scope="col" class="header-cell"
-                            style="width: 30%;"
-                            @onclick="@(() => Sort("addressType"))"
-                            @onkeydown="@(e => HandleHeaderKeyDown(e, "addressType"))"
-                            tabindex="0"
+                            style="width: 200px;"
                             aria-sort="@GetAriaSort("addressType")">
                             <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Address Type</span>
-                                @GetSortIcon("addressType")
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("addressType"))">
+                                    <span class="header-label fw-bold fs-sm">Address Type</span>
+                                    <span aria-hidden="true">@GetSortIcon("addressType")</span>
+                                </button>
                             </div>
                         </th>
                         <th scope="col" class="header-cell"
-                            style="width: 58%;"
-                            @onclick="@(() => Sort("address"))"
-                            @onkeydown="@(e => HandleHeaderKeyDown(e, "address"))"
-                            tabindex="0"
+                            style="width: 400px;"
                             aria-sort="@GetAriaSort("address")">
                             <div class="header-content header-content-left">
-                                <span class="header-label fw-bold fs-sm">Address</span>
-                                @GetSortIcon("address")
+                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("address"))">
+                                    <span class="header-label fw-bold fs-sm">Address</span>
+                                    <span aria-hidden="true">@GetSortIcon("address")</span>
+                                </button>
                             </div>
                         </th>
-                        <th scope="col" class="header-cell actions-cell" style="width: 12%;">
+                        <th scope="col" class="header-cell actions-cell">
                             <div class="header-content header-content-left">
                                 <span class="header-label fw-bold fs-sm">Action</span>
                             </div>
@@ -170,7 +171,7 @@
 @if (_showDeleteModal)
 {
     <div class="del-modal-backdrop" @onclick="CloseDeleteModal" role="presentation">
-        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-address-title" @onclick:stopPropagation="true">
+        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-address-title" @onclick:stopPropagation="true" @ref="_closeDeleteModalElement">
 
             @* Header *@
             <div class="del-modal-header">
@@ -227,7 +228,7 @@
 @if (_showPoaModal)
 {
     <div class="del-modal-backdrop" @onclick="ClosePoaModal" role="presentation">
-        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poa-modal-title" @onclick:stopPropagation="true">
+        <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poa-modal-title" @onclick:stopPropagation="true" @ref="_closePoaModalElement">
 
             @* Header *@
             <div class="del-modal-header">

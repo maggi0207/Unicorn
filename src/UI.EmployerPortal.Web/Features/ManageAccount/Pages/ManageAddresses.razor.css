@@ -14,7 +14,6 @@
     font-size: 28px;
     margin-bottom: 15px;
     border-bottom: 1px solid #ADADAD;
-    height: 46px;
 }
 
 .top-actions {
@@ -44,14 +43,10 @@
     user-select: none;
 }
 
-    .header-cell:hover {
-        background-color: #D9D9D9 !important;
-    }
-
-    .header-cell:focus {
-        outline: 2px solid var(--color-blue-focus);
-        outline-offset: -2px;
-    }
+.header-sort-button {
+    background-color: transparent;
+    border: none;
+}
 
 .actions-cell {
     width: 100px;
@@ -267,4 +262,3 @@
     .del-btn-delete:hover {
         background: #f0f4f8;
     }
-

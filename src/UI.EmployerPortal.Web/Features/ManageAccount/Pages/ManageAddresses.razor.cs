@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
+using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
+using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
-using UI.EmployerPortal.Web.Features.EmployerRegistration.Services;
-using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
-using UI.EmployerPortal.Web.Features.Dashboard;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
@@ -18,6 +18,7 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 /// </summary>
 public partial class ManageAddresses
 {
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
     [Inject] private IManageAddressService ManageAddressService { get; set; } = default!;
     [Inject] private ISessionManager SessionManager { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
@@ -52,6 +53,7 @@ public partial class ManageAddresses
     private List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> _corrections = new();
 
     private bool _showDeleteModal = false;
+    private bool _showDeleteModalWasOpen;
     private bool _isDeleting = false;
     private string? _deleteError;
     private AddressRowModel? _addressToDelete;
@@ -70,11 +72,71 @@ public partial class ManageAddresses
     /// with a POA on file attempts to edit the Main Business Mailing address.
     /// </summary>
     private bool _showPoaModal = false;
+    private bool _showPoaModalWasOpen;
+
+    private ElementReference _closeDeleteModalElement;
+
+    private ElementReference _closePoaModalElement;
+    private bool _shouldFocusManageHeading;
+    private bool _shouldFocusEditHeading;
 
     /// <summary>
     /// The address type SK for Main Business Mailing — always pinned as the first row in the table.
     /// </summary>
     private const int MainBusinessMailingSK = 11;
+    private const string EditHeadingID = "edit-heading";
+    private const string ManageHeadingId = "manage-heading";
+
+    private IJSObjectReference? _module;
+
+    /// <summary>
+    /// Setup JS to handle setting/trapping focus in modals
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_showDeleteModal && !_showDeleteModalWasOpen)
+        {
+            _showDeleteModalWasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _closeDeleteModalElement);
+        }
+        else if (!_showDeleteModal && _showDeleteModalWasOpen)
+        {
+            _showDeleteModalWasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+
+        if (_showPoaModal && !_showPoaModalWasOpen)
+        {
+            _showPoaModalWasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _closePoaModalElement);
+        }
+        else if (!_showPoaModal && _showPoaModalWasOpen)
+        {
+            _showPoaModalWasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+
+        if (_shouldFocusManageHeading)
+        {
+            _shouldFocusManageHeading = false;
+            await JSRuntime.InvokeVoidAsync("focusElement", ManageHeadingId);
+        }
+        else if (_shouldFocusEditHeading)
+        {
+            _shouldFocusEditHeading = false;
+            await JSRuntime.InvokeVoidAsync("focusElement", EditHeadingID);
+        }
+    }
 
     private IEnumerable<AddressRowModel> SortedAddresses
     {
@@ -232,14 +294,6 @@ public partial class ManageAddresses
         return _sortColumn != column ? null : _sortAscending ? "ascending" : "descending";
     }
 
-    private void HandleHeaderKeyDown(KeyboardEventArgs e, string column)
-    {
-        if (e.Key is "Enter" or " ")
-        {
-            Sort(column);
-        }
-    }
-
     private readonly List<SelectOption> _countryOptions =
     [
         new SelectOption { Value = "1", Text = "United States" },
@@ -303,7 +357,7 @@ public partial class ManageAddresses
     ];
 
     /// <inheritdoc/>
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthorizedInitAsync()
     {
         try
         {
@@ -354,6 +408,7 @@ public partial class ManageAddresses
         _showCorrection = false;
         _errorMessage = null;
         _successMessage = null;
+        _shouldFocusEditHeading = true;
     }
 
     private void HandleEditClick(AddressRowModel row)
@@ -397,6 +452,7 @@ public partial class ManageAddresses
         _showCorrection = false;
         _errorMessage = null;
         _successMessage = null;
+        _shouldFocusEditHeading = true;
     }
 
     /// <summary>
@@ -443,7 +499,7 @@ public partial class ManageAddresses
                 foreach (var error in _editContext.GetValidationMessages(fi))
                 {
                     _formErrors.Add(error);
-                    
+
                     var fieldId = prop switch
                     {
                         nameof(AddressFormModel.AddressTypeString) => "AddressType",
@@ -508,6 +564,7 @@ public partial class ManageAddresses
     {
         _showCorrection = false;
         _showForm = true;
+        _shouldFocusEditHeading = true;
     }
 
     private async Task HandleCorrectionContinue(List<UI.EmployerPortal.Web.Features.EmployerRegistration.Services.AddressCorrectionItem> finalizedCorrections)
@@ -562,6 +619,7 @@ public partial class ManageAddresses
 
                 _bannerKey = Guid.NewGuid().ToString();
                 _showForm = false;
+                _shouldFocusManageHeading = true;
             }
             else
             {
@@ -581,6 +639,7 @@ public partial class ManageAddresses
         _showForm = false;
         _formErrors = [];
         _formFieldIds = [];
+        _shouldFocusManageHeading = true;
     }
 
     private void CloseDeleteModal()
@@ -617,8 +676,8 @@ public partial class ManageAddresses
             }
             else
             {
-                _deleteError = string.IsNullOrWhiteSpace(error) 
-                    ? "Unable to delete the address. Please try again." 
+                _deleteError = string.IsNullOrWhiteSpace(error)
+                    ? "Unable to delete the address. Please try again."
                     : error;
             }
         }
@@ -634,6 +693,6 @@ public partial class ManageAddresses
 
     private void HandleCancel()
     {
-        NavigationManager.NavigateTo("manage-account/account-details");
+        NavigationManager.NavigateTo("manage-account/account-summary");
     }
 }

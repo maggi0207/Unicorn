@@ -3,7 +3,7 @@
 @if (IsOpen)
 {
     <div class="remove-user-backdrop">
-        <div class="remove-user-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-user-title">
+        <div class="remove-user-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="remove-user-title" @ref="_modalElement">
 
             @* ── Header ── *@
             <div class="remove-user-header">
@@ -54,3 +54,28 @@
         </div>
     </div>
 }
+
+@code {
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    private ElementReference _modalElement;
+    private IJSObjectReference? _module;
+    private bool _wasOpen;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsOpen && !_wasOpen)
+        {
+            _wasOpen = true;
+            _module ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/FilterDrawer.js");
+            await _module.InvokeVoidAsync("openFocusTrap", _modalElement);
+        }
+        else if (!IsOpen && _wasOpen)
+        {
+            _wasOpen = false;
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("closeFocusTrap");
+            }
+        }
+    }
+    }

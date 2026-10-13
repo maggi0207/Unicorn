@@ -21,7 +21,7 @@ internal class ManageAddressService : IManageAddressService
     private const int CountryCanada = 2;
     private const int CountryOtherIntl = 3;
 
-    // The Main Business Mailing Address has AddressCodeSK = 11 (primary address, not deletable per Figma)
+    // The Main Business Mailing Address has AddressCodeSK = 1 (primary address, not deletable per Figma)
     private const int MainBusinessMailingAddressCodeSK = 11;
 
     /// <summary>
@@ -162,7 +162,7 @@ internal class ManageAddressService : IManageAddressService
         var response = await _retryPolicy.ExecuteAsync(() =>
         {
             return _accountMaintenanceService.RemoveEmployerAddressAsync(
-                (int)addressSK,
+                (int) addressSK,
                 employerSK,
                 secureUserSK);
         });
@@ -285,32 +285,20 @@ internal class ManageAddressService : IManageAddressService
             streetParts.Add(proxy.LineTwoAddress);
         }
 
-        var cityState = new List<string>();
-        if (!string.IsNullOrWhiteSpace(proxy.CityName))
-        {
-            cityState.Add(proxy.CityName + ",");
-        }
-        if (!string.IsNullOrWhiteSpace(proxy.StateCode))
-        {
-            cityState.Add(proxy.StateCode);
-        }
-
-        var cityStatePart = string.Join(" ", cityState);
-
         var zip = proxy.ZipCode ?? string.Empty;
+
         if (!string.IsNullOrWhiteSpace(proxy.ZipExtensionCode))
         {
             zip += $"-{proxy.ZipExtensionCode}";
         }
 
+        var cityStateZip = $"{proxy.CityName}, {proxy.StateCode} {zip}".Trim();
+
         var allParts = new List<string>(streetParts);
-        if (!string.IsNullOrWhiteSpace(cityStatePart))
+
+        if (!string.IsNullOrWhiteSpace(cityStateZip))
         {
-            allParts.Add(cityStatePart);
-        }
-        if (!string.IsNullOrWhiteSpace(zip))
-        {
-            allParts.Add(zip);
+            allParts.Add(cityStateZip);
         }
 
         return string.Join(", ", allParts);

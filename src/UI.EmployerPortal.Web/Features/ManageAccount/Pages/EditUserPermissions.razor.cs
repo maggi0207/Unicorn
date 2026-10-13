@@ -102,10 +102,10 @@ public partial class EditUserPermissions
                 {
                     item.IsSelected = _initialSelection.Contains(item.WebControlSK);
                 }
-                group.IsSelected = group.Items.Count > 0 && group.Items.All(i =>
+                group.IsSelected = group.HasSelectAll ? group.Items.Count > 0 && group.Items.All(i =>
                 {
                     return i.IsSelected;
-                });
+                }) : _initialSelection.Contains(group.PermissionWebControlSK);
             }
         }
         catch

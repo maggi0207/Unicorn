@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
@@ -72,8 +71,7 @@ public class AccountDetailsModel : IValidatableObject
     /// <summary>
     /// Gets or sets the primary email address.
     /// </summary>
-    [Required(ErrorMessage = "Email Address is required.")]
-    [EmailAddress(ErrorMessage = "Invalid Email Address format.")]
+    [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid Email Address format.")]
     public string EmailAddress { get; set; } = string.Empty;
 
     /// <summary>
@@ -87,10 +85,10 @@ public class AccountDetailsModel : IValidatableObject
     public string OriginalLegalName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Validates the model to ensure a reason is provided when the FEIN or Legal Name is changed.
+    /// 
     /// </summary>
-    /// <param name="validationContext">The validation context.</param>
-    /// <returns>A collection of validation results.</returns>
+    /// <param name="validationContext"></param>
+    /// <returns></returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var currentFeinUnformatted = FEIN?.Replace("-", string.Empty) ?? string.Empty;

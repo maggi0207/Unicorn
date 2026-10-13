@@ -1,30 +1,19 @@
-@namespace UI.EmployerPortal.Web.Features.ManageAccount.Components
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 
 <div class="page_wrapper">
     <div class="ac-page-content">
 
-        <h1 class="page-title">Address Correction</h1>
+        <h1 class="page-title" tabindex="-1" @ref="_headingRef">Address Correction</h1>
 
         @if (_itemErrors.Count > 0)
         {
-            <div class="ac-required-banner">
-                <svg class="ac-required-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                     aria-hidden="true">
-                    <circle cx="8" cy="8" r="8" fill="#C82838" />
-                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
-                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
-                </svg>
-                <div>
-                    <p class="ac-required-title">Required Options Missing</p>
-                    <ul class="ac-required-links">
-                        @foreach (var errIdx in _itemErrors.OrderBy(x => x))
-                        {
-                            <li><a href="#ac-item-@errIdx">@GetTypeName(Corrections[errIdx].Label) option</a></li>
-                        }
-                    </ul>
-                </div>
-            </div>
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Title="Required Options Missing"
+                            Messages="GetItemErrorMessages()"
+                            MessageFieldIds="GetItemFieldIds()"
+                            DismissButton="false"/>
         }
 
         @foreach (var item in Corrections.Where(ac => !ac.IsOnlyCapitalizationOrZipExtensionChange))
@@ -37,9 +26,9 @@
                     <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
                 </svg>
                 <div class="ac-warning-text">
-                    <p><strong>Verify your @GetTypeName(item.Label):</strong></p>
+                    <p><strong>Verify your @GetTypeName(item.Label) address:</strong></p>
                     <p>
-                        We think this @GetTypeName(item.Label) may be incorrect or incomplete.
+                        We think this @GetTypeName(item.Label) address may be incorrect or incomplete.
                         To proceed, please choose one of the options below.
                         If you use the address as entered, mail may be undeliverable.
                     </p>
@@ -60,11 +49,11 @@
 
             @if (!item.IsOnlyCapitalizationOrZipExtensionChange)
             {
-                <div id="ac-item-@idx" class="ac-correction-block">
+                <div id="ac-item-@idx" class="ac-correction-block" tabindex="-1">
 
                     <div class="ac-section-header">
                         <h2>
-                            <span>@GetSectionTitle(item.Label) Entered</span>
+                            <span>@GetSectionTitle(item.Label) Address Entered</span>
                         </h2>
                     </div>
 
@@ -83,7 +72,7 @@
 
                         <h2>
                             <p class="ac-section-label">
-                                Corrected @GetSectionTitle(item.Label):
+                                Corrected @GetSectionTitle(item.Label) address:
                             </p>
                         </h2>
 
@@ -93,7 +82,7 @@
                         </div>
 
                         <p class="ac-differs-text">
-                            The @GetTypeName(item.Label) entered differs from the corrected @GetTypeName(item.Label).
+                            The @GetTypeName(item.Label) address entered differs from the corrected @GetTypeName(item.Label) address.
                         </p>
 
                         <div class="ac-radio-group">
@@ -102,14 +91,14 @@
                                        name="ac-choice-@idx"
                                        checked="@(GetSelection(idx) == SelectionCorrected)"
                                        @onchange="() => SetSelectionCorrected(idx)" />
-                                Use corrected @GetTypeName(item.Label)
+                                Use corrected @GetTypeName(item.Label) address
                             </label>
                             <label class="ac-radio-label">
                                 <input type="radio"
                                        name="ac-choice-@idx"
                                        checked="@(GetSelection(idx) == SelectionEntered)"
                                        @onchange="() => SetSelectionEntered(idx)" />
-                                Use @GetTypeName(item.Label) as entered
+                                Use @GetTypeName(item.Label) address as entered
                             </label>
                             @if (_itemErrors.Contains(idx))
                             {
@@ -136,7 +125,7 @@
                             <input type="checkbox"
                                    checked="@_acceptedAsEntered.Contains(idx)"
                                    @onchange="(e) => ToggleAcceptAsEntered(idx, e)" />
-                            Use @GetTypeName(item.Label) as entered
+                            Use @GetTypeName(item.Label) address as entered
                         </label>
                     }
 

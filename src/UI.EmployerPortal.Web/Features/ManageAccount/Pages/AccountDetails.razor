@@ -7,6 +7,7 @@
 @using UI.EmployerPortal.Web.Features.Shared.Session.Managers
 @using UI.EmployerPortal.Web.Features.Shared.Session.Models
 @using UI.EmployerPortal.Web.Features.ManageAccount.Services
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Update Account Information</PageTitle>
 
@@ -134,9 +135,9 @@
 
             @* ── Row 5: Email Address (single column) ── *@
             <div class="ad-field-single" aria-label="email-address">
-                <OutlinedTextField Label="Email Address"
+                <OutlinedTextField Label="Email Address (optional)"
                                    Id="EmailAddress"
-                                   Type="email"
+                                   Type="text"
                                    @bind-Value="_model.EmailAddress"
                                    For="@(() => _model.EmailAddress)"
                                    Visible="@IsVisible(() => _model.EmailAddress)" />
@@ -147,13 +148,16 @@
                 <button type="button"
                         class="btn-cancel"
                         aria-label="Cancel and return to manage account"
-                        @onclick="Cancel">CANCEL</button>
+                        @onclick="Cancel">
+                    CANCEL
+                </button>
                 <button type="submit"
                         class="btn-save"
-                        aria-label="Save account information changes">SAVE</button>
+                        aria-label="Save account information changes">
+                    SAVE
+                </button>
             </div>
 
         </EditForm>
     }
-    </div>
-
+</div>

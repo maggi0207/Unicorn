@@ -33,16 +33,18 @@ public partial class ManageAddressCorrection : ComponentBase
 
     /// <summary>Indices of items that were unresolved when CONTINUE was clicked.</summary>
     protected HashSet<int> _itemErrors = new();
-    
+
     /// <summary>Per-item radio selection: "corrected" or "entered". Only for items with a suggestion.</summary>
     protected Dictionary<int, string> _selections = new();
-    
+
     /// <summary>Indices of no-suggestion items accepted via checkbox.</summary>
     protected HashSet<int> _acceptedAsEntered = new();
 
+    private ElementReference _headingRef;
+
     /// <summary>Constant representing the choice to use the corrected address.</summary>
     protected const string SelectionCorrected = "corrected";
-    
+
     /// <summary>Constant representing the choice to use the original entered address.</summary>
     protected const string SelectionEntered = "entered";
 
@@ -54,6 +56,19 @@ public partial class ManageAddressCorrection : ComponentBase
         if (!Corrections.Exists(ac => { return !ac.IsOnlyCapitalizationOrZipExtensionChange; }))
         {
             ApplyAndNotify();
+        }
+    }
+
+    /// <summary>
+    /// Set focus on the heaidng after first render
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _headingRef.FocusAsync();
         }
     }
 
@@ -87,7 +102,7 @@ public partial class ManageAddressCorrection : ComponentBase
     {
         SetSelection(index, SelectionCorrected);
     }
-    
+
     /// <summary>Marks the user's selection to use the entered address.</summary>
     protected void SetSelectionEntered(int index)
     {
@@ -202,5 +217,26 @@ public partial class ManageAddressCorrection : ComponentBase
             ? a.Zip
             : $"{a.Zip}-{a.Extension}";
         return $"{a.City?.ToUpperInvariant()}, {a.State} {zip}".Trim();
+    }
+
+    private List<string> GetItemErrorMessages()
+    {
+        var errorMessage = new List<string>();
+        foreach (var errIdx in _itemErrors.OrderBy(x => x))
+        {
+            errorMessage.Add(@GetTypeName(Corrections[errIdx].Label) + " option");
+        }
+
+        return errorMessage;
+    }
+    private List<string> GetItemFieldIds()
+    {
+        var errorMessageIds = new List<string>();
+        foreach (var errIdx in _itemErrors.OrderBy(x => x))
+        {
+            errorMessageIds.Add("ac-item-" + @errIdx);
+        }
+
+        return errorMessageIds;
     }
 }

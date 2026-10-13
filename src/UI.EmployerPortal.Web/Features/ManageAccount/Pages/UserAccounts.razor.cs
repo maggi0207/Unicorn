@@ -5,6 +5,7 @@ using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
@@ -16,6 +17,9 @@ public partial class UserAccounts
 {
     [Inject]
     private IAccountUserService AccountUserService { get; set; } = default!;
+
+    [Inject]
+    private IUserAccountService UserAccountService { get; set; } = default!;
 
     [Inject]
     private ISessionManager SessionManager { get; set; } = default!;
@@ -33,6 +37,7 @@ public partial class UserAccounts
 
     private int _managerWebUserSecuritySK = 0;
     private bool _isCurrentUserManager = false;
+    private bool _isEspUser = false;
 
     private int _employerSK = 0;
 
@@ -135,7 +140,7 @@ public partial class UserAccounts
     }
 
     /// <inheritdoc/>
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthorizedInitAsync()
     {
         ReadFlashFromUrl();
         await LoadUsersAsync();
@@ -147,19 +152,30 @@ public partial class UserAccounts
         {
             var selected = await SessionManager.GetAsync<SelectedEmployerAccount>();
             _employerSK = selected?.EmployerAccount?.Id ?? 0;
-            if (_employerSK == 0)
+            var espUserSk = await UserAccountService.GetEspUserSKAsync();
+
+            if (_employerSK == 0 && espUserSk is null)
             {
                 _hasError = true;
                 return;
             }
-            _allUsers = await AccountUserService.GetAccountUsersAsync(_employerSK);
-            var currentUserSK = AccountUserService.GetCurrentUserSk();
-            var currentUser = _allUsers.FirstOrDefault(u =>
+            if (espUserSk.HasValue)
             {
-                return u.SecureUserSK == currentUserSK;
-            });
-            _managerWebUserSecuritySK = currentUser?.WebUserSecuritySK ?? 0;
-            _isCurrentUserManager = currentUser?.Role == "Manager";
+                _isEspUser = true;
+                _allUsers = await AccountUserService.GetEspAccountUsersAsync(espUserSk.Value);
+                _isCurrentUserManager = await UserAccountService.IsEspUserManagerAsync();
+            }
+            else
+            {
+                _allUsers = await AccountUserService.GetAccountUsersAsync(_employerSK);
+                var currentUserSK = AccountUserService.GetCurrentUserSk();
+                var currentUser = _allUsers.FirstOrDefault(u =>
+                {
+                    return u.SecureUserSK == currentUserSK;
+                });
+                _managerWebUserSecuritySK = currentUser?.WebUserSecuritySK ?? 0;
+                _isCurrentUserManager = currentUser?.Role == "Manager";
+            }
             UpdateResultsText();
         }
         catch
@@ -188,7 +204,7 @@ public partial class UserAccounts
         {
             case "permissions-updated":
                 _flashTitle = "Permissions Updated";
-                _flashMessage = $"The {displayName}'s permissions have been updated and will take effect immediately.";
+                _flashMessage = $"The {displayName}'s permissions have been updated.";
                 _flashKey++;
                 break;
             case "user-removed":
@@ -386,7 +402,7 @@ public partial class UserAccounts
         _isRemoving = true;
         _removeError = null;
 
-        var (success, message) = await AccountUserService.DeleteUserAsync(_employerSK, _userToRemove.WebUserSecuritySK);
+        var (success, message) = await UserAccountService.IsEspUserAsync() ? await AccountUserService.RemoveESPUser(_userToRemove.EmployerServiceProviderSecureUserSK) : await AccountUserService.DeleteUserAsync(_employerSK, _userToRemove.WebUserSecuritySK);
 
         _isRemoving = false;
 
@@ -411,7 +427,6 @@ public partial class UserAccounts
         await JSRuntime.InvokeVoidAsync("scrollTo", new { top = 0, behavior = "smooth" });
     }
 }
-
 
 
 

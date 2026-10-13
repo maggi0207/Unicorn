@@ -8,7 +8,6 @@
 <div class="gen-key-perms-page">
 
     <h1 class="gen-key-perms-title">Generate Worker Access Key</h1>
-    <p class="gen-key-perms-subtitle">Workers will only have the permissions you select below.</p>
 
     @if (_isLoading)
     {
@@ -20,8 +19,18 @@
                             MessageStyle="MessageStyle.MultiLine"
                             Messages='new List<string> { "Unable to load the permissions." }' />
     }
+    else if (!_isCurrentUserManager)
+    {
+        <div class="gen-key-perms-error-wrapper">
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                Title="Access Denied"
+                                Message="Your account currently does not have access to view this page. Please contact your account manager for further assistance." />
+        </div>
+    }
     else
     {
+        <p class="gen-key-perms-subtitle">Workers will only have the permissions you select below.</p>
+
         @if (_validationErrors.Count > 0)
         {
             <div class="gen-key-perms-error-wrapper">

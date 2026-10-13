@@ -1,0 +1,57 @@
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+
+@if (IsOpen)
+{
+    <div class="rak-backdrop">
+        <div class="rak-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="rak-title" @ref="_modalElement">
+
+            @* ── Header ── *@
+            <div class="rak-header">
+                <h3 id="rak-title" class="rak-title">Request an Access Key</h3>
+                <button type="button" class="rak-close" @onclick="HandleCancel" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
+            </div>
+
+            @* ── Body ── *@
+            <div class="rak-body">
+                <p class="rak-text">
+                    Access keys are <strong>only sent by mail</strong> to the employer&rsquo;s main mailing address and
+                    can&rsquo;t be sent by email, phone, or fax. Enter your 10-digit UI Account Number or FEIN and select
+                    Mail Access Key.
+                </p>
+
+                <div role="alert">
+                    @if (!string.IsNullOrWhiteSpace(ServiceError))
+                    {
+                        <p id="error-message" class="rak-service-error">@ServiceError</p>
+                    }
+                </div>
+
+                <OutlinedTextField Label="UI Account Number or FEIN"
+                                   Id="@InputId"
+                                   Value="@_identifier"
+                                   ValueChanged="OnIdentifierChanged"
+                                   AllowedChars="0123456789-"
+                                   MaxLength="12"
+                                   Disabled="@IsBusy"
+                                   ForceError="@(_validationError is not null)"
+                                   ForceErrorMessage="@_validationError"
+                                   aria-describedby="error-message"/>
+            </div>
+
+            @* ── Footer ── *@
+            <div class="rak-footer">
+                <Button Text="CANCEL"
+                        Variant="Button.ButtonVariant.Secondary"
+                        ShowBorder="false"
+                        Disabled="@IsBusy"
+                        OnClick="HandleCancel" />
+                <Button Text="MAIL ACCESS KEY"
+                        Variant="Button.ButtonVariant.Secondary"
+                        Disabled="@IsBusy"
+                        OnClick="HandleMail" />
+            </div>
+
+        </div>
+    </div>
+}

@@ -1,0 +1,99 @@
+@page "/manage-account/finance-method-change-rq"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+<h3 class="page-header">Finance Method Change Request</h3>
+<hr />
+<div style="width:81%" aria-live="polite">
+    @if (_isSaveSuccess.HasValue && _isSaveSuccess.Value)
+    {
+        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                            Title='@Title'
+                            Message='@Message' />
+    }
+</div>
+<div style="width:81%">
+    <p>
+        Governmental units and certain nonprofit organizations can choose between the tax and reimbursement methods of
+        financing unemployment benefit costs. Nonprofit employers electing reimbursement financing must file an assurance
+        of reimbursement with the department. The assurance can be in the form of a surety bond, letter of credit, certificate
+        of deposit, or any other nonnegotiable instrument of fixed value.
+        <br /> <br />
+        More information about Financing Methods is available in Help & Resources.
+        <br />
+    </p>
+    @if (_response != null)
+    {
+        <div class="summary-card">
+            <div class="item">
+                <div class="label">
+                    UI Account Number
+                </div>
+
+                <div class="value">
+                    @_response.AccountNumber
+                </div>
+            </div>
+            <div class="item">
+                <div class="label">
+                    Legal Name
+                </div>
+
+                <div class="value">
+                    @_response.LegalName
+                </div>
+            </div>
+            <div class="item">
+                <div class="label">
+                    Current Finance Method
+                </div>
+
+                <div class="value">
+                    @_response.CurrentFinanceMethod
+                </div>
+            </div>
+            <div class="item">
+                @if (_isSaveSuccess.HasValue && _isSaveSuccess.Value)
+                {
+
+                    <div class="label">
+                        Change Effective Year
+                    </div>
+
+                    <div class="value">
+                        @SelectedYear
+                    </div>
+                }
+            </div>
+
+        </div>
+        @if (_isSaveSuccess.HasValue && _isSaveSuccess.Value)
+        {
+
+        }
+        else
+        {
+            <div class="bi-field">
+                <OutlinedSelectField Label="Change Effective Year"
+                                     Value="@Year.ToString()"
+                                     ValueChanged="OnEffectiveYearChanged"
+                                     Options="SelectOption"
+                                     Visible="true"
+                                     Id="chnageEffectiveYear"
+                                     Disabled="false" />
+            </div>
+
+            <div class="flex-button">
+                <Button Text="CANCEL"
+                        Variant="Button.ButtonVariant.Secondary"
+                        OnClick="HandleBack"
+                        Disabled="_isSaving" />
+                <Button Text="SUBMIT"
+                        Variant="Button.ButtonVariant.Primary"
+                        OnClick="HandleSaveAsync"
+                        Disabled="_isSaving" />
+            </div>
+
+        }
+    }
+</div>

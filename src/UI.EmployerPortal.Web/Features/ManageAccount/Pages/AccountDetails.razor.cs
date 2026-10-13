@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using System.Linq.Expressions;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
@@ -95,7 +96,7 @@ public partial class AccountDetails
     /// <summary>
     /// Initializes the EditContext with data from the backend and sets up field change tracking.
     /// </summary>
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthorizedInitAsync()
     {
         var sessionState = await SessionManager.GetAsync<UI.EmployerPortal.Web.Features.Shared.Accounts.Models.SelectedEmployerAccount>();
         _employerSK = sessionState?.EmployerAccount?.Id ?? 0;
@@ -158,6 +159,22 @@ public partial class AccountDetails
 
         RefreshValidationSummary();
 
+        if (!string.IsNullOrWhiteSpace(_model.EmailAddress))
+        {
+            var emailValidator = new EmailAddressAttribute();
+
+            if (!emailValidator.IsValid(_model.EmailAddress))
+            {
+                var emailError = "Invalid Email Address format.";
+
+                if (!_validationErrors.Contains(emailError))
+                {
+                    _validationErrors.Add(emailError);
+                    _validationFieldIds.Add(nameof(_model.EmailAddress));
+                }
+                isValid = false;
+            }
+        }
         if (!isValid)
         {
             StateHasChanged();
@@ -166,7 +183,7 @@ public partial class AccountDetails
 
         if (_originalModel != null && !HasAnyFieldChanged())
         {
-            NavigationManager.NavigateTo("/manage-account/account-summary");
+            NavigationManager.NavigateTo("manage-account/account-summary");
             return;
         }
 
@@ -181,11 +198,11 @@ public partial class AccountDetails
         var (success, error) = await AccountDetailsService.UpdateAccountDetailsAsync(_model, _employerSK);
 
         _isSaving = false;
-        
+
         if (success)
         {
             var query = BuildSuccessQuery();
-            NavigationManager.NavigateTo($"/manage-account/account-summary?{string.Join("&", query)}");
+            NavigationManager.NavigateTo($"manage-account/account-summary?{string.Join("&", query)}");
         }
         else
         {
@@ -315,7 +332,7 @@ public partial class AccountDetails
     /// </summary>
     private void Cancel()
     {
-        NavigationManager.NavigateTo("/manage-account");
+        NavigationManager.NavigateTo("manage-account/account-summary");
     }
 
     /// <summary>
@@ -323,7 +340,7 @@ public partial class AccountDetails
     /// </summary>
     private bool FeinHasChanged()
     {
-        if (_originalModel == null) 
+        if (_originalModel == null)
         {
             return false;
         }

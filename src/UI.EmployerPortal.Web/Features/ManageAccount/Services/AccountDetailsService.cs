@@ -61,7 +61,10 @@ internal class AccountDetailsService : IAccountDetailsService
         var extStr = phoneSplit.Length > 1 ? phoneSplit[1] : string.Empty;
 
         var phoneDigits = new string(phoneStr.Where(char.IsDigit).ToArray());
-        if (phoneDigits.Length > 10) phoneDigits = phoneDigits[..10];
+        if (phoneDigits.Length > 10)
+        {
+            phoneDigits = phoneDigits[..10];
+        }
 
         var formattedPhone = phoneDigits.Length switch
         {
@@ -74,7 +77,11 @@ internal class AccountDetailsService : IAccountDetailsService
 
         var feinStr = employer.FEIN ?? string.Empty;
         var feinDigits = new string(feinStr.Where(char.IsDigit).ToArray());
-        if (feinDigits.Length > 9) feinDigits = feinDigits[..9];
+        if (feinDigits.Length > 9)
+        {
+            feinDigits = feinDigits[..9];
+        }
+
         var formattedFein = feinDigits.Length > 2 ? $"{feinDigits[..2]}-{feinDigits[2..]}" : feinDigits;
 
         return new AccountDetailsModel
@@ -85,7 +92,7 @@ internal class AccountDetailsService : IAccountDetailsService
             PhoneNumber = formattedPhone,
             Extension = extDigits,
             CountryCode = string.IsNullOrWhiteSpace(employer.InternationalPhoneCode) ? null : $"+{employer.InternationalPhoneCode.TrimStart('+')}",
-            EmailAddress = string.Empty
+            EmailAddress = employer.EmailAddress ?? string.Empty,
         };
     }
 
@@ -106,7 +113,7 @@ internal class AccountDetailsService : IAccountDetailsService
         // (e.g. "(675) 555-5555" → "6755555555") then split: first 3 = area code,
         // remaining 7 = local number. This is the same pattern used in ContactInformationService.
         var phoneDigits = new string((model.PhoneNumber ?? "").Where(char.IsDigit).ToArray());
-        var phoneAreaCode    = phoneDigits.Length == 10 ? phoneDigits[..3]            : string.Empty;
+        var phoneAreaCode = phoneDigits.Length == 10 ? phoneDigits[..3] : string.Empty;
         var phoneLocalNumber = phoneDigits.Length == 10 ? phoneDigits.Substring(3, 7) : phoneDigits;
 
         var request = new EmployerInformationUpdateRequest
@@ -121,8 +128,8 @@ internal class AccountDetailsService : IAccountDetailsService
                 EmailAddress = model.EmailAddress,
                 PhoneAreaCode = phoneAreaCode,
                 PhoneLocalNumber = phoneLocalNumber,
-                PhoneExtension = string.IsNullOrWhiteSpace(model.Extension) ? null : model.Extension,
                 PhoneInternationalCode = string.IsNullOrWhiteSpace(model.CountryCode) ? null : model.CountryCode.TrimStart('+'),
+                PhoneExtension = string.IsNullOrWhiteSpace(model.Extension) ? null : model.Extension,
                 FeinChangeReasonCodeSK = int.TryParse(model.ReasonForFeinChange, out var feinReasonSK) ? feinReasonSK : null,
                 FeinChangeReasonExplanation = string.IsNullOrWhiteSpace(model.FeinChangeReasonExplanation) ? null : model.FeinChangeReasonExplanation,
                 LegalNameChangeReasonCodeSK = int.TryParse(model.ReasonForLegalNameChange, out var legalReasonSK) ? legalReasonSK : null,

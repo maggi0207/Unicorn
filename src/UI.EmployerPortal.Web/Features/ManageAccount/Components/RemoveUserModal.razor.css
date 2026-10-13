@@ -6,16 +6,17 @@
     z-index: 10002;
     display: flex;
     justify-content: center;
-    align-items: center;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 /* ── Modal container ─────────────────────────────────────────────────────── */
 .remove-user-modal {
-    width: 720px;
+    max-width: 720px;
     background: #fff;
     border-radius: 4px;
     box-shadow: 0 11px 15px rgba(0, 0, 0, 0.2), 0 9px 46px rgba(0, 0, 0, 0.12);
-    overflow: hidden;
+    margin: auto;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
@@ -17,18 +18,23 @@ public partial class GeneratedAccessKey
 
     [Inject]
     private NavigationManager Navigation { get; set; } = default!;
+    [Inject]
+    private IUserAccountService UserAccountService { get; set; } = default!;
 
     private bool _showCopiedBanner = false;
+    private bool _isEspUser;
 
     private string KeyTypeLabel => Flow.SelectedKeyType == "manager" ? "Manager" : "Worker";
 
     /// <inheritdoc/>
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrWhiteSpace(Flow.GeneratedKey))
         {
             Navigation.NavigateTo("manage-account/account-users");
+            return;
         }
+        _isEspUser = await UserAccountService.IsEspUserAsync();
     }
 
     private async Task CopyKeyToClipboardAsync()
@@ -40,6 +46,10 @@ public partial class GeneratedAccessKey
 
         await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Flow.GeneratedKey);
         _showCopiedBanner = true;
+    }
+    private async Task<bool> IsEspUser()
+    {
+        return await UserAccountService.IsEspUserAsync();
     }
 
     private void HandleBack()
