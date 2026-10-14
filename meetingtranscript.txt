@@ -1,6 +1,18 @@
-performance.getEntriesByType('resource')
-  .filter(r => /\.(ico|svg|png)(\?|$)/i.test(r.name))
-  .map(r => ({
-    url: r.name,
-    initiator: r.initiatorType
-  }));
+// Inspect icon-related elements and metadata
+console.table(
+  [...document.querySelectorAll('link, meta')]
+    .filter(el =>
+      /icon|shortcut|apple-touch|theme-color/i.test(
+        (el.rel || '') + ' ' +
+        (el.name || '') + ' ' +
+        (el.href || '')
+      )
+    )
+    .map(el => ({
+      tag: el.tagName,
+      rel: el.rel || '',
+      name: el.name || '',
+      href: el.href || '',
+      content: el.content || ''
+    }))
+);
