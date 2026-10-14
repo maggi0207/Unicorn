@@ -26,3 +26,18 @@
     flex: 0 1 90px;
     min-width: 70px;
 }
+
+@media (max-width: 680px) {
+    .phone-row {
+        flex-direction: column;
+    }
+
+    .phone-prefix-field,
+    .phone-main-field,
+    .phone-ext-field {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        flex-basis: 100%;
+    }
+}
