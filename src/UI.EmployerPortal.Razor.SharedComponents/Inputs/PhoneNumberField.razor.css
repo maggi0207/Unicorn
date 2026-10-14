@@ -1,13 +1,16 @@
 /* Phone number row: prefix code box + main number field */
 .phone-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 8px;
     width: 100%;
 }
 
 .phone-prefix-field {
-    flex: 0 0 200px;
+    flex: 1 1 160px;
+    min-width: 120px;
+    max-width: 200px;
 }
 
 .phone-prefix-field .master-text-field label {
@@ -15,9 +18,11 @@
 }
 
 .phone-main-field {
-    flex: 0 0 220px;
+    flex: 1 1 220px;
+    min-width: 160px;
 }
 
 .phone-ext-field {
-    flex: 0 0 80px;
+    flex: 0 1 90px;
+    min-width: 70px;
 }

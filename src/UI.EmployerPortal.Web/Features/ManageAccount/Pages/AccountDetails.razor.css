@@ -60,27 +60,31 @@
 
 .ad-fields-grid {
     display: grid;
-    grid-template-columns: 300px 300px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     column-gap: 48px;
     row-gap: 0;
-    width: 648px;
+    width: min(100%, 648px);
+    max-width: 100%;
 }
 
 .ad-field {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .ad-field-single {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: min(100%, 300px);
+    max-width: 100%;
 }
 
 .ad-field-double {
     display: flex;
     flex-direction: column;
-    width: 648px;
+    width: min(100%, 648px);
+    max-width: 100%;
 }
 
 ::deep .ad-field-double .master-text-field {
@@ -101,9 +105,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 648px;
+    width: min(100%, 648px);
     padding-top: 16px;
     margin-top: 8px;
+    gap: 16px;
 }
 
 .btn-cancel,
