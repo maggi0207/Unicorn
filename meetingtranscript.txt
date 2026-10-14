@@ -1,9 +1,6 @@
-({
-  url: location.href,
-  origin: location.origin,
-  icons: [...document.querySelectorAll('link')]
-    .filter(el => /icon/i.test(el.rel))
-    .map(el => el.href),
-  manifest: document.querySelector('link[rel="manifest"]')?.href,
-  head: document.head.innerHTML
-});
+performance.getEntriesByType('resource')
+  .filter(r => /\.(ico|svg|png)(\?|$)/i.test(r.name))
+  .map(r => ({
+    url: r.name,
+    initiator: r.initiatorType
+  }));
