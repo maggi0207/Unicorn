@@ -1,10 +1,9 @@
-[...document.querySelectorAll('link[rel]')]
-  .filter(el => /icon/i.test(el.rel))
-  .map(el => ({
-    rel: el.rel,
-    href: el.href,
-    html: el.outerHTML
-  }));
-
-fetch('/favicon.ico', { method: 'HEAD' })
-  .then(r => console.log(r.status, r.url, r.headers.get('content-type')));
+({
+  url: location.href,
+  origin: location.origin,
+  icons: [...document.querySelectorAll('link')]
+    .filter(el => /icon/i.test(el.rel))
+    .map(el => el.href),
+  manifest: document.querySelector('link[rel="manifest"]')?.href,
+  head: document.head.innerHTML
+});
