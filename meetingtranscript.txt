@@ -16,3 +16,11 @@ console.table(
       content: el.content || ''
     }))
 );
+
+
+document.querySelectorAll('link').length
+
+[...document.querySelectorAll('link')].map(x => ({
+  rel: x.rel,
+  href: x.href
+}))
