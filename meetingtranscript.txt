@@ -24,3 +24,14 @@ document.querySelectorAll('link').length
   rel: x.rel,
   href: x.href
 }))
+
+({
+  url: location.href,
+  baseURI: document.baseURI,
+  icons: [...document.querySelectorAll(
+    'link[rel~="icon"], link[rel="shortcut icon"]'
+  )].map(el => el.href),
+  resources: performance.getEntriesByType('resource')
+    .map(r => r.name)
+    .filter(url => /favicon|\.ico(?:$|\?)/i.test(url))
+});
