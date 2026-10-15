@@ -1,4 +1,75 @@
-All three issues raised for the Corporation Ownership flow (UIEP-3501) have been fixed and tested locally.
-1. Foreign Country field not disabling Fixed the Foreign Country text input so it correctly greys out and locks when the "headquartered outside of the United States" checkbox is unchecked. The root cause was a missing disabled HTML attribute mapping in the shared ValidatedInput component, as well as a missing property binding on the form itself. Both have been corrected (and this proactively fixes Disabled behavior for all ValidatedInput fields across the app).
-2. Missing data on the Verification Page Fixed an issue where the Verification page was silently dropping the Incorporation State and Foreign Country answers. These fields aren't part of the standard API question list, so they were getting skipped during rendering. We've added an explicit rendering block for them (similar to how we handle QSF fields) so they now display perfectly on the final summary screen.
-3. Foreign Country data lost on Save & Resume Fixed a bug where a user returning to their registration via a Registration Number would find their Foreign Country blanked out. The load logic was previously ignoring the saved country if the "Outside USA" flag wasn't perfectly parsed first. We removed that restrictionâ€”the form now loads the saved country unconditionally, and automatically re-checks the "Outside USA" checkbox if a foreign country is found.
+## Task: Implement Configuration API Unit Tests — FOREP-2399
+
+Read and follow the repository's `.github/copilot-instructions.md` and the mandatory `.github/skills/coding-pattern-enforcement/SKILL.md` before making changes. Treat these as required rules throughout the implementation.
+
+### Objective
+
+Add unit tests for all methods in `Configuration` and refactor the underlying service methods only where necessary to make complex logic independently testable.
+
+**Acceptance criteria:** Code is refactored and covered by unit tests without breaking existing functionality.
+
+### 1. Inspect the repository first
+- Locate the Configuration API endpoint, its controller, service classes, repositories, entities, and existing tests.
+- Identify every method in the Configuration implementation and determine which methods already have adequate testability.
+- Review similar API endpoints and existing unit-test patterns. Follow the repository's established conventions for test frameworks, mocking, dependency injection, assertions, and test organization.
+- Inspect the existing database access patterns and determine where the In-Memory Database Provider is appropriate.
+- Establish the current behavior before modifying any code.
+
+### 2. Refactor only where necessary
+- Refactor complex service methods into smaller, independently testable methods while preserving their existing method names, signatures, public contracts, and functionality wherever possible.
+- Do not change the behavior of the endpoint or introduce unrelated architectural changes.
+- Keep simple GET methods largely unchanged when they can be tested adequately using the In-Memory Database Provider and mocked dependencies.
+- Extract meaningful business logic from methods that perform multiple responsibilities. Do not extract trivial conditionals or simple validations into separate methods solely to increase test coverage.
+- Reuse existing helpers where their responsibilities and behavior match. Avoid duplicate methods and unnecessary refactoring.
+- Preserve all existing conditions, database operations, validation, exception handling, return values, and side effects unless a change is explicitly required and justified.
+- Use braces for all conditional blocks.
+- Do not introduce `any`, `dynamic`, weakened types, or disabled tests to bypass problems.
+
+### 3. Implement comprehensive unit tests
+Add tests covering all methods in Configuration, including controller/service behavior as appropriate.
+
+Include applicable cases for:
+- Successful execution and expected results.
+- Empty collections, missing records, and null or optional inputs.
+- Valid and invalid inputs.
+- Conditional branches and business rules.
+- Database interactions and persistence behavior.
+- Exceptions, failures, and error responses.
+- Boundary cases and regression scenarios.
+
+Use the In-Memory Database Provider to seed test data for straightforward database-backed GET methods, where appropriate. Use mocked dependencies for external services or dependencies that should not be exercised in unit tests.
+
+For complex logic extracted during refactoring, write focused tests for the extracted behavior as well as tests that confirm the public service or endpoint still behaves correctly.
+
+Avoid tests that merely reproduce implementation details or require changing production visibility solely for testing.
+
+### 4. Preserve existing behavior
+Before and after each refactoring:
+- Compare the original and updated logic.
+- Verify that every original branch, assignment, query, persistence call, and error-handling path is preserved unless the intended requirement explicitly changes it.
+- Check for accidentally omitted code, calls to the wrong overload, changed execution order, and unintended changes to database behavior.
+- Do not assume a successful build or passing tests proves the refactor is correct.
+
+### 5. Verify the implementation
+- Run the relevant Configuration unit tests.
+- Run the affected project build and broader relevant tests where practical.
+- Fix failures caused by the changes.
+- Inspect the complete Git diff, including all new and modified files, before finishing.
+- Check for unnecessary refactoring, duplicate methods, formatting issues, missing braces, unused code, and missing test coverage.
+- Do not claim tests or builds passed unless they were actually executed successfully.
+
+### 6. Pull request scope
+Keep changes focused on FOREP-2399. Do not modify unrelated APIs or service classes merely for cleanup.
+
+Submit changes in the repository's established PR workflow. If this work is expected to be split into multiple PRs, group related refactoring and tests into reviewable changes consistent with the team's conventions.
+
+### Final report
+Summarize:
+1. Configuration methods reviewed and tested.
+2. Methods refactored and why each refactor was necessary.
+3. Test cases added.
+4. Files changed.
+5. Actual build and test commands and results.
+6. Any remaining gaps or blockers.
+
+Implement the changes, not just a plan. If repository evidence or requirements are insufficient to make a safe change, explain the specific blocker instead of guessing.
