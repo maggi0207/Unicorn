@@ -1,75 +1,75 @@
-## Task: Implement Configuration API Unit Tests — FOREP-2399
+# FOREP-2420: Alchemist — Unit Tests for Telemetry
 
-Read and follow the repository's `.github/copilot-instructions.md` and the mandatory `.github/skills/coding-pattern-enforcement/SKILL.md` before making changes. Treat these as required rules throughout the implementation.
+Read and follow `.github/copilot-instructions.md` and `.github/skills/coding-pattern-enforcement/SKILL.md` before making any changes. Treat these as mandatory instructions throughout the task.
 
-### Objective
+## Objective
 
-Add unit tests for all methods in `Configuration` and refactor the underlying service methods only where necessary to make complex logic independently testable.
+Add unit tests for all methods in `Telemetry`. Refactor service methods only where necessary to make complex logic independently testable, while preserving existing application behavior.
 
-**Acceptance criteria:** Code is refactored and covered by unit tests without breaking existing functionality.
+**Acceptance criterion:** Code is refactored with unit tests added, without breaking existing functionality.
 
-### 1. Inspect the repository first
-- Locate the Configuration API endpoint, its controller, service classes, repositories, entities, and existing tests.
-- Identify every method in the Configuration implementation and determine which methods already have adequate testability.
-- Review similar API endpoints and existing unit-test patterns. Follow the repository's established conventions for test frameworks, mocking, dependency injection, assertions, and test organization.
-- Inspect the existing database access patterns and determine where the In-Memory Database Provider is appropriate.
-- Establish the current behavior before modifying any code.
+### 1. Inspect before editing
+- Locate the Telemetry implementation, its controllers/endpoints, service classes, dependencies, and existing tests.
+- Identify every method in `Telemetry` and determine how each can be tested.
+- Inspect similar services and their tests to follow established repository patterns.
+- Review repository-specific instructions, dependency injection, database usage, mocking conventions, and test framework.
+- Establish the existing behavior before modifying the implementation.
 
 ### 2. Refactor only where necessary
-- Refactor complex service methods into smaller, independently testable methods while preserving their existing method names, signatures, public contracts, and functionality wherever possible.
-- Do not change the behavior of the endpoint or introduce unrelated architectural changes.
-- Keep simple GET methods largely unchanged when they can be tested adequately using the In-Memory Database Provider and mocked dependencies.
-- Extract meaningful business logic from methods that perform multiple responsibilities. Do not extract trivial conditionals or simple validations into separate methods solely to increase test coverage.
-- Reuse existing helpers where their responsibilities and behavior match. Avoid duplicate methods and unnecessary refactoring.
-- Preserve all existing conditions, database operations, validation, exception handling, return values, and side effects unless a change is explicitly required and justified.
+- Refactor complex service methods into smaller, independently testable methods when needed.
+- Preserve existing method names, signatures, public contracts, and behavior wherever possible.
+- Keep simple GET-type methods largely unchanged when they can be tested using the In-Memory Database Provider and mocked dependencies.
+- Extract meaningful business logic, not trivial conditionals or simple validation checks solely to increase test coverage.
+- Reuse existing helpers when their responsibilities and behavior genuinely match. Avoid unnecessary duplicate methods and refactoring.
+- Preserve existing conditions, queries, assignments, persistence operations, exception handling, return values, and side effects.
 - Use braces for all conditional blocks.
-- Do not introduce `any`, `dynamic`, weakened types, or disabled tests to bypass problems.
+- Do not weaken types, disable checks, or add unnecessary abstractions to make tests pass.
 
-### 3. Implement comprehensive unit tests
-Add tests covering all methods in Configuration, including controller/service behavior as appropriate.
+### 3. Add comprehensive unit tests
+Add tests for all applicable methods in Telemetry, covering:
 
-Include applicable cases for:
 - Successful execution and expected results.
-- Empty collections, missing records, and null or optional inputs.
-- Valid and invalid inputs.
 - Conditional branches and business rules.
-- Database interactions and persistence behavior.
-- Exceptions, failures, and error responses.
-- Boundary cases and regression scenarios.
+- Valid, invalid, missing, null, and boundary inputs where applicable.
+- Empty collections and missing records where relevant.
+- Interactions with mocked dependencies.
+- Database reads and writes where applicable.
+- Exceptions, dependency failures, and error-handling behavior.
+- Regression cases for any bugs discovered during refactoring.
 
-Use the In-Memory Database Provider to seed test data for straightforward database-backed GET methods, where appropriate. Use mocked dependencies for external services or dependencies that should not be exercised in unit tests.
+Use the In-Memory Database Provider to seed test data for straightforward database-backed GET methods, where appropriate. Mock external services and dependencies that should not be exercised by unit tests.
 
-For complex logic extracted during refactoring, write focused tests for the extracted behavior as well as tests that confirm the public service or endpoint still behaves correctly.
+For complex logic extracted into helper methods, add focused tests for that logic and verify that the original service behavior remains intact.
 
-Avoid tests that merely reproduce implementation details or require changing production visibility solely for testing.
+Follow the existing test framework and conventions. Test through public service or endpoint behavior where practical rather than exposing private implementation details solely for testing.
 
-### 4. Preserve existing behavior
+### 4. Preserve existing functionality
 Before and after each refactoring:
-- Compare the original and updated logic.
-- Verify that every original branch, assignment, query, persistence call, and error-handling path is preserved unless the intended requirement explicitly changes it.
-- Check for accidentally omitted code, calls to the wrong overload, changed execution order, and unintended changes to database behavior.
-- Do not assume a successful build or passing tests proves the refactor is correct.
+- Compare the original and updated code.
+- Verify that no existing logic or execution paths have been accidentally omitted.
+- Check for calls to the wrong method overload, changed execution order, altered database behavior, missing persistence calls, and changed exception or authorization behavior.
+- Avoid unrelated changes outside the Telemetry scope.
+- Do not assume that a successful build or passing tests proves the refactoring is correct.
 
-### 5. Verify the implementation
-- Run the relevant Configuration unit tests.
-- Run the affected project build and broader relevant tests where practical.
-- Fix failures caused by the changes.
-- Inspect the complete Git diff, including all new and modified files, before finishing.
-- Check for unnecessary refactoring, duplicate methods, formatting issues, missing braces, unused code, and missing test coverage.
-- Do not claim tests or builds passed unless they were actually executed successfully.
+### 5. Verify the changes
+- Run the relevant Telemetry unit tests.
+- Run the affected project build and other relevant tests where practical.
+- Fix failures caused by the implementation.
+- Inspect the complete Git diff, including all added and modified files.
+- Check for unnecessary helper methods, duplicate logic, unused code, formatting issues, missing braces, and untested branches.
+- Do not claim a build or test passed unless it was actually executed successfully.
 
-### 6. Pull request scope
-Keep changes focused on FOREP-2399. Do not modify unrelated APIs or service classes merely for cleanup.
+### 6. Scope and completion
+Keep all changes focused on FOREP-2420. Do not modify unrelated services or APIs for cleanup.
 
-Submit changes in the repository's established PR workflow. If this work is expected to be split into multiple PRs, group related refactoring and tests into reviewable changes consistent with the team's conventions.
+Implement the changes rather than returning only a plan. If repository evidence is insufficient to make a safe change, explain the blocker rather than guessing.
 
-### Final report
-Summarize:
-1. Configuration methods reviewed and tested.
-2. Methods refactored and why each refactor was necessary.
+At completion, report:
+1. All Telemetry methods reviewed and tested.
+2. Methods refactored and the reason for each refactoring.
 3. Test cases added.
 4. Files changed.
-5. Actual build and test commands and results.
-6. Any remaining gaps or blockers.
+5. Actual build and test results.
+6. Remaining gaps or blockers.
 
-Implement the changes, not just a plan. If repository evidence or requirements are insufficient to make a safe change, explain the specific blocker instead of guessing.
+Follow the repository's established pull-request workflow.
