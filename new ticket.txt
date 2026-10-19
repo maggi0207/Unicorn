@@ -1,27 +1,12 @@
-Hi Pavithra,
+Hi Reetha,
 
-Here are the details on the services and input parameters we are passing from the front-end on the Corporate Officer Exclusion Reasonableness Worksheet page:
+Currently, the front-end is mapping two different fields from response.COEReasonablenessProxy to the two columns on Line 5 (Your 2026 WI UI Tax Rate):
 
-1. Initial Page Load — IAccountSummaryService.GetCOEReasonablenessAsync(COEReasonablenessRequest) When the worksheet loads, we pass a COEReasonablenessRequest with:
+Without Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRate
+With Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRatePercentage
+Why the 100x difference happens: Both fields are formatted the exact same way in the UI (using C# .ToString("P")). However, as seen in your debugger screenshot, the backend returns them in two different scales:
 
-EmployerSK: Selected employer's EmployerSK (int)
-SecureUserSK: Logged-in user's SecureUserSK (int)
-year: DateTime.Now.Year (2026) (Note: The payroll fields PayrollSubjectToFUTAWithoutCOE, PayrollSubjectToWITaxRateWithCOE, and PayrollSubjectToWITaxRateWithoutCOE are not set on initial load and default to 0 / null).
+WIUITaxRate = 0.0040 (decimal format for 0.40%)
+WIUITaxRatePercentage = 0.4000 (percentage format for 0.40% — 100x larger)
+Since the business requirement states that "Line 5 under both columns should be the same and it should be whatever the employer's actually assigned tax rate is for the year in question", please let us know if the front-end should map both columns ("Without Exclusion" and "With Exclusion") to the same field (WIUITaxRatePercentage / WIUITaxRate), or if the backend will return both fields in the same scale.
 
-2. On "Recalculate" Click — IAccountSummaryService.GetCOEReasonablenessAsync(COEReasonablenessRequest) When the user clicks Recalculate, we call GetCOEReasonablenessAsync with:
-
-EmployerSK: Selected employer's EmployerSK (int)
-SecureUserSK: Logged-in user's SecureUserSK (int)
-year: DateTime.Now.Year (2026)
-PayrollSubjectToFUTAWithoutCOE: User-entered FUTA Payroll (decimal)
-PayrollSubjectToWITaxRateWithoutCOE: User-entered WI Taxable Payroll Without COE (decimal)
-PayrollSubjectToWITaxRateWithCOE: User-entered WI Taxable Payroll With COE (decimal)
-
-3. On "Submit Election" Click — IAccountMaintenanceService.SaveNewCOEElectionAsync(CorporateOfficerExclusionRequest) (Note: The missing wage reports rule violation error is returned from this call in res.RuleViolations) When the user clicks Submit Election, we pass a CorporateOfficerExclusionRequest with:
-
-EmployerSK: Selected employer's EmployerSK (int)
-SecureUserSK: Logged-in user's SecureUserSK (int)
-Year: DateTime.Now.Year (2026)
-NetSavings: Calculated NetSavings from the worksheet response (decimal)
-IsCalculateClicked: true if Recalculate was clicked, otherwise false (bool)
-IsNoSavingsShown: false (bool, default)
