@@ -1,75 +1,27 @@
-# FOREP-2420: Alchemist — Unit Tests for Telemetry
+Hi Pavithra,
 
-Read and follow `.github/copilot-instructions.md` and `.github/skills/coding-pattern-enforcement/SKILL.md` before making any changes. Treat these as mandatory instructions throughout the task.
+Here are the details on the services and input parameters we are passing from the front-end on the Corporate Officer Exclusion Reasonableness Worksheet page:
 
-## Objective
+1. Initial Page Load — IAccountSummaryService.GetCOEReasonablenessAsync(COEReasonablenessRequest) When the worksheet loads, we pass a COEReasonablenessRequest with:
 
-Add unit tests for all methods in `Telemetry`. Refactor service methods only where necessary to make complex logic independently testable, while preserving existing application behavior.
+EmployerSK: Selected employer's EmployerSK (int)
+SecureUserSK: Logged-in user's SecureUserSK (int)
+year: DateTime.Now.Year (2026) (Note: The payroll fields PayrollSubjectToFUTAWithoutCOE, PayrollSubjectToWITaxRateWithCOE, and PayrollSubjectToWITaxRateWithoutCOE are not set on initial load and default to 0 / null).
 
-**Acceptance criterion:** Code is refactored with unit tests added, without breaking existing functionality.
+2. On "Recalculate" Click — IAccountSummaryService.GetCOEReasonablenessAsync(COEReasonablenessRequest) When the user clicks Recalculate, we call GetCOEReasonablenessAsync with:
 
-### 1. Inspect before editing
-- Locate the Telemetry implementation, its controllers/endpoints, service classes, dependencies, and existing tests.
-- Identify every method in `Telemetry` and determine how each can be tested.
-- Inspect similar services and their tests to follow established repository patterns.
-- Review repository-specific instructions, dependency injection, database usage, mocking conventions, and test framework.
-- Establish the existing behavior before modifying the implementation.
+EmployerSK: Selected employer's EmployerSK (int)
+SecureUserSK: Logged-in user's SecureUserSK (int)
+year: DateTime.Now.Year (2026)
+PayrollSubjectToFUTAWithoutCOE: User-entered FUTA Payroll (decimal)
+PayrollSubjectToWITaxRateWithoutCOE: User-entered WI Taxable Payroll Without COE (decimal)
+PayrollSubjectToWITaxRateWithCOE: User-entered WI Taxable Payroll With COE (decimal)
 
-### 2. Refactor only where necessary
-- Refactor complex service methods into smaller, independently testable methods when needed.
-- Preserve existing method names, signatures, public contracts, and behavior wherever possible.
-- Keep simple GET-type methods largely unchanged when they can be tested using the In-Memory Database Provider and mocked dependencies.
-- Extract meaningful business logic, not trivial conditionals or simple validation checks solely to increase test coverage.
-- Reuse existing helpers when their responsibilities and behavior genuinely match. Avoid unnecessary duplicate methods and refactoring.
-- Preserve existing conditions, queries, assignments, persistence operations, exception handling, return values, and side effects.
-- Use braces for all conditional blocks.
-- Do not weaken types, disable checks, or add unnecessary abstractions to make tests pass.
+3. On "Submit Election" Click — IAccountMaintenanceService.SaveNewCOEElectionAsync(CorporateOfficerExclusionRequest) (Note: The missing wage reports rule violation error is returned from this call in res.RuleViolations) When the user clicks Submit Election, we pass a CorporateOfficerExclusionRequest with:
 
-### 3. Add comprehensive unit tests
-Add tests for all applicable methods in Telemetry, covering:
-
-- Successful execution and expected results.
-- Conditional branches and business rules.
-- Valid, invalid, missing, null, and boundary inputs where applicable.
-- Empty collections and missing records where relevant.
-- Interactions with mocked dependencies.
-- Database reads and writes where applicable.
-- Exceptions, dependency failures, and error-handling behavior.
-- Regression cases for any bugs discovered during refactoring.
-
-Use the In-Memory Database Provider to seed test data for straightforward database-backed GET methods, where appropriate. Mock external services and dependencies that should not be exercised by unit tests.
-
-For complex logic extracted into helper methods, add focused tests for that logic and verify that the original service behavior remains intact.
-
-Follow the existing test framework and conventions. Test through public service or endpoint behavior where practical rather than exposing private implementation details solely for testing.
-
-### 4. Preserve existing functionality
-Before and after each refactoring:
-- Compare the original and updated code.
-- Verify that no existing logic or execution paths have been accidentally omitted.
-- Check for calls to the wrong method overload, changed execution order, altered database behavior, missing persistence calls, and changed exception or authorization behavior.
-- Avoid unrelated changes outside the Telemetry scope.
-- Do not assume that a successful build or passing tests proves the refactoring is correct.
-
-### 5. Verify the changes
-- Run the relevant Telemetry unit tests.
-- Run the affected project build and other relevant tests where practical.
-- Fix failures caused by the implementation.
-- Inspect the complete Git diff, including all added and modified files.
-- Check for unnecessary helper methods, duplicate logic, unused code, formatting issues, missing braces, and untested branches.
-- Do not claim a build or test passed unless it was actually executed successfully.
-
-### 6. Scope and completion
-Keep all changes focused on FOREP-2420. Do not modify unrelated services or APIs for cleanup.
-
-Implement the changes rather than returning only a plan. If repository evidence is insufficient to make a safe change, explain the blocker rather than guessing.
-
-At completion, report:
-1. All Telemetry methods reviewed and tested.
-2. Methods refactored and the reason for each refactoring.
-3. Test cases added.
-4. Files changed.
-5. Actual build and test results.
-6. Remaining gaps or blockers.
-
-Follow the repository's established pull-request workflow.
+EmployerSK: Selected employer's EmployerSK (int)
+SecureUserSK: Logged-in user's SecureUserSK (int)
+Year: DateTime.Now.Year (2026)
+NetSavings: Calculated NetSavings from the worksheet response (decimal)
+IsCalculateClicked: true if Recalculate was clicked, otherwise false (bool)
+IsNoSavingsShown: false (bool, default)
