@@ -1,4 +1,12 @@
-All three issues raised for the Corporation Ownership flow (UIEP-3501) have been fixed and tested locally.
-1. Foreign Country field not disabling Fixed the Foreign Country text input so it correctly greys out and locks when the "headquartered outside of the United States" checkbox is unchecked. The root cause was a missing disabled HTML attribute mapping in the shared ValidatedInput component, as well as a missing property binding on the form itself. Both have been corrected (and this proactively fixes Disabled behavior for all ValidatedInput fields across the app).
-2. Missing data on the Verification Page Fixed an issue where the Verification page was silently dropping the Incorporation State and Foreign Country answers. These fields aren't part of the standard API question list, so they were getting skipped during rendering. We've added an explicit rendering block for them (similar to how we handle QSF fields) so they now display perfectly on the final summary screen.
-3. Foreign Country data lost on Save & Resume Fixed a bug where a user returning to their registration via a Registration Number would find their Foreign Country blanked out. The load logic was previously ignoring the saved country if the "Outside USA" flag wasn't perfectly parsed first. We removed that restrictionâ€”the form now loads the saved country unconditionally, and automatically re-checks the "Outside USA" checkbox if a foreign country is found.
+Hi Reetha,
+
+Currently, the front-end is mapping two different fields from response.COEReasonablenessProxy to the two columns on Line 5 (Your 2026 WI UI Tax Rate):
+
+Without Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRate
+With Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRatePercentage
+Why the 100x difference happens: Both fields are formatted the exact same way in the UI (using C# .ToString("P")). However, as seen in your debugger screenshot, the backend returns them in two different scales:
+
+WIUITaxRate = 0.0040 (decimal format for 0.40%)
+WIUITaxRatePercentage = 0.4000 (percentage format for 0.40% — 100x larger)
+Since the business requirement states that "Line 5 under both columns should be the same and it should be whatever the employer's actually assigned tax rate is for the year in question", please let us know if the front-end should map both columns ("Without Exclusion" and "With Exclusion") to the same field (WIUITaxRatePercentage / WIUITaxRate), or if the backend will return both fields in the same scale.
+
