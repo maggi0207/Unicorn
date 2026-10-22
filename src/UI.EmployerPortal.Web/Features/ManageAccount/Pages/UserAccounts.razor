@@ -1,16 +1,17 @@
 @page "/manage-account/account-users"
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Web.Features.Landing.Components
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
 @using UI.EmployerPortal.Web.Auth;
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Account Users</PageTitle>
 
-<div class="page-content" @onclick="CloseRoleDropdown">
+<div class="page-content" @onclick="@(() => tracker.LogNavigationSessionActivity(CloseRoleDropdown, "Close Clicked", DateTime.Now))">
 
     @if (_isLoading)
     {
@@ -48,7 +49,7 @@
             }
         </div>
         <div class="top-actions">
-            <button class="btn generate-key-btn fw-bold" @onclick="NavigateToGenerateKey">GENERATE USER KEY</button>
+            <button class="btn generate-key-btn fw-bold" @onclick="@(() => tracker.LogNavigationSessionActivity(NavigateToGenerateKey, "Generate User Key Clicked", DateTime.Now))">GENERATE USER KEY</button>
         </div>
 
         <div class="user-list-section">
@@ -62,7 +63,7 @@
                         <span class="role-dropdown-label">Role</span>
                         <button type="button"
                                 class="role-dropdown-trigger"
-                                @onclick="ToggleRoleDropdown"
+                                @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleRoleDropdown, "Toggle Clicked", DateTime.Now))"
                                 @onclick:stopPropagation="true"
                                 @onclick:preventDefault="true"
                                 aria-expanded="@(_roleDropdownOpen.ToString())"
@@ -92,7 +93,7 @@
                                     }
                                 </div>
                                 <div class="role-dropdown-actions">
-                                    <button type="button" role="meuitem" class="role-dropdown-btn-reset" @onclick="ResetRoleFilter" aria-label="Reset role filter">
+                                        <button type="button" role="meuitem" class="role-dropdown-btn-reset" @onclick="@(() => tracker.LogNavigationSessionActivity(ResetRoleFilter, "Reset Clicked", DateTime.Now))" aria-label="Reset role filter">
                                         RESET
                                     </button>
                                 </div>
@@ -128,7 +129,7 @@
                                     OnRemove="() => RemoveRoleFilter(role)" />
                     }
                 </div>
-                <ClearFiltersButton OnClick="ResetRoleFilter" />
+                    <ClearFiltersButton Onclick="@(() => tracker.LogNavigationSessionActivity(ResetRoleFilter, "Clear Filters Clicked", DateTime.Now))" />
             }
         </div>
 
@@ -141,7 +142,7 @@
                                 aria-sort="@GetAriaSort("lastName")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("lastName"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("lastName"), "Sort By Last Name Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">Last Name</span>
                                         <span aria-hidden="true">@GetSortIcon("lastName")</span>
                                     </button>
@@ -151,7 +152,7 @@
                                 aria-sort="@GetAriaSort("firstName")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("firstName"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("firstName"), "Sort By First Name Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">First Name</span>
                                         <span aria-hidden="true">@GetSortIcon("firstName")</span>
                                     </button>
@@ -161,7 +162,7 @@
                                 aria-sort="@GetAriaSort("role")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("role"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("role"), "Sort By Role Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">Role</span>
                                         <span aria-hidden="true">@GetSortIcon("role")</span>
                                     </button>
@@ -171,7 +172,7 @@
                                 aria-sort="@GetAriaSort("createdBy")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("createdBy"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("createdBy"), "Sort By Created By Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">Created By</span>
                                         <span aria-hidden="true">@GetSortIcon("createdBy")</span>
                                     </button>
@@ -181,7 +182,7 @@
                                 aria-sort="@GetAriaSort("accessGranted")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("accessGranted"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("accessGranted"), "Sort By Access Granted Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">Access Granted</span>
                                         <span aria-hidden="true">@GetSortIcon("accessGranted")</span>
                                     </button>
@@ -191,7 +192,7 @@
                                 aria-sort="@GetAriaSort("accessKey")">
                                 <div class="header-content header-content-left">
                                     <button type="button" class="sort-header-button"
-                                        @onclick="@(() => Sort("accessKey"))">
+                                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("accessKey"), "Sort By Access Key Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold fs-sm">Access Key</span>
                                         <span aria-hidden="true">@GetSortIcon("accessKey")</span>
                                     </button>
@@ -218,12 +219,12 @@
                                     <div class="action-buttons">
                                         @if (user.Role == nameof(EmployerRole.Worker) && !_isEspUser)
                                         {
-                                            <button class="btn btn-sm p-1 action-btn" title="Edit user" @onclick="() => HandleEditClick(user)">
+                                            <button class="btn btn-sm p-1 action-btn" title="Edit user" @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleEditClick(user), $"Edit {user.FirstName} {user.LastName} Clicked", DateTime.Now))">
                                                 <span class="visually-hidden">Edit @user.FirstName @user.LastName</span>
                                                 <img src="@Assets["icons/edit-pen.svg"]" alt="" class="action-icon" />
                                             </button>
                                         }
-                                        <button class="btn btn-sm p-1 action-btn" title="Delete user" @onclick="() => HandleDeleteClick(user)">
+                                        <button class="btn btn-sm p-1 action-btn" title="Delete user" @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleDeleteClick(user), $"Delete {user.FirstName} {user.LastName} Clicked", DateTime.Now))">
                                             <span class="visually-hidden">Delete @user.FirstName @user.LastName</span>
                                             <img src="@Assets["icons/trash.svg"]" alt="" class="action-icon" />
                                         </button>
@@ -248,16 +249,16 @@
                             </div>
                             <div class="d-flex align-items-center">
                                <span class="page-info">@PaginationStart-@PaginationEnd of @FilteredUsers.Count</span>
-                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="FirstPage" title="First">
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="@(() => tracker.LogNavigationSessionActivity(FirstPage, "First Page Clicked", DateTime.Now))" title="First">
                                     <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="First" />
                                 </button>
-                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="PreviousPage" title="Previous">
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="@(() => tracker.LogNavigationSessionActivity(PreviousPage, "Previous Page Clicked", DateTime.Now))" title="Previous">
                                     <img src="@Assets[_currentPage <= 1 ? "images/paging/page-prev-disabled.svg" : "images/paging/page-prev.svg"]" alt="Previous" />
                                 </button>
-                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="NextPage" title="Next">
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="@(() => tracker.LogNavigationSessionActivity(NextPage, "Next Page Clicked", DateTime.Now))" title="Next">
                                     <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-next-disabled.svg" : "images/paging/page-next.svg"]" alt="Next" />
                                 </button>
-                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="LastPage" title="Last">
+                                <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage >= TotalPages)" @onclick="@(() => tracker.LogNavigationSessionActivity(LastPage, "Last Page Clicked", DateTime.Now))" title="Last">
                                     <img src="@Assets[_currentPage >= TotalPages ? "images/paging/page-last-disabled.svg" : "images/paging/page-last.svg"]" alt="Last" />
                                 </button>
                             </div>

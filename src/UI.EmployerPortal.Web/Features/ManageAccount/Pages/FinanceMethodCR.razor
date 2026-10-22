@@ -1,6 +1,8 @@
 @page "/manage-account/finance-method-change-rq"
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 <h3 class="page-header">Finance Method Change Request</h3>
 <hr />
@@ -86,11 +88,11 @@
             <div class="flex-button">
                 <Button Text="CANCEL"
                         Variant="Button.ButtonVariant.Secondary"
-                        OnClick="HandleBack"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Cancel Clicked", DateTime.Now))"
                         Disabled="_isSaving" />
                 <Button Text="SUBMIT"
                         Variant="Button.ButtonVariant.Primary"
-                        OnClick="HandleSaveAsync"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSaveAsync, "Submit Clicked", DateTime.Now))"
                         Disabled="_isSaving" />
             </div>
 

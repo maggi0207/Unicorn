@@ -2,6 +2,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Employer Service Provider Access</PageTitle>
@@ -66,7 +68,7 @@
                                 <button type="button"
                                         class="delete-btn"
                                         aria-label="Remove access for @esp.BusinessName"
-                                        @onclick="() => OpenRemoveModal(esp)">
+                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => OpenRemoveModal(esp), "Delete Clicked", DateTime.Now))">
                                     <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" />
                                 </button>
                             </td>

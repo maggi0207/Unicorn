@@ -60,31 +60,27 @@
 
 .ad-fields-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: 300px 300px;
     column-gap: 48px;
     row-gap: 0;
-    width: min(100%, 648px);
-    max-width: 100%;
+    width: 648px;
 }
 
 .ad-field {
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 .ad-field-single {
     display: flex;
     flex-direction: column;
-    width: min(100%, 300px);
-    max-width: 100%;
+    width: 300px;
 }
 
 .ad-field-double {
     display: flex;
     flex-direction: column;
-    width: min(100%, 648px);
-    max-width: 100%;
+    width: 648px;
 }
 
 ::deep .ad-field-double .master-text-field {
@@ -105,52 +101,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: min(100%, 648px);
+    width: 648px;
     padding-top: 16px;
     margin-top: 8px;
-    gap: 16px;
 }
-
-.btn-cancel,
-.btn-save {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-family: Verdana, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 25.6px;
-    text-transform: uppercase;
-    cursor: pointer;
-    min-width: 120px;
-    justify-content: center;
- }
-
-.btn-cancel:focus-visible,
-.btn-save:focus-visible {    
-    outline: 2px solid #005fcc;
-    outline-offset: 2px;    
-}
-
-
-.btn-cancel {
-    background: #ffffff;
-    color: #003663;
-    border: 2px solid #003663;
-}
-
-    .btn-cancel:hover {
-        background: #f0f4f8;
-    }
-
-.btn-save {
-    background: #003663;
-    color: #ffffff;
-    border: 2px solid #003663;
-}
-
-    .btn-save:hover {
-        background: #002a4d;
-    }

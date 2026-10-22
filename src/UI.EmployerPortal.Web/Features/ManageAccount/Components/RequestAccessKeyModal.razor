@@ -1,5 +1,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsOpen)
 {
@@ -9,7 +11,7 @@
             @* ── Header ── *@
             <div class="rak-header">
                 <h3 id="rak-title" class="rak-title">Request an Access Key</h3>
-                <button type="button" class="rak-close" @onclick="HandleCancel" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
+                <button type="button" class="rak-close" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Request an Access Key Clicked", DateTime.Now))" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
             </div>
 
             @* ── Body ── *@
@@ -45,11 +47,11 @@
                         Variant="Button.ButtonVariant.Secondary"
                         ShowBorder="false"
                         Disabled="@IsBusy"
-                        OnClick="HandleCancel" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Cancel Clicked", DateTime.Now))" />
                 <Button Text="MAIL ACCESS KEY"
                         Variant="Button.ButtonVariant.Secondary"
                         Disabled="@IsBusy"
-                        OnClick="HandleMail" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleMail, "Mail Access Key Clicked", DateTime.Now))" />
             </div>
 
         </div>

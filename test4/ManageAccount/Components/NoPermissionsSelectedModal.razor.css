@@ -1,0 +1,78 @@
+/* ── Backdrop ─────────────────────────────────────────────────────────────── */
+.no-perm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ── Modal container ─────────────────────────────────────────────────────── */
+.no-perm-modal {
+    width: 720px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 11px 15px rgba(0, 0, 0, 0.2), 0 9px 46px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.no-perm-header {
+    padding: 16px 24px;
+    border-bottom: 2px solid #e6e6e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.no-perm-title {
+    margin: 0;
+    font-family: Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.16;
+    color: #003663;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.no-perm-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #003663;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────── */
+.no-perm-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.no-perm-text {
+    margin: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #000;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.no-perm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 16px 24px 24px 24px;
+}
+

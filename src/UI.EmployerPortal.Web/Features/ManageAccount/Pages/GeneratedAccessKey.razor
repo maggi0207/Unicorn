@@ -1,6 +1,8 @@
 @page "/manage-account/account-users/generate-key/result"
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <PageTitle>Generate Access Key</PageTitle>
 
@@ -24,7 +26,7 @@
     <label for="access-key" class="generated-key-label">@KeyTypeLabel Access Key</label>
     <div class="generated-key-row">
         <input id="access-key" class="generated-key-box" readonly value="@(Flow.GeneratedKey ?? string.Empty)" />
-        <button type="button" class="generated-key-copy-btn" @onclick="CopyKeyToClipboardAsync">
+        <button type="button" class="generated-key-copy-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(CopyKeyToClipboardAsync, "Copy Clicked", DateTime.Now))">
             <img src="@Assets["icons/file_copy.svg"]" alt="" class="generated-key-copy-icon" />
             COPY
         </button>
@@ -49,10 +51,10 @@
     <div class="generated-key-footer">
         <Button Text="BACK"
                 Variant="Button.ButtonVariant.Secondary"
-                OnClick="HandleBack" />
+                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))" />
         <Button Text="UI ACCOUNT USERS"
                 Variant="Button.ButtonVariant.Primary"
-                OnClick="HandleDone" />
+                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleDone, "UI Account User Clicked", DateTime.Now))" />
     </div>
 
 </div>

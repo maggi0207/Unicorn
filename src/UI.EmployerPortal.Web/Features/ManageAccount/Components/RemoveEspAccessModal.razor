@@ -1,5 +1,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using Microsoft.AspNetCore.Components.Web
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsVisible)
 {
@@ -14,7 +16,7 @@
              @ref="_modalRef">
             <div class="modal-header">
                 <h3 id="remove-esp-access-modal-title" class="modal-title">Remove ESP Access?</h3>
-                <button class="modal-close" @onclick="OnCancel">
+                <button class="modal-close" @onclick="@(() => tracker.LogNavigationSessionActivity(OnCancel, "Remove ESP Access Clicked", DateTime.Now))">
                     <img src="icons/close_x_blue.svg" />
                 </button>
             </div>
@@ -25,12 +27,12 @@
                 <Button Variant="Button.ButtonVariant.Secondary"
                         type="button"
                         ShowBorder="false"
-                        OnClick="OnCancel">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(OnCancel, "Do Not Remove ESP Access Clicked", DateTime.Now))">
                     DO NOT REMOVE ESP ACCESS
                 </Button>
                 <Button Variant="Button.ButtonVariant.Secondary"
                         type="button"
-                        OnClick="OnConfirm">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(OnConfirm, "Remove ESP Access Clicked", DateTime.Now))">
                     REMOVE ESP ACCESS
                 </Button>
             </div>

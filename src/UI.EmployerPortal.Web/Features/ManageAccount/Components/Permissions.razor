@@ -1,4 +1,5 @@
-@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="permissions-wrapper">
 
@@ -25,7 +26,7 @@
                 @* Section header: group name + collapse chevron *@
                 <button type="button"
                         class="permissions-section-header"
-                        @onclick="@(() => ToggleGroup(group.WebControlSK))"
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => ToggleGroup(group.WebControlSK), "Expanded Clicked", DateTime.Now))"
                         aria-expanded="@(IsExpanded(group.WebControlSK) ? "true" : "false")">
                     <span class="permissions-section-title">@group.Name</span>
                     <span class="permissions-section-chevron @(IsExpanded(group.WebControlSK) ? "permissions-section-chevron--expanded" : "")">

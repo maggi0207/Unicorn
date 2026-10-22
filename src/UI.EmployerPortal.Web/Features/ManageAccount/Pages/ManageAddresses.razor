@@ -1,12 +1,9 @@
 @page "/manage-account/manage-addresses"
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using Microsoft.AspNetCore.Components.Forms
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
-@using UI.EmployerPortal.Web.Features.ManageAccount.Models
-@using UI.EmployerPortal.Web.Features.ManageAccount.Services
-@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Manage Addresses</PageTitle>
@@ -89,7 +86,7 @@
                             style="width: 200px;"
                             aria-sort="@GetAriaSort("addressType")">
                             <div class="header-content header-content-left">
-                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("addressType"))">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("addressType"), "Sort By Address Type Clicked", DateTime.Now))">
                                     <span class="header-label fw-bold fs-sm">Address Type</span>
                                     <span aria-hidden="true">@GetSortIcon("addressType")</span>
                                 </button>
@@ -99,7 +96,7 @@
                             style="width: 400px;"
                             aria-sort="@GetAriaSort("address")">
                             <div class="header-content header-content-left">
-                                <button type="button" class="header-sort-button" @onclick="@(() => Sort("address"))">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("address"), "Sort By Address Clicked", DateTime.Now))">
                                     <span class="header-label fw-bold fs-sm">Address</span>
                                     <span aria-hidden="true">@GetSortIcon("address")</span>
                                 </button>
@@ -123,7 +120,7 @@
                                     <button class="btn btn-sm p-1 action-btn"
                                             title="Edit address"
                                             aria-label="Edit @row.AddressType"
-                                            @onclick="() => HandleEditClick(row)">
+                                                @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleEditClick(row), $"Edit {row.AddressType} Clicked", DateTime.Now))">
                                         <img src="@Assets["icons/edit-pen.svg"]" alt="Edit" class="action-icon" />
                                     </button>
                                     @if (row.CanDelete)
@@ -131,7 +128,7 @@
                                         <button class="btn btn-sm p-1 action-btn"
                                                 title="Delete address"
                                                 aria-label="Delete @row.AddressType"
-                                                @onclick="() => HandleDeleteClick(row)">
+                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleDeleteClick(row), $"Delete {row.AddressType} Clicked", DateTime.Now))">
                                             <img src="@Assets["icons/trash.svg"]" alt="Delete" class="action-icon" />
                                         </button>
                                     }
@@ -148,7 +145,7 @@
                     class="btn btn-link fw-bold p-0 text-decoration-none d-flex align-items-center gap-1"
                     style="color: #0071bc; font-size: 16px;"
                     aria-label="Add a new address"
-                    @onclick="HandleAddClick">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleAddClick, "Add Address Clicked", DateTime.Now))">
                 + Add Address
             </button>
         </div>
@@ -158,7 +155,7 @@
                     class="btn fw-bold px-4"
                     style="border: 2px solid #003663; color: #003663; background: #fff;"
                     aria-label="Cancel and return to account details"
-                    @onclick="HandleCancel">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Cancel Clicked", DateTime.Now))">
                 CANCEL
             </button>
         </div>
@@ -170,7 +167,7 @@
 @* ── Delete Confirmation Modal ── *@
 @if (_showDeleteModal)
 {
-    <div class="del-modal-backdrop" @onclick="CloseDeleteModal" role="presentation">
+    <div class="del-modal-backdrop" @onclick="@(() => tracker.LogNavigationSessionActivity(CloseDeleteModal, "Close Clicked", DateTime.Now))" role="presentation">
         <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-address-title" @onclick:stopPropagation="true" @ref="_closeDeleteModalElement">
 
             @* Header *@
@@ -180,7 +177,7 @@
                         class="del-modal-close"
                         aria-label="Close dialog"
                         disabled="@_isDeleting"
-                        @onclick="CloseDeleteModal">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(CloseDeleteModal, "Close X Clicked", DateTime.Now))">
                     &times;
                 </button>
             </div>
@@ -208,13 +205,13 @@
                     <button type="button"
                             id="btn-delete-cancel"
                             class="del-btn-cancel"
-                            @onclick="CloseDeleteModal">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(CloseDeleteModal, "Cancel Clicked", DateTime.Now))">
                         CANCEL
                     </button>
                     <button type="button"
                             id="btn-delete-confirm"
                             class="del-btn-delete"
-                            @onclick="ConfirmDeleteAsync">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(ConfirmDeleteAsync, "Delete Address Clicked", DateTime.Now))" "">
                         DELETE ADDRESS
                     </button>
                 </div>
@@ -227,7 +224,7 @@
 @* ── POA Restriction Modal ── *@
 @if (_showPoaModal)
 {
-    <div class="del-modal-backdrop" @onclick="ClosePoaModal" role="presentation">
+    <div class="del-modal-backdrop" @onclick="@(() => tracker.LogNavigationSessionActivity(ClosePoaModal, "Close Clicked", DateTime.Now))" role="presentation">
         <div class="del-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poa-modal-title" @onclick:stopPropagation="true" @ref="_closePoaModalElement">
 
             @* Header *@
@@ -236,7 +233,7 @@
                 <button type="button"
                         class="del-modal-close"
                         aria-label="Close dialog"
-                        @onclick="ClosePoaModal">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(ClosePoaModal, "Close X Clicked", DateTime.Now))">
                     &times;
                 </button>
             </div>
@@ -258,7 +255,7 @@
                 <button type="button"
                         id="btn-poa-close"
                         class="del-btn-delete"
-                        @onclick="ClosePoaModal">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(ClosePoaModal, "Close Clicked", DateTime.Now))">
                     CLOSE
                 </button>
             </div>

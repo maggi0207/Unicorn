@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (FormErrors.Any())
 {
@@ -153,7 +154,7 @@
         <button type="button"
                 class="btn fw-bold px-4 rounded-1"
                 style="border: 2px solid #003663; color: #003663; background: #fff; min-width: 120px;"
-                @onclick="OnCancel"
+                @onclick="@(() => tracker.LogNavigationSessionActivity(OnCancel, "Cancel Clicked", DateTime.Now))"
                 aria-label="Cancel address edit">
             CANCEL
         </button>

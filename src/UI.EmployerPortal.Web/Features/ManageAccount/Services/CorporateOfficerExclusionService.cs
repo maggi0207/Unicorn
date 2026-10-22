@@ -53,16 +53,6 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     }
 
     /// <summary>
-    /// Converts a percent-style API value into the decimal representation used for percent-formatting in the UI.
-    /// </summary>
-    /// <param name="value">The rate as a whole-number percentage such as 3.05 for 3.05%.</param>
-    /// <returns>The normalized decimal fraction for UI percentage rendering.</returns>
-    private static decimal NormalizePercentValue(decimal? value)
-    {
-        return value.HasValue ? value.Value / 100m : 0m;
-    }
-
-    /// <summary>
     /// 
     /// </summary>
     /// <param name="employerSK"></param>
@@ -123,9 +113,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             coeResonableResponse.WITaxablePayrollWithoutCOE = response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : 0;
 
-            coeResonableResponse.WIUITaxRate = NormalizePercentValue(response.COEReasonablenessProxy.WIUITaxRate);
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRate.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRate.Value : 0;
 
-            coeResonableResponse.WIUITaxRatePercentage = NormalizePercentValue(response.COEReasonablenessProxy.WIUITaxRatePercentage);
+            coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
             coeResonableResponse.WIUITaxWithCOE = response.COEReasonablenessProxy.WIUITaxWithCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WIUITaxWithCOE.Value : 0;
 
@@ -190,9 +182,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             coeResonableResponse.WITaxablePayrollWithoutCOE = response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : 0;
 
-            coeResonableResponse.WIUITaxRate = NormalizePercentValue(response.COEReasonablenessProxy.WIUITaxRate);
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRate.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRate.Value : 0;
 
-            coeResonableResponse.WIUITaxRatePercentage = NormalizePercentValue(response.COEReasonablenessProxy.WIUITaxRatePercentage);
+            coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
             coeResonableResponse.WIUITaxWithCOE = response.COEReasonablenessProxy.WIUITaxWithCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WIUITaxWithCOE.Value : 0;
 

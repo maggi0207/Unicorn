@@ -1,4 +1,6 @@
 @using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsOpen)
 {
@@ -11,7 +13,7 @@
                     <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
                     Remove User
                 </h3>
-                <button type="button" class="remove-user-close" @onclick="HandleCancel" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
+                <button type="button" class="remove-user-close" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Remove User Clicked", DateTime.Now))" aria-label="Close" disabled="@IsBusy">&#x2715;</button>
             </div>
 
             @* ── Body ── *@
@@ -44,10 +46,10 @@
                     <Button Text="DO NOT REMOVE USER"
                             Variant="Button.ButtonVariant.Secondary"
                             ShowBorder="false"
-                            OnClick="HandleCancel" />
+                            Onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Do Not Remove User Clicked", DateTime.Now))" />
                     <Button Text="REMOVE USER"
                             Variant="Button.ButtonVariant.Secondary"
-                            OnClick="HandleConfirm" />
+                            Onclick="@(() => tracker.LogNavigationSessionActivity(HandleConfirm, "Remove User Clicked", DateTime.Now))" />
                 }
             </div>
 

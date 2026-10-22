@@ -1,4 +1,6 @@
 @using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsOpen)
 {
@@ -11,7 +13,7 @@
                     <img src="@Assets["icons/delete_warning.svg"]" alt="" width="35" height="35" aria-hidden="true" />
                     No Permissions Selected
                 </h3>
-                <button type="button" class="no-perm-close" @onclick="HandleCancel" aria-label="Close">&#x2715;</button>
+                <button type="button" class="no-perm-close" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Close X Clicked", DateTime.Now))" aria-label="Close">&#x2715;</button>
             </div>
 
             @* ── Body ── *@
@@ -32,10 +34,10 @@
                 <Button Text="CANCEL"
                         Variant="Button.ButtonVariant.Secondary"
                         ShowBorder="false"
-                        OnClick="HandleCancel" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Cancel Clicked", DateTime.Now))" />
                 <Button Text="CONTINUE"
                         Variant="Button.ButtonVariant.Secondary"
-                        OnClick="HandleContinue" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))" />
             </div>
 
         </div>

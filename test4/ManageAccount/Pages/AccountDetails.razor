@@ -1,0 +1,158 @@
+@page "/manage-account/account-details"
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Update Account Information</PageTitle>
+
+<div class="account-details-page">
+    <h1 class="page-title" aria-label="update-account-information">Update Account Information</h1>
+
+    <div class="manage-addresses-link">
+        <a href="manage-account/manage-addresses" aria-label="Navigate to Manage Addresses">Manage Addresses</a>
+    </div>
+
+    <p class="required-text" aria-label="noted-required-fields">All fields are required unless noted.</p>
+
+    @using UI.EmployerPortal.Razor.SharedComponents
+
+    @if (_editContext == null)
+    {
+        <LoadingSpinner Message="Loading account details..." />
+    }
+    else if (_isSaving)
+    {
+        <LoadingSpinner Message="Saving account details..." />
+    }
+    else
+    {
+        @* ── Validation Error Summary ── *@
+        @if (_formSubmitted && _validationErrors.Any())
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                MessageStyle="MessageStyle.MultiLine"
+                                Messages="_validationErrors"
+                                MessageFieldIds="_validationFieldIds"
+                                DismissButton="false">
+            </NotificationBanner>
+            <br />
+        }
+
+        <EditForm EditContext="@_editContext" FormName="AccountDetails" OnSubmit="HandleSubmit" role="form">
+
+            <DataAnnotationsValidator />
+
+            @* ── Row 1: FEIN + Reason for FEIN Change ── *@
+            <div class="ad-fields-grid" aria-label="FEIN details">
+                <div class="ad-field" aria-label="fein">
+                    <FEINField Label="FEIN"
+                               Id="FEIN"
+                               @bind-Value="_model.FEIN"
+                               For="@(() => _model.FEIN)"
+                               Visible="@IsVisible(() => _model.FEIN)" />
+                </div>
+                @if (FeinHasChanged())
+                {
+                    <div class="ad-field" aria-label="reason-for-fein-change">
+                        <OutlinedSelectField Label="Reason for FEIN Change"
+                                             Id="ReasonForFeinChange"
+                                             @bind-Value="_model.ReasonForFeinChange"
+                                             For="@(() => _model.ReasonForFeinChange)"
+                                             Options="@_feinReasonOptions" />
+                    </div>
+                }
+            </div>
+
+            @* ── Explanation for FEIN Change (shown only when "Other" is selected) ── *@
+            @if (FeinHasChanged() && _model.ReasonForFeinChange == "5")
+            {
+                <div class="ad-field-double" aria-label="explanation-for-fein-change">
+                    <OutlinedTextField Label="Explanation for FEIN Change"
+                                       Id="FeinChangeReasonExplanation"
+                                       @bind-Value="_model.FeinChangeReasonExplanation"
+                                       For="@(() => _model.FeinChangeReasonExplanation)"
+                                       Visible="@IsVisible(() => _model.FeinChangeReasonExplanation)" />
+                </div>
+            }
+
+            <div class="ad-fields-grid" aria-label="Legal name details">
+                <div class="ad-field" aria-label="legal-name">
+                    <OutlinedTextField Label="Legal Name"
+                                       Id="LegalName"
+                                       @bind-Value="_model.LegalName"
+                                       For="@(() => _model.LegalName)"
+                                       Visible="@IsVisible(() => _model.LegalName)" />
+                </div>
+                @if (LegalNameHasChanged())
+                {
+                    <div class="ad-field" aria-label="reason-for-legal-name-change">
+                        <OutlinedSelectField Label="Reason for Legal Name Change"
+                                             Id="ReasonForLegalNameChange"
+                                             @bind-Value="_model.ReasonForLegalNameChange"
+                                             For="@(() => _model.ReasonForLegalNameChange)"
+                                             Options="@_legalNameReasonOptions" />
+                    </div>
+                }
+            </div>
+
+            @* ── Explanation for Legal Name Change (shown only when "Other" is selected) ── *@
+            @if (LegalNameHasChanged() && _model.ReasonForLegalNameChange == "5")
+            {
+                <div class="ad-field-double" aria-label="explanation-for-legal-name-change">
+                    <OutlinedTextField Label="Explanation for Legal Name Change"
+                                       Id="LegalNameChangeExplanation"
+                                       @bind-Value="_model.LegalNameChangeExplanation"
+                                       For="@(() => _model.LegalNameChangeExplanation)"
+                                       Visible="@IsVisible(() => _model.LegalNameChangeExplanation)" />
+                </div>
+            }
+
+
+            <div class="ad-field-single" aria-label="trade-name">
+                <OutlinedTextField Label="Trade Name (optional)"
+                                   Id="TradeName"
+                                   @bind-Value="_model.TradeName"
+                                   For="@(() => _model.TradeName)" />
+            </div>
+
+            @* ── Row 4: Phone Number (single column) ── *@
+            <div class="ad-field" aria-label="phone-number">
+                <PhoneNumberField Label="Phone Number"
+                                  Id="PhoneNumber"
+                                  @bind-Value="_model.PhoneNumber"
+                                  For="@(() => _model.PhoneNumber)"
+                                  @bind-Extension="_model.Extension"
+                                  @bind-CountryCode="_model.CountryCode"
+                                  ShowCountryCode="true"
+                                  Visible="@IsVisible(() => _model.PhoneNumber)" />
+            </div>
+
+            @* ── Row 5: Email Address (single column) ── *@
+            <div class="ad-field-single" aria-label="email-address">
+                <OutlinedTextField Label="Email Address (optional)"
+                                   Id="EmailAddress"
+                                   Type="text"
+                                   @bind-Value="_model.EmailAddress"
+                                   For="@(() => _model.EmailAddress)"
+                                   Visible="@IsVisible(() => _model.EmailAddress)" />
+            </div>
+
+            @* ── Buttons ── *@
+            <div class="button-bar-custom" role="group" aria-label="Form actions">
+                <Button Text="CANCEL"
+                        AriaLabel="Cancel and return to manage account"
+                        Variant="ButtonVariant.Secondary"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(Cancel, "Cancel Clicked", DateTime.Now))" />
+                <Button Type="submit"
+                        Text="SUBMIT"
+                        AriaLabel="Save account information changes"
+                        Variant="ButtonVariant.Primary" />
+            </div>
+
+        </EditForm>
+    }
+</div>

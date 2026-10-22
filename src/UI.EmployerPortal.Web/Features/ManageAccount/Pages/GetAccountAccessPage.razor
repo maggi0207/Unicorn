@@ -2,6 +2,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 <PageTitle>Get Account Access</PageTitle>
@@ -68,7 +70,7 @@
 
                 <button type="button"
                         class="gak-request-key-link"
-                        @onclick="OpenRequestAccessKeyModal"
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(OpenRequestAccessKeyModal, "Don't have an access key Clicked", DateTime.Now))"
                         disabled="@_isLoading">
                     Don't have an access key?
                 </button>
@@ -78,7 +80,7 @@
             <div class="gak-footer">
                 <Button Variant="ButtonVariant.Secondary"
                         Disabled="@_isLoading"
-                        Onclick="HandleBack">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
                     <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
                     BACK
                 </Button>

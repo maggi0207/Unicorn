@@ -1,12 +1,10 @@
 @page "/manage-account/account-details"
-@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+@using Microsoft.AspNetCore.Components.Forms
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using Microsoft.AspNetCore.Components.Forms
-@using System.Linq.Expressions
-@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
-@using UI.EmployerPortal.Web.Features.Shared.Session.Models
-@using UI.EmployerPortal.Web.Features.ManageAccount.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Update Account Information</PageTitle>
@@ -122,7 +120,7 @@
             </div>
 
             @* ── Row 4: Phone Number (single column) ── *@
-            <div class="ad-field-single" aria-label="phone-number">
+            <div class="ad-field" aria-label="phone-number">
                 <PhoneNumberField Label="Phone Number"
                                   Id="PhoneNumber"
                                   @bind-Value="_model.PhoneNumber"
@@ -145,17 +143,14 @@
 
             @* ── Buttons ── *@
             <div class="button-bar-custom" role="group" aria-label="Form actions">
-                <button type="button"
-                        class="btn-cancel"
-                        aria-label="Cancel and return to manage account"
-                        @onclick="Cancel">
-                    CANCEL
-                </button>
-                <button type="submit"
-                        class="btn-save"
-                        aria-label="Save account information changes">
-                    SAVE
-                </button>
+                <Button Text="CANCEL"
+                        AriaLabel="Cancel and return to manage account"
+                        Variant="ButtonVariant.Secondary"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(Cancel, "Cancel Clicked", DateTime.Now))" />
+                <Button Type="submit"
+                        Text="SUBMIT"
+                        AriaLabel="Save account information changes"
+                        Variant="ButtonVariant.Primary" />
             </div>
 
         </EditForm>

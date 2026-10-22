@@ -2,6 +2,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <PageTitle>Edit Permissions</PageTitle>
 
@@ -74,10 +76,10 @@
             <div class="edit-perms-footer edit-perms-footer-manager">
                 <Button Text="REMOVE USER"
                         Variant="Button.ButtonVariant.Secondary"
-                        OnClick="OpenRemoveModal" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(OpenRemoveModal, "Remove User Clicked", DateTime.Now))" />
                 <Button Text="CANCEL"
                         Variant="Button.ButtonVariant.Primary"
-                        OnClick="HandleBack" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Cancel Clicked", DateTime.Now))" />
             </div>
         }
         else
@@ -93,11 +95,11 @@
             <div class="edit-perms-footer">
                 <Button Text="BACK"
                         Variant="Button.ButtonVariant.Secondary"
-                        OnClick="HandleBack"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))"
                         Disabled="_isSaving" />
                 <Button Text="SAVE"
                         Variant="Button.ButtonVariant.Primary"
-                        OnClick="HandleSaveAsync"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSaveAsync, "Save Clicked", DateTime.Now))"
                         Disabled="_isSaving" />
             </div>
         }

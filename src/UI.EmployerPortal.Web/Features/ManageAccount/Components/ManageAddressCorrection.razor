@@ -1,5 +1,6 @@
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="page_wrapper">
     <div class="ac-page-content">
@@ -65,7 +66,7 @@
                     @if (item.Suggested is not null)
                     {
                         <div class="ac-actions-edit">
-                            <button type="button" class="btn btn--sm btn--secondary" @onclick="HandleEditAddress">
+                            <button type="button" class="btn btn--sm btn--secondary" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleEditAddress, "Edit Address Clicked", DateTime.Now))">
                                 EDIT ADDRESS
                             </button>
                         </div>
@@ -116,7 +117,7 @@
                     else
                     {
                         <div class="ac-actions-edit">
-                            <button type="button" class="btn btn--sm btn--secondary" @onclick="HandleEditAddress">
+                            <button type="button" class="btn btn--sm btn--secondary" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleEditAddress, "Edit Address Clicked", DateTime.Now))">
                                 EDIT ADDRESS
                             </button>
                         </div>
@@ -136,7 +137,7 @@
         }
 
         <div class="ac-footer">
-            <button type="button" class="btn btn--primary" @onclick="HandleContinue">
+            <button type="button" class="btn btn--primary" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))">
                 CONTINUE
             </button>
         </div>
