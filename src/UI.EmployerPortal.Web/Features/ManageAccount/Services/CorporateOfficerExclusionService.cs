@@ -113,8 +113,8 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             coeResonableResponse.WITaxablePayrollWithoutCOE = response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : 0;
 
-            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRate.HasValue ?
-                                                                  response.COEReasonablenessProxy.WIUITaxRate.Value : 0;
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
 
             coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
                                                                   response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
@@ -182,8 +182,8 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             coeResonableResponse.WITaxablePayrollWithoutCOE = response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue ?
                                                                   response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : 0;
 
-            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRate.HasValue ?
-                                                                  response.COEReasonablenessProxy.WIUITaxRate.Value : 0;
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
 
             coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
                                                                   response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
@@ -231,3 +231,4 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         return reqResponse;
     }
 }
+
