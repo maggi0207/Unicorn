@@ -148,10 +148,15 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             SecureUserSK = secureUserSK
         };
 
+        var emptySummary = new COEElectionSummary
+        {
+            IsAlreadyElected = false
+        };
+
         var response = await _accountSummaryService.GetCorporateOfficerExclusionsAsync(request);
         if (response == null || response.CorporateOfficerExclusionProxies == null)
         {
-            return null;
+            return emptySummary;
         }
 
         AccountSummary.CorporateOfficerExclusionProxy selectedElection = null;
@@ -181,7 +186,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
 
         if (!hasSelectedElection || selectedElection == null)
         {
-            return null;
+            return emptySummary;
         }
 
         var summary = new COEElectionSummary

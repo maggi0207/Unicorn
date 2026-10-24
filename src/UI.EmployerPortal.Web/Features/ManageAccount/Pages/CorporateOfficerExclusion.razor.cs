@@ -202,7 +202,7 @@ public partial class CorporateOfficerExclusion
             var secureUserSK = UserAccountService.GetUserSKClaim();
 
             var existingElection = await CorporateOfficerExclusionService.GetExistingElectionAsync(_employerSK, secureUserSK);
-            if (existingElection != null && existingElection.IsAlreadyElected)
+            if (existingElection.IsAlreadyElected)
             {
                 ApplyExistingElection(existingElection);
                 return;
@@ -515,7 +515,7 @@ public partial class CorporateOfficerExclusion
         try
         {
             var existingElection = await CorporateOfficerExclusionService.GetExistingElectionAsync(employerSK, secureUserSK);
-            if (existingElection == null)
+            if (!existingElection.IsAlreadyElected)
             {
                 return;
             }
