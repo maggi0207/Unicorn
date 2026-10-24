@@ -138,9 +138,7 @@
 .worksheet-headings {
     display: flex;
     flex-direction: column;
-    width: calc(100% + 64px);
-    margin-left: -32px;
-    margin-right: -32px;
+    width: 100%;
     gap: 24px;
 }
 
