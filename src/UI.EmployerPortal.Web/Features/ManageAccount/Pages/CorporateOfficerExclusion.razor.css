@@ -45,9 +45,6 @@
     text-align: left !important;
 }
 
-.flex-button-end {
-    justify-content: flex-end;
-}
 
 .coe-field-error {
     color: #b00020;
@@ -318,6 +315,10 @@ tbody tr td:nth-child(2) {
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+}
+
+.flex-button.flex-button-end {
+    justify-content: flex-end;
 }
 .btn-recalculate {
     padding: 0 40px 0 0;

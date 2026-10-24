@@ -195,7 +195,7 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
-            _accountNumber = selected?.EmployerAccount?.UIAccountNo ?? string.Empty;
+            _accountNumber = FormatUIAccountNumber(selected?.EmployerAccount?.UIAccountNo ?? string.Empty);
             _legalName = selected?.EmployerAccount?.LegalName ?? string.Empty;
             _effectiveDate = new DateTime(DateTime.Now.Year, 1, 1);
 
@@ -239,7 +239,7 @@ public partial class CorporateOfficerExclusion
 
         if (!string.IsNullOrWhiteSpace(existingElection.AccountNumber))
         {
-            _accountNumber = existingElection.AccountNumber;
+            _accountNumber = FormatUIAccountNumber(existingElection.AccountNumber);
         }
 
         if (!string.IsNullOrWhiteSpace(existingElection.LegalName))
@@ -477,7 +477,7 @@ public partial class CorporateOfficerExclusion
 
             if (!string.IsNullOrWhiteSpace(_saveResponse.AccountNumber))
             {
-                _accountNumber = _saveResponse.AccountNumber;
+                _accountNumber = FormatUIAccountNumber(_saveResponse.AccountNumber);
             }
 
             if (!string.IsNullOrWhiteSpace(_saveResponse.LegalName))
@@ -638,5 +638,26 @@ public partial class CorporateOfficerExclusion
         {
             _submitFailedError = true;
         }
+    }
+
+    /// <summary>
+    /// Formats a UI account number as ######-###-# when 10 digits are present.
+    /// </summary>
+    /// <param name="accountNo">The raw or partially formatted account number.</param>
+    /// <returns>The formatted account number, or the original value when it cannot be formatted.</returns>
+    private static string FormatUIAccountNumber(string accountNo)
+    {
+        if (string.IsNullOrWhiteSpace(accountNo))
+        {
+            return string.Empty;
+        }
+
+        var digits = accountNo.Replace("-", string.Empty);
+        if (digits.Length == 10)
+        {
+            return $"{digits[..6]}-{digits[6..9]}-{digits[9..]}";
+        }
+
+        return accountNo;
     }
 }
