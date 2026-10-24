@@ -247,12 +247,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>True when the election should block a new worksheet submission.</returns>
     private static bool IsElectionInEffect(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
-        if (proxy == null)
-        {
-            return false;
-        }
-
-        if (!proxy.CorporateOfficerExclusionSK.HasValue)
+        if (proxy == null || !proxy.CorporateOfficerExclusionSK.HasValue)
         {
             return false;
         }
@@ -263,12 +258,8 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return false;
         }
 
-        if (proxy.EffectiveDate.HasValue)
-        {
-            return true;
-        }
-
-        return status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0
+        return proxy.EffectiveDate.HasValue
+            || status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0
             || status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
@@ -279,21 +270,10 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>The best available date for sorting.</returns>
     private static DateTime GetElectionSortDate(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
-        if (proxy.ReceivedDate.HasValue)
-        {
-            return proxy.ReceivedDate.Value;
-        }
-
-        if (proxy.RequestDate.HasValue)
-        {
-            return proxy.RequestDate.Value;
-        }
-
-        if (proxy.DecisionDate.HasValue)
-        {
-            return proxy.DecisionDate.Value;
-        }
-
-        return proxy.EffectiveDate ?? DateTime.MinValue;
+        return proxy.ReceivedDate
+            ?? proxy.RequestDate
+            ?? proxy.DecisionDate
+            ?? proxy.EffectiveDate
+            ?? DateTime.MinValue;
     }
 }
