@@ -24,6 +24,31 @@
     border-radius: 8px;
 }
 
+.effective-date {
+    grid-column: 1 / -1;
+    font-weight: 900;
+}
+
+.header-cell-narrow {
+    width: 45px;
+}
+
+.header-cell-desc {
+    width: 250px;
+}
+
+.header-cell-amount {
+    width: 160px;
+}
+
+.net-savings-label {
+    text-align: left !important;
+}
+
+.flex-button-end {
+    justify-content: flex-end;
+}
+
 .label {
     font-size: .85rem;
     color: #000;

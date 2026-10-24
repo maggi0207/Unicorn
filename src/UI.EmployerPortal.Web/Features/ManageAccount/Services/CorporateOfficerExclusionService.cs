@@ -217,12 +217,17 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             reqResponse.LegalName = res.LegalName;
             reqResponse.CorporateOfficeExclusionEffectiveDate = res.CorporateOfficeExclusionEffectiveDate;
 
-            if (res.RuleViolations.Length > 0)
+            if (res.RuleViolations != null && res.RuleViolations.Length > 0)
             {
-                reqResponse.WarningMessage = res.RuleViolations.Select(x => x.RuleViolation).ToList();
-
+                foreach (var ruleViolation in res.RuleViolations)
+                {
+                    if (ruleViolation != null && !string.IsNullOrWhiteSpace(ruleViolation.RuleViolation))
+                    {
+                        reqResponse.WarningMessage.Add(ruleViolation.RuleViolation);
+                    }
+                }
             }
-            else
+            else if (!string.IsNullOrWhiteSpace(res.WarningMessage))
             {
                 reqResponse.WarningMessage.Add(res.WarningMessage);
             }
