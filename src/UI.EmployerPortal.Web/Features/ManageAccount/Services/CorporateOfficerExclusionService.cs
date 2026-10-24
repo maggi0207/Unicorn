@@ -159,7 +159,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return emptySummary;
         }
 
-        AccountSummary.CorporateOfficerExclusionProxy selectedElection = new AccountSummary.CorporateOfficerExclusionProxy();
+        var selectedElection = new AccountSummary.CorporateOfficerExclusionProxy();
         var hasSelectedElection = false;
 
         foreach (var proxy in response.CorporateOfficerExclusionProxies)
@@ -268,12 +268,8 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return true;
         }
 
-        if (status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            return true;
-        }
-
-        return status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0;
+        return status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0
+            || status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     /// <summary>
@@ -298,11 +294,6 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return proxy.DecisionDate.Value;
         }
 
-        if (proxy.EffectiveDate.HasValue)
-        {
-            return proxy.EffectiveDate.Value;
-        }
-
-        return DateTime.MinValue;
+        return proxy.EffectiveDate ?? DateTime.MinValue;
     }
 }
