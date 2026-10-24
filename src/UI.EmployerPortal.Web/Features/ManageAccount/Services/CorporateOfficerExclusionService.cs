@@ -247,20 +247,13 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>True when the election should block a new worksheet submission.</returns>
     private static bool IsElectionInEffect(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
-        if (proxy == null || !proxy.CorporateOfficerExclusionSK.HasValue)
-        {
-            return false;
-        }
-
-        var status = proxy.COEStatusDescription ?? string.Empty;
-        if (status.IndexOf("suspend", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            return false;
-        }
-
-        return proxy.EffectiveDate.HasValue
-            || status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0
-            || status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0;
+        var status = proxy?.COEStatusDescription ?? string.Empty;
+        return proxy != null
+            && proxy.CorporateOfficerExclusionSK.HasValue
+            && status.IndexOf("suspend", StringComparison.OrdinalIgnoreCase) < 0
+            && (proxy.EffectiveDate.HasValue
+                || status.IndexOf("elect", StringComparison.OrdinalIgnoreCase) >= 0
+                || status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
     /// <summary>
