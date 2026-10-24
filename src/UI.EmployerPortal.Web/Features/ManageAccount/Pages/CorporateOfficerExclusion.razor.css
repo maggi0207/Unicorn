@@ -135,24 +135,20 @@
     font-size: 1.05rem;
 }
 
-.title {
-    margin: 0;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #d9d9d9;
-    box-sizing: border-box;
-    font-weight: 600;
-}
-
-.title--no-border {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
+.title,
 .worksheet-subtitle {
     margin: 0;
     padding-bottom: 16px;
-    border-bottom: 1px solid #d9d9d9;
     box-sizing: border-box;
+}
+
+.title {
+    border-bottom: 1px solid #ADADAD;
+    font-weight: 600;
+}
+
+.worksheet-subtitle {
+    border-bottom: 1px solid #003663;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.4;
