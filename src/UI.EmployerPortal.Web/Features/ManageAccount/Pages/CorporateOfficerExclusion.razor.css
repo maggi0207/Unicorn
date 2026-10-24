@@ -138,19 +138,30 @@
 .worksheet-headings {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    gap: 12px;
-}
-
-.title,
-.worksheet-subtitle {
-    margin: 0;
-    width: 100%;
-    padding-bottom: 12px;
-    box-sizing: border-box;
+    width: calc(100% + 64px);
+    margin-left: -32px;
+    margin-right: -32px;
+    gap: 24px;
 }
 
 .title {
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ADADAD;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+.worksheet-headings .title,
+.worksheet-headings .worksheet-subtitle {
+    margin: 0;
+    width: 100%;
+    padding: 0 32px;
+    padding-bottom: 0;
+    box-sizing: border-box;
+}
+
+.worksheet-headings .title {
     border-bottom: 1px solid #ADADAD;
     font-weight: 600;
 }
