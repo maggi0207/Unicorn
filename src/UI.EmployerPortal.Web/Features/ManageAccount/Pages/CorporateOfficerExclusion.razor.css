@@ -47,21 +47,43 @@
 
 
 .coe-field-error {
-    color: #b00020;
-    font-size: 12px;
-    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #C82838;
     text-align: left;
+    width: 100%;
+}
+
+.coe-field-error svg {
+    flex-shrink: 0;
 }
 
 ::deep .coe-input-error {
-    border-color: #b00020 !important;
-    outline-color: #b00020;
+    border-color: #C82838 !important;
+    outline-color: #C82838;
+}
+
+.decimal-input {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
 }
 
 .decimal-input--error {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: stretch;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
 }
 
 .coe-success-block {
@@ -114,25 +136,42 @@
 }
 
 .title {
-    display: flex;
-    flex-direction: column;
-    min-height: 50px;
-    height: auto;
-    gap: 16px;
+    margin: 0;
+    padding-bottom: 16px;
     border-bottom: 1px solid #d9d9d9;
     box-sizing: border-box;
-    font-weight : 600;
+    font-weight: 600;
 }
+
+.title--no-border {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.worksheet-subtitle {
+    margin: 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #d9d9d9;
+    box-sizing: border-box;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #000;
+}
+
 .header-container {
     display: flex;
     flex-direction: column;
     height: auto;
-    /* min-height: 211px; */
-    gap: 15px;;
+    gap: 16px;
+}
+
+.header-container--worksheet {
+    gap: 16px;
 }
 
 .section-paragraph {
-    min-height: 104px;
+    margin: 0;
     font-family: Verdana, sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -141,8 +180,16 @@
     color: #000;
 }
 
+.section-paragraph--worksheet {
+    min-height: 0;
+}
+
 .page-heading {
-    font-weight: 600;
+    margin: 0;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    color: #000;
 }
 /* Table container - contains table and pagination */
 .table-container {

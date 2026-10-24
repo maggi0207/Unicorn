@@ -121,7 +121,7 @@
             </div>
         </div>
 
-        <div class="flex-button flex-button-end">
+        <div class="flex-button">
             <Button Text="ACCOUNT SUMMARY"
                     Variant="Button.ButtonVariant.Primary"
                     Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />
@@ -162,20 +162,16 @@
     else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.Value))
     {
         @* ── Reasonableness worksheet ── *@
-        <div class="header-container">
-
-            <h1 class="title">Corporate Officer Exclusion Reasonableness Worksheet</h1>
-            <p class="section-paragraph">
-                This worksheet is designed to calculate the impact on all of your unemployment taxes by taking this exclusion.
-                When you enter the data in the three required fields on the worksheet, you will see what impact taking the
-                exclusion has on you. If you have any questions about this, please <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.
-            </p>
+        <div class="header-container header-container--worksheet">
+            <h1 class="title title--no-border">Corporate Officer Exclusion</h1>
+            <h2 class="worksheet-subtitle">Corporate Officer Exclusion Reasonableness Worksheet</h2>
 
             @if (_fieldValidationMessages.Count > 0)
             {
                 <NotificationBanner NotificationType="NotificationType.Alert"
                                     MessageStyle="MessageStyle.MultiLine"
                                     Messages="_fieldValidationMessages"
+                                    MessageFieldIds="_fieldValidationFieldIds"
                                     DismissButton="false">
                 </NotificationBanner>
             }
@@ -201,8 +197,14 @@
                                     DismissButton="false">
                 </NotificationBanner>
             }
+
+            <p class="section-paragraph section-paragraph--worksheet">
+                This worksheet is designed to calculate the impact on all of your unemployment taxes by taking this exclusion.
+                When you enter the data in the three required fields on the worksheet, you will see what impact taking the
+                exclusion has on you. If you have any questions about this, please <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.
+            </p>
+            <p class="page-heading">You must calculate your net savings before electing this exclusion.</p>
         </div>
-        <div class="page-heading">You must calculate your net savings before electing this exclusion.</div>
         <div class="table-container">
             <table class="table" aria-label="Corporate Officer Exclusion Reasonableness Worksheet">
                 <caption class="visually-hidden">Corporate Officer Exclusion reasonableness worksheet comparing tax impact with and without exclusion</caption>
@@ -251,7 +253,14 @@
                                     </NumericTextBox>
                                     @if (_futaPayrollMissing)
                                     {
-                                        <div class="coe-field-error">Missing value</div>
+                                        <p class="coe-field-error">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                <circle cx="8" cy="8" r="8" fill="#C82838" />
+                                                <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                                                <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                                            </svg>
+                                            Missing value
+                                        </p>
                                     }
                                 </div>
                             </td>
@@ -287,7 +296,14 @@
                                                     ValueChanged="OnWITaxablePayrollWithoutCOEChanged"></NumericTextBox>
                                     @if (_wiPayrollWithoutMissing)
                                     {
-                                        <div class="coe-field-error">Missing value</div>
+                                        <p class="coe-field-error">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                <circle cx="8" cy="8" r="8" fill="#C82838" />
+                                                <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                                                <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                                            </svg>
+                                            Missing value
+                                        </p>
                                     }
                                 </div>
                             </td>
@@ -371,10 +387,13 @@
                     }
                 </button>
                 <div class="visually-hidden" role="status" aria-live="polite"> @_recalculateStatus</div>
-                <Button Text="SUBMIT ELECTION"
-                        Variant="Button.ButtonVariant.Primary"
-                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSaveAsync, "Submit Election Clicked", DateTime.Now))"
-                        Disabled="_isSaving || _isRecalculating" />
+                @if (_isCalculateClicked)
+                {
+                    <Button Text="SUBMIT ELECTION"
+                            Variant="Button.ButtonVariant.Primary"
+                            Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSaveAsync, "Submit Election Clicked", DateTime.Now))"
+                            Disabled="_isSaving || _isRecalculating" />
+                }
             </span>
 
         </div>

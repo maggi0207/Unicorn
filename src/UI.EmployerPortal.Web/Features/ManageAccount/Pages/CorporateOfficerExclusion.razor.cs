@@ -104,6 +104,11 @@ public partial class CorporateOfficerExclusion
     private List<string> _fieldValidationMessages = [];
 
     /// <summary>
+    /// Input element ids aligned with <see cref="_fieldValidationMessages"/> for banner click-to-focus.
+    /// </summary>
+    private List<string> _fieldValidationFieldIds = [];
+
+    /// <summary>
     /// True while the intro screen is shown before the worksheet.
     /// </summary>
     private bool _showIntro = true;
@@ -290,6 +295,7 @@ public partial class CorporateOfficerExclusion
         _futaPayrollMissing = false;
         _wiPayrollWithoutMissing = false;
         _fieldValidationMessages = [];
+        _fieldValidationFieldIds = [];
     }
 
     /// <summary>
@@ -312,12 +318,14 @@ public partial class CorporateOfficerExclusion
         {
             _futaPayrollMissing = true;
             _fieldValidationMessages.Add("Payroll Subject to FUTA missing.");
+            _fieldValidationFieldIds.Add("futaPayroll");
         }
 
         if (_response.WITaxablePayrollWithoutCOE <= 0)
         {
             _wiPayrollWithoutMissing = true;
             _fieldValidationMessages.Add("Payroll Subject to WI UI Tax missing.");
+            _fieldValidationFieldIds.Add("WITaxablePayrollWithoutCOE");
         }
 
         return !_futaPayrollMissing && !_wiPayrollWithoutMissing;

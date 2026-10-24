@@ -1,6 +1,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
 
 <input type="number"
+       id="@Id"
+       aria-label="@AriaLabel"
        class="numeric-textbox @CssClass @(IsReadonly ? "textboxReadOnlyBackgroundColor" : "")"
        value="@Value"
        min="@Min"
@@ -21,6 +23,12 @@
 
     /// <summary>When true, a currency symbol is shown alongside the input.</summary>
     [Parameter] public bool ShowCurrencyIcon { get; set; }
+
+    /// <summary>HTML id applied to the input for validation banner focus links.</summary>
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    /// <summary>Accessible name for the input.</summary>
+    [Parameter] public string AriaLabel { get; set; } = string.Empty;
 
     /// <summary>Additional CSS classes applied to the input element.</summary>
     [Parameter] public string CssClass { get; set; } = string.Empty;
