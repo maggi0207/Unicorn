@@ -88,7 +88,27 @@ Add new rules to this file whenever:
 - **IDE0044 (Make field readonly):** Any private field that is assigned only in the constructor or at declaration (e.g., `private readonly List<string> _errors = new();`) must be marked as `readonly`.
 - **IDE0042 (Variable declaration can be deconstructed):** When a method returns a tuple, deconstruct it directly into variables (e.g., `var (success, error) = await ...`) instead of assigning the tuple to a single variable.
 - **IDE1006 (Naming rule violation):** Method parameters must use `camelCase` formatting, even in generic methods or delegates. `private static readonly` fields must use `PascalCase` without a `_` prefix (e.g., `PostalCodePattern` not `_postalCodePattern`). Instance fields in non-static classes may keep the `_` prefix.
-- **IDE0046 ('if' statement can be simplified):** If an `if` statement can be simplified into a single return expression (e.g., returning a boolean condition directly instead of `if (x) return true; else return false;`), simplify it to satisfy the IDE rule, bypassing the "always use brackets for if statements" rule when applicable.
+- **ALWAYS write new code IDE-clean:** Before finishing any new/edited C# method, ensure it will not raise **IDE0007**, **IDE0046**, or nullable **CS8600/CS8603**. Office treats these as build errors. Prefer `var`, ternary/`??` returns, and no `null` assigned to non-nullable locals — do not wait for the user to paste and report red squiggles.
+- **IDE0046 ('if' statement can be simplified):** Treat as a **build error** in office (same as compile errors). Prefer a single `return` expression instead of early `if (...) return true/false` chains. Also simplify `if (cond) return a; return b;` to `return cond ? a : b;`.
+  - Bad:
+    ```csharp
+    if (status.IndexOf("suspend", StringComparison.OrdinalIgnoreCase) >= 0)
+    {
+        return false;
+    }
+    return proxy.EffectiveDate.HasValue;
+    ```
+  - Good:
+    ```csharp
+    return status.IndexOf("suspend", StringComparison.OrdinalIgnoreCase) < 0
+        && proxy.EffectiveDate.HasValue;
+    ```
+  - Also prefer null-coalescing for date fallbacks:
+    ```csharp
+    return proxy.ReceivedDate ?? proxy.RequestDate ?? proxy.EffectiveDate ?? DateTime.MinValue;
+    ```
 - **IDE0028 (Simplify collection initialization):** Use C# 12 collection expressions (`[]` instead of `new()` or `new List<T>()`) to initialize lists, arrays, and sets.
-- **IDE0007 (Use 'var' instead of explicit type):** Use `var` for local variable declarations when the type is apparent or assigned from expressions (e.g., `var startYear = dateFirstPaidWages.Value.Year;`, `var entry = new YearQuartersPaidWages(...)`).
+- **IDE0007 (Use 'var' instead of explicit type):** Treat as a **build error** in office. Use `var` for local variable declarations when the type is apparent or assigned from expressions (e.g., `var startYear = dateFirstPaidWages.Value.Year;`, `var selectedElection = new AccountSummary.CorporateOfficerExclusionProxy();`). Do **not** write `CorporateOfficerExclusionProxy selectedElection = new ...`.
 - **IDE0048 (Add parentheses for clarity):** Add explicit parentheses around arithmetic, logical, or division sub-expressions for operator precedence clarity (e.g., `var startQuarter = ((month - 1) / 3) + 1;`).
+- **IDE8600 / IDE8603 / CS8600 / CS8603 (nullable):** Do not assign `null` to a non-nullable reference local. Initialize with `new T()` + a `bool hasValue` flag, or return an empty model instead of `return null` when the API returns a non-nullable reference type.
+- **Ambiguous WCF types:** When a file uses both `AccountMaintenanceService` and `AccountSummaryService`, always alias them (`using AccountSummary = ...; using AccountMaintenance = ...;`) and qualify `EmployerRequest` / `CorporateOfficerExclusionProxy` — never leave them unqualified.

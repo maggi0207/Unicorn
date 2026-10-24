@@ -653,11 +653,8 @@ public partial class CorporateOfficerExclusion
         }
 
         var digits = accountNo.Replace("-", string.Empty);
-        if (digits.Length == 10)
-        {
-            return $"{digits[..6]}-{digits[6..9]}-{digits[9..]}";
-        }
-
-        return accountNo;
+        return digits.Length == 10
+            ? $"{digits[..6]}-{digits[6..9]}-{digits[9..]}"
+            : accountNo;
     }
 }
