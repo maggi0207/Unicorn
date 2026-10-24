@@ -159,12 +159,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return emptySummary;
         }
 
-        AccountSummary.CorporateOfficerExclusionProxy selectedElection = null;
+        AccountSummary.CorporateOfficerExclusionProxy selectedElection = new AccountSummary.CorporateOfficerExclusionProxy();
         var hasSelectedElection = false;
 
         foreach (var proxy in response.CorporateOfficerExclusionProxies)
         {
-            if (!IsElectionInEffect(proxy))
+            if (proxy == null || !IsElectionInEffect(proxy))
             {
                 continue;
             }
@@ -184,7 +184,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             }
         }
 
-        if (!hasSelectedElection || selectedElection == null)
+        if (!hasSelectedElection)
         {
             return emptySummary;
         }
@@ -247,7 +247,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>True when the election should block a new worksheet submission.</returns>
     private static bool IsElectionInEffect(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
-        if (proxy == null || !proxy.CorporateOfficerExclusionSK.HasValue)
+        if (proxy == null)
+        {
+            return false;
+        }
+
+        if (!proxy.CorporateOfficerExclusionSK.HasValue)
         {
             return false;
         }
@@ -268,12 +273,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return true;
         }
 
-        if (status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            return true;
-        }
-
-        return false;
+        return status.IndexOf("effect", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     /// <summary>
