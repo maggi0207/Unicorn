@@ -107,12 +107,14 @@
 </div>
 
 <NoPermissionsSelectedModal IsOpen="_showNoPermModal"
+                            IsBusy="_isRemoving"
+                            ErrorMessage="@_removeError"
                             OnCancel="CloseNoPermModal"
-                            OnContinue="ContinueFromNoPermModal" />
+                            OnConfirm="RemoveUserAsync" />
 
 <RemoveUserModal IsOpen="_showRemoveModal"
                  IsBusy="_isRemoving"
                  ErrorMessage="@_removeError"
                  UserDisplayName="@($"{_user?.FirstName} {_user?.LastName}".Trim())"
                  OnCancel="CloseRemoveModal"
-                 OnConfirm="ConfirmRemoveAsync" />
+                 OnConfirm="RemoveUserAsync" />

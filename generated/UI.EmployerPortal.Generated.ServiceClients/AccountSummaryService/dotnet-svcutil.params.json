@@ -1,0 +1,19 @@
+{
+  "providerId": "Microsoft.Tools.ServiceModel.Svcutil",
+  "version": "8.0.0",
+  "options": {
+    "inputs": [
+      "../Contracts/AccountSummaryService.xml"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService"
+    ],
+    "outputFile": "Reference.cs",
+    "targetFramework": "net10.0",
+    "typeReuseMode": "None"
+  }
+}

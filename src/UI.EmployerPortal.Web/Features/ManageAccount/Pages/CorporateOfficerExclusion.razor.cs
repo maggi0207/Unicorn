@@ -51,6 +51,8 @@ public partial class CorporateOfficerExclusion
     private bool _isSaving = false;
 
     private bool _isCalculateClicked = false;
+    private bool _isNoSavingsShown = false;
+
     /// <summary>
     ///
     /// </summary>
@@ -151,48 +153,70 @@ public partial class CorporateOfficerExclusion
         StateHasChanged();
     }
 
-
     private async Task HandleSaveAsync()
     {
+        if (_isSaving || _isRecalculating)
+        {
+            return;
+        }
+        if (!_isCalculateClicked || _response == null)
+        {
+            return;
+        }
         _isSaving = true;
-
-        var selectedClient = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
-
-        if (selectedClient == null)
-        {
-            return;
-        }
-
-        var employerSk = selectedClient.Id;
-
-        if (employerSk == 0)
-        {
-            return;
-        }
-
-        var secureUserSK = UserAccountService.GetUserSKClaim();
 
         try
         {
-            var request = new CorporateOfficerExclusionRequest()
+            var selectedClient =
+                await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+
+            if (selectedClient == null || selectedClient.Id == 0)
             {
-                EmployerSK = employerSk,
+                return;
+            }
+
+            var secureUserSK = UserAccountService.GetUserSKClaim();
+
+            var request = new CorporateOfficerExclusionRequest
+            {
+                EmployerSK = selectedClient.Id,
                 SecureUserSK = secureUserSK,
                 NetSavings = _response.NetSavings,
                 Year = DateTime.Now.Year,
-                IsCalculateClicked = _isCalculateClicked
+                IsCalculateClicked = _isCalculateClicked,
+                IsNoSavingsShown = _isNoSavingsShown
             };
 
-            _saveResponse = await CorporateOfficerExclusionService.Save(request);
-            _isSaveSuccess = _saveResponse?.Success;
+            _saveResponse =
+                await CorporateOfficerExclusionService.Save(request);
+
+            if (_saveResponse == null)
+            {
+                _isSaveSuccess = false;
+                return;
+            }
+
+            // Server returned the no-savings warning.
+            if (_saveResponse.IsNoSavingsShown)
+            {
+                _isNoSavingsShown = true;
+                _isSaveSuccess = false;
+                return;
+            }
+
+            // Handle the actual save result.
+            _isSaveSuccess = _saveResponse.Success;
         }
         catch
         {
             _isSaveSuccess = false;
         }
-
-        _isSaving = false;
+        finally
+        {
+            _isSaving = false;
+        }
     }
+
 
     private void HandleBack()
     {

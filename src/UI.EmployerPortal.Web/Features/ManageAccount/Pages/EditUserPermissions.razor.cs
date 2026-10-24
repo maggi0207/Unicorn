@@ -183,13 +183,12 @@ public partial class EditUserPermissions
 
     private void CloseNoPermModal()
     {
+        if (_isRemoving)
+        {
+            return;
+        }
         _showNoPermModal = false;
-    }
-
-    private void ContinueFromNoPermModal()
-    {
-        _showNoPermModal = false;
-        Navigation.NavigateTo("manage-account/account-users");
+        _removeError = null;
     }
 
     private void OpenRemoveModal()
@@ -208,9 +207,19 @@ public partial class EditUserPermissions
         _removeError = null;
     }
 
-    private async Task ConfirmRemoveAsync()
+    /// <summary>
+    /// Removes this user's access to the employer.
+    /// </summary>
+    /// <remarks>
+    /// Reached two ways, and both have to end up here. The Remove User modal is the explicit
+    /// route. The No Permissions Selected modal is the implicit one: it tells the user
+    /// "if you continue, you are removing this user's access to the account", so continuing has to
+    /// perform the removal rather than just navigate away - otherwise the modal states a
+    /// consequence that never happens and the user keeps their access.
+    /// </remarks>
+    private async Task RemoveUserAsync()
     {
-        if (_user == null)
+        if (_user == null || _isRemoving)
         {
             return;
         }
