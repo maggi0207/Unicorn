@@ -12,7 +12,7 @@ using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
 /// <summary>
-/// Corporate Officer Exclusion reasonableness worksheet and election confirmation page.
+/// Corporate Officer Exclusion intro, reasonableness worksheet, and election confirmation page.
 /// </summary>
 public partial class CorporateOfficerExclusion
 {
@@ -27,9 +27,19 @@ public partial class CorporateOfficerExclusion
     private const string SubmitFailedMessage = "Worksheet failed to submit. Please try again.";
 
     /// <summary>
-    /// Message shown on the success confirmation banner.
+    /// Message shown on the already-elected confirmation banner.
     /// </summary>
     private const string SubmitSuccessMessage = "Corporate Officer Exclusion submitted.";
+
+    /// <summary>
+    /// Centered success copy shown immediately after a successful election (Figma Success).
+    /// </summary>
+    private const string ElectionSubmittedMessage = "Your election successfully submitted.";
+
+    /// <summary>
+    /// Banner shown after the user requests a mailed Initial Determination copy.
+    /// </summary>
+    private const string MailCopyBannerMessage = "Initial Determination letter will be mailed to your main business mailing address.";
 
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
@@ -79,9 +89,74 @@ public partial class CorporateOfficerExclusion
     private bool _submitFailedError = false;
 
     /// <summary>
-    /// Success banner text for the confirmation screen.
+    /// True when Line 1 FUTA payroll (Without Exclusion) is missing.
+    /// </summary>
+    private bool _futaPayrollMissing = false;
+
+    /// <summary>
+    /// True when Line 4 WI payroll without exclusion is missing.
+    /// </summary>
+    private bool _wiPayrollWithoutMissing = false;
+
+    /// <summary>
+    /// Top validation banner messages collected in field layout order.
+    /// </summary>
+    private List<string> _fieldValidationMessages = [];
+
+    /// <summary>
+    /// True while the intro screen is shown before the worksheet.
+    /// </summary>
+    private bool _showIntro = true;
+
+    /// <summary>
+    /// True when the employer already has a Corporate Officer Exclusion in effect.
+    /// </summary>
+    private bool _isAlreadyElected = false;
+
+    /// <summary>
+    /// Account number shown on intro / already-elected / success cards.
+    /// </summary>
+    private string _accountNumber = string.Empty;
+
+    /// <summary>
+    /// Legal name shown on intro / already-elected / success cards.
+    /// </summary>
+    private string _legalName = string.Empty;
+
+    /// <summary>
+    /// Effective date shown on intro / already-elected cards.
+    /// </summary>
+    private DateTime? _effectiveDate;
+
+    /// <summary>
+    /// Confirmation ID when an election already exists or was just saved.
+    /// </summary>
+    private string _confirmationId = string.Empty;
+
+    /// <summary>
+    /// Date submitted when an election already exists or was just saved.
+    /// </summary>
+    private DateTime? _dateSubmitted;
+
+    /// <summary>
+    /// True when the user requested mailing a copy of the Initial Determination letter.
+    /// </summary>
+    private bool _mailCopyRequested = false;
+
+    /// <summary>
+    /// Success banner text for the already-elected confirmation screen.
     /// </summary>
     private string SuccessBannerMessage => SubmitSuccessMessage;
+
+    /// <summary>
+    /// Centered success text for a freshly submitted election.
+    /// </summary>
+    private string ElectionSuccessMessage => ElectionSubmittedMessage;
+
+    /// <summary>
+    /// Mail-copy confirmation banner text.
+    /// </summary>
+    private string MailCopyMessage => MailCopyBannerMessage;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CorporateOfficerExclusion"/> page.
@@ -99,14 +174,14 @@ public partial class CorporateOfficerExclusion
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
+        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected)
         {
             await JSRuntime.InvokeVoidAsync("focusElement", "save-heading");
         }
     }
 
     /// <summary>
-    /// Loads the reasonableness worksheet data for the selected employer.
+    /// Loads account header data, existing election state, and worksheet values.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task LoadData()
@@ -120,8 +195,21 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
+            _accountNumber = selected?.EmployerAccount?.UIAccountNo ?? string.Empty;
+            _legalName = selected?.EmployerAccount?.LegalName ?? string.Empty;
+            _effectiveDate = new DateTime(DateTime.Now.Year, 1, 1);
+
             var secureUserSK = UserAccountService.GetUserSKClaim();
 
+            var existingElection = await CorporateOfficerExclusionService.GetExistingElectionAsync(_employerSK, secureUserSK);
+            if (existingElection != null && existingElection.IsAlreadyElected)
+            {
+                ApplyExistingElection(existingElection);
+                return;
+            }
+
+            _showIntro = true;
+            _isAlreadyElected = false;
             _response = await CorporateOfficerExclusionService.GetData(_employerSK, DateTime.Now.Year, secureUserSK);
         }
         catch
@@ -132,10 +220,56 @@ public partial class CorporateOfficerExclusion
         }
     }
 
+    /// <summary>
+    /// Applies an existing election summary to the already-elected confirmation view.
+    /// </summary>
+    /// <param name="existingElection">The existing election summary.</param>
+    private void ApplyExistingElection(COEElectionSummary existingElection)
+    {
+        _isAlreadyElected = true;
+        _showIntro = false;
+        _isSaveSuccess = true;
+        _confirmationId = existingElection.ConfirmationId;
+        _dateSubmitted = existingElection.DateSubmitted;
+
+        if (existingElection.EffectiveDate.HasValue)
+        {
+            _effectiveDate = existingElection.EffectiveDate;
+        }
+
+        if (!string.IsNullOrWhiteSpace(existingElection.AccountNumber))
+        {
+            _accountNumber = existingElection.AccountNumber;
+        }
+
+        if (!string.IsNullOrWhiteSpace(existingElection.LegalName))
+        {
+            _legalName = existingElection.LegalName;
+        }
+
+        _saveResponse = new COESaveResponse
+        {
+            Success = true,
+            AccountNumber = _accountNumber,
+            LegalName = _legalName,
+            CorporateOfficeExclusionEffectiveDate = _effectiveDate,
+            ConfirmationId = _confirmationId,
+            DateSubmitted = _dateSubmitted
+        };
+    }
+
     /// <inheritdoc/>
     protected override async Task OnAuthorizedInitAsync()
     {
         await LoadData();
+    }
+
+    /// <summary>
+    /// Advances from the intro screen to the reasonableness worksheet.
+    /// </summary>
+    private void HandleNext()
+    {
+        _showIntro = false;
     }
 
     /// <summary>
@@ -145,6 +279,48 @@ public partial class CorporateOfficerExclusion
     {
         _mustCalculateError = false;
         _submitFailedError = false;
+        ClearFieldValidationErrors();
+    }
+
+    /// <summary>
+    /// Clears required-field validation state on the worksheet.
+    /// </summary>
+    private void ClearFieldValidationErrors()
+    {
+        _futaPayrollMissing = false;
+        _wiPayrollWithoutMissing = false;
+        _fieldValidationMessages = [];
+    }
+
+    /// <summary>
+    /// Validates the required payroll inputs and builds the top error banner list.
+    /// FUTA Without and WI UI Without must be greater than zero ($0.00 is treated as missing per Figma).
+    /// WI UI With may be zero when all officer wages are excluded.
+    /// </summary>
+    /// <returns>True when required fields are present.</returns>
+    private bool ValidateRequiredPayrollFields()
+    {
+        ClearFieldValidationErrors();
+
+        if (_response == null)
+        {
+            _submitFailedError = true;
+            return false;
+        }
+
+        if (_response.FUTAPayroll <= 0)
+        {
+            _futaPayrollMissing = true;
+            _fieldValidationMessages.Add("Payroll Subject to FUTA missing.");
+        }
+
+        if (_response.WITaxablePayrollWithoutCOE <= 0)
+        {
+            _wiPayrollWithoutMissing = true;
+            _fieldValidationMessages.Add("Payroll Subject to WI UI Tax missing.");
+        }
+
+        return !_futaPayrollMissing && !_wiPayrollWithoutMissing;
     }
 
     /// <summary>
@@ -154,6 +330,13 @@ public partial class CorporateOfficerExclusion
     private async Task HandleRecalculateAsync()
     {
         ClearWorksheetErrors();
+
+        if (!ValidateRequiredPayrollFields())
+        {
+            _isCalculateClicked = false;
+            return;
+        }
+
         _recalculateStatus = "Calculating";
         _isRecalculating = true;
         _isSaveSuccess = null;
@@ -165,6 +348,7 @@ public partial class CorporateOfficerExclusion
 
             if (selectedClient == null)
             {
+                _submitFailedError = true;
                 return;
             }
 
@@ -172,6 +356,7 @@ public partial class CorporateOfficerExclusion
 
             if (employerSk == 0)
             {
+                _submitFailedError = true;
                 return;
             }
 
@@ -222,6 +407,12 @@ public partial class CorporateOfficerExclusion
         }
 
         ClearWorksheetErrors();
+
+        if (!ValidateRequiredPayrollFields())
+        {
+            _isSaveSuccess = false;
+            return;
+        }
 
         if (!_isCalculateClicked || _response == null)
         {
@@ -280,9 +471,26 @@ public partial class CorporateOfficerExclusion
 
             if (!_saveResponse.Success)
             {
-                // Business rule violations are shown via _saveResponse.WarningMessage.
                 EnsureWarningOrSubmitFailed();
+                return;
             }
+
+            if (!string.IsNullOrWhiteSpace(_saveResponse.AccountNumber))
+            {
+                _accountNumber = _saveResponse.AccountNumber;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_saveResponse.LegalName))
+            {
+                _legalName = _saveResponse.LegalName;
+            }
+
+            if (_saveResponse.CorporateOfficeExclusionEffectiveDate.HasValue)
+            {
+                _effectiveDate = _saveResponse.CorporateOfficeExclusionEffectiveDate;
+            }
+
+            await EnrichSuccessFromExistingElectionAsync(selectedClient.Id, secureUserSK);
         }
         catch
         {
@@ -293,6 +501,54 @@ public partial class CorporateOfficerExclusion
         finally
         {
             _isSaving = false;
+        }
+    }
+
+    /// <summary>
+    /// Loads confirmation id and submitted date after a successful save when available from exclusions.
+    /// </summary>
+    /// <param name="employerSK">The employer surrogate key.</param>
+    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task EnrichSuccessFromExistingElectionAsync(int employerSK, int secureUserSK)
+    {
+        try
+        {
+            var existingElection = await CorporateOfficerExclusionService.GetExistingElectionAsync(employerSK, secureUserSK);
+            if (existingElection == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(existingElection.ConfirmationId))
+            {
+                _confirmationId = existingElection.ConfirmationId;
+                if (_saveResponse != null)
+                {
+                    _saveResponse.ConfirmationId = existingElection.ConfirmationId;
+                }
+            }
+
+            if (existingElection.DateSubmitted.HasValue)
+            {
+                _dateSubmitted = existingElection.DateSubmitted;
+                if (_saveResponse != null)
+                {
+                    _saveResponse.DateSubmitted = existingElection.DateSubmitted;
+                }
+            }
+
+            if (existingElection.EffectiveDate.HasValue)
+            {
+                _effectiveDate = existingElection.EffectiveDate;
+                if (_saveResponse != null)
+                {
+                    _saveResponse.CorporateOfficeExclusionEffectiveDate = existingElection.EffectiveDate;
+                }
+            }
+        }
+        catch
+        {
         }
     }
 
@@ -310,6 +566,22 @@ public partial class CorporateOfficerExclusion
     private void HandleASBack()
     {
         Navigation.NavigateTo("manage-account/account-summary", true);
+    }
+
+    /// <summary>
+    /// Opens UI Documents so the employer can view the Initial Determination letter when available.
+    /// </summary>
+    private void HandleViewInitialDetermination()
+    {
+        Navigation.NavigateTo("ui-documents", true);
+    }
+
+    /// <summary>
+    /// Records that the employer requested a mailed copy of the Initial Determination letter.
+    /// </summary>
+    private void HandleRequestMailCopy()
+    {
+        _mailCopyRequested = true;
     }
 
     /// <summary>

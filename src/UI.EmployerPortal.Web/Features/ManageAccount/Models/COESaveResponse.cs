@@ -50,5 +50,13 @@ public class COESaveResponse
     /// </summary>
     public string UIAccountNumber { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the confirmation identifier when available after save or reload.
+    /// </summary>
+    public string ConfirmationId { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the date the election was submitted when available after save or reload.
+    /// </summary>
+    public DateTime? DateSubmitted { get; set; }
 }

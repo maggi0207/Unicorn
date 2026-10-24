@@ -7,11 +7,161 @@
 @inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
 
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
-<PageTitle>Corporate Officer Exclusion Reasonableness Worksheet</PageTitle>
+<PageTitle>Corporate Officer Exclusion</PageTitle>
 <div class="container-page">
 
-    @if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.Value))
+    @* ── Fresh success after Submit (Figma Success / Success with banner) ── *@
+    @if (!_isAlreadyElected && _saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
     {
+        <div class="header-container">
+            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+
+            @if (_mailCopyRequested)
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Message="@MailCopyMessage"
+                                    DismissButton="false">
+                </NotificationBanner>
+            }
+        </div>
+
+        <div class="coe-success-block">
+            <p class="coe-success-message">@ElectionSuccessMessage</p>
+            <div class="coe-success-links">
+                <button type="button"
+                        class="coe-success-link"
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleViewInitialDetermination, "View Initial Determination Clicked", DateTime.Now))">
+                    View Your Initial Determination letter
+                </button>
+                <button type="button"
+                        class="coe-success-link"
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleRequestMailCopy, "Mail Copy Clicked", DateTime.Now))">
+                    Mail a copy of the ID to the main business mailing address
+                </button>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="item">
+                <div class="label">Account Number</div>
+                <div class="value">@_accountNumber</div>
+            </div>
+            <div class="item">
+                <div class="label">Legal Name</div>
+                <div class="value">@_legalName</div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(_confirmationId))
+            {
+                <div class="item">
+                    <div class="label">Confirmation ID</div>
+                    <div class="value">@_confirmationId</div>
+                </div>
+            }
+            @if (_dateSubmitted.HasValue)
+            {
+                <div class="item">
+                    <div class="label">Date Submitted</div>
+                    <div class="value">@_dateSubmitted.Value.ToString("M/d/yyyy")</div>
+                </div>
+            }
+            <div class="effective-date">
+                Corporate Officer Exclusion will be effective as of @_effectiveDate?.ToString("M/d/yyyy")
+            </div>
+        </div>
+
+        <div class="flex-button flex-button-end">
+            <Button Text="ACCOUNT SUMMARY"
+                    Variant="Button.ButtonVariant.Primary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />
+        </div>
+    }
+    else if (_isAlreadyElected)
+    {
+        @* ── Already elected revisit (Figma Already visited) ── *@
+        <div class="header-container">
+            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                Message="@SuccessBannerMessage"
+                                DismissButton="false">
+            </NotificationBanner>
+
+            <p class="section-paragraph">
+                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
+                <br /> <br />
+                The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
+            </p>
+        </div>
+
+        <div class="summary-card">
+            <div class="item">
+                <div class="label">Account Number</div>
+                <div class="value">@_accountNumber</div>
+            </div>
+            <div class="item">
+                <div class="label">Legal Name</div>
+                <div class="value">@_legalName</div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(_confirmationId))
+            {
+                <div class="item">
+                    <div class="label">Confirmation ID</div>
+                    <div class="value">@_confirmationId</div>
+                </div>
+            }
+            @if (_dateSubmitted.HasValue)
+            {
+                <div class="item">
+                    <div class="label">Date Submitted</div>
+                    <div class="value">@_dateSubmitted.Value.ToString("M/d/yyyy")</div>
+                </div>
+            }
+            <div class="effective-date">
+                Corporate Officer Exclusion will be effective as of @_effectiveDate?.ToString("M/d/yyyy")
+            </div>
+        </div>
+
+        <div class="flex-button flex-button-end">
+            <Button Text="ACCOUNT SUMMARY"
+                    Variant="Button.ButtonVariant.Primary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />
+        </div>
+    }
+    else if (_showIntro)
+    {
+        @* ── Intro screen (Figma Initial) ── *@
+        <div class="header-container">
+            <h1 class="title">Corporate Officer Exclusion</h1>
+            <p class="section-paragraph">
+                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
+                <br /> <br />
+                The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
+            </p>
+        </div>
+
+        <div class="summary-card">
+            <div class="item">
+                <div class="label">Account Number</div>
+                <div class="value">@_accountNumber</div>
+            </div>
+            <div class="item">
+                <div class="label">Legal Name</div>
+                <div class="value">@_legalName</div>
+            </div>
+            <div class="effective-date">
+                Corporate Officer Exclusion will be effective as of @_effectiveDate?.ToString("M/d/yyyy")
+            </div>
+        </div>
+
+        <div class="flex-button flex-button-end">
+            <Button Text="NEXT"
+                    Variant="Button.ButtonVariant.Primary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleNext, "Next Clicked", DateTime.Now))" />
+        </div>
+    }
+    else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.Value))
+    {
+        @* ── Reasonableness worksheet ── *@
         <div class="header-container">
 
             <h1 class="title">Corporate Officer Exclusion Reasonableness Worksheet</h1>
@@ -21,7 +171,15 @@
                 exclusion has on you. If you have any questions about this, please <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.
             </p>
 
-            @if (_mustCalculateError)
+            @if (_fieldValidationMessages.Count > 0)
+            {
+                <NotificationBanner NotificationType="NotificationType.Alert"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_fieldValidationMessages"
+                                    DismissButton="false">
+                </NotificationBanner>
+            }
+            else if (_mustCalculateError)
             {
                 <NotificationBanner NotificationType="NotificationType.Alert"
                                     Message="@MustCalculateMessage"
@@ -79,7 +237,7 @@
                             <td class="fw-normal fs-md">1.</td>
                             <td class="fw-normal fs-md  text-left">Payroll subject to FUTA (include only first $7,000 of any employee's wages)</td>
                             <td class="fw-normal fs-md">
-                                <div class="decimal-input">
+                                <div class="decimal-input @(_futaPayrollMissing ? "decimal-input--error" : null)">
                                     <NumericTextBox Value="@_response.FUTAPayroll"
                                                     Id="futaPayroll"
                                                     AriaLabel="Payroll subject to FUTA"
@@ -88,8 +246,13 @@
                                                     DecimalPlaces="2"
                                                     Min="0"
                                                     Max="1000000000"
+                                                    CssClass="@(_futaPayrollMissing ? "coe-input-error" : string.Empty)"
                                                     ValueChanged="OnFUTAPayrollChanged">
                                     </NumericTextBox>
+                                    @if (_futaPayrollMissing)
+                                    {
+                                        <div class="coe-field-error">Missing value</div>
+                                    }
                                 </div>
                             </td>
                             <td class="fw-normal fs-md">@((0m).ToString("C"))</td>
@@ -111,7 +274,7 @@
                             <td class="fw-normal fs-md">4.</td>
                             <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold() of any employee's wages)</td>
                             <td class="fw-normal fs-md">
-                                <div class="decimal-input">
+                                <div class="decimal-input @(_wiPayrollWithoutMissing ? "decimal-input--error" : null)">
                                     <NumericTextBox Value="@_response.WITaxablePayrollWithoutCOE"
                                                     Id="WITaxablePayrollWithoutCOE"
                                                     AriaLabel="Payroll subject to Wisconsin UI tax without corporate officer exclusion"
@@ -120,7 +283,12 @@
                                                     DecimalPlaces="2"
                                                     Min="0"
                                                     Max="1000000000"
+                                                    CssClass="@(_wiPayrollWithoutMissing ? "coe-input-error" : string.Empty)"
                                                     ValueChanged="OnWITaxablePayrollWithoutCOEChanged"></NumericTextBox>
+                                    @if (_wiPayrollWithoutMissing)
+                                    {
+                                        <div class="coe-field-error">Missing value</div>
+                                    }
                                 </div>
                             </td>
                             <td class="fw-normal fs-md">
@@ -209,54 +377,6 @@
                         Disabled="_isSaving || _isRecalculating" />
             </span>
 
-        </div>
-    }
-    else if (_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
-    {
-        <div class="header-container">
-            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
-
-            <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                Message="@SuccessBannerMessage"
-                                DismissButton="false">
-            </NotificationBanner>
-
-            <p class="section-paragraph">
-                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
-                <br /> <br />
-                The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
-            </p>
-        </div>
-
-        <div class="summary-card">
-            <div class="item">
-                <div class="label">
-                    Account Number
-                </div>
-
-                <div class="value">
-                    @_saveResponse?.AccountNumber
-                </div>
-            </div>
-            <div class="item">
-                <div class="label">
-                    Legal Name
-                </div>
-
-                <div class="value">
-                    @_saveResponse?.LegalName
-                </div>
-            </div>
-            <div class="effective-date">
-                Corporate Officer Exclusion will be effective as of @_saveResponse?.CorporateOfficeExclusionEffectiveDate?.ToString("M/d/yyyy")
-            </div>
-
-        </div>
-
-        <div class="flex-button flex-button-end">
-            <Button Text="ACCOUNT SUMMARY"
-                    Variant="Button.ButtonVariant.Primary"
-                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />
         </div>
     }
 </div>
