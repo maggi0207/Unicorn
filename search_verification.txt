@@ -1,15 +1,17 @@
+The front-end fix has been implemented based on the resolution confirmed in the comments above.
 
-I investigated the blue circle displayed next to the page title in the browser tab of the Wisconsin DWD Employer Portal (https://beta-ui.dwd.wisconsin.gov/EmployerPortal/employer-registration/steps).
-Analysis performed:
-1. HTML/DOM inspection: Checked the live DOM and the original HTML response. No explicit <link rel="icon"> or favicon reference was found.
-2. Default favicon check: Accessed https://beta-ui.dwd.wisconsin.gov/favicon.ico. The request returned 404 Not Found, indicating that the favicon is not available at the domain's default favicon path.
-3. Web manifest check: No linked web app manifest was found in the page.
-4. Network inspection: Reloaded the page and filtered Network requests for favicon and .ico. No matching favicon request was observed in the captured logs.
-5. Incognito verification: Opened the application in an InPrivate window and confirmed that the blue circle still appears, making a normal browser-cache explanation less likely.
-6. Application asset inspection: The application uses Blazor and loads other assets, including SVG icons. However, none of the inspected assets has been confirmed as the source of the browser-tab icon.
-Current findings:
-The blue circle is visible in the browser tab, but we have not identified its source. The inspected HTML does not explicitly declare a favicon, and the default /favicon.ico path returns 404.
-Next steps:
-- Verify whether a favicon is configured in the deployed application's static files or shared host page.
-- Check the web server, hosting platform, and reverse-proxy configuration for default icon handling or redirects.
-- Capture and inspect the relevant requests in a fresh browser session to determine whether the icon is being retrieved from another URL or supplied through browser-level behaviour.
+Root Cause: Line 5 (Your 2026 WI UI Tax Rate) was mapping two different fields from COEReasonablenessProxy to the two columns:
+
+Without Exclusion → WIUITaxRate (raw decimal scale, e.g. 0.0040)
+With Exclusion → WIUITaxRatePercentage (percentage scale, e.g. 0.4000)
+
+Since both were formatted using .ToString("P"), the 100× scale difference between the two fields caused the incorrect display (e.g. 0.40% vs 40.00%).
+
+Fix Applied: Following the legacy portal behavior (WIUITaxRate.Value * 100), both columns on Line 5 are now mapped to the single correct field — COEReasonablenessProxy.WIUITaxRatePercentage — in both the GetData and Recalculate service methods, and in the Razor view.
+
+Files Changed:
+
+CorporateOfficerExclusion.razor — Both "Without Exclusion" and "With Exclusion" columns on Line 5 now render WIUITaxRatePercentage
+CorporateOfficerExclusionService.cs — GetData() and Recalculate() both now map WIUITaxRate and WIUITaxRatePercentage from COEReasonablenessProxy.WIUITaxRatePercentage
+
+Line 5 will now display the same correct tax rate value in both columns, matching the expected legacy portal behavior. This fix is ready for UAT validation.
