@@ -1,6 +1,6 @@
-using UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService;
-using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
+using AccountMaintenance = UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService;
+using AccountSummary = UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Services;
 
@@ -17,19 +17,20 @@ public interface ICorporateOfficerExclusionService
     /// <param name="secureUserSK"></param>
     /// <returns></returns>
     Task<COEResonableResponse> GetData(int employerSK, int year, int secureUserSK);
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="saveRequest"></param>
-    /// <returns></returns>
-    Task<COESaveResponse> Save(CorporateOfficerExclusionRequest saveRequest);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="saveRequest"></param>
     /// <returns></returns>
-    Task<COEResonableResponse> Recalculate(COEReasonablenessRequest saveRequest);
+    Task<COESaveResponse> Save(AccountMaintenance.CorporateOfficerExclusionRequest saveRequest);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="saveRequest"></param>
+    /// <returns></returns>
+    Task<COEResonableResponse> Recalculate(AccountSummary.COEReasonablenessRequest saveRequest);
 
     /// <summary>
     /// Loads an existing Corporate Officer Exclusion election when one is already in effect.
@@ -45,16 +46,17 @@ public interface ICorporateOfficerExclusionService
 /// </summary>
 public class CorporateOfficerExclusionService : ICorporateOfficerExclusionService
 {
-
-    private readonly IAccountSummaryService _accountSummaryService;
-    private readonly IAccountMaintenanceService _accountMaintenanceService;
+    private readonly AccountSummary.IAccountSummaryService _accountSummaryService;
+    private readonly AccountMaintenance.IAccountMaintenanceService _accountMaintenanceService;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="accountSummaryService"></param>
     /// <param name="accountMaintenanceService"></param>
-    public CorporateOfficerExclusionService(IAccountSummaryService accountSummaryService, IAccountMaintenanceService accountMaintenanceService)
+    public CorporateOfficerExclusionService(
+        AccountSummary.IAccountSummaryService accountSummaryService,
+        AccountMaintenance.IAccountMaintenanceService accountMaintenanceService)
     {
         _accountSummaryService = accountSummaryService;
         _accountMaintenanceService = accountMaintenanceService;
@@ -70,7 +72,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     public async Task<COEResonableResponse> GetData(int employerSK, int year, int secureUserSK)
     {
         var coeResonableResponse = new COEResonableResponse();
-        var req = new COEReasonablenessRequest();
+        var req = new AccountSummary.COEReasonablenessRequest();
         req.year = year;
         req.EmployerSK = employerSK;
         req.SecureUserSK = secureUserSK;
@@ -141,7 +143,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="saveRequest"></param>
     /// <returns></returns>
-    public async Task<COEResonableResponse> Recalculate(COEReasonablenessRequest saveRequest)
+    public async Task<COEResonableResponse> Recalculate(AccountSummary.COEReasonablenessRequest saveRequest)
     {
         var coeResonableResponse = new COEResonableResponse();
         var response = await _accountSummaryService.GetCOEReasonablenessAsync(saveRequest);
@@ -210,7 +212,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="saveRequest"></param>
     /// <returns></returns>
-    public async Task<COESaveResponse> Save(CorporateOfficerExclusionRequest saveRequest)
+    public async Task<COESaveResponse> Save(AccountMaintenance.CorporateOfficerExclusionRequest saveRequest)
     {
         var reqResponse = new COESaveResponse();
         var res = await _accountMaintenanceService.SaveNewCOEElectionAsync(saveRequest);
@@ -225,12 +227,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             reqResponse.LegalName = res.LegalName;
             reqResponse.CorporateOfficeExclusionEffectiveDate = res.CorporateOfficeExclusionEffectiveDate;
 
-            if (res.RuleViolations.Length > 0)
+            if (res.RuleViolations != null && res.RuleViolations.Length > 0)
             {
                 reqResponse.WarningMessage = res.RuleViolations.Select(x => x.RuleViolation).ToList();
-
             }
-            else
+            else if (!string.IsNullOrWhiteSpace(res.WarningMessage))
             {
                 reqResponse.WarningMessage.Add(res.WarningMessage);
             }
@@ -247,7 +248,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>Summary details when an election is in effect.</returns>
     public async Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK)
     {
-        var request = new EmployerRequest
+        var request = new AccountSummary.EmployerRequest
         {
             EmployerSK = employerSK,
             SecureUserSK = secureUserSK
@@ -259,12 +260,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         };
 
         var response = await _accountSummaryService.GetCorporateOfficerExclusionsAsync(request);
-        if (response == null || response.CorporateOfficerExclusionProxies == null)
+        if (response?.CorporateOfficerExclusionProxies == null)
         {
             return emptySummary;
         }
 
-        var selectedElection = new CorporateOfficerExclusionProxy();
+        AccountSummary.CorporateOfficerExclusionProxy selectedElection = null!;
         var hasSelectedElection = false;
 
         foreach (var proxy in response.CorporateOfficerExclusionProxies)
@@ -281,9 +282,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
                 continue;
             }
 
-            var selectedSortDate = GetElectionSortDate(selectedElection);
-            var proxySortDate = GetElectionSortDate(proxy);
-            if (proxySortDate > selectedSortDate)
+            if (GetElectionSortDate(proxy) > GetElectionSortDate(selectedElection))
             {
                 selectedElection = proxy;
             }
@@ -314,7 +313,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="proxy">The corporate officer exclusion proxy.</param>
     /// <returns>True when the election should block a new worksheet submission.</returns>
-    private static bool IsElectionInEffect(CorporateOfficerExclusionProxy proxy)
+    private static bool IsElectionInEffect(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
         var status = proxy?.COEStatusDescription ?? string.Empty;
         return proxy != null
@@ -330,7 +329,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="proxy">The corporate officer exclusion proxy.</param>
     /// <returns>The best available date for sorting.</returns>
-    private static DateTime GetElectionSortDate(CorporateOfficerExclusionProxy proxy)
+    private static DateTime GetElectionSortDate(AccountSummary.CorporateOfficerExclusionProxy proxy)
     {
         return proxy.ReceivedDate
             ?? proxy.RequestDate
