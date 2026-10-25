@@ -250,12 +250,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>The mapped payroll amount.</returns>
     private static decimal? MapOptionalPayroll(decimal? value, bool treatZeroPayrollAsMissing)
     {
-        if (!value.HasValue)
-        {
-            return treatZeroPayrollAsMissing ? null : 0m;
-        }
-
-        return treatZeroPayrollAsMissing && value.Value == 0m ? null : value.Value;
+        return !value.HasValue
+            ? (treatZeroPayrollAsMissing ? null : 0m)
+            : (treatZeroPayrollAsMissing && value.Value == 0m ? null : value.Value);
     }
 
     /// <summary>
