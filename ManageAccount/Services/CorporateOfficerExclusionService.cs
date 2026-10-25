@@ -209,12 +209,13 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="response">The WCF reasonableness response.</param>
     /// <param name="coeResonableResponse">The UI response model to populate.</param>
+    /// <param name="treatZeroPayrollAsMissing">When true, zero payroll inputs are mapped as null for initial load.</param>
     private static void MapReasonablenessProxy(
         AccountSummary.COEReasonablenessResponse response,
         COEResonableResponse coeResonableResponse,
         bool treatZeroPayrollAsMissing)
     {
-        if (response == null || response.COEReasonablenessProxy == null)
+        if (response?.COEReasonablenessProxy == null)
         {
             return;
         }
@@ -244,6 +245,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <summary>
     /// Maps optional payroll amounts, treating zero as missing on initial load only.
     /// </summary>
+    /// <param name="value">The payroll value from the WCF proxy.</param>
+    /// <param name="treatZeroPayrollAsMissing">When true, zero is returned as null.</param>
+    /// <returns>The mapped payroll amount.</returns>
     private static decimal? MapOptionalPayroll(decimal? value, bool treatZeroPayrollAsMissing)
     {
         if (!value.HasValue)
@@ -251,12 +255,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return treatZeroPayrollAsMissing ? null : 0m;
         }
 
-        if (treatZeroPayrollAsMissing && value.Value == 0m)
-        {
-            return null;
-        }
-
-        return value.Value;
+        return treatZeroPayrollAsMissing && value.Value == 0m ? null : value.Value;
     }
 
     /// <summary>
