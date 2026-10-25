@@ -78,7 +78,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         req.SecureUserSK = secureUserSK;
 
         var response = await _accountSummaryService.GetCOEReasonablenessAsync(req);
-        MapReasonablenessProxy(response, coeResonableResponse, treatZeroPayrollAsMissing: true);
+        MapReasonablenessProxy(response, coeResonableResponse);
         return coeResonableResponse;
     }
 
@@ -91,7 +91,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     {
         var coeResonableResponse = new COEResonableResponse();
         var response = await _accountSummaryService.GetCOEReasonablenessAsync(saveRequest);
-        MapReasonablenessProxy(response, coeResonableResponse, treatZeroPayrollAsMissing: false);
+        MapReasonablenessProxy(response, coeResonableResponse);
         return coeResonableResponse;
     }
 
@@ -209,13 +209,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="response">The WCF reasonableness response.</param>
     /// <param name="coeResonableResponse">The UI response model to populate.</param>
-    /// <param name="treatZeroPayrollAsMissing">When true, zero payroll inputs are mapped as null for initial load.</param>
     private static void MapReasonablenessProxy(
         AccountSummary.COEReasonablenessResponse response,
-        COEResonableResponse coeResonableResponse,
-        bool treatZeroPayrollAsMissing)
+        COEResonableResponse coeResonableResponse)
     {
-        if (response?.COEReasonablenessProxy == null)
+        if (response == null || response.COEReasonablenessProxy == null)
         {
             return;
         }
@@ -224,7 +222,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
 
         coeResonableResponse.FUTACreditWithCOE = proxy.FUTACreditWithCOE.HasValue ? proxy.FUTACreditWithCOE.Value : 0;
         coeResonableResponse.FUTACreditWithoutCOE = proxy.FUTACreditWithoutCOE.HasValue ? proxy.FUTACreditWithoutCOE.Value : 0;
-        coeResonableResponse.FUTAPayroll = MapOptionalPayroll(proxy.FUTAPayroll, treatZeroPayrollAsMissing);
+        coeResonableResponse.FUTAPayroll = proxy.FUTAPayroll.HasValue ? proxy.FUTAPayroll.Value : 0;
         coeResonableResponse.FUTATax = proxy.FUTATax.HasValue ? proxy.FUTATax.Value : 0;
         coeResonableResponse.MaxFUTACreditAvailable = proxy.MaxFUTACreditAvble.HasValue ? proxy.MaxFUTACreditAvble.Value : 0;
         coeResonableResponse.NetFUTATaxWithCOE = proxy.NetFUTATaxWithCOE.HasValue ? proxy.NetFUTATaxWithCOE.Value : 0;
@@ -234,25 +232,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         coeResonableResponse.TotalFUTACreditWithoutCOE = proxy.TotalFUTACreditWithoutCOE.HasValue ? proxy.TotalFUTACreditWithoutCOE.Value : 0;
         coeResonableResponse.TotalUITaxWithCOE = proxy.TotalUITaxWithCOE.HasValue ? proxy.TotalUITaxWithCOE.Value : 0;
         coeResonableResponse.TotalUITaxWithoutCOE = proxy.TotalUITaxWithoutCOE.HasValue ? proxy.TotalUITaxWithoutCOE.Value : 0;
-        coeResonableResponse.WITaxablePayrollWithCOE = MapOptionalPayroll(proxy.WITaxablePayrollWithCOE, treatZeroPayrollAsMissing);
-        coeResonableResponse.WITaxablePayrollWithoutCOE = MapOptionalPayroll(proxy.WITaxablePayrollWithoutCOE, treatZeroPayrollAsMissing);
+        coeResonableResponse.WITaxablePayrollWithCOE = proxy.WITaxablePayrollWithCOE.HasValue ? proxy.WITaxablePayrollWithCOE.Value : 0;
+        coeResonableResponse.WITaxablePayrollWithoutCOE = proxy.WITaxablePayrollWithoutCOE.HasValue ? proxy.WITaxablePayrollWithoutCOE.Value : 0;
         coeResonableResponse.WIUITaxRate = proxy.WIUITaxRatePercentage.HasValue ? proxy.WIUITaxRatePercentage.Value : 0;
         coeResonableResponse.WIUITaxRatePercentage = proxy.WIUITaxRatePercentage.HasValue ? proxy.WIUITaxRatePercentage.Value : 0;
         coeResonableResponse.WIUITaxWithCOE = proxy.WIUITaxWithCOE.HasValue ? proxy.WIUITaxWithCOE.Value : 0;
         coeResonableResponse.WIUITaxWithoutCOE = proxy.WIUITaxWithoutCOE.HasValue ? proxy.WIUITaxWithoutCOE.Value : 0;
-    }
-
-    /// <summary>
-    /// Maps optional payroll amounts, treating zero as missing on initial load only.
-    /// </summary>
-    /// <param name="value">The payroll value from the WCF proxy.</param>
-    /// <param name="treatZeroPayrollAsMissing">When true, zero is returned as null.</param>
-    /// <returns>The mapped payroll amount.</returns>
-    private static decimal? MapOptionalPayroll(decimal? value, bool treatZeroPayrollAsMissing)
-    {
-        return !value.HasValue
-            ? (treatZeroPayrollAsMissing ? null : 0m)
-            : (treatZeroPayrollAsMissing && value.Value == 0m ? null : value.Value);
     }
 
     /// <summary>
