@@ -1,0 +1,85 @@
+@page "/manage-account/esp-accounts"
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Employer Service Provider Access</PageTitle>
+
+<div class="page-wrapper">
+    <div class="list-content">
+        <h1 class="page-title">Employer Service Provider Access</h1>
+        <p class="page-subtitle">
+            An employer service provider (ESP) is a third party that performs actions on behalf of an employer.
+        </p>
+        <p class="page-subtitle">
+            Any ESP that has access to your account is listed below.
+        </p>
+
+        @if (_showSuccessBanner)
+        {
+            <div class="alert-success" role="status" aria-live="polite">
+                <img src="@Assets["icons/check_circle_green.svg"]" alt="" aria-hidden="true" class="alert-icon" />
+                <span>Access removed for @_removedEspName</span>
+            </div>
+        }
+
+        @if (_isLoading)
+        {
+            <LoadingSpinner Message="Loading ESP access, please wait..." />
+        }
+        else if (!string.IsNullOrWhiteSpace(_loadError))
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                        MessageStyle="MessageStyle.MultiLine"
+                        Messages="@(new List<string> { _loadError })"
+                        MessageFieldIds="@(new List<string> { "_" })"
+                        Visible="true" />
+        }
+        else if (_espList.Count == 0)
+        {
+            <p>No employer service providers currently have access to this account.</p>
+        }
+        else
+        {
+            <table class="accounts-table" aria-label="Employer service providers with access">
+                <thead>
+                    <tr class="header-row">
+                        <th scope="col" class="header-cell">
+                            <span class="header-label fw-bold">ESP Name</span>
+                        </th>
+                        <th scope="col" class="header-cell">
+                            <span class="header-label fw-bold">Access Granted</span>
+                        </th>
+                        <th scope="col" class="header-cell header-cell-static">
+                            <span class="header-label fw-bold"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var esp in _espList)
+                    {
+                        <tr class="data-row">
+                            <td class="fw-normal">@esp.BusinessName</td>
+                            <td class="fw-normal">@esp.AccessGranted.ToString("MM/dd/yyyy")</td>
+                            <td>
+                                <button type="button"
+                                        class="delete-btn"
+                                        aria-label="Remove access for @esp.BusinessName"
+                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => OpenRemoveModal(esp), "Delete Clicked", DateTime.Now))">
+                                    <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" />
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<RemoveEspAccessModal IsVisible="_showRemoveModal"
+                       OnCancel="CancelRemove"
+                       OnConfirm="ConfirmRemove" />

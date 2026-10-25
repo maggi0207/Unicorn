@@ -1,0 +1,107 @@
+/* ── Page layout ─────────────────────────────────────────────────────── */
+.account-details-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    padding-top: 32px;
+    padding-bottom: 32px;
+    box-sizing: border-box;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    background-color: #ffffff;
+}
+
+   
+    /* ── Page title ──────────────────────────────────────────────────────── */
+    .page-title {
+        font-family: Verdana, sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 116%;
+        color: #000000;
+        margin: 0 0 16px 0;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #ADADAD;
+    }
+
+/* ── Manage Addresses link ───────────────────────────────────────────── */
+.manage-addresses-link {
+    margin-bottom: 8px;
+}
+
+    .manage-addresses-link a {
+        font-family: Verdana, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+        .manage-addresses-link a:hover {
+            color: #003d82;
+        }
+
+/* ── Required text ───────────────────────────────────────────────────── */
+.required-text {
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    margin: 0 0 24px 0;
+}
+
+/* ── Form fields grid ────────────────────────────────────────────────── */
+::deep form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ad-fields-grid {
+    display: grid;
+    grid-template-columns: 300px 300px;
+    column-gap: 48px;
+    row-gap: 0;
+    width: 648px;
+}
+
+.ad-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-field-single {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.ad-field-double {
+    display: flex;
+    flex-direction: column;
+    width: 648px;
+}
+
+::deep .ad-field-double .master-text-field {
+    max-width: none;
+}
+
+/* ── Phone helper text ───────────────────────────────────────────────── */
+.phone-helper-text {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #555555;
+    margin-top: 4px;
+}
+
+/* ── Button bar ──────────────────────────────────────────────────────── */
+.button-bar-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 648px;
+    padding-top: 16px;
+    margin-top: 8px;
+}
