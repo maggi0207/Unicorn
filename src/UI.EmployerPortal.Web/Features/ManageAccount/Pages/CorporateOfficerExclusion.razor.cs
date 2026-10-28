@@ -63,7 +63,7 @@ public partial class CorporateOfficerExclusion
 
     private int _employerSK = 0;
 
-    private COEResonableResponse _response = default!;
+    private COEReasonableResponse _response = default!;
 
     private COESaveResponse? _saveResponse = default!;
 
@@ -314,14 +314,14 @@ public partial class CorporateOfficerExclusion
             return false;
         }
 
-        if (_response.FUTAPayroll <= 0)
+        if ((_response.FUTAPayroll ?? 0m) <= 0m)
         {
             _futaPayrollMissing = true;
             _fieldValidationMessages.Add("Payroll Subject to FUTA missing.");
             _fieldValidationFieldIds.Add("futaPayroll");
         }
 
-        if (_response.WITaxablePayrollWithoutCOE <= 0)
+        if ((_response.WITaxablePayrollWithoutCOE ?? 0m) <= 0m)
         {
             _wiPayrollWithoutMissing = true;
             _fieldValidationMessages.Add("Payroll Subject to WI UI Tax missing.");
@@ -377,12 +377,12 @@ public partial class CorporateOfficerExclusion
                     EmployerSK = employerSk,
                     SecureUserSK = secureUserSK,
                     year = DateTime.Now.Year,
-                    PayrollSubjectToFUTAWithoutCOE = _response.FUTAPayroll,
-                    PayrollSubjectToWITaxRateWithCOE = _response.WITaxablePayrollWithCOE,
-                    PayrollSubjectToWITaxRateWithoutCOE = _response.WITaxablePayrollWithoutCOE,
+                    PayrollSubjectToFUTAWithoutCOE = _response.FUTAPayroll ?? 0m,
+                    PayrollSubjectToWITaxRateWithCOE = _response.WITaxablePayrollWithCOE ?? 0m,
+                    PayrollSubjectToWITaxRateWithoutCOE = _response.WITaxablePayrollWithoutCOE ?? 0m,
                 };
                 _isCalculateClicked = true;
-                _response = await CorporateOfficerExclusionService.Recalculate(request);
+                _response = await CorporateOfficerExclusionService.Calculate(request);
             }
             catch
             {

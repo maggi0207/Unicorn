@@ -59,9 +59,9 @@
     width: 100%;
 }
 
-.coe-field-error svg {
-    flex-shrink: 0;
-}
+    .coe-field-error svg {
+        flex-shrink: 0;
+    }
 
 ::deep .coe-input-error {
     border-color: #C82838 !important;
@@ -120,9 +120,9 @@
     cursor: pointer;
 }
 
-.coe-success-link:hover {
-    color: #003663;
-}
+    .coe-success-link:hover {
+        color: #003663;
+    }
 
 .label {
     font-size: .85rem;
@@ -134,6 +134,20 @@
     font-weight: 900;
     font-size: 1.05rem;
 }
+
+.worksheet-page {
+    width: 97%;
+    max-width: 1038px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+    .worksheet-page .container-page {
+        width: 100%;
+        max-width: none;
+    }
 
 .worksheet-headings {
     display: flex;
@@ -154,7 +168,6 @@
 .worksheet-headings .worksheet-subtitle {
     margin: 0;
     width: 100%;
-    padding: 0 32px;
     padding-bottom: 0;
     box-sizing: border-box;
 }
@@ -324,9 +337,9 @@ tbody tr td:nth-child(2) {
     padding-left: 0 !important;
 }
 
-    tbody td:first-child {
-        text-align: left;
-    }
+tbody td:first-child {
+    text-align: left;
+}
 
 /* Pagination */
 .pagination-container {
@@ -377,9 +390,10 @@ tbody tr td:nth-child(2) {
     flex-wrap: wrap;
 }
 
-.flex-button.flex-button-end {
-    justify-content: flex-end;
-}
+    .flex-button.flex-button-end {
+        justify-content: flex-end;
+    }
+
 .btn-recalculate {
     padding: 0 40px 0 0;
     background: none;
@@ -387,13 +401,15 @@ tbody tr td:nth-child(2) {
     color: #003663;
     font-weight: 600;
     height: 41px;
-    min-width: 190px;;
+    min-width: 190px;
+    ;
 }
 
-.icon-calender{
+.icon-calender {
     width: 22px;
     height: 22px;
 }
+
 .paging-btn:disabled {
     cursor: default;
 }

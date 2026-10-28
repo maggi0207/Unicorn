@@ -18,7 +18,7 @@ public class COEResonableResponse
     /// <summary>
     /// 
     /// </summary>
-    public decimal FUTAPayroll { get; set; }
+    public decimal? FUTAPayroll { get; set; }
 
     /// <summary>
     /// 
@@ -68,12 +68,12 @@ public class COEResonableResponse
     /// <summary>
     /// 
     /// </summary>
-    public decimal WITaxablePayrollWithCOE { get; set; }
+    public decimal? WITaxablePayrollWithCOE { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public decimal WITaxablePayrollWithoutCOE { get; set; }
+    public decimal? WITaxablePayrollWithoutCOE { get; set; }
 
     /// <summary>
     /// 

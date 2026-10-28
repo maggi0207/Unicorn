@@ -200,7 +200,7 @@ internal class AccountUserService : IAccountUserService
             {
                 LastName = user.LastName,
                 FirstName = user.FirstName,
-                Role = user.RoleName,
+                Role = MapESPRole(user.Role),
                 CreatedBy = user.CreatedBy,
                 AccessGranted = user.AccessGranted,
                 AccessKeyMasked = user.AccessKey,
@@ -210,6 +210,13 @@ internal class AccountUserService : IAccountUserService
         }
 
         return result;
+    }
+
+    private string MapESPRole(int? roleId)
+    {
+        return roleId.HasValue && Enum.IsDefined(typeof(EspUserRole), roleId.Value)
+            ? ((EspUserRole) roleId.Value).ToString()
+            : string.Empty;
     }
 
 

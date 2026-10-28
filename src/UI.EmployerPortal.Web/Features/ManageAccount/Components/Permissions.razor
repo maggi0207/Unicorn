@@ -3,7 +3,7 @@
 
 <div class="permissions-wrapper">
 
-    <div class="permissions-label">Permissions</div>
+    <h2 class="permissions-label">Permissions</h2>
 
     <div class="permissions-checkboxes-wrapper @(ShowError ? "permissions-checkboxes-error" : "")">
 
@@ -28,9 +28,9 @@
                         class="permissions-section-header"
                         @onclick="@(() => tracker.LogNavigationSessionActivity(() => ToggleGroup(group.WebControlSK), "Expanded Clicked", DateTime.Now))"
                         aria-expanded="@(IsExpanded(group.WebControlSK) ? "true" : "false")">
-                    <span class="permissions-section-title">@group.Name</span>
+                    <h3 class="permissions-section-title">@group.Name</h3>
                     <span class="permissions-section-chevron @(IsExpanded(group.WebControlSK) ? "permissions-section-chevron--expanded" : "")">
-                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path d="M1 1L7 7L13 1" stroke="#003663" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </span>

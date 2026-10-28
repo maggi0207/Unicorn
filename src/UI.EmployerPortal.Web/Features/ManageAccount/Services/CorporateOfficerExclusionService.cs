@@ -5,44 +5,44 @@ using AccountSummary = UI.EmployerPortal.Generated.ServiceClients.AccountSummary
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Services;
 
 /// <summary>
-/// Service contract for Corporate Officer Exclusion worksheet and election operations.
+/// 
 /// </summary>
 public interface ICorporateOfficerExclusionService
 {
     /// <summary>
-    /// Loads the reasonableness worksheet values for the employer and year.
+    /// 
     /// </summary>
-    /// <param name="employerSK">The employer surrogate key.</param>
-    /// <param name="year">The tax year for the worksheet.</param>
-    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns>The mapped reasonableness worksheet response.</returns>
-    Task<COEResonableResponse> GetData(int employerSK, int year, int secureUserSK);
+    /// <param name="employerSK"></param>
+    /// <param name="year"></param>
+    /// <param name="secureUserSK"></param>
+    /// <returns></returns>
+    Task<COEReasonableResponse> GetData(int employerSK, int year, int secureUserSK);
 
     /// <summary>
-    /// Saves a new Corporate Officer Exclusion election.
+    /// 
     /// </summary>
-    /// <param name="saveRequest">The election save request.</param>
-    /// <returns>The mapped save response.</returns>
+    /// <param name="saveRequest"></param>
+    /// <returns></returns>
     Task<COESaveResponse> Save(AccountMaintenance.CorporateOfficerExclusionRequest saveRequest);
 
     /// <summary>
-    /// Recalculates the reasonableness worksheet from the provided payroll inputs.
+    /// 
     /// </summary>
-    /// <param name="saveRequest">The recalculation request.</param>
-    /// <returns>The mapped reasonableness worksheet response.</returns>
-    Task<COEResonableResponse> Recalculate(AccountSummary.COEReasonablenessRequest saveRequest);
+    /// <param name="saveRequest"></param>
+    /// <returns></returns>
+    Task<COEReasonableResponse> Calculate(AccountSummary.COEReasonablenessRequest saveRequest);
 
     /// <summary>
     /// Loads an existing Corporate Officer Exclusion election when one is already in effect.
     /// </summary>
     /// <param name="employerSK">The employer surrogate key.</param>
     /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns>Summary details when an election is in effect; otherwise null.</returns>
+    /// <returns>Summary details when an election is in effect.</returns>
     Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK);
 }
 
 /// <summary>
-/// Corporate Officer Exclusion worksheet and election service implementation.
+/// 
 /// </summary>
 public class CorporateOfficerExclusionService : ICorporateOfficerExclusionService
 {
@@ -50,10 +50,10 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     private readonly AccountMaintenance.IAccountMaintenanceService _accountMaintenanceService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CorporateOfficerExclusionService"/> class.
+    /// 
     /// </summary>
-    /// <param name="accountSummaryService">Account summary WCF client.</param>
-    /// <param name="accountMaintenanceService">Account maintenance WCF client.</param>
+    /// <param name="accountSummaryService"></param>
+    /// <param name="accountMaintenanceService"></param>
     public CorporateOfficerExclusionService(
         AccountSummary.IAccountSummaryService accountSummaryService,
         AccountMaintenance.IAccountMaintenanceService accountMaintenanceService)
@@ -63,43 +63,155 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     }
 
     /// <summary>
-    /// Loads the reasonableness worksheet values for the employer and year.
+    /// 
     /// </summary>
-    /// <param name="employerSK">The employer surrogate key.</param>
-    /// <param name="year">The tax year for the worksheet.</param>
-    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns>The mapped reasonableness worksheet response.</returns>
-    public async Task<COEResonableResponse> GetData(int employerSK, int year, int secureUserSK)
+    /// <param name="employerSK"></param>
+    /// <param name="year"></param>
+    /// <param name="secureUserSK"></param>
+    /// <returns></returns>
+    public async Task<COEReasonableResponse> GetData(int employerSK, int year, int secureUserSK)
     {
-        var coeResonableResponse = new COEResonableResponse();
+        var coeResonableResponse = new COEReasonableResponse();
         var req = new AccountSummary.COEReasonablenessRequest();
         req.year = year;
         req.EmployerSK = employerSK;
         req.SecureUserSK = secureUserSK;
 
         var response = await _accountSummaryService.GetCOEReasonablenessAsync(req);
-        MapReasonablenessProxy(response, coeResonableResponse);
+
+        if (response != null && response.COEReasonablenessProxy != null)
+        {
+            coeResonableResponse.FUTACreditWithCOE = response.COEReasonablenessProxy.FUTACreditWithCOE.HasValue ?
+                                                                    response.COEReasonablenessProxy.FUTACreditWithCOE.Value : 0;
+
+            coeResonableResponse.FUTACreditWithoutCOE = response.COEReasonablenessProxy.FUTACreditWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.FUTACreditWithoutCOE.Value : 0;
+
+            coeResonableResponse.FUTAPayroll = (response.COEReasonablenessProxy.FUTAPayroll.HasValue && response.COEReasonablenessProxy.FUTAPayroll.Value != 0) ?
+                                                                   response.COEReasonablenessProxy.FUTAPayroll.Value : null;
+
+            coeResonableResponse.FUTATax = response.COEReasonablenessProxy.FUTATax.HasValue ?
+                                                                   response.COEReasonablenessProxy.FUTATax.Value : 0;
+
+            coeResonableResponse.MaxFUTACreditAvailable = response.COEReasonablenessProxy.MaxFUTACreditAvble.HasValue ?
+                                                                   response.COEReasonablenessProxy.MaxFUTACreditAvble.Value : 0;
+
+            coeResonableResponse.NetFUTATaxWithCOE = response.COEReasonablenessProxy.NetFUTATaxWithCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetFUTATaxWithCOE.Value : 0;
+
+            coeResonableResponse.NetFUTATaxWithoutCOE = response.COEReasonablenessProxy.NetFUTATaxWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetFUTATaxWithoutCOE.Value : 0;
+
+            coeResonableResponse.NetSavings = response.COEReasonablenessProxy.NetSavings.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetSavings.Value : 0;
+
+            coeResonableResponse.TotalFUTACreditWithCOE = response.COEReasonablenessProxy.TotalFUTACreditWithCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.TotalFUTACreditWithCOE.Value : 0;
+
+            coeResonableResponse.TotalFUTACreditWithoutCOE = response.COEReasonablenessProxy.TotalFUTACreditWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.TotalFUTACreditWithoutCOE.Value : 0;
+
+            coeResonableResponse.TotalUITaxWithCOE = response.COEReasonablenessProxy.TotalUITaxWithCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.TotalUITaxWithCOE.Value : 0;
+
+            coeResonableResponse.TotalUITaxWithoutCOE = response.COEReasonablenessProxy.TotalUITaxWithoutCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.TotalUITaxWithoutCOE.Value : 0;
+
+            coeResonableResponse.WITaxablePayrollWithCOE = (response.COEReasonablenessProxy.WITaxablePayrollWithCOE.HasValue && response.COEReasonablenessProxy.WITaxablePayrollWithCOE.Value != 0) ?
+                                                                  response.COEReasonablenessProxy.WITaxablePayrollWithCOE.Value : null;
+
+            coeResonableResponse.WITaxablePayrollWithoutCOE = (response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue && response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value != 0) ?
+                                                                  response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : null;
+
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
+
+            coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
+            coeResonableResponse.WIUITaxWithCOE = response.COEReasonablenessProxy.WIUITaxWithCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxWithCOE.Value : 0;
+
+            coeResonableResponse.WIUITaxWithoutCOE = response.COEReasonablenessProxy.WIUITaxWithoutCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxWithoutCOE.Value : 0;
+        }
+
         return coeResonableResponse;
     }
 
     /// <summary>
-    /// Recalculates the reasonableness worksheet from the provided payroll inputs.
+    /// 
     /// </summary>
-    /// <param name="saveRequest">The recalculation request.</param>
-    /// <returns>The mapped reasonableness worksheet response.</returns>
-    public async Task<COEResonableResponse> Recalculate(AccountSummary.COEReasonablenessRequest saveRequest)
+    /// <param name="saveRequest"></param>
+    /// <returns></returns>
+    public async Task<COEReasonableResponse> Calculate(AccountSummary.COEReasonablenessRequest saveRequest)
     {
-        var coeResonableResponse = new COEResonableResponse();
+        var coeResonableResponse = new COEReasonableResponse();
         var response = await _accountSummaryService.GetCOEReasonablenessAsync(saveRequest);
-        MapReasonablenessProxy(response, coeResonableResponse);
+
+        if (response != null && response.COEReasonablenessProxy != null)
+        {
+            coeResonableResponse.FUTACreditWithCOE = response.COEReasonablenessProxy.FUTACreditWithCOE.HasValue ?
+                                                                    response.COEReasonablenessProxy.FUTACreditWithCOE.Value : 0;
+
+            coeResonableResponse.FUTACreditWithoutCOE = response.COEReasonablenessProxy.FUTACreditWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.FUTACreditWithoutCOE.Value : 0;
+
+            coeResonableResponse.FUTAPayroll = response.COEReasonablenessProxy.FUTAPayroll.HasValue ?
+                                                                   response.COEReasonablenessProxy.FUTAPayroll.Value : 0;
+
+            coeResonableResponse.FUTATax = response.COEReasonablenessProxy.FUTATax.HasValue ?
+                                                                   response.COEReasonablenessProxy.FUTATax.Value : 0;
+
+            coeResonableResponse.MaxFUTACreditAvailable = response.COEReasonablenessProxy.MaxFUTACreditAvble.HasValue ?
+                                                                   response.COEReasonablenessProxy.MaxFUTACreditAvble.Value : 0;
+
+            coeResonableResponse.NetFUTATaxWithCOE = response.COEReasonablenessProxy.NetFUTATaxWithCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetFUTATaxWithCOE.Value : 0;
+
+            coeResonableResponse.NetFUTATaxWithoutCOE = response.COEReasonablenessProxy.NetFUTATaxWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetFUTATaxWithoutCOE.Value : 0;
+
+            coeResonableResponse.NetSavings = response.COEReasonablenessProxy.NetSavings.HasValue ?
+                                                                   response.COEReasonablenessProxy.NetSavings.Value : 0;
+
+            coeResonableResponse.TotalFUTACreditWithCOE = response.COEReasonablenessProxy.TotalFUTACreditWithCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.TotalFUTACreditWithCOE.Value : 0;
+
+            coeResonableResponse.TotalFUTACreditWithoutCOE = response.COEReasonablenessProxy.TotalFUTACreditWithoutCOE.HasValue ?
+                                                                   response.COEReasonablenessProxy.TotalFUTACreditWithoutCOE.Value : 0;
+
+            coeResonableResponse.TotalUITaxWithCOE = response.COEReasonablenessProxy.TotalUITaxWithCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.TotalUITaxWithCOE.Value : 0;
+
+            coeResonableResponse.TotalUITaxWithoutCOE = response.COEReasonablenessProxy.TotalUITaxWithoutCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.TotalUITaxWithoutCOE.Value : 0;
+
+            coeResonableResponse.WITaxablePayrollWithCOE = response.COEReasonablenessProxy.WITaxablePayrollWithCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WITaxablePayrollWithCOE.Value : 0;
+
+            coeResonableResponse.WITaxablePayrollWithoutCOE = response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WITaxablePayrollWithoutCOE.Value : 0;
+
+            coeResonableResponse.WIUITaxRate = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
+
+            coeResonableResponse.WIUITaxRatePercentage = response.COEReasonablenessProxy.WIUITaxRatePercentage.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxRatePercentage.Value : 0;
+            coeResonableResponse.WIUITaxWithCOE = response.COEReasonablenessProxy.WIUITaxWithCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxWithCOE.Value : 0;
+
+            coeResonableResponse.WIUITaxWithoutCOE = response.COEReasonablenessProxy.WIUITaxWithoutCOE.HasValue ?
+                                                                  response.COEReasonablenessProxy.WIUITaxWithoutCOE.Value : 0;
+        }
+
         return coeResonableResponse;
     }
 
     /// <summary>
-    /// Saves a new Corporate Officer Exclusion election.
+    /// 
     /// </summary>
-    /// <param name="saveRequest">The election save request.</param>
-    /// <returns>The mapped save response.</returns>
+    /// <param name="saveRequest"></param>
+    /// <returns></returns>
     public async Task<COESaveResponse> Save(AccountMaintenance.CorporateOfficerExclusionRequest saveRequest)
     {
         var reqResponse = new COESaveResponse();
@@ -117,13 +229,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
 
             if (res.RuleViolations != null && res.RuleViolations.Length > 0)
             {
-                foreach (var ruleViolation in res.RuleViolations)
-                {
-                    if (ruleViolation != null && !string.IsNullOrWhiteSpace(ruleViolation.RuleViolation))
-                    {
-                        reqResponse.WarningMessage.Add(ruleViolation.RuleViolation);
-                    }
-                }
+                reqResponse.WarningMessage = res.RuleViolations.Select(x => x.RuleViolation).ToList();
             }
             else if (!string.IsNullOrWhiteSpace(res.WarningMessage))
             {
@@ -139,7 +245,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     /// <param name="employerSK">The employer surrogate key.</param>
     /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns>Summary details when an election is in effect; otherwise null.</returns>
+    /// <returns>Summary details when an election is in effect.</returns>
     public async Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK)
     {
         var request = new AccountSummary.EmployerRequest
@@ -154,12 +260,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         };
 
         var response = await _accountSummaryService.GetCorporateOfficerExclusionsAsync(request);
-        if (response == null || response.CorporateOfficerExclusionProxies == null)
+        if (response?.CorporateOfficerExclusionProxies == null)
         {
             return emptySummary;
         }
 
-        var selectedElection = new AccountSummary.CorporateOfficerExclusionProxy();
+        AccountSummary.CorporateOfficerExclusionProxy selectedElection = null!;
         var hasSelectedElection = false;
 
         foreach (var proxy in response.CorporateOfficerExclusionProxies)
@@ -176,9 +282,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
                 continue;
             }
 
-            var selectedSortDate = GetElectionSortDate(selectedElection);
-            var proxySortDate = GetElectionSortDate(proxy);
-            if (proxySortDate > selectedSortDate)
+            if (GetElectionSortDate(proxy) > GetElectionSortDate(selectedElection))
             {
                 selectedElection = proxy;
             }
@@ -202,42 +306,6 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         }
 
         return summary;
-    }
-
-    /// <summary>
-    /// Maps a reasonableness WCF response onto the UI response model.
-    /// </summary>
-    /// <param name="response">The WCF reasonableness response.</param>
-    /// <param name="coeResonableResponse">The UI response model to populate.</param>
-    private static void MapReasonablenessProxy(
-        AccountSummary.COEReasonablenessResponse response,
-        COEResonableResponse coeResonableResponse)
-    {
-        if (response == null || response.COEReasonablenessProxy == null)
-        {
-            return;
-        }
-
-        var proxy = response.COEReasonablenessProxy;
-
-        coeResonableResponse.FUTACreditWithCOE = proxy.FUTACreditWithCOE.HasValue ? proxy.FUTACreditWithCOE.Value : 0;
-        coeResonableResponse.FUTACreditWithoutCOE = proxy.FUTACreditWithoutCOE.HasValue ? proxy.FUTACreditWithoutCOE.Value : 0;
-        coeResonableResponse.FUTAPayroll = proxy.FUTAPayroll.HasValue ? proxy.FUTAPayroll.Value : 0;
-        coeResonableResponse.FUTATax = proxy.FUTATax.HasValue ? proxy.FUTATax.Value : 0;
-        coeResonableResponse.MaxFUTACreditAvailable = proxy.MaxFUTACreditAvble.HasValue ? proxy.MaxFUTACreditAvble.Value : 0;
-        coeResonableResponse.NetFUTATaxWithCOE = proxy.NetFUTATaxWithCOE.HasValue ? proxy.NetFUTATaxWithCOE.Value : 0;
-        coeResonableResponse.NetFUTATaxWithoutCOE = proxy.NetFUTATaxWithoutCOE.HasValue ? proxy.NetFUTATaxWithoutCOE.Value : 0;
-        coeResonableResponse.NetSavings = proxy.NetSavings.HasValue ? proxy.NetSavings.Value : 0;
-        coeResonableResponse.TotalFUTACreditWithCOE = proxy.TotalFUTACreditWithCOE.HasValue ? proxy.TotalFUTACreditWithCOE.Value : 0;
-        coeResonableResponse.TotalFUTACreditWithoutCOE = proxy.TotalFUTACreditWithoutCOE.HasValue ? proxy.TotalFUTACreditWithoutCOE.Value : 0;
-        coeResonableResponse.TotalUITaxWithCOE = proxy.TotalUITaxWithCOE.HasValue ? proxy.TotalUITaxWithCOE.Value : 0;
-        coeResonableResponse.TotalUITaxWithoutCOE = proxy.TotalUITaxWithoutCOE.HasValue ? proxy.TotalUITaxWithoutCOE.Value : 0;
-        coeResonableResponse.WITaxablePayrollWithCOE = proxy.WITaxablePayrollWithCOE.HasValue ? proxy.WITaxablePayrollWithCOE.Value : 0;
-        coeResonableResponse.WITaxablePayrollWithoutCOE = proxy.WITaxablePayrollWithoutCOE.HasValue ? proxy.WITaxablePayrollWithoutCOE.Value : 0;
-        coeResonableResponse.WIUITaxRate = proxy.WIUITaxRatePercentage.HasValue ? proxy.WIUITaxRatePercentage.Value : 0;
-        coeResonableResponse.WIUITaxRatePercentage = proxy.WIUITaxRatePercentage.HasValue ? proxy.WIUITaxRatePercentage.Value : 0;
-        coeResonableResponse.WIUITaxWithCOE = proxy.WIUITaxWithCOE.HasValue ? proxy.WIUITaxWithCOE.Value : 0;
-        coeResonableResponse.WIUITaxWithoutCOE = proxy.WIUITaxWithoutCOE.HasValue ? proxy.WIUITaxWithoutCOE.Value : 0;
     }
 
     /// <summary>

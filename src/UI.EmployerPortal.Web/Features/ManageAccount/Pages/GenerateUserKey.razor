@@ -50,6 +50,7 @@
                     Title="Worker Access Key"
                     BoldTitle="true"
                     IsSelected="@(_selectedIndex == 0)"
+                    IsFocusable="@(_selectedIndex == 0)"
                     OnSelected="@(() => HandleCardSelected(0))"
                     OnNextCardSelected="HandleNextCard"
                     OnPreviousCardSelected="HandlePreviousCard">
@@ -70,6 +71,7 @@
                     Title="Manager Access Key"
                     BoldTitle="true"
                     IsSelected="@(_selectedIndex == 1)"
+                    IsFocusable="@(_selectedIndex == 1)"
                     OnSelected="@(() => HandleCardSelected(1))"
                     OnNextCardSelected="HandleNextCard"
                     OnPreviousCardSelected="HandlePreviousCard">
@@ -92,6 +94,7 @@
                     Title="Worker Access Key"
                     BoldTitle="true"
                     IsSelected="@(_selectedIndex == 0)"
+                    IsFocusable="@(_selectedIndex == 0)"
                     OnSelected="@(() => HandleCardSelected(0))"
                     OnNextCardSelected="HandleNextCard"
                     OnPreviousCardSelected="HandlePreviousCard">
@@ -107,6 +110,7 @@
                     Title="Manager Access Key"
                     BoldTitle="true"
                     IsSelected="@(_selectedIndex == 1)"
+                    IsFocusable="@(_selectedIndex == 1)"
                     OnSelected="@(() => HandleCardSelected(1))"
                     OnNextCardSelected="HandleNextCard"
                     OnPreviousCardSelected="HandlePreviousCard">
