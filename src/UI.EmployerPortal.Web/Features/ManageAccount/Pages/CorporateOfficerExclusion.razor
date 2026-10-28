@@ -1,10 +1,9 @@
 @page "/manage-account/corporate-office-exclusion"
+@using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
 @using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject INavigationSessionTracker tracker
-
-@inject UI.EmployerPortal.Web.Features.Shared.QuarterlyTax.Services.ITaxExclusionThresholdService TaxExclusionThresholdService
 
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 <PageTitle>Corporate Officer Exclusion</PageTitle>
@@ -168,6 +167,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
 {
     @* ── Reasonableness worksheet ── *@
     <div class="worksheet-page">
+        <PageBlockingLoadingSpinner Message="Working..." IsLoading="@_isSaving" />
         <div class="worksheet-headings">
             <h1 class="title">Corporate Officer Exclusion</h1>
             <h2 class="worksheet-subtitle">Corporate Officer Exclusion Reasonableness Worksheet</h2>
@@ -289,7 +289,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                             </tr>
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">4.</td>
-                                <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @TaxExclusionThresholdService.FormattedCurrentTaxExclusionThreshold() of any employee's wages)</td>
+                                <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @_taxableWageBaseFormatted of any employee's wages)</td>
                                 <td class="fw-normal fs-md">
                                     <div class="decimal-input @(_wiPayrollWithoutMissing ? "decimal-input--error" : null)">
                                         <NumericTextBox Value="@_response.WITaxablePayrollWithoutCOE"

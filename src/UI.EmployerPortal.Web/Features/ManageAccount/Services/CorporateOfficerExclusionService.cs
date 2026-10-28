@@ -1,3 +1,5 @@
+using System.Globalization;
+using UI.EmployerPortal.Generated.ServiceClients.PortalUtilityService;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using AccountMaintenance = UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService;
 using AccountSummary = UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService;
@@ -39,6 +41,12 @@ public interface ICorporateOfficerExclusionService
     /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
     /// <returns>Summary details when an election is in effect.</returns>
     Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK);
+
+    /// <summary>
+    /// Loads the current taxable wage base (e.g. $14,000.00) for the Line 4 worksheet label.
+    /// </summary>
+    /// <returns>Currency-formatted taxable wage base, or an empty string when unavailable.</returns>
+    Task<string> GetFormattedTaxableWageBaseAsync();
 }
 
 /// <summary>
@@ -46,20 +54,26 @@ public interface ICorporateOfficerExclusionService
 /// </summary>
 public class CorporateOfficerExclusionService : ICorporateOfficerExclusionService
 {
+    private const string TaxableWageBaseParameterName = "TaxableWageBase";
+
     private readonly AccountSummary.IAccountSummaryService _accountSummaryService;
     private readonly AccountMaintenance.IAccountMaintenanceService _accountMaintenanceService;
+    private readonly IPortalUtilityService _portalUtilityService;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="accountSummaryService"></param>
     /// <param name="accountMaintenanceService"></param>
+    /// <param name="portalUtilityService"></param>
     public CorporateOfficerExclusionService(
         AccountSummary.IAccountSummaryService accountSummaryService,
-        AccountMaintenance.IAccountMaintenanceService accountMaintenanceService)
+        AccountMaintenance.IAccountMaintenanceService accountMaintenanceService,
+        IPortalUtilityService portalUtilityService)
     {
         _accountSummaryService = accountSummaryService;
         _accountMaintenanceService = accountMaintenanceService;
+        _portalUtilityService = portalUtilityService;
     }
 
     /// <summary>
@@ -336,5 +350,36 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             ?? proxy.DecisionDate
             ?? proxy.EffectiveDate
             ?? DateTime.MinValue;
+    }
+
+    /// <inheritdoc />
+    public async Task<string> GetFormattedTaxableWageBaseAsync()
+    {
+        // TaxableWageBase is published with employer portal API/system parameters
+        // (team guidance: PortalUtilityService parameter list).
+        var direct = await _portalUtilityService.GetSystemParameterAsync(TaxableWageBaseParameterName);
+        var rawValue = direct?.SystemParameter?.ParameterValue;
+
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            var all = await _portalUtilityService.GetAllSystemParametersAsync();
+            rawValue = all?.SystemParameters?
+                .FirstOrDefault(p =>
+                    string.Equals(p?.ParameterName, TaxableWageBaseParameterName, StringComparison.OrdinalIgnoreCase))
+                ?.ParameterValue;
+        }
+
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return string.Empty;
+        }
+
+        if (decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount)
+            || decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.CurrentCulture, out amount))
+        {
+            return amount.ToString("C");
+        }
+
+        return rawValue;
     }
 }

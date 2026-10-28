@@ -149,6 +149,11 @@ public partial class CorporateOfficerExclusion
     private bool _mailCopyRequested = false;
 
     /// <summary>
+    /// Currency-formatted taxable wage base shown in the Line 4 worksheet label.
+    /// </summary>
+    private string _taxableWageBaseFormatted = string.Empty;
+
+    /// <summary>
     /// Success banner text for the already-elected confirmation screen.
     /// </summary>
     private string SuccessBannerMessage => SubmitSuccessMessage;
@@ -215,6 +220,7 @@ public partial class CorporateOfficerExclusion
 
             _showIntro = true;
             _isAlreadyElected = false;
+            _taxableWageBaseFormatted = await CorporateOfficerExclusionService.GetFormattedTaxableWageBaseAsync();
             _response = await CorporateOfficerExclusionService.GetData(_employerSK, DateTime.Now.Year, secureUserSK);
         }
         catch
