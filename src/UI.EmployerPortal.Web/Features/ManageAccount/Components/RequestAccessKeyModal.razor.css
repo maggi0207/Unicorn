@@ -7,16 +7,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 /* ── Modal container ─────────────────────────────────────────────────────── */
 .rak-modal {
-    width: 640px;
-    max-width: calc(100% - 32px);
+    max-width: 640px;
     background: #fff;
     border-radius: 4px;
     box-shadow: 0 11px 15px rgba(0, 0, 0, 0.2), 0 9px 46px rgba(0, 0, 0, 0.12);
-    overflow: hidden;
+    margin: auto;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */

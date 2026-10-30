@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.Dashboard;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
@@ -10,7 +11,7 @@ using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public partial class FinanceMethodCR
 {
@@ -43,6 +44,9 @@ public partial class FinanceMethodCR
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
 
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
     private int Year { get; set; } = default;
 
     private List<SelectOption>? SelectOption { get; set; }
@@ -50,7 +54,7 @@ public partial class FinanceMethodCR
     private string Title { get; set; } = string.Empty;
     private int SelectedYear { get; set; } = default;
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <returns></returns>
     protected override async Task OnAuthorizedInitAsync()
@@ -80,6 +84,18 @@ public partial class FinanceMethodCR
        });
 
 
+    }
+
+    /// <summary>
+    /// Set focus on the heading after initial page load
+    /// </summary>
+    /// <param name="firstRender"></param>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("focusElement", "page-heading");
+        }
     }
 
     private void OnEffectiveYearChanged(string year)

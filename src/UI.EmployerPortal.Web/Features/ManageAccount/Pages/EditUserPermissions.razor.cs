@@ -234,7 +234,7 @@ public partial class EditUserPermissions
         if (success)
         {
             var name = Uri.EscapeDataString($"{_user.FirstName} {_user.LastName}");
-            Navigation.NavigateTo($"/manage-account/account-users?flash=user-removed&name={name}");
+            Navigation.NavigateTo($"manage-account/account-users?flash=user-removed&name={name}");
         }
         else
         {

@@ -369,17 +369,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
                 ?.ParameterValue;
         }
 
-        if (string.IsNullOrWhiteSpace(rawValue))
-        {
-            return string.Empty;
-        }
-
-        if (decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount)
-            || decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.CurrentCulture, out amount))
-        {
-            return amount.ToString("C");
-        }
-
-        return rawValue;
+        return string.IsNullOrWhiteSpace(rawValue)
+            ? string.Empty
+            : decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount)
+            || decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.CurrentCulture, out amount)
+            ? amount.ToString("C")
+            : rawValue;
     }
 }
