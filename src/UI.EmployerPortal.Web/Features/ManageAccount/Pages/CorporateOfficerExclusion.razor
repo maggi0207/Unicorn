@@ -191,7 +191,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                             </th>
                             <th scope="col" class="header-cell header-cell-desc">
                                 <div class="header-content  header-content-left">
-                                    <span class="header-label fw-bold fs-sm">Use Payroll Figures (estimates 2026)</span>
+                                    <span class="header-label fw-bold fs-sm">Use Payroll Figures (estimates @_estimateYear)</span>
                                 </div>
                             </th>
                             <th scope="col" class="header-cell header-cell-amount">
@@ -297,7 +297,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                             </tr>
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">5.</td>
-                                <td class="fw-normal text-left fs-md">Your 2026 WI UI Tax Rate</td>
+                                <td class="fw-normal text-left fs-md">Your @_estimateYear WI UI Tax Rate</td>
                                 <td class="fw-normal fs-md"> @(_response.WIUITaxRatePercentage.ToString() + "%") </td>
                                 <td class="fw-normal fs-md"> @(_response.WIUITaxRatePercentage.ToString() + "%") </td>
                             </tr>

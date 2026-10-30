@@ -130,8 +130,14 @@ public partial class CorporateOfficerExclusion
 
     /// <summary>
     /// Effective date shown on intro / already-elected cards.
+    /// Defaults to Jan 1 of <see cref="_estimateYear"/> until SaveNewCOEElection returns the service date.
     /// </summary>
     private DateTime? _effectiveDate;
+
+    /// <summary>
+    /// Estimate / payroll year shown on the worksheet and sent to GetCOEReasonableness / SaveNewCOEElection.
+    /// </summary>
+    private int _estimateYear;
 
     /// <summary>
     /// Confirmation ID when an election already exists or was just saved.
@@ -207,7 +213,7 @@ public partial class CorporateOfficerExclusion
 
             _accountNumber = FormatUIAccountNumber(selected?.EmployerAccount?.UIAccountNo ?? string.Empty);
             _legalName = selected?.EmployerAccount?.LegalName ?? string.Empty;
-            _effectiveDate = new DateTime(DateTime.Now.Year, 1, 1);
+            ApplyEstimateYear(DateTime.Now.Year);
 
             var secureUserSK = UserAccountService.GetUserSKClaim();
 
@@ -221,7 +227,7 @@ public partial class CorporateOfficerExclusion
             _showIntro = true;
             _isAlreadyElected = false;
             _taxableWageBaseFormatted = await CorporateOfficerExclusionService.GetFormattedTaxableWageBaseAsync();
-            _response = await CorporateOfficerExclusionService.GetData(_employerSK, DateTime.Now.Year, secureUserSK);
+            _response = await CorporateOfficerExclusionService.GetData(_employerSK, _estimateYear, secureUserSK);
         }
         catch
         {
@@ -245,7 +251,7 @@ public partial class CorporateOfficerExclusion
 
         if (existingElection.EffectiveDate.HasValue)
         {
-            _effectiveDate = existingElection.EffectiveDate;
+            ApplyEffectiveDateFromService(existingElection.EffectiveDate.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(existingElection.AccountNumber))
@@ -267,6 +273,28 @@ public partial class CorporateOfficerExclusion
             ConfirmationId = _confirmationId,
             DateSubmitted = _dateSubmitted
         };
+    }
+
+    /// <summary>
+    /// Sets the estimate year used for worksheet labels and COE service Year values,
+    /// and defaults the effective date to January 1 of that year.
+    /// </summary>
+    /// <param name="year">The estimate / election year.</param>
+    private void ApplyEstimateYear(int year)
+    {
+        _estimateYear = year;
+        _effectiveDate = new DateTime(year, 1, 1);
+    }
+
+    /// <summary>
+    /// Maps CorporateOfficeExclusionEffectiveDate from SaveNewCOEElection / existing election
+    /// onto the page effective date and estimate year.
+    /// </summary>
+    /// <param name="effectiveDate">The service-provided effective date.</param>
+    private void ApplyEffectiveDateFromService(DateTime effectiveDate)
+    {
+        _effectiveDate = effectiveDate;
+        _estimateYear = effectiveDate.Year;
     }
 
     /// <inheritdoc/>
@@ -382,7 +410,7 @@ public partial class CorporateOfficerExclusion
                 {
                     EmployerSK = employerSk,
                     SecureUserSK = secureUserSK,
-                    year = DateTime.Now.Year,
+                    year = _estimateYear,
                     PayrollSubjectToFUTAWithoutCOE = _response.FUTAPayroll ?? 0m,
                     PayrollSubjectToWITaxRateWithCOE = _response.WITaxablePayrollWithCOE ?? 0m,
                     PayrollSubjectToWITaxRateWithoutCOE = _response.WITaxablePayrollWithoutCOE ?? 0m,
@@ -456,7 +484,7 @@ public partial class CorporateOfficerExclusion
                 EmployerSK = selectedClient.Id,
                 SecureUserSK = secureUserSK,
                 NetSavings = _response.NetSavings,
-                Year = DateTime.Now.Year,
+                Year = _estimateYear,
                 IsCalculateClicked = _isCalculateClicked,
                 IsNoSavingsShown = _isNoSavingsShown
             };
@@ -501,7 +529,7 @@ public partial class CorporateOfficerExclusion
 
             if (_saveResponse.CorporateOfficeExclusionEffectiveDate.HasValue)
             {
-                _effectiveDate = _saveResponse.CorporateOfficeExclusionEffectiveDate;
+                ApplyEffectiveDateFromService(_saveResponse.CorporateOfficeExclusionEffectiveDate.Value);
             }
 
             await EnrichSuccessFromExistingElectionAsync(selectedClient.Id, secureUserSK);
@@ -554,7 +582,7 @@ public partial class CorporateOfficerExclusion
 
             if (existingElection.EffectiveDate.HasValue)
             {
-                _effectiveDate = existingElection.EffectiveDate;
+                ApplyEffectiveDateFromService(existingElection.EffectiveDate.Value);
                 if (_saveResponse != null)
                 {
                     _saveResponse.CorporateOfficeExclusionEffectiveDate = existingElection.EffectiveDate;
