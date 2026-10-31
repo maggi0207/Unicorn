@@ -469,19 +469,23 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     }
 
     /// <summary>
-    /// Formats a rate parameter with three decimal places for worksheet labels.
+    /// Formats a rate for worksheet labels as percent text (e.g. 6.000).
+    /// Fractional values like 0.06 are shown as 6.000; values already in percent form are unchanged.
     /// </summary>
-    /// <param name="parsedRate">Parsed rate when available.</param>
-    /// <param name="rawValue">Raw parameter value fallback.</param>
-    /// <returns>Rate text such as 6.000.</returns>
     private static string FormatRateParameter(decimal? parsedRate, string rawValue)
     {
-        if (parsedRate.HasValue)
+        if (!parsedRate.HasValue)
         {
-            return parsedRate.Value.ToString("0.000", CultureInfo.InvariantCulture);
+            return rawValue ?? string.Empty;
         }
 
-        return rawValue ?? string.Empty;
+        var rate = parsedRate.Value;
+        if (rate > 0m && rate < 1m)
+        {
+            rate *= 100m;
+        }
+
+        return rate.ToString("0.000", CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -523,16 +527,8 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         };
 
         var res = await _accountMaintenanceService.SaveNewCOEElectionAsync(request);
-        if (res == null || res.Success)
-        {
-            return null;
-        }
-
-        if (res.CorporateOfficeExclusionEffectiveDate.Year < 2000)
-        {
-            return null;
-        }
-
-        return res.CorporateOfficeExclusionEffectiveDate;
+        return res == null || res.Success || res.CorporateOfficeExclusionEffectiveDate.Year < 2000
+            ? null
+            : res.CorporateOfficeExclusionEffectiveDate;
     }
 }

@@ -692,6 +692,28 @@ public partial class CorporateOfficerExclusion
     }
 
     /// <summary>
+    /// Returns the no-savings warning body for Figma layout (bold "Warning:" is rendered separately).
+    /// Does not alter parenthesis or other backend wording.
+    /// </summary>
+    /// <returns>Warning message without a leading Warning prefix.</returns>
+    private string GetNoSavingsWarningBody()
+    {
+        if (_saveResponse?.WarningMessage == null || _saveResponse.WarningMessage.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var message = (_saveResponse.WarningMessage[0] ?? string.Empty).Trim();
+
+        if (message.StartsWith("Warning -", StringComparison.OrdinalIgnoreCase))
+        {
+            return message["Warning -".Length..].TrimStart();
+        }
+
+        return message;
+    }
+
+    /// <summary>
     /// Formats a UI account number as ######-###-# when 10 digits are present.
     /// </summary>
     /// <param name="accountNo">The raw or partially formatted account number.</param>

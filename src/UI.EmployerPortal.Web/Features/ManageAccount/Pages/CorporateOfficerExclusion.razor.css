@@ -196,6 +196,43 @@
     gap: 16px;
 }
 
+/* No-savings warning: Figma — bold "Warning:", normal body, icon top-aligned, no bullet list */
+.coe-no-savings-banner ::deep .nb-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+}
+
+.coe-no-savings-banner ::deep .nb-child-content-icon {
+    display: flex;
+    width: auto;
+    flex-shrink: 0;
+    margin: 2px 0 0 0;
+    padding: 0;
+}
+
+.coe-no-savings-banner ::deep .nb-child-content-body {
+    display: block;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+}
+
+.coe-no-savings-banner__message {
+    margin: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 150%;
+    color: #000;
+}
+
+.coe-no-savings-banner__message strong {
+    font-weight: 700;
+}
+
 .section-paragraph {
     margin: 0;
     font-family: Verdana, sans-serif;

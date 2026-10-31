@@ -158,11 +158,15 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                 }
                 else if (_isNoSavingsShown && _saveResponse?.WarningMessage?.Count > 0)
                 {
-                    <NotificationBanner NotificationType="NotificationType.Warning"
-                                        MessageStyle="MessageStyle.MultiLine"
-                                        Messages="_saveResponse.WarningMessage"
-                                        DismissButton="false">
-                    </NotificationBanner>
+                    <div class="coe-no-savings-banner">
+                        <NotificationBanner NotificationType="NotificationType.Warning"
+                                            MessageStyle="MessageStyle.ChildContent"
+                                            DismissButton="false">
+                            <p class="coe-no-savings-banner__message">
+                                <strong>Warning:</strong> @GetNoSavingsWarningBody()
+                            </p>
+                        </NotificationBanner>
+                    </div>
                 }
                 else if (_saveResponse != null && !_saveResponse.Success)
                 {
