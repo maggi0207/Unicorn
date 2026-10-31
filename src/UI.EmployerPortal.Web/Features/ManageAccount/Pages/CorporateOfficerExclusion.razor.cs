@@ -27,9 +27,9 @@ public partial class CorporateOfficerExclusion
     private const string SubmitFailedMessage = "Worksheet failed to submit. Please try again.";
 
     /// <summary>
-    /// Message shown on the already-elected confirmation banner.
+    /// Message shown on the already-elected warning banner.
     /// </summary>
-    private const string SubmitSuccessMessage = "Corporate Officer Exclusion submitted.";
+    private const string AlreadyElectedStatusMessage = "The Corporate Officer Exclusion status is already 'Elected'.";
 
     /// <summary>
     /// Centered success copy shown immediately after a successful election (Figma Success).
@@ -155,14 +155,14 @@ public partial class CorporateOfficerExclusion
     private bool _mailCopyRequested = false;
 
     /// <summary>
-    /// Currency-formatted taxable wage base shown in the Line 4 worksheet label.
+    /// EmployerPortalAPIParameters used for worksheet Line 1–4 and Line 7 labels.
     /// </summary>
-    private string _taxableWageBaseFormatted = string.Empty;
+    private COEEmployerPortalApiParameters _apiParameters = new();
 
     /// <summary>
-    /// Success banner text for the already-elected confirmation screen.
+    /// Warning banner text for the already-elected revisit screen.
     /// </summary>
-    private string SuccessBannerMessage => SubmitSuccessMessage;
+    private string AlreadyElectedWarningMessage => AlreadyElectedStatusMessage;
 
     /// <summary>
     /// Centered success text for a freshly submitted election.
@@ -224,9 +224,18 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
+            var defaultEffectiveDate = await CorporateOfficerExclusionService.GetDefaultEffectiveDateAsync(
+                _employerSK,
+                secureUserSK,
+                _estimateYear);
+            if (defaultEffectiveDate.HasValue)
+            {
+                ApplyEffectiveDateFromService(defaultEffectiveDate.Value);
+            }
+
             _showIntro = true;
             _isAlreadyElected = false;
-            _taxableWageBaseFormatted = await CorporateOfficerExclusionService.GetFormattedTaxableWageBaseAsync();
+            _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
             _response = await CorporateOfficerExclusionService.GetData(_employerSK, _estimateYear, secureUserSK);
         }
         catch

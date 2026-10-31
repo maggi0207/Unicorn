@@ -43,10 +43,21 @@ public interface ICorporateOfficerExclusionService
     Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK);
 
     /// <summary>
-    /// Loads the current taxable wage base (e.g. $14,000.00) for the Line 4 worksheet label.
+    /// Loads EmployerPortalAPIParameters used by the reasonableness worksheet labels
+    /// (FUTA threshold/rates and taxable wage base).
     /// </summary>
-    /// <returns>Currency-formatted taxable wage base, or an empty string when unavailable.</returns>
-    Task<string> GetFormattedTaxableWageBaseAsync();
+    /// <returns>Formatted parameter values for Lines 1–4 and 7.</returns>
+    Task<COEEmployerPortalApiParameters> GetEmployerPortalApiParametersAsync();
+
+    /// <summary>
+    /// Loads the default Corporate Officer Exclusion effective date from SaveNewCOEElection
+    /// (<c>CorporateOfficeExclusionEffectiveDate</c>) without completing an election.
+    /// </summary>
+    /// <param name="employerSK">The employer surrogate key.</param>
+    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
+    /// <param name="year">The estimate / election year sent on the request.</param>
+    /// <returns>The service effective date when available; otherwise null.</returns>
+    Task<DateTime?> GetDefaultEffectiveDateAsync(int employerSK, int secureUserSK, int year);
 }
 
 /// <summary>
@@ -55,6 +66,9 @@ public interface ICorporateOfficerExclusionService
 public class CorporateOfficerExclusionService : ICorporateOfficerExclusionService
 {
     private const string TaxableWageBaseParameterName = "TaxableWageBase";
+    private const string PayrollSubjectFutaParameterName = "PayrollSubjectFUTACOEReasonableness";
+    private const string FutaTaxRateParameterName = "FUTATaxRate";
+    private const string MaxFutaCreditAvailableRateParameterName = "MaxFUTACreditAvailableRate";
 
     private readonly AccountSummary.IAccountSummaryService _accountSummaryService;
     private readonly AccountMaintenance.IAccountMaintenanceService _accountMaintenanceService;
@@ -353,27 +367,172 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     }
 
     /// <inheritdoc />
-    public async Task<string> GetFormattedTaxableWageBaseAsync()
+    public async Task<COEEmployerPortalApiParameters> GetEmployerPortalApiParametersAsync()
     {
-        // TaxableWageBase is published with employer portal API/system parameters
-        // (team guidance: PortalUtilityService parameter list).
-        var direct = await _portalUtilityService.GetSystemParameterAsync(TaxableWageBaseParameterName);
-        var rawValue = direct?.SystemParameter?.ParameterValue;
+        var parametersByName = await LoadEmployerPortalApiParametersAsync();
 
-        if (string.IsNullOrWhiteSpace(rawValue))
+        var result = new COEEmployerPortalApiParameters();
+
+        result.PayrollSubjectFutaFormatted = FormatCurrencyParameter(
+            GetParameterValue(parametersByName, PayrollSubjectFutaParameterName));
+        result.TaxableWageBaseFormatted = FormatCurrencyParameter(
+            GetParameterValue(parametersByName, TaxableWageBaseParameterName));
+
+        var futaTaxRate = ParseDecimalParameter(GetParameterValue(parametersByName, FutaTaxRateParameterName));
+        result.FutaTaxRate = futaTaxRate;
+        result.FutaTaxRateFormatted = FormatRateParameter(futaTaxRate, GetParameterValue(parametersByName, FutaTaxRateParameterName));
+
+        var maxFutaCreditRate = ParseDecimalParameter(
+            GetParameterValue(parametersByName, MaxFutaCreditAvailableRateParameterName));
+        result.MaxFutaCreditAvailableRate = maxFutaCreditRate;
+        result.MaxFutaCreditAvailableRateFormatted = FormatRateParameter(
+            maxFutaCreditRate,
+            GetParameterValue(parametersByName, MaxFutaCreditAvailableRateParameterName));
+
+        return result;
+    }
+
+    /// <summary>
+    /// Loads EmployerPortalAPIParameters / system parameters keyed by parameter name.
+    /// </summary>
+    /// <returns>Case-insensitive parameter name to value map.</returns>
+    private async Task<Dictionary<string, string>> LoadEmployerPortalApiParametersAsync()
+    {
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var all = await _portalUtilityService.GetAllSystemParametersAsync();
+        if (all?.SystemParameters != null)
         {
-            var all = await _portalUtilityService.GetAllSystemParametersAsync();
-            rawValue = all?.SystemParameters?
-                .FirstOrDefault(p =>
-                    string.Equals(p?.ParameterName, TaxableWageBaseParameterName, StringComparison.OrdinalIgnoreCase))
-                ?.ParameterValue;
+            foreach (var parameter in all.SystemParameters)
+            {
+                if (parameter == null || string.IsNullOrWhiteSpace(parameter.ParameterName))
+                {
+                    continue;
+                }
+
+                map[parameter.ParameterName] = parameter.ParameterValue ?? string.Empty;
+            }
         }
 
-        return string.IsNullOrWhiteSpace(rawValue)
-            ? string.Empty
-            : decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount)
-            || decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.CurrentCulture, out amount)
-            ? amount.ToString("C")
-            : rawValue;
+        await EnsureParameterAsync(map, PayrollSubjectFutaParameterName);
+        await EnsureParameterAsync(map, FutaTaxRateParameterName);
+        await EnsureParameterAsync(map, MaxFutaCreditAvailableRateParameterName);
+        await EnsureParameterAsync(map, TaxableWageBaseParameterName);
+
+        return map;
+    }
+
+    /// <summary>
+    /// Fetches a single missing parameter by name when it was not present in the bulk response.
+    /// </summary>
+    /// <param name="map">Parameter map to update.</param>
+    /// <param name="parameterName">The EmployerPortalAPIParameters name.</param>
+    private async Task EnsureParameterAsync(Dictionary<string, string> map, string parameterName)
+    {
+        if (map.ContainsKey(parameterName) && !string.IsNullOrWhiteSpace(map[parameterName]))
+        {
+            return;
+        }
+
+        var direct = await _portalUtilityService.GetSystemParameterAsync(parameterName);
+        var value = direct?.SystemParameter?.ParameterValue;
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            map[parameterName] = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets a parameter value from the loaded map.
+    /// </summary>
+    /// <param name="map">Parameter map.</param>
+    /// <param name="parameterName">Parameter name.</param>
+    /// <returns>Raw parameter value, or empty string.</returns>
+    private static string GetParameterValue(Dictionary<string, string> map, string parameterName)
+    {
+        return map.TryGetValue(parameterName, out var value) ? value : string.Empty;
+    }
+
+    /// <summary>
+    /// Formats a wage-threshold parameter as currency when numeric.
+    /// </summary>
+    /// <param name="rawValue">Raw parameter value.</param>
+    /// <returns>Currency string, raw value, or empty string.</returns>
+    private static string FormatCurrencyParameter(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return string.Empty;
+        }
+
+        return TryParseDecimal(rawValue, out var amount) ? amount.ToString("C") : rawValue;
+    }
+
+    /// <summary>
+    /// Formats a rate parameter with three decimal places for worksheet labels.
+    /// </summary>
+    /// <param name="parsedRate">Parsed rate when available.</param>
+    /// <param name="rawValue">Raw parameter value fallback.</param>
+    /// <returns>Rate text such as 6.000.</returns>
+    private static string FormatRateParameter(decimal? parsedRate, string rawValue)
+    {
+        if (parsedRate.HasValue)
+        {
+            return parsedRate.Value.ToString("0.000", CultureInfo.InvariantCulture);
+        }
+
+        return rawValue ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Parses a decimal parameter value.
+    /// </summary>
+    /// <param name="rawValue">Raw parameter value.</param>
+    /// <returns>Parsed decimal, or null.</returns>
+    private static decimal? ParseDecimalParameter(string rawValue)
+    {
+        return TryParseDecimal(rawValue, out var value) ? value : null;
+    }
+
+    /// <summary>
+    /// Attempts to parse a decimal using invariant then current culture.
+    /// </summary>
+    /// <param name="rawValue">Raw string value.</param>
+    /// <param name="value">Parsed value when successful.</param>
+    /// <returns>True when parsing succeeds.</returns>
+    private static bool TryParseDecimal(string rawValue, out decimal value)
+    {
+        return decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.InvariantCulture, out value)
+            || decimal.TryParse(rawValue, NumberStyles.Any, CultureInfo.CurrentCulture, out value);
+    }
+
+    /// <inheritdoc />
+    public async Task<DateTime?> GetDefaultEffectiveDateAsync(int employerSK, int secureUserSK, int year)
+    {
+        // Team guidance: intro/estimate default date comes from SaveNewCOEElection
+        // (CorporateOfficeExclusionEffectiveDate). Call with IsCalculateClicked=false so the
+        // service can return the computed default without completing an election.
+        var request = new AccountMaintenance.CorporateOfficerExclusionRequest
+        {
+            EmployerSK = employerSK,
+            SecureUserSK = secureUserSK,
+            Year = year,
+            NetSavings = 0m,
+            IsCalculateClicked = false,
+            IsNoSavingsShown = false
+        };
+
+        var res = await _accountMaintenanceService.SaveNewCOEElectionAsync(request);
+        if (res == null || res.Success)
+        {
+            return null;
+        }
+
+        if (res.CorporateOfficeExclusionEffectiveDate.Year < 2000)
+        {
+            return null;
+        }
+
+        return res.CorporateOfficeExclusionEffectiveDate;
     }
 }

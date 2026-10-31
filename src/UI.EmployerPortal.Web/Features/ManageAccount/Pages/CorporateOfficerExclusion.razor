@@ -48,8 +48,8 @@ else if (_isAlreadyElected)
         <div class="header-container">
             <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
 
-            <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                Message="@SuccessBannerMessage"
+            <NotificationBanner NotificationType="NotificationType.Warning"
+                                Message="@AlreadyElectedWarningMessage"
                                 DismissButton="false">
             </NotificationBanner>
 
@@ -74,13 +74,6 @@ else if (_isAlreadyElected)
                 <div class="item">
                     <div class="label">Confirmation ID</div>
                     <div class="value">@_confirmationId</div>
-                </div>
-            }
-            @if (_dateSubmitted.HasValue)
-            {
-                <div class="item">
-                    <div class="label">Date Submitted</div>
-                    <div class="value">@_dateSubmitted.Value.ToString("MM/dd/yyyy")</div>
                 </div>
             }
             <div class="effective-date">
@@ -163,6 +156,14 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                         DismissButton="false">
                     </NotificationBanner>
                 }
+                else if (_isNoSavingsShown && _saveResponse?.WarningMessage?.Count > 0)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Warning"
+                                        MessageStyle="MessageStyle.MultiLine"
+                                        Messages="_saveResponse.WarningMessage"
+                                        DismissButton="false">
+                    </NotificationBanner>
+                }
                 else if (_saveResponse != null && !_saveResponse.Success)
                 {
                     <NotificationBanner NotificationType="NotificationType.Alert"
@@ -211,7 +212,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                         {
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">1.</td>
-                                <td class="fw-normal fs-md  text-left">Payroll subject to FUTA (include only first $7,000 of any employee's wages)</td>
+                                <td class="fw-normal fs-md  text-left">Payroll subject to FUTA (include only first @_apiParameters.PayrollSubjectFutaFormatted of any employee's wages)</td>
                                 <td class="fw-normal fs-md">
                                     <div class="decimal-input @(_futaPayrollMissing ? "decimal-input--error" : null)">
                                         <NumericTextBox Value="@_response.FUTAPayroll"
@@ -243,19 +244,19 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
 
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">2.</td>
-                                <td class="fw-normal fs-md  text-left">FUTA Tax (6.000 % times line 1)</td>
+                                <td class="fw-normal fs-md  text-left">FUTA Tax (@_apiParameters.FutaTaxRateFormatted % times line 1)</td>
                                 <td class="fw-normal fs-md"> @_response.FUTATax.ToString("C")  </td>
                                 <td class="fw-normal fs-md"> @_response.FUTATax.ToString("C")</td>
                             </tr>
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">3.</td>
-                                <td class="fw-normal text-left fs-md">Maximum FUTA Credit Potentially Available  (5.400 % times line 1)</td>
+                                <td class="fw-normal text-left fs-md">Maximum FUTA Credit Potentially Available  (@_apiParameters.MaxFutaCreditAvailableRateFormatted % times line 1)</td>
                                 <td class="fw-normal fs-md"> @_response.MaxFUTACreditAvailable.ToString("C")  </td>
                                 <td class="fw-normal fs-md"> @_response.MaxFUTACreditAvailable.ToString("C") </td>
                             </tr>
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">4.</td>
-                                <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @_taxableWageBaseFormatted of any employee's wages)</td>
+                                <td class="fw-normal text-left fs-md">Payroll Subject to WI UI Tax (Include only first @_apiParameters.TaxableWageBaseFormatted of any employee's wages)</td>
                                 <td class="fw-normal fs-md">
                                     <div class="decimal-input @(_wiPayrollWithoutMissing ? "decimal-input--error" : null)">
                                         <NumericTextBox Value="@_response.WITaxablePayrollWithoutCOE"
@@ -309,7 +310,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                             </tr>
                             <tr class="data-row">
                                 <td class="fw-normal fs-md">7.</td>
-                                <td class="fw-normal text-left fs-md">FUTA Credit for "Implied" Payment of State UI Taxes (5.400 % times line 4)</td>
+                                <td class="fw-normal text-left fs-md">FUTA Credit for "Implied" Payment of State UI Taxes (@_apiParameters.MaxFutaCreditAvailableRateFormatted % times line 4)</td>
                                 <td class="fw-normal fs-md"> @_response.FUTACreditWithoutCOE.ToString("C")  </td>
                                 <td class="fw-normal fs-md"> @_response.FUTACreditWithCOE.ToString("C") </td>
                             </tr>
