@@ -705,12 +705,9 @@ public partial class CorporateOfficerExclusion
 
         var message = (_saveResponse.WarningMessage[0] ?? string.Empty).Trim();
 
-        if (message.StartsWith("Warning -", StringComparison.OrdinalIgnoreCase))
-        {
-            return message["Warning -".Length..].TrimStart();
-        }
-
-        return message;
+        return message.StartsWith("Warning -", StringComparison.OrdinalIgnoreCase)
+            ? message["Warning -".Length..].TrimStart()
+            : message;
     }
 
     /// <summary>

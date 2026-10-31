@@ -460,12 +460,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// <returns>Currency string, raw value, or empty string.</returns>
     private static string FormatCurrencyParameter(string rawValue)
     {
-        if (string.IsNullOrWhiteSpace(rawValue))
-        {
-            return string.Empty;
-        }
-
-        return TryParseDecimal(rawValue, out var amount) ? amount.ToString("C") : rawValue;
+        return string.IsNullOrWhiteSpace(rawValue)
+            ? string.Empty
+            : TryParseDecimal(rawValue, out var amount) ? amount.ToString("C") : rawValue;
     }
 
     /// <summary>
@@ -479,11 +476,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
             return rawValue ?? string.Empty;
         }
 
-        var rate = parsedRate.Value;
-        if (rate > 0m && rate < 1m)
-        {
-            rate *= 100m;
-        }
+        var rate = parsedRate.Value is > 0m and < 1m
+            ? parsedRate.Value * 100m
+            : parsedRate.Value;
 
         return rate.ToString("0.000", CultureInfo.InvariantCulture);
     }
