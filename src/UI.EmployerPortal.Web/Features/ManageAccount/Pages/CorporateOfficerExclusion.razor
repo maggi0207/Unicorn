@@ -1,4 +1,5 @@
 @page "/manage-account/corporate-officer-exclusion"
+@page "/manage-account/corporate-office-exclusion"
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
@@ -9,7 +10,7 @@
 <PageTitle>Corporate Officer Exclusion</PageTitle>
 
 @* ── Fresh success after Submit (Figma Success / Success with banner) ── *@
-@if (!_isAlreadyElected && _saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
+@if (!_isAlreadyElected && !_isPastFilingDeadline && _saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
 {
     <div class="container-page">
         <div class="header-container">
@@ -87,6 +88,35 @@ else if (_isAlreadyElected)
             <Button Text="ACCOUNT SUMMARY"
                     Variant="Button.ButtonVariant.Primary"
                     Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />
+        </div>
+    </div>
+}
+else if (_isPastFilingDeadline)
+{
+    @* ── UIEP-4024: past filing deadline — info only, no election workflow ── *@
+    <div class="container-page">
+        <div class="header-container">
+            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+
+            <div class="coe-past-deadline-banner">
+                <NotificationBanner NotificationType="NotificationType.Information"
+                                    MessageStyle="MessageStyle.ChildContent"
+                                    DismissButton="false">
+                    <p class="coe-past-deadline-banner__text">
+                        Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
+                    </p>
+                    <hr class="coe-past-deadline-banner__divider" aria-hidden="true" />
+                    <p class="coe-past-deadline-banner__text">
+                        To be effective for a calendar year, the Corporate Officer Exclusion Election must be filed by March 31 of that year.
+                    </p>
+                </NotificationBanner>
+            </div>
+        </div>
+
+        <div class="flex-button flex-button-start">
+            <Button Text="BACK"
+                    Variant="Button.ButtonVariant.Secondary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))" />
         </div>
     </div>
 }

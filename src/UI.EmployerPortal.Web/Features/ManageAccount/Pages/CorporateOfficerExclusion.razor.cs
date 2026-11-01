@@ -32,6 +32,11 @@ public partial class CorporateOfficerExclusion
     private const string AlreadyElectedStatusMessage = "The Corporate Officer Exclusion status is already 'Elected'.";
 
     /// <summary>
+    /// Temporary UI preview for UIEP-4024 past-deadline screen. Set false before wiring API detection.
+    /// </summary>
+    private const bool PreviewPastFilingDeadlineUi = true;
+
+    /// <summary>
     /// Centered success copy shown immediately after a successful election (Figma Success).
     /// </summary>
     private const string ElectionSubmittedMessage = "Your election successfully submitted.";
@@ -119,6 +124,11 @@ public partial class CorporateOfficerExclusion
     private bool _isAlreadyElected = false;
 
     /// <summary>
+    /// True when the employer is outside the allowable COE filing period (UIEP-4024).
+    /// </summary>
+    private bool _isPastFilingDeadline = false;
+
+    /// <summary>
     /// Account number shown on intro / already-elected / success cards.
     /// </summary>
     private string _accountNumber = string.Empty;
@@ -190,7 +200,7 @@ public partial class CorporateOfficerExclusion
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected)
+        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected || _isPastFilingDeadline)
         {
             await JSRuntime.InvokeVoidAsync("focusElement", "save-heading");
         }
@@ -224,6 +234,15 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
+            // UI-first for UIEP-4024: preview past-deadline screen until backend RuleViolation wiring is confirmed.
+            if (PreviewPastFilingDeadlineUi)
+            {
+                _isPastFilingDeadline = true;
+                _showIntro = false;
+                _isAlreadyElected = false;
+                return;
+            }
+
             var defaultEffectiveDate = await CorporateOfficerExclusionService.GetDefaultEffectiveDateAsync(
                 _employerSK,
                 secureUserSK,
@@ -235,6 +254,7 @@ public partial class CorporateOfficerExclusion
 
             _showIntro = true;
             _isAlreadyElected = false;
+            _isPastFilingDeadline = false;
             _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
             _response = await CorporateOfficerExclusionService.GetData(_employerSK, _estimateYear, secureUserSK);
         }
