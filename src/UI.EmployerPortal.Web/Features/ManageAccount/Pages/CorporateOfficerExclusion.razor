@@ -43,19 +43,21 @@
 }
 else if (_isAlreadyElected)
 {
-    @* ── Already elected revisit (Figma Already visited) ── *@
     <div class="container-page">
         <div class="header-container">
             <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
 
-            <NotificationBanner NotificationType="NotificationType.Warning"
-                                Message="@AlreadyElectedWarningMessage"
-                                DismissButton="false">
-            </NotificationBanner>
+            <div class="coe-already-elected-banner">
+                <NotificationBanner NotificationType="NotificationType.Warning"
+                                    Message="@AlreadyElectedWarningMessage"
+                                    DismissButton="false">
+                </NotificationBanner>
+            </div>
 
             <p class="section-paragraph">
                 Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
-                <br /> <br />
+            </p>
+            <p class="section-paragraph">
                 The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
             </p>
         </div>
@@ -81,7 +83,7 @@ else if (_isAlreadyElected)
             </div>
         </div>
 
-        <div class="flex-button">
+        <div class="flex-button flex-button-start">
             <Button Text="ACCOUNT SUMMARY"
                     Variant="Button.ButtonVariant.Primary"
                     Onclick="@(() => tracker.LogNavigationSessionActivity(HandleASBack, "Account Summary Clicked", DateTime.Now))" />

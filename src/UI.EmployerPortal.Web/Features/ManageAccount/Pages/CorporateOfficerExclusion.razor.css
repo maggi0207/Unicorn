@@ -431,6 +431,14 @@ tbody td:first-child {
         justify-content: flex-end;
     }
 
+    .flex-button.flex-button-start {
+        justify-content: flex-start;
+    }
+
+.coe-already-elected-banner ::deep .nb-text {
+    font-weight: 700;
+}
+
 .btn-recalculate {
     padding: 0 40px 0 0;
     background: none;
