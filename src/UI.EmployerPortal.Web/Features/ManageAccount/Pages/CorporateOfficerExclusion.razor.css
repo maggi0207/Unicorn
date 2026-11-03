@@ -229,9 +229,9 @@
     color: #000;
 }
 
-.coe-no-savings-banner__message strong {
-    font-weight: 700;
-}
+    .coe-no-savings-banner__message strong {
+        font-weight: 700;
+    }
 
 .section-paragraph {
     margin: 0;
@@ -437,47 +437,6 @@ tbody td:first-child {
 
 .coe-already-elected-banner ::deep .nb-text {
     font-weight: 700;
-}
-
-/* UIEP-4024 past filing deadline — blue Information box (mockup) */
-.coe-past-deadline-banner ::deep .nb-container {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 0;
-}
-
-.coe-past-deadline-banner ::deep .nb-child-content-icon {
-    display: flex;
-    width: auto;
-    flex-shrink: 0;
-    margin: 2px 0 0 0;
-    padding: 0;
-}
-
-.coe-past-deadline-banner ::deep .nb-child-content-body {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: auto;
-    flex: 1;
-    min-width: 0;
-}
-
-.coe-past-deadline-banner__text {
-    margin: 0;
-    font-family: Verdana, sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 150%;
-    color: #000;
-}
-
-.coe-past-deadline-banner__divider {
-    margin: 0;
-    border: none;
-    border-top: 1px solid #ADADAD;
 }
 
 .btn-recalculate {

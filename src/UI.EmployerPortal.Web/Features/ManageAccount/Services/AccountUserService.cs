@@ -92,7 +92,7 @@ internal class AccountUserService : IAccountUserService
                 Role = worker.RoleDescription,
                 CreatedBy = worker.CreatedByName,
                 AccessKeyMasked = worker.AccessKeyMasked,
-                AccessGranted = worker.DateAccessKeyUsed,
+                AccessGranted = worker.DateAccessKeyUsed != null && worker.DateAccessKeyUsed!.Value.Date == DateTime.MinValue.Date ? null : worker.DateAccessKeyUsed,
                 WebUserSecuritySK = worker.WebUserSecuritySK,
                 SecureUserSK = worker.SecureUserSK,
                 AssignedWebControlSKs = assignedSKs
@@ -202,7 +202,7 @@ internal class AccountUserService : IAccountUserService
                 FirstName = user.FirstName,
                 Role = MapESPRole(user.Role),
                 CreatedBy = user.CreatedBy,
-                AccessGranted = user.AccessGranted,
+                AccessGranted = user.AccessGranted.Date == DateTime.MinValue.Date ? null : user.AccessGranted,
                 AccessKeyMasked = user.AccessKey,
                 SecureUserSK = user.SecureUserSK,
                 EmployerServiceProviderSecureUserSK = user.EmployerServiceProviderSecureUserSK

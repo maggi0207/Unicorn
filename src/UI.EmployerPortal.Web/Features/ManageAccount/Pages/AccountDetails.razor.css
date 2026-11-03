@@ -101,7 +101,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 648px;
+    width: 100%;
+    max-width: 648px;
     padding-top: 16px;
     margin-top: 8px;
 }
