@@ -324,7 +324,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         var summary = new COEElectionSummary
         {
             IsAlreadyElected = true,
-            EffectiveDate = selectedElection.EffectiveDate,
+            EffectiveDate = ResolveElectionEffectiveDate(selectedElection),
             DateSubmitted = selectedElection.ReceivedDate ?? selectedElection.RequestDate ?? selectedElection.DecisionDate
         };
 
@@ -334,6 +334,26 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         }
 
         return summary;
+    }
+
+    /// <summary>
+    /// Resolves the display/service effective date from the exclusion proxy.
+    /// Prefers <see cref="AccountSummary.CorporateOfficerExclusionProxy.EffectiveDate"/>;
+    /// otherwise January 1 of <see cref="AccountSummary.CorporateOfficerExclusionProxy.Year"/>.
+    /// </summary>
+    private static DateTime? ResolveElectionEffectiveDate(AccountSummary.CorporateOfficerExclusionProxy election)
+    {
+        if (election.EffectiveDate.HasValue && election.EffectiveDate.Value.Year >= 2000)
+        {
+            return election.EffectiveDate;
+        }
+
+        if (election.Year.HasValue && election.Year.Value >= 2000)
+        {
+            return new DateTime(election.Year.Value, 1, 1);
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -522,7 +542,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         };
 
         var res = await _accountMaintenanceService.SaveNewCOEElectionAsync(request);
-        return res == null || res.Success || res.CorporateOfficeExclusionEffectiveDate.Year < 2000
+        // Probe may return Success=true with CorporateOfficeExclusionEffectiveDate already
+        // computed for new employer / successor / COE-window rules — do not discard on Success.
+        return res == null || res.CorporateOfficeExclusionEffectiveDate.Year < 2000
             ? null
             : res.CorporateOfficeExclusionEffectiveDate;
     }

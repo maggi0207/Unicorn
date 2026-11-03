@@ -67,6 +67,13 @@ public partial class UIDocuments
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
 
+    /// <summary>
+    /// Optional description fragment from query. When set, opens the newest matching row via <see cref="HandleView"/>.
+    /// Normal <c>/ui-documents</c> visits omit this and are unchanged.
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "autoOpen")]
+    public string? AutoOpen { get; set; }
+
     private IEnumerable<UIDocument> SortedDocuments => GetSortedDocuments();
 
     ///<inheritdoc/>
@@ -94,6 +101,31 @@ public partial class UIDocuments
         };
 
         await LoadInitialCorrespondence();
+        await TryAutoOpenFromQueryAsync();
+    }
+
+    /// <summary>
+    /// Opens the newest correspondence whose description contains <see cref="AutoOpen"/>.
+    /// No-op when the query is missing (default UI Documents behavior).
+    /// </summary>
+    private async Task TryAutoOpenFromQueryAsync()
+    {
+        if (string.IsNullOrWhiteSpace(AutoOpen) || _documentToDisplay.Count == 0)
+        {
+            return;
+        }
+
+        var match = _documentToDisplay
+            .Where(d => d.Description.Contains(AutoOpen, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(d => d.Date)
+            .FirstOrDefault();
+
+        if (match is null)
+        {
+            return;
+        }
+
+        await HandleView(match);
     }
 
     private async Task LoadInitialCorrespondence()

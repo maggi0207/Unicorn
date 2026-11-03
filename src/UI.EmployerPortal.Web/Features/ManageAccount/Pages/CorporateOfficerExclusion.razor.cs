@@ -41,6 +41,11 @@ public partial class CorporateOfficerExclusion
     /// </summary>
     private const string MailCopyBannerMessage = "Initial Determination letter will be mailed to your main business mailing address.";
 
+    /// <summary>
+    /// Description fragment used to find the COE Initial Determination row in UI Documents.
+    /// </summary>
+    private const string IdLetterDescriptionMarker = "Corporate Officer Exclusion";
+
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
 
@@ -620,11 +625,13 @@ public partial class CorporateOfficerExclusion
     }
 
     /// <summary>
-    /// Opens UI Documents so the employer can view the Initial Determination letter when available.
+    /// Opens UI Documents and auto-opens the COE Initial Determination via its description match.
     /// </summary>
     private void HandleViewInitialDetermination()
     {
-        Navigation.NavigateTo("ui-documents", true);
+        Navigation.NavigateTo(
+            $"ui-documents?autoOpen={Uri.EscapeDataString(IdLetterDescriptionMarker)}",
+            forceLoad: true);
     }
 
     /// <summary>
