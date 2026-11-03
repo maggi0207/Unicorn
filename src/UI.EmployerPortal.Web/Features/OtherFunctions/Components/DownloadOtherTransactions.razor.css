@@ -1,0 +1,228 @@
+.download-transactions-entry {
+    max-width: var(--width-levies-content);
+    margin: var(--spacing-md);
+}
+
+.page-content {
+    font-family: Verdana;
+    font-size: 16px;
+}
+
+.options-legend {
+    font-family: Verdana;
+    font-size: 16px;
+    padding-bottom: 16px;
+}
+
+.option {
+    margin-bottom: 10px;
+}
+
+    .option label {
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+.date-range {
+    margin-left: 30px;
+    margin-top: 5px;
+    color: #555;
+}
+
+.custom-date-container {
+    padding: 22px;
+    /*margin: 10px 0 20px 30px;*/
+    width: fit-content;
+}
+
+.custom-date-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.date-fields {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 608px;
+    height: 58px;
+    gap: 8px;
+    padding-left: 48px;
+    padding-bottom: 16px;
+    flex-wrap: nowrap;
+}
+
+.date-field-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-input {
+    width: 180px;
+    height: 36px;
+    padding: 0 10px;
+}
+
+.ssn-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.ssn-label {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.ssn-input {
+    width: 250px;
+    height: 36px;
+    padding: 0 10px;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+.file-type-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 160px;
+    font-family: Arial, sans-serif;
+}
+
+.file-type-label {
+    font-size: 16px;
+    font-weight: 600;
+    font-family:Verdana;
+    color: #333;
+}
+
+
+.file-type-dropdown {
+    width: 180px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+}
+
+    .file-type-dropdown:focus {
+        outline: none;
+        border-color: #2563eb;
+    }
+
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 60%;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.action-buttons-left {
+    display: flex;
+    gap: 12px;
+}
+
+.file-type-container {
+    width: 280px !important;
+}
+
+
+.field-error {
+    display: block;
+    width: 100%;
+    color: #dc3545;
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.no-records-message {
+    color: #C62828;
+    font-family: Verdana;
+    font-size: 16px;
+    margin: 16px 0;
+}
+
+.other-option-item {
+    display: flex;
+    align-items: center;
+    height: 34px;
+    padding: 4px;
+    border-radius: 6px;
+    gap: 8px;
+}
+
+.benefit-week-link {
+    width: 383px;
+}
+
+.instruction-link {
+    width: 629px;
+    margin-top: 8px;
+}
+
+.other-option-link {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 26px;
+    font-family: Verdana;
+    font-size: 14px;
+    /*font-weight: 700;*/
+    line-height: 160%;
+    color: var(--color-text-button-text-button,#006BB7);
+    text-decoration: underline;
+    text-decoration-style: solid;
+    vertical-align: middle;
+    background: none;
+    border: none;
+}
+
+    .other-option-link:hover, .other-option-link:focus {
+        color: var(--color-text-button-text-button,#0D6EFD);
+        text-decoration: underline;
+    }
+
+.inline-text-link {
+    font-family: Verdana;
+    font-size: 16px;
+    color: #006BB7;
+    text-decoration: underline;
+    text-decoration-style: solid;
+}
+
+.inline-text-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: inline;
+    cursor: pointer;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+.inline-text-link:hover,
+.inline-text-link:focus {
+    color: #0D6EFD;
+    text-decoration: underline;
+}

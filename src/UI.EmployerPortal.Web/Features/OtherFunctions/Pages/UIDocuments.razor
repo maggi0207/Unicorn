@@ -1,0 +1,190 @@
+@page "/ui-documents"
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.AnnouncementBanner
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    @if (_editContext != null)
+    {
+        <EditForm EditContext="@_editContext"
+        OnInvalidSubmit="OnInvalid"
+        FormName="UIDocumentSearch">
+
+            <DataAnnotationsValidator />
+
+            <CustomValidator @ref="_customValidator" />
+
+            <div class="ui-documents-container">
+
+                <section class="page-header-section">
+                    <h1 class="page-title">UI Documents</h1>
+                </section>
+
+                <ValidationErrorSummary ShowSummary="@_showValidationSummary"
+                FieldIds="@_validationFieldIds" />
+                    @if (_showBanner)
+                    {
+                        <div class="info-note" role="note">
+                            <div class="info-note-icon">
+                                <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/confirmation-notification.svg" alt="Confirmation" />
+                            </div>
+                            <div class="info-note-text" role="alert">
+                            @_bannerMessage
+                            </div>
+                        </div>
+                    }
+                <section class="description-section">
+                    <p class="description-text">
+                        View documents generated for your account in the last six months. To view
+                        correspondence older than six months, modify the to and from dates below. Only
+                        documents generated in the last three years can be viewed.
+                    </p>
+                </section>
+
+                <AnnouncementBanner AnnouncementType="Features.AnnouncementBanner.Model.AnnouncementType.CORRESPONDENCE" />
+
+                <section class="display-section">
+                    <h2 class="display-title">Display Correspondence:</h2>
+
+                    <div class="date-search-row">
+                        <div>
+                            <label class="date-label" for="from-date">From</label>
+                            <div class="date-field">
+                                <OutlinedTextField Label=""
+                                    Id="from-date"
+                                    Type="date"
+                                    min="@_minimumFromDate"
+                                    max="@_maximumDate"
+                                    @bind-Value="Model.FromDate"
+                                    For="(()=>Model.FromDate)"
+                                    Visible="@IsVisible(()=>Model.FromDate)" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="due-date-label to-label" for="to-date">to</label>
+                            <div class="date-field">
+                                <OutlinedTextField Label=""
+                                    Id="to-date"
+                                    Type="date"
+                                    min="@_minimumFromDate"
+                                    max="@_maximumDate"
+                                    @bind-Value="Model.ToDate"
+                                    For="(()=>Model.ToDate)"
+                                    Visible="@IsVisible(()=>Model.ToDate)" />
+                            </div>
+                        </div>
+
+                        <Button Text="SEARCH"
+                        Variant="Button.ButtonVariant.Secondary"
+                        Size="Button.ButtonSize.Medium"
+                        AriaLabel="Search correspondence"
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSearch, "Search Clicked", DateTime.Now))">
+                            <img src="@Assets["icons/searchIconBlack.svg"]" alt="" aria-hidden="true" />SEARCH
+                        </Button>
+                    </div>
+                </section>
+                <div class="visually-hidden" role="status">
+                    @if (_searchExecutedSuccessfully)
+                        {
+                            if (!_documentToDisplay.Any())
+                            {
+                                <span>No Correspondence Found.</span>
+                            }
+                            else
+                            {
+                                <span>Displaying @_documentToDisplay.Count records.</span>
+                            }
+                        }
+                </div>
+
+                @if (_searchExecutedSuccessfully && !_documentToDisplay.Any())
+                {
+                    <p class="no-records-message" aria-hidden="true">No Correspondence Found.</p>
+                }
+                else if (_documentToDisplay.Any())
+                {
+                    <div class="table-container">
+                        <table class="table ui-documents-table" aria-label="UI Documents correspondence">
+                            <caption class="visually-hidden">
+                                List of UI correspondence documents (column headers with buttons are sortable).
+                            </caption>
+
+                            <thead>
+                                <tr class="header-row">
+                                    <th scope="col"
+                                    class="header-cell form-column"
+                                    aria-sort="@GetAriaSort("form")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="sort-header-button" @onclick="@(() => Sort("form"))">
+                                                <span class="header-label fw-bold fs-sm">Form</span>
+                                                @GetSortIcon("form")
+                                            </button>
+                                        </div>
+                                    </th>
+
+                                    <th scope="col"
+                                    class="header-cell description-column"
+                                    aria-sort="@GetAriaSort("description")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="sort-header-button" @onclick="@(() => Sort("description"))">
+                                                <span class="header-label fw-bold fs-sm">Description</span>
+                                                @GetSortIcon("description")
+                                            </button>
+                                        </div>
+                                    </th>
+
+                                    <th scope="col"
+                                    class="header-cell date-column"
+                                    aria-sort="@GetAriaSort("date")">
+                                        <div class="header-content header-content-left">
+                                            <button type="button" class="sort-header-button" @onclick="@(() => Sort("date"))">
+                                                <span class="header-label fw-bold fs-sm">Date</span>
+                                                @GetSortIcon("date")
+                                            </button>
+
+                                        </div>
+                                    </th>
+
+                                    <th scope="col"
+                                    class="header-cell action-column">
+                                        <div class="header-content header-content-left">
+                                            <span class="header-label fw-bold fs-sm">Action</span>
+                                        </div>
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var document in SortedDocuments)
+                                {
+                                    <tr class="data-row">
+                                        <td class="fw-normal fs-md form-column form-value"><strong>@document.Form</strong></td>
+                                        <td class="fw-normal fs-md description-column">@document.Description</td>
+                                        <td class="fw-normal fs-md date-column">@FormatDate(document.Date)</td>
+                                        <td class="fw-normal fs-md action-column">
+                                            <button type="button"
+                                            class="view-link"
+                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleView(document), $"{document.Status} Clicked", DateTime.Now))">
+                                                @document.Status
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </EditForm>
+    }
+}
+

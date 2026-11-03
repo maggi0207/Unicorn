@@ -1,0 +1,8 @@
+@page "/other-functions/download-transactions"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@if (!_isLoading)
+{
+    <DownloadOtherTransactions DownloadTransactionModel="@DownloadTransactionModel"></DownloadOtherTransactions>
+}

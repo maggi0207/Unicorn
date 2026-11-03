@@ -1,0 +1,38 @@
+.audit-contact-info {
+    width: 100%;
+}
+
+.section-header {
+    font-weight: 700;
+    font-size: 18px;
+    color: #003663;
+    margin-top: 32px;
+    margin-bottom: 30px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #003663;
+}
+
+.address-wrapper {
+    margin-bottom: 30px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(330px, 330px));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.form-field-half {
+    min-width: 0;
+}
+.phone-field-row ::deep .phone-row {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 575px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}

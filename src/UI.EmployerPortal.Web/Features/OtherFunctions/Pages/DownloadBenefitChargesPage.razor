@@ -1,0 +1,9 @@
+@page "/other-functions/download-benefit-charges"
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Components
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Download Benefit Charges and Adjustments</PageTitle>
+@if (!_isLoading)
+{
+    <DownloadBenefitChargesTransactions DownloadTransactionModel="@DownloadTransactionModel"></DownloadBenefitChargesTransactions>
+}

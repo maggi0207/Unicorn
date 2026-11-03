@@ -1,0 +1,176 @@
+@page "/other-functions/email-subscriptions"
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Manage Email Subscriptions</PageTitle>
+@if (_editContext != null)
+{
+    <EditForm EditContext="@_editContext"
+              OnValidSubmit="HandleContinue"
+              OnInvalidSubmit="OnInvalid"
+              FormName="EmailSubscription">
+        <DataAnnotationsValidator />
+        <CustomValidator @ref="_customValidator" />
+
+        <div class="manage-email-container">
+
+            <!--PAGE HEADER-->
+            <section class="page-header-section">
+                <h1 class="page-title">Manage Email Subscriptions</h1>
+            </section>
+
+            <ValidationErrorSummary ShowSummary="@_showValidationSummary" FieldIds="@_validationFieldIds" />
+
+            <!--DESCRIPTION-->
+            <section clads="description-section">
+
+                <p class="description-text">
+                    To subscribe, provide an email address and check the box next to the item that you would like
+                    to receive via email. Click the save button at the bottom of the page to save your
+                    subscription preferences. If you make any changes to your subscriptions you must click save to update your subscription.
+                    To unsubscribe, un-check the box next to the item and click save to update your subscription.
+                </p>
+
+            </section>
+            <br />
+            <!--EMAIL SECTION-->
+            <section class="email-section">
+
+                <div class="form-row">
+
+                    <div class="form-field-half">
+
+                        <OutlinedTextField Label="Email Address"
+                                           Id="record-email"
+                                           Type="email"
+                                           @bind-Value="Model.EmailAddress"
+                                           For="() => Model.EmailAddress"
+                                           Placeholder="name@example.com"
+                                           Visible="@IsVisible(() => Model.EmailAddress)" />
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="form-row">
+
+                    <div class="form-field-half">
+
+                        <OutlinedTextField Label="Confirm Email Address"
+                                           Id="record-confirmemail"
+                                           Type="email"
+                                           @bind-Value="Model.ConfirmEmailAddress"
+                                           For="() => Model.ConfirmEmailAddress"
+                                           Placeholder="name@example.com"
+                                           Visible="@IsVisible(() => Model.ConfirmEmailAddress)" />
+                    </div>
+
+                </div>
+
+                <p class="email-note">
+                    Your email address will only be used to deliver the requested information.
+                </p>
+
+            </section>
+
+
+            <!--SUBSCRIPTION PREFERENCES-->
+            <section class="subscription-section">
+
+                <div class="sub-section-header">
+                    <h2 class="sub-section-title">Subscription Preferences</h2>
+                </div>
+
+                <fieldset>
+                    <legend class="visually-hidden">Subscription preferences</legend>
+                    <!--FIRST SUBSCRIPTION-->
+                    <div class="subscription-block">
+
+                        <label class="checkbox-row" for="taxWageReport">
+
+                            <input id="taxWageReport"
+                                type="checkbox"
+                                class="custom-checkbox"
+                                @bind="Model.TimeToFileUiTaxAndWageReport"
+                                aria-describedby="time-to-file-helper-text"/>
+
+                            <span class="checkbox-title">
+                                Time to File UI Tax and Wage Report
+                            </span>
+                        </label>
+
+
+                        <div id="time-to-file-helper-text" class="checkbox-description">
+                            Send me a reminder when the current quarter tax and wage report can be filed.
+                        </div>
+
+                    </div>
+
+                    <!--SECOND SUBSCRIPTION-->
+                    <div class="subscription-block">
+
+                        <label class="checkbox-row" for="uiNews">
+
+                            <input id="uiNews"
+                                type="checkbox"
+                                class="custom-checkbox"
+                                @bind="Model.UnemploymentInsuranceNews"
+                                aria-describedby="ui-news-helper-text" />
+
+                            <span class="checkbox-title">
+                                Unemployment Insurance News
+                            </span>
+
+                        </label>
+
+                        <div id="ui-news-helper-text" class="checkbox-description">
+                            Keep me informed of changes in UI law, forms and other noteworthy Unemployment Insurance information.
+                        </div>
+
+                    </div>
+                </fieldset>
+
+                <!--SPAM/JUNK INFO-->
+                <div class="spam-info-section">
+
+                    <p class="spam-title">
+                        Prevent Emails from Being Marked "SPAM" or "JUNK"
+                    </p>
+
+                    <p class="spam-description">
+                        In order to ensure that you receive you subscription emails from us, please add DoNotReply@dwd.wisconsin.gov to
+                        your contact list,
+                        adjust your spam settings, or follow the instructions from your email provider on how to prevent our emails
+                        from being marked as "SPAM" or "Junk Mail".
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!--BUTTON BAR-->
+
+            <div class="page-navigation">
+
+                <div class="page-navigation-left">
+
+                    <Button Text="CANCEL"
+                            Variant="Button.ButtonVariant.Secondary"
+                            Onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Cancel Clicked", DateTime.Now))" />
+                </div>
+
+                <div class="page-navigation-right">
+
+                    <Button Text="SAVE"
+                            Variant="Button.ButtonVariant.Primary"
+                            Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSave, "Save Clicked", DateTime.Now))" />
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}

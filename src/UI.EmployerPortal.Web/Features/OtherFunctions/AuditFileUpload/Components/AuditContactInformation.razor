@@ -1,0 +1,96 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.Address
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.OtherFunctions.AuditFileUpload.Models
+
+<div class="audit-contact-info">
+    <CascadingValue Value="@_editContext" IsFixed="true">
+
+        <DataAnnotationsValidator />
+
+        @* ================= BUSINESS UPLOADING THE FILE ================= *@
+        <h2 class="section-header">Business Uploading the File</h2>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Business Name"
+                                   Id="audit-bus-name"
+                                   @bind-Value="Model.BusinessName"
+                                   For="() => Model.BusinessName"
+                                   Visible="@IsVisible(() => Model.BusinessName)" />
+            </div>
+        </div>
+
+        <div class="address-wrapper">
+            <AddressField Address="Model.MailingAddress"
+                          Legend="Business Uploading the File address"
+                          IdPrefix="audit-"
+                          ShowFax="true"
+                          FaxNumber="@Model.FaxNumber"
+                          FaxNumberChanged="val => Model.FaxNumber = val ?? string.Empty"
+                          FaxFor="() => Model.FaxNumber"
+                          SuiteAptLabel="Suite, Apt., Attn., etc (optional)"
+                          ZipExtensionLabel="+4 (optional)"
+                          AddressLine2Label="Address Line 2 (optional)"
+                          AddressLine3InternationalLabel="Address Line 3 (optional)"
+                          AddressLine4InternationalLabel="Address Line 4 (optional)"
+                          Visible="@IsAddressVisible(Model.MailingAddress)" />
+        </div>
+
+        @* ================= FILE UPLOAD CONTACT ================= *@
+        <h2 class="section-header">File Upload Contact</h2>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="First Name"
+                                   Id="audit-contact-first-name"
+                                   @bind-Value="Model.ContactFirstName"
+                                   For="() => Model.ContactFirstName"
+                                   Visible="@IsVisible(() => Model.ContactFirstName)" />
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Last Name"
+                                   Id="audit-contact-last-name"
+                                   @bind-Value="Model.ContactLastName"
+                                   For="() => Model.ContactLastName"
+                                   Visible="@IsVisible(() => Model.ContactLastName)" />
+            </div>
+        </div>
+
+        <div class="form-row phone-field-row">
+            <PhoneNumberField Label="Phone Number"
+                              Id="audit-phone"
+                              @bind-Value="Model.PhoneNumber"
+                              For="() => Model.PhoneNumber"
+                              Extension="@Model.PhoneExt"
+                              ExtensionChanged="val => Model.PhoneExt = val ?? string.Empty"
+                              ExtensionLabel="Ext. (optional)"
+                              ShowCountryCode="true"
+                              CountryCodeDisabled="true"
+                              CountryCode="+1"
+                              Numeric="true"
+                              Visible="@IsVisible(() => Model.PhoneNumber)" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="Email Address"
+                                   Id="audit-email"
+                                   Type="email"
+                                   @bind-Value="Model.Email"
+                                   For="() => Model.Email"
+                                   OnBlur="HandleEmailBlur"
+                                   Visible="@IsVisible(() => Model.Email)" />
+            </div>
+            <div class="form-field-half">
+                <OutlinedTextField Label="Confirm Email Address"
+                                   Id="audit-confirm-email"
+                                   Type="email"
+                                   @bind-Value="Model.ConfirmEmail"
+                                   For="() => Model.ConfirmEmail"
+                                   OnBlur="HandleEmailBlur"
+                                   Visible="@IsVisible(() => Model.ConfirmEmail)" />
+            </div>
+        </div>
+    </CascadingValue>
+</div>

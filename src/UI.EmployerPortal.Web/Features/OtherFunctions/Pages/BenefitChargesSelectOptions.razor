@@ -1,0 +1,128 @@
+@page "/other-functions/benefit-charges"
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>@(_isTaxable ? "Benefit Charges or Reserve Fund Transactions" : "Benefit Charges and Adjustments")</PageTitle>
+
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    <div class="select-taxable-reserve-fund">
+
+        <h1 class="page-title">@(_isTaxable ? "Benefit Charges or Reserve Fund Transactions" : "Benefit Charges and Adjustments")</h1>
+        <hr class="page-divider" />
+
+
+
+        @if (_showValidationError)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert" Message="Please select an option to continue." />
+        }
+
+        <div class="function-cards" role="radiogroup" aria-label="Taxable Reserve Fund Transactions" aria-required="true">
+
+            <ReportingMethodCard Id="reporting-card-0"
+                                 Title="@(_isTaxable ? "Reserve Fund Balance Statement Mailing Preferences" : "Benefit Charges and Adjustments Mailing Preferences")"
+                                 BoldTitle="true"
+                                 IsSelected="@(_selectedIndex == 0)"
+                                 IsFocusable="@(_selectedIndex == 0)"
+                                 OnSelected="@(() => HandleCardSelected(0))"
+                                 OnNextCardSelected="HandleNextCard"
+                                 OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    @if (_isTaxable)
+                    {
+                        <span> Choose if you want to have the Reserve Fund Balance Statement mailed.</span>
+                    }
+                    else
+                    {
+                        <span> Choose if you want to have the Benefit Charges and Adjustments Form mailed.</span>
+                    }
+                </CustomDescription>
+            </ReportingMethodCard>
+
+            <ReportingMethodCard Id="reporting-card-1"
+                                 Title="Download Benefit Charges and Adjustments"
+                                 BoldTitle="true"
+                                 IsSelected="@(_selectedIndex == 1)"
+                                 IsFocusable="@(_selectedIndex == 1)"
+                                 OnSelected="@(() => HandleCardSelected(1))"
+                                 OnNextCardSelected="HandleNextCard"
+                                 OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    @if (_isTaxable)
+                    {
+                        <span> Download benefit charges and adjustments affecting your Reserve Fund Balance.</span>
+                    }
+                    else
+                    {
+                        <span> Download Benefit Charges and Adjustments from your account.</span>
+                    }
+                </CustomDescription>
+            </ReportingMethodCard>
+
+            @if (_isTaxable)
+            {
+                <ReportingMethodCard Id="reporting-card-2"
+                                     Title="Download Other RFB Transactions"
+                                     BoldTitle="true"
+                                     IsSelected="@(_selectedIndex == 2)"
+                                     IsFocusable="@(_selectedIndex == 2)"
+                                     OnSelected="@(() => HandleCardSelected(2))"
+                                     OnNextCardSelected="HandleNextCard"
+                                     OnPreviousCardSelected="HandlePreviousCard">
+                    <CustomDescription>
+                        Download other transactions that affect your Reserve Fund Balance.
+                    </CustomDescription>
+                </ReportingMethodCard>
+            }
+
+            <ReportingMethodCard Id="reporting-card-3"
+                                 Title="@(_isTaxable ? "Weekly Reserve Fund Balance Statements and Other Correspondence" : "Weekly Statements and Other Correspondence")"
+                                 BoldTitle="true"
+                                 IsSelected="@(_selectedIndex == 3)"
+                                 IsFocusable="@(_selectedIndex == 3)"
+                                 OnSelected="@(() => HandleCardSelected(3))"
+                                 OnNextCardSelected="HandleNextCard"
+                                 OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    @if (_isTaxable)
+                    {
+                        <span> View your Weekly Reserve Fund Balance Statements and other correspondence.</span>
+                    }
+                    else
+                    {
+                        <span> View your Weekly Benefit Charges and Adjustments Statements and other correspondence.</span>
+                    }
+                </CustomDescription>
+            </ReportingMethodCard>
+
+        </div>
+        <div class="other-option-item benefit-week-link">
+            <button type="button" class="other-option-link fw-bold" @onclick="@(() => tracker.LogNavigationSessionActivity(OpenCalendarDrawer, "Benefit Week and Statement Calendar Clicked", DateTime.Now))">
+                Benefit Week and Statement Calendar
+            </button>
+        </div>
+
+        <div class="other-option-item instruction-link">
+            <a href="https://dwd.wisconsin.gov/uitax/downloadRFB.pdf" class="other-option-link fw-bold" target="_blank">
+                @(_isTaxable ? "Instructions for Downloading Reserve Fund Transactions" : "Instructions for Downloading Benefit Charges and Adjustments")
+            </a>
+        </div>
+        <div class="action-row">
+            <Button Variant="Button.ButtonVariant.Primary" Size="Button.ButtonSize.Medium"
+                    AriaLabel="Continue" Onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))">
+                CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+            </Button>
+        </div>
+    </div>
+}
+
+<BenefitWeekCalendarDrawer IsOpen="_calendarDrawerOpen" OnClose="CloseCalendarDrawer" />

@@ -1,0 +1,57 @@
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+<div class="audit-account-lookup">
+    <CascadingValue Value="_editContext" IsFixed="true">
+        <DataAnnotationsValidator />
+
+        <h1 class="page-header">Audit File Upload</h1>
+
+        <p class="page-intro">
+            Enter a UI Account Number and FEIN for the business involved in the audit.
+        </p>
+        <ValidationErrorSummary ShowSummary="@(_formSubmitted && _hasErrors)"
+                                FieldIds="@_fieldIds"
+                                SummaryId="audit-lookup-summary"
+                                Title="Please fix the following errors:"
+                                IconPath="icons/exclamation-circle-red-filled.svg" />
+        <hr class="title-divider" />
+        <p class="page-intro">All fields are required unless noted.</p>
+        <div class="form-row">
+            <div class="form-field-half">
+                <OutlinedTextField Label="UI Account Number"
+                                   Id="audit-lookup-ui-account"
+                                   @bind-Value="_model.UIAccountNumber"
+                                   For="() => _model.UIAccountNumber"
+                                   Visible="@_formSubmitted"
+                                   Mask="000000-000-0"
+                                   InputMode="numeric" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field-half">
+                <FEINField Label="FEIN"
+                           Id="audit-lookup-fein"
+                           @bind-Value="_model.FEIN"
+                           For="() => _model.FEIN"
+                           Visible="@_formSubmitted" />
+            </div>
+        </div>
+    </CascadingValue>
+    <div class="audit-actions">
+        <Button Variant="ButtonVariant.Secondary"
+                Size="ButtonSize.Medium"
+                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleCancel, "Cancel Clicked", DateTime.Now))"
+                AriaLabel="Cancel">
+            CANCEL
+        </Button>
+        <Button Variant="ButtonVariant.Primary"
+                Size="ButtonSize.Medium"
+                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))"
+                AriaLabel="Continue to audit file upload">
+            CONTINUE
+            <img src="@Assets["icons/chevron-right.svg"]" alt="" aria-hidden="true" />
+        </Button>
+    </div>
+</div>

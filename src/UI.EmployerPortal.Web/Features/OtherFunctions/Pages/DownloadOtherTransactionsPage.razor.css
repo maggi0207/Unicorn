@@ -1,0 +1,202 @@
+.download-transactions-entry {
+    width: 100%;
+}
+
+.page-title {
+    font-weight: 700;
+    font-size: 28px;
+    color: black;
+    margin-bottom: 4px;
+    margin-top: 20px;
+    width: 80%;
+    font-family: Verdana;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.report-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.divider {
+    border-top: 1px solid #adadad;
+    margin-bottom: 30px;
+}
+
+
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.option {
+    margin-bottom: 10px;
+}
+
+    .option label {
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+.date-range {
+    margin-left: 30px;
+    margin-top: 5px;
+    color: #555;
+}
+
+.custom-date-container {
+    padding: 15px;
+    margin: 10px 0 20px 30px;
+    width: fit-content;
+}
+
+.custom-date-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.date-fields {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.date-input {
+    width: 180px;
+    height: 36px;
+    padding: 0 10px;
+}
+
+.ssn-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.ssn-label {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.ssn-input {
+    width: 250px;
+    height: 36px;
+    padding: 0 10px;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+.file-type-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 160px;
+    font-family: Arial, sans-serif;
+}
+
+.file-type-label {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: Verdana;
+    color: #333;
+}
+
+
+.file-type-dropdown {
+    width: 180px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+}
+
+    .file-type-dropdown:focus {
+        outline: none;
+        border-color: #2563eb;
+    }
+
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 60%;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.action-buttons-left {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-back {
+    height: 36px;
+    width: 90px;
+    padding: 0 14px;
+    border: 1px solid #1d4f7a;
+    border-radius: 4px;
+    background: #fff;
+    color: #1d4f7a;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-clear {
+    height: 36px;
+    width: 90px;
+    border: none;
+    background: transparent;
+    color: #1d4f7a;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-download {
+    height: 36px;
+    width: 90px;
+    height: 32px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 4px;
+    background: #0b3d6d;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .btn-back:hover,
+    .btn-download:hover,
+    .btn-clear:hover {
+        opacity: 0.9;
+    }
+
+.file-type-container {
+    width: 200px !important;
+}

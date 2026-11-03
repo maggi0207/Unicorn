@@ -1,0 +1,128 @@
+@page "/manage-email-subscription-confirmation"
+
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Manage Email Subscriptions</PageTitle>
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    <div class="confirmation-container">
+
+        <section class="page-header-section">
+            <h1 class="page-title">
+                Manage Email Subscriptions
+            </h1>
+        </section>
+
+        <div class="notification-wrapper">
+
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                Message="Email subscription preferences updated."
+                                Visible="true"
+                                DismissButton="true"
+                                Announce="true"/>
+        </div>
+
+        <div class="business-contact-block">
+
+            <div class="block-header">
+
+                <h2 class="block-title" id="email-subscription-heading">
+                    Email Subscriptions
+                </h2>
+
+                <div class="block-actions">
+
+                    <button Type="button"
+                            class="expand-button"
+                            aria-expanded="@_expanded.ToString().ToLower()"
+                            aria-controls="emnail-subscription-content"
+                            aria-label="@(_expanded ? "Collapse Email Subscriptions" : "Expand Email Subscriptions")"
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleExpanded, (_expanded ? "Collapse Email Subscriptions" : "Expand Email Subscriptions") + " Clicked", DateTime.Now))">
+
+                        <span aria-hidden="true">
+                            @((MarkupString)(_expanded ? "&#8963;" : "&#8964;"))
+                        </span>
+
+                    </button>
+
+                    <button type="button"
+                            class="edit-link"
+                            aria-label="Edit Email Subscriptions"
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(HandleEdit, "Edit Email Subscriptions Clicked", DateTime.Now))">
+
+                        <span class="edit-icon" aria-hidden="true">
+                            &#9998;
+                        </span>
+                        Edit
+
+                    </button>
+
+
+
+                </div>
+
+            </div>
+
+            <div id="email-subscription-content"
+                 role="region"
+                 aria-labelledby="email-subscription-heading"
+                 hidden="@(!_expanded)">
+                <div class="block-content">
+
+                    <div class="content-row">
+
+                        <div class="info-field">
+                            <span class="label-text">
+                                Email Address
+                            </span>
+
+                            <strong class="value-text">
+                                @Model.EmailAddress
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="content-row">
+
+                        <div class="info-field">
+
+                            <span class="label-text">
+                                Subscription Preferences
+                            </span>
+
+                            <div class="value-text">
+                                @if (Model.TimeToFileUiTaxAndWageReport)
+                                {
+                                    <div class="preference-item">
+                                        Time To File UI Tax and Wage Report
+                                    </div>
+                                }
+                                @if (Model.UnemploymentInsuranceNews)
+                                {
+                                    <div class="preference-item">
+                                        Unemployment Insurance News
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="button-row">
+
+            <Button Text="EMPLOYER HOME"
+                    Variant="Button.ButtonVariant.Primary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleEmployerHome, "Employer Home Clicked", DateTime.Now))" />
+        </div>
+
+    </div>
+
+}

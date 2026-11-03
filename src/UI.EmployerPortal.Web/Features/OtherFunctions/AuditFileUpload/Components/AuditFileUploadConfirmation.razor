@@ -1,0 +1,120 @@
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+
+<div class="audit-confirmation">
+    <h1 class="confirmation-title">Audit File Upload Confirmation</h1>
+    <hr class="title-divider" />
+
+    <div class="success-banner" role="status" aria-live="polite">
+        @if (_showSuccessBanner)
+        {
+            <span class="success-banner-content">
+                <img src="@Assets["icons/circled_green_check.svg"]" alt="" width="24" height="24" aria-hidden="true" class="success-icon" />
+                <span class="success-text">The audit file you uploaded has been received successfully.</span>
+            </span>
+            <button type="button"
+                    class="success-dismiss"
+                    @onclick="@(() => tracker.LogNavigationSessionActivity(DismissBanner, "Close X Clicked", DateTime.Now))"
+                    aria-label="Dismiss success message">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        }
+    </div>
+
+    <div class="confirmation-card">
+        <dl class="confirmation-details">
+            <div class="confirmation-detail">
+                <dt class="detail-label">File Name</dt>
+                <dd class="detail-value">@FileName</dd>
+            </div>
+            <div class="confirmation-detail">
+                <dt class="detail-label">Upload Date/Time</dt>
+                <dd class="detail-value">@UploadDateTime.ToString("MM/dd/yyyy hh:mm tt")</dd>
+            </div>
+            <div class="confirmation-detail">
+                <dt class="detail-label">Confirmation Number</dt>
+                <dd class="detail-value">@ConfirmationNumber</dd>
+            </div>
+        </dl>
+    </div>
+
+    <p class="review-text">The records in your file are being reviewed.</p>
+
+    <div class="confirmation-actions">
+        <Button Text="UPLOAD ANOTHER AUDIT FILE"
+                Variant="ButtonVariant.Secondary"
+                Size="ButtonSize.Medium"
+                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleUploadAnother, "Upload Another Audit File Clicked", DateTime.Now))"
+                AriaLabel="Upload another audit file" />
+        @if (ShowEmployerDashboard)
+        {
+            <Button Text="EMPLOYER DASHBOARD"
+                    Variant="ButtonVariant.Primary"
+                    Size="ButtonSize.Medium"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleReturnToDashboard, "Employer Dashboard Clicked", DateTime.Now))"
+                    AriaLabel="Return to the employer dashboard" />
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Name of the uploaded file.
+    /// </summary>
+    [Parameter] public string FileName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Date and time the file was received.
+    /// </summary>
+    [Parameter] public DateTime UploadDateTime { get; set; }
+
+    /// <summary>
+    /// Confirmation number returned by the upload service.
+    /// </summary>
+    [Parameter] public string ConfirmationNumber { get; set; } = string.Empty;
+
+    /// <summary>
+    /// EmployerAccount.
+    /// </summary>
+    [Parameter] public EmployerAccount? EmployerAccount { get; set; }
+
+    /// <summary>
+    /// Invoked when the user chooses to upload another audit file.
+    /// </summary>
+    [Parameter] public EventCallback OnUploadAnother { get; set; }
+
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Parameter] public bool ShowEmployerDashboard { get; set; }
+
+    private bool _showSuccessBanner = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Add slight delay to allow page to render before showing banner so that aria-live region change is detected
+            await Task.Delay(100);
+            _showSuccessBanner = true;
+            StateHasChanged();
+
+        }
+    }
+
+    private void DismissBanner()
+    {
+        _showSuccessBanner = false;
+    }
+
+    private async Task HandleUploadAnother()
+    {
+        await OnUploadAnother.InvokeAsync();
+    }
+
+    private void HandleReturnToDashboard()
+    {
+        NavigationManager.NavigateTo("employer-dashboard");
+    }
+}

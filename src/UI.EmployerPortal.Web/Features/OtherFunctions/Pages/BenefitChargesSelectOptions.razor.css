@@ -1,0 +1,82 @@
+.select-taxable-reserve-fund {
+    max-width: 990px;
+    width: 100%;
+}
+
+.page-title {
+    font-family: Verdana;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 116%;
+    color: #000000;
+    margin-top: 24px;
+    margin-bottom: 8px;
+}
+
+.section-divider {
+    border: 0;
+    border-top: 1px solid #d9d9d9;
+    margin-bottom: 16px;
+}
+
+.function-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 16px;
+}
+
+.page-divider {
+    width: 990px;
+    height: 1px;
+    border: none;
+    background: var(--color-stroke-dark-divider-header-validation, #ADADAD);
+    margin: 0;
+    opacity: 1;
+}
+
+.other-option-item{
+    display:flex;
+    align-items:center;
+    height:34px;
+    padding:4px;
+    border-radius:6px;
+    gap:8px;
+}
+
+.benefit-week-link{
+    width:fit-content;
+}
+
+.instruction-link{
+    width:fit-content;
+    margin-top:8px;
+}
+
+.other-option-link {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 8px;
+    height: 26px;
+    font-family: Verdana;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 160%;
+    color: var(--color-text-button-text-button,#0D6EFD);
+    text-decoration: underline;
+    text-decoration-style: solid;
+    vertical-align: middle;
+    background: none;
+    border: none;
+}
+
+.other-option-link:hover,.other-option-link:focus{
+    color:var(--color-text-button-text-button,#0D6EFD);
+    text-decoration:underline;
+}

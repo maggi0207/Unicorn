@@ -1,0 +1,768 @@
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Models
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Services
+@using System.Globalization
+@using UI.EmployerPortal.Web.Features.Shared.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
+@inject INavigationSessionTracker tracker
+@implements IAsyncDisposable
+
+<div class="download-transactions-entry">
+    @if (_editContext != null)
+    {
+        <EditForm EditContext="_editContext">
+            <CustomValidator @ref="_customValidator" />
+            <ValidationErrorSummary ShowSummary="_showValidationSummary"
+                                    FieldIds="_validationFieldIds"
+                                    FieldResolver="ResolveSummaryField" />
+            @if (!string.IsNullOrEmpty(DownloadTransactionModel?.NoRecordsFoundMessage))
+            {
+                <div id="download-info-banner" tabindex="-1" role="status">
+                    <NotificationBanner NotificationType="NotificationType.Information"
+                                        MessageStyle="MessageStyle.SingleLine"
+                                        Message="@DownloadTransactionModel.NoRecordsFoundMessage" />
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(_downloadErrorMessage))
+            {
+                <div id="download-error-banner" tabindex="-1" role="alert">
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        MessageStyle="MessageStyle.SingleLine"
+                                        Message="@_downloadErrorMessage" />
+                </div>
+            }
+            <PageHeader Text="Download Benefit Charges and Adjustments" />
+            <p>
+                Download records of Benefit Charges and Benefit Adjustments. To get started:
+            </p>
+            <ol>
+                <li>Choose a <b>File Type</b></li>
+                <li>Select a <b>Date Range</b> based on statement end date.</li>
+                <li>Select <b>Download</b></li>
+            </ol>
+            <p class="availability-info">
+                Data is available up to three years. For more information, see our
+                <ExternalLink Url="https://dwd.wisconsin.gov/uitax/downloadRFB.pdf"
+                             Text="Instructions"
+                             ShowIcon="false"
+                             Inline="true" /> or the
+                   <br/>
+                <button type="button"
+                    class="calendar-link" @onclick="@(() => tracker.LogNavigationSessionActivity(OpenCalendarDrawer, "Benefit Week and Statement Calendar Clicked", DateTime.Now))">
+                Benefit Week and Statement Calendar.
+            </button>
+            </p>
+
+            @if (DownloadTransactionModel?.QuarterOptions?.Count > 0)
+            {
+                <div class="file-type-container">
+                    <label id="file-type-select" for="dtFileType">
+                        <h2>File Type</h2>
+                    </label>
+                    <OutlinedSelectField Id="dtFileType"
+                                        Options="@DownloadTransactionModel.QuarterOptions"
+                                        For="@(DownloadTransactionModel.ForFileType)"
+                                        AriaDescribedById="file-type-select"
+                                        @bind-Value="DownloadTransactionModel.FileTypeSelected">
+                    </OutlinedSelectField>
+                    @if (!string.IsNullOrEmpty(DownloadTransactionModel?.FileTypeError))
+                    {
+                        <div class="field-error">@DownloadTransactionModel.FileTypeError</div>
+                    }
+                </div>
+            }
+
+            <div class="container-dt">
+                <h2 class="fw-bold">Date Range Option</h2>
+                <div role="radiogroup" aria-labelledby="date-range-heading" aria-required="true">
+                    <div class="option">
+                        <input id="period" type="radio" name="dataRange" value="period" checked="@(DownloadTransactionModel?.SelectedDateRangeOption == "period")"
+                            @onchange='() => SetDateRange("period")'
+                            aria-describedby="period-description">
+                        <label for="period">
+                            Download records for most recent completed period
+                        </label>
+                        <div id="period-description" class="date-range">
+                            (@DownloadTransactionModel?.BenefitDateRangeModel?.CurrentWeek?.Start  - @DownloadTransactionModel?.BenefitDateRangeModel?.CurrentWeek?.End)
+                        </div>
+                    </div>
+                    <div class="option">
+                        <input id="quarter" type="radio" name="dataRange" value="quarter" checked="@(DownloadTransactionModel?.SelectedDateRangeOption == "quarter")"
+                            @onchange='() => SetDateRange("quarter")'
+                            aria-describedby="quarter-description">
+                        <label for="quarter">
+                            Download records for most recent completed quarter
+                        </label>
+                        <div id="quarter-description" class="date-range">
+                            (@DownloadTransactionModel?.BenefitDateRangeModel?.QuarterYear?.Start  - @DownloadTransactionModel?.BenefitDateRangeModel?.QuarterYear?.End)
+                        </div>
+                    </div>
+                    <div class="option">
+                        <input id="fiscal" type="radio" name="dataRange" value="fiscal" checked="@(DownloadTransactionModel?.SelectedDateRangeOption == "fiscal")"
+                            @onchange='() => SetDateRange("fiscal")'
+                            aria-describedby="fiscal-description">
+                        <label for="fiscal">
+                            Download records for most recent completed fiscal year
+                        </label>
+                        <div id="fiscal-description" class="date-range">
+                            (@DownloadTransactionModel?.BenefitDateRangeModel?.FiscalYear?.Start  - @DownloadTransactionModel?.BenefitDateRangeModel?.FiscalYear?.End)
+                        </div>
+                    </div>
+                    <div class="option">
+                        <input id="statement" type="radio" name="dataRange" value="statement" checked="@(DownloadTransactionModel?.SelectedDateRangeOption == "statement")"
+                            @onchange='() => SetDateRange("statement")' >
+                        <label for="statement">
+                            Download records for statement ending dates
+                        </label>
+
+                        @if (DownloadTransactionModel?.SelectedDateRangeOption == "statement")
+                        {
+                            <div class="custom-date-container">
+                                <div class="date-fields">
+                                    <div class="date-field-wrapper">
+                                        <label id="date-from" for="From">From</label>
+                                        <OutlinedTextField Id="From"
+                                                        Type="date"
+                                                        max="@_maxStatementDate"
+                                                        Visible="true"
+                                                        Value="@CustomStartDate"
+                                                        ValueChanged="@(v => OnStatementDateChanged(v, isFrom: true))"
+                                                        For="() => CustomStartDate"
+                                                        OnBlur="ValidateStatementDatesOnBlur"
+                                                        aria-description="Download records for statement ending dates"/>
+                                    </div>
+                                    <div class="date-field-wrapper">
+                                        <label id="date-to" for="To">To</label>
+                                        <OutlinedTextField Id="To"
+                                                        Type="date"
+                                                        max="@_maxStatementDate"
+                                                        Visible="true"
+                                                        Value="@CustomEndDate"
+                                                        ValueChanged="@(v => OnStatementDateChanged(v, isFrom: false))"
+                                                        For="() => CustomEndDate"
+                                                        OnBlur="ValidateStatementDatesOnBlur"
+                                                        aria-description="Download records for statement ending dates"/>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(DownloadTransactionModel?.CustomDateRangeError))
+                                {
+                                    <div class="field-error">@DownloadTransactionModel.CustomDateRangeError</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="ssn-section-divider"></div>
+                <div>
+                    Enter SSN below to limit results to an individual (optional)
+                </div>
+
+                <div class="ssn-section">
+                    <div>
+                        <input type="checkbox" id="specificSSN" checked="@DownloadTransactionModel?.IsSSNSelected" @onchange="OnSSNCheckboxChecked">
+                        <label for="specificSSN" class="ssn-label">
+                            Download records for a specific SSN
+                        </label>
+                    </div>
+                    <div class="ssn-input-wrapper">
+                        <label class="ssn-input-label" for="specificSSNInput">Enter SSN (optional)</label>
+                        <input type="text"
+                               id="specificSSNInput"
+                               class="ssn-input"
+                               maxlength="11"
+                               value="@DownloadTransactionModel?.SSN"
+                               aria-describedby="@(string.IsNullOrEmpty(DownloadTransactionModel?.SSNError) ? null : "specificSSNInput-error")"
+                               @ref="_ssnInputRef"
+                               @oninput="OnSSNInput">
+                        @if (!string.IsNullOrEmpty(DownloadTransactionModel?.SSNError))
+                        {
+                            <div id="specificSSNInput-error" class="field-error">@DownloadTransactionModel.SSNError</div>
+                        }
+                    </div>
+                </div>
+
+                <br />
+                <br />
+                <div class="action-buttons">
+                    <div class="action-buttons-left">
+                        <button type="button" class="btn-back" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">&#8249; BACK</button>
+                        <button type="button" class="btn-clear" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleClear, "Clear Clicked", DateTime.Now))">CLEAR</button>
+                    </div>
+                    <button type="button" class="btn-download" @onclick="@(() => tracker.LogNavigationSessionActivity(handledownload, "Download Clicked", DateTime.Now))">DOWNLOAD</button>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+<BenefitWeekCalendarDrawer IsOpen="_calendarDrawerOpen" OnClose="CloseCalendarDrawer" />
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject]
+    private IDownloadTransactionService DownloadTransactionService { get; set; } = default!;
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+
+    // Maps model property names to the HTML id of the input they validate, so the
+    // standard ValidationErrorSummary can render focusable anchor links to each field.
+    // "From"/"To" are the per-field date errors; "CustomDateRange" is the cross-field
+    // (ordering/bounds) error, anchored to the From input.
+    private const string FromFieldKey = "From";
+    private const string ToFieldKey = "To";
+    private const string CustomDateRangeKey = "CustomDateRange";
+    private readonly Dictionary<string, string> _validationFieldIds = new()
+    {
+        { nameof(DownloadTransactionModel.FileTypeSelected), "dtFileType" },
+        { nameof(DownloadTransactionModel.SelectedDateRangeOption), "period" },
+        { FromFieldKey, "From" },
+        { ToFieldKey, "To" },
+        { CustomDateRangeKey, "From" },
+        { nameof(DownloadTransactionModel.SSN), "specificSSNInput" }
+    };
+
+    // Accumulates validation messages keyed by field for the current submit attempt,
+    // then hands them to the CustomValidator so they surface in the summary.
+    private readonly Dictionary<FieldIdentifier, List<string>> _fieldErrors = new();
+
+    private EditContext? _editContext;
+    private CustomValidator? _customValidator;
+    // Holds the per-field From/To date messages so OutlinedTextField renders them via its
+    // own error UI, read from the cascaded EditContext (keyed by the CustomStartDate /
+    // CustomEndDate field identifiers the fields bind to).
+    private ValidationMessageStore? _dateMessageStore;
+    private bool _showValidationSummary;
+    // Message for an Alert banner shown when the download request itself fails.
+    private string? _downloadErrorMessage;
+
+    // Tracks which single-line banners are currently shown so we only move focus
+    // to them on the render where they first appear.
+    private bool _noRecordsBannerShown;
+    private bool _downloadErrorBannerShown;
+    // Set on a failed submit so the next render moves focus to the validation summary
+    // (covers repeat submits, where the summary itself no longer re-focuses).
+    private bool _focusSummaryPending;
+    // Matches ValidationErrorSummary's default SummaryId.
+    private const string ValidationSummaryId = "validation-error-summary";
+    // Cached ./js/validation.js module used to scroll/focus the banners.
+    private IJSObjectReference? _validationModule;
+
+    public string CustomStartDate { get; set; } = string.Empty;
+    public string CustomEndDate { get; set; } = string.Empty;
+    // Statement dates cannot be in the future, so the pickers cap at today.
+    private readonly string _maxStatementDate = DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    private bool _calendarDrawerOpen;
+    private ElementReference _ssnInputRef;
+
+    private string? _defaultLowSSN;
+    private string? _defaultHighSSN;
+    private void OpenCalendarDrawer()
+    {
+        _calendarDrawerOpen = true;
+    }
+    private void CloseCalendarDrawer()
+    {
+        _calendarDrawerOpen = false;
+    }
+
+    [Parameter, EditorRequired]
+    public DownloadTransactionModel DownloadTransactionModel { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        if (_editContext == null || !ReferenceEquals(_editContext.Model, DownloadTransactionModel))
+        {
+            _editContext = new EditContext(DownloadTransactionModel);
+            _dateMessageStore = new ValidationMessageStore(_editContext);
+        }
+
+        if (_defaultLowSSN == null && DownloadTransactionModel?.DownloadReportRequest != null)
+        {
+            _defaultLowSSN = DownloadTransactionModel.DownloadReportRequest.LowSSN;
+            _defaultHighSSN = DownloadTransactionModel.DownloadReportRequest.HighSSN;
+        }
+    }
+
+    // Moves focus to the validation summary after a failed submit, then to the single-line
+    // info/alert banners on the render where each first appears.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_focusSummaryPending && _showValidationSummary)
+        {
+            _focusSummaryPending = false;
+            await FocusElementAsync(ValidationSummaryId);
+            return;
+        }
+
+        var noRecordsVisible = !string.IsNullOrEmpty(DownloadTransactionModel?.NoRecordsFoundMessage);
+        if (noRecordsVisible && !_noRecordsBannerShown)
+        {
+            await FocusElementAsync("download-info-banner");
+        }
+        _noRecordsBannerShown = noRecordsVisible;
+
+        var downloadErrorVisible = !string.IsNullOrEmpty(_downloadErrorMessage);
+        if (downloadErrorVisible && !_downloadErrorBannerShown)
+        {
+            await FocusElementAsync("download-error-banner");
+        }
+        _downloadErrorBannerShown = downloadErrorVisible;
+    }
+
+    private async Task FocusElementAsync(string elementId)
+    {
+        _validationModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/validation.js");
+        await _validationModule.InvokeVoidAsync("focusElement", elementId);
+    }
+
+    public void SetDateRange(string option)
+    {
+
+        DownloadTransactionModel.SelectedDateRangeOption = option;
+        if (option != "statement")
+        {
+            CustomStartDate = string.Empty;
+            CustomEndDate = string.Empty;
+            DownloadTransactionModel.FromDateError = null;
+            DownloadTransactionModel.ToDateError = null;
+            DownloadTransactionModel.CustomDateRangeError = null;
+            PublishDateFieldMessages();
+        }
+    }
+    public void HandleBack()
+    {
+        NavigationManager.NavigateTo("other-functions/benefit-charges");
+    }
+    public void HandleClear()
+    {
+        DownloadTransactionModel.SelectedDateRangeOption = string.Empty;
+        DownloadTransactionModel.FileTypeSelected = string.Empty;
+        DownloadTransactionModel.SSN = string.Empty;
+        DownloadTransactionModel.IsSSNSelected = false;
+        ResetValidationState();
+        DownloadTransactionModel.NoRecordsFoundMessage = null;
+        CustomStartDate = string.Empty;
+        CustomEndDate = string.Empty;
+        // Restore the unfiltered range immediately, rather than waiting for the next
+
+        if (_defaultLowSSN != null)
+        {
+            DownloadTransactionModel.DownloadReportRequest.LowSSN = _defaultLowSSN;
+            DownloadTransactionModel.DownloadReportRequest.HighSSN = _defaultHighSSN!;
+        }
+        StateHasChanged();
+    }
+    public void OnSSNCheckboxChecked(ChangeEventArgs ev)
+    {
+        DownloadTransactionModel.IsSSNSelected = (bool)ev.Value!;
+        // To Keep the text field in sync with the checkbox - unchecking clears any
+        // typed SSN so the two controls can't change out of sync with each other.
+        if (!DownloadTransactionModel.IsSSNSelected)
+        {
+            DownloadTransactionModel.SSN = string.Empty;
+        }
+    }
+    public async Task OnSSNInput(ChangeEventArgs ev)
+    {
+        var raw = ev.Value?.ToString() ?? string.Empty;
+        var digitsOnly = new string(raw.Where(char.IsDigit).ToArray());
+        if (digitsOnly.Length > 9)
+        {
+            digitsOnly = digitsOnly[..9];
+        }
+        string formatted = digitsOnly.Length switch
+        {
+            <= 3 => digitsOnly,
+            <= 5 => $"{digitsOnly[..3]}-{digitsOnly[3..]}",
+            _ => $"{digitsOnly[..3]}-{digitsOnly[3..5]}-{digitsOnly[5..]}"
+        };
+        if (DownloadTransactionModel != null)
+        {
+            DownloadTransactionModel.SSN = formatted;
+
+            DownloadTransactionModel.IsSSNSelected = !string.IsNullOrEmpty(formatted);
+        }
+
+        await JS.InvokeVoidAsync("setInputValue", _ssnInputRef, formatted);
+    }
+    public async void handledownload()
+    {
+        ResetValidationState();
+        if (!ValidateForm())
+        {
+            ShowValidationSummary();
+            StateHasChanged();
+            return;
+        }
+        var (startDate, endDate) = ResolveDateRange();
+        DownloadTransactionModel!.DownloadReportRequest.FromDate = startDate;
+        DownloadTransactionModel.DownloadReportRequest.ToDate = endDate;
+        ApplySsnToRequest();
+        ApplyFileExtension();
+        await ExecuteDownloadAsync();
+    }
+    private void ResetValidationState()
+    {
+        DownloadTransactionModel.FileTypeError = null;
+        DownloadTransactionModel.DateRangeError = null;
+        DownloadTransactionModel.FromDateError = null;
+        DownloadTransactionModel.ToDateError = null;
+        DownloadTransactionModel.CustomDateRangeError = null;
+        DownloadTransactionModel.SSNError = null;
+        DownloadTransactionModel.NoRecordsFoundMessage = null;
+        _downloadErrorMessage = null;
+        _fieldErrors.Clear();
+        _dateMessageStore?.Clear();
+        _customValidator?.ClearErrors();
+        _showValidationSummary = false;
+    }
+    // Records an error against a field so the ValidationErrorSummary can render it.
+    // Keys present in _validationFieldIds become focusable anchor links.
+    private void AddFieldError(string fieldKey, string message)
+    {
+        var field = new FieldIdentifier(DownloadTransactionModel, fieldKey);
+        if (!_fieldErrors.TryGetValue(field, out var messages))
+        {
+            messages = new List<string>();
+            _fieldErrors[field] = messages;
+        }
+        messages.Add(message);
+    }
+    private void ShowValidationSummary()
+    {
+        _customValidator?.DisplayErrors(_fieldErrors);
+        _showValidationSummary = true;
+        _focusSummaryPending = true;
+    }
+    private void ShowDownloadError(string message)
+    {
+        ResetValidationState();
+        _downloadErrorMessage = message;
+        StateHasChanged();
+    }
+    private bool ValidateForm()
+    {
+        bool isValid = true;
+        if (string.IsNullOrEmpty(DownloadTransactionModel?.FileTypeSelected))
+        {
+            DownloadTransactionModel!.FileTypeError = "Please select a File Type.";
+            AddFieldError(nameof(DownloadTransactionModel.FileTypeSelected), "Please select a File Type.");
+            isValid = false;
+        }
+        if (string.IsNullOrEmpty(DownloadTransactionModel?.SelectedDateRangeOption))
+        {
+            DownloadTransactionModel!.DateRangeError = "Please select a Date Range Option.";
+            AddFieldError(nameof(DownloadTransactionModel.SelectedDateRangeOption), "Please select a Date Range Option.");
+            isValid = false;
+        }
+        if (!ValidateStatementDateRange())
+        {
+            isValid = false;
+        }
+        if (!ValidateSsn())
+        {
+            isValid = false;
+        }
+        return isValid;
+    }
+    private bool ValidateStatementDateRange()
+    {
+        if (DownloadTransactionModel?.SelectedDateRangeOption?.ToLower() != "statement")
+        {
+            return true;
+        }
+
+        var isValid = true;
+
+        // From: required, else per-field (invalid / future / too-old).
+        if (string.IsNullOrEmpty(CustomStartDate))
+        {
+            SetFromDateError("From date is required.");
+            isValid = false;
+        }
+        else
+        {
+            var fromError = GetDateFieldError(CustomStartDate, isFrom: true, out _);
+            if (fromError != null)
+            {
+                SetFromDateError(fromError);
+                isValid = false;
+            }
+        }
+
+        // To: required, else per-field (invalid / future).
+        if (string.IsNullOrEmpty(CustomEndDate))
+        {
+            SetToDateError("To date is required.");
+            isValid = false;
+        }
+        else
+        {
+            var toError = GetDateFieldError(CustomEndDate, isFrom: false, out _);
+            if (toError != null)
+            {
+                SetToDateError(toError);
+                isValid = false;
+            }
+        }
+
+        // Cross-field ordering only once both fields are individually valid.
+        if (isValid && TryParseFromDate(out var start) && TryParseToDate(out var end) && start > end)
+        {
+            DownloadTransactionModel!.CustomDateRangeError = DateOrderingError;
+            AddFieldError(CustomDateRangeKey, DateOrderingError);
+            isValid = false;
+        }
+
+        PublishDateFieldMessages();
+        return isValid;
+    }
+    // Updates and revalidates a statement date as the user changes it, so OutlinedTextField's
+    // error state (red outline + message) reflects an invalid date immediately rather than
+    // only after the field loses focus.
+    public void OnStatementDateChanged(string? value, bool isFrom)
+    {
+        if (isFrom)
+        {
+            CustomStartDate = value ?? string.Empty;
+        }
+        else
+        {
+            CustomEndDate = value ?? string.Empty;
+        }
+        ValidateStatementDatesOnBlur();
+    }
+    // Validates the statement dates when a date field loses focus. Surfaces inline field
+    // errors only (including per-field invalid/future/too-old); "required" is deferred to
+    // submit so a partially entered range doesn't nag, and the summary stays submit-time.
+    public void ValidateStatementDatesOnBlur()
+    {
+        if (DownloadTransactionModel?.SelectedDateRangeOption?.ToLower() != "statement")
+        {
+            return;
+        }
+
+        DownloadTransactionModel!.FromDateError = GetDateFieldError(CustomStartDate, isFrom: true, out var start);
+        DownloadTransactionModel.ToDateError = GetDateFieldError(CustomEndDate, isFrom: false, out var end);
+        DownloadTransactionModel.CustomDateRangeError = null;
+
+        var bothValid = DownloadTransactionModel.FromDateError == null
+            && DownloadTransactionModel.ToDateError == null
+            && !string.IsNullOrEmpty(CustomStartDate)
+            && !string.IsNullOrEmpty(CustomEndDate);
+        if (bothValid && start > end)
+        {
+            DownloadTransactionModel.CustomDateRangeError = DateOrderingError;
+        }
+
+        PublishDateFieldMessages();
+    }
+    private const string DateOrderingError = "From date must be on or before the To date.";
+    // Per-field date errors are set on the model (for logic/tests) and mirrored into the
+    // EditContext so OutlinedTextField renders them with its own error UI and the summary
+    // (via ResolveSummaryField) can link to each input.
+    private void SetFromDateError(string message) => DownloadTransactionModel!.FromDateError = message;
+    private void SetToDateError(string message) => DownloadTransactionModel!.ToDateError = message;
+    // Mirrors the current From/To model errors into the date ValidationMessageStore, keyed
+    // by the field identifiers the date inputs bind to, so OutlinedTextField surfaces them.
+    private void PublishDateFieldMessages()
+    {
+        if (_dateMessageStore is null || _editContext is null)
+        {
+            return;
+        }
+        _dateMessageStore.Clear();
+        if (!string.IsNullOrEmpty(DownloadTransactionModel.FromDateError))
+        {
+            _dateMessageStore.Add(FieldIdentifier.Create(() => CustomStartDate), DownloadTransactionModel.FromDateError);
+        }
+        if (!string.IsNullOrEmpty(DownloadTransactionModel.ToDateError))
+        {
+            _dateMessageStore.Add(FieldIdentifier.Create(() => CustomEndDate), DownloadTransactionModel.ToDateError);
+        }
+        _editContext.NotifyValidationStateChanged();
+    }
+    // Resolves a summary FieldIds key to the field that owns its messages. The From/To
+    // date errors live on the component's CustomStartDate/CustomEndDate fields; everything
+    // else lives on the model.
+    private FieldIdentifier ResolveSummaryField(string key) => key switch
+    {
+        FromFieldKey => FieldIdentifier.Create(() => CustomStartDate),
+        ToFieldKey => FieldIdentifier.Create(() => CustomEndDate),
+        _ => _editContext!.Field(key)
+    };
+    private bool TryParseFromDate(out DateOnly date) =>
+        DateOnly.TryParse(CustomStartDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+    private bool TryParseToDate(out DateOnly date) =>
+        DateOnly.TryParse(CustomEndDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+    // Per-field validation for a single date value: parse + bounds (future for both,
+    // 3-year floor for From only). Returns null for an empty value (required is separate)
+    // or a valid in-range date. Maps the shared bound rules to this page's wording.
+    private static string? GetDateFieldError(string value, bool isFrom, out DateOnly parsed)
+    {
+        parsed = default;
+        if (string.IsNullOrEmpty(value))
+        {
+            return null;
+        }
+        if (!DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
+        {
+            return isFrom ? "Enter a valid From date." : "Enter a valid To date.";
+        }
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return DateRangeValidator.ValidateSingle(parsed, maxDate: today, minDate: isFrom ? today.AddYears(-3) : null) switch
+        {
+            DateRangeError.AfterMaximum => isFrom ? "From date cannot be in the future." : "To date cannot be in the future.",
+            DateRangeError.BeforeMinimum => "From date cannot be more than 3 years ago.",
+            _ => null
+        };
+    }
+    private bool ValidateSsn()
+    {
+        if (DownloadTransactionModel?.IsSSNSelected == true && string.IsNullOrWhiteSpace(DownloadTransactionModel.SSN))
+        {
+            DownloadTransactionModel!.SSNError = "Please enter an SSN.";
+            AddFieldError(nameof(DownloadTransactionModel.SSN), "Please enter an SSN.");
+            return false;
+        }
+        string requestedSSN = DownloadTransactionModel?.SSN ?? "";
+        if (requestedSSN == "")
+        {
+            return true;
+        }
+        var ssnRegex = new Regex(@"^\d{3}-\d{2}-\d{4}$", RegexOptions.Compiled);
+        if (!ssnRegex.IsMatch(requestedSSN))
+        {
+            DownloadTransactionModel!.SSNError = "Invalid SSN Format.";
+            AddFieldError(nameof(DownloadTransactionModel.SSN), "Invalid SSN Format.");
+            return false;
+        }
+        return ValidateSsnRange(requestedSSN);
+    }
+    private bool ValidateSsnRange(string requestedSSN)
+    {
+        long lowSSN = long.Parse((_defaultLowSSN ?? DownloadTransactionModel?.DownloadReportRequest.LowSSN ?? "").Replace("-", ""));
+        long highSSN = long.Parse((_defaultHighSSN ?? DownloadTransactionModel?.DownloadReportRequest.HighSSN ?? "").Replace("-", ""));
+        long requested = long.Parse(requestedSSN.Replace("-", ""));
+        if (requested >= lowSSN && requested <= highSSN)
+        {
+            return true;
+        }
+        DownloadTransactionModel!.SSNError = "Invalid SSN Range.";
+        AddFieldError(nameof(DownloadTransactionModel.SSN), "Invalid SSN Range.");
+        return false;
+    }
+    private (string? startDate, string? endDate) ResolveDateRange()
+    {
+        var option = DownloadTransactionModel?.SelectedDateRangeOption?.ToLower();
+        return option switch
+        {
+            "period" => (
+                DownloadTransactionModel?.BenefitDateRangeModel?.CurrentWeek?.Start?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture),
+                DownloadTransactionModel?.BenefitDateRangeModel?.CurrentWeek?.End?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture)
+            ),
+            "quarter" => (
+                DownloadTransactionModel?.BenefitDateRangeModel?.QuarterYear?.Start?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture),
+                DownloadTransactionModel?.BenefitDateRangeModel?.QuarterYear?.End?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture)
+            ),
+            "fiscal" => (
+                DownloadTransactionModel?.BenefitDateRangeModel?.FiscalYear?.Start?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture),
+                DownloadTransactionModel?.BenefitDateRangeModel?.FiscalYear?.End?.ToString("MM-dd-yyyy", CultureInfo.InvariantCulture)
+            ),
+            "statement" => (
+                DateOnly.Parse(CustomStartDate ?? "", CultureInfo.InvariantCulture).ToString("MM-dd-yyyy", CultureInfo.InvariantCulture),
+                DateOnly.Parse(CustomEndDate ?? "", CultureInfo.InvariantCulture).ToString("MM-dd-yyyy", CultureInfo.InvariantCulture)
+            ),
+            _ => (null, null)
+        };
+    }
+    private void ApplySsnToRequest()
+    {
+        if (DownloadTransactionModel == null)
+        {
+            return;
+        }
+        if (DownloadTransactionModel.IsSSNSelected && !string.IsNullOrEmpty(DownloadTransactionModel.SSN))
+        {
+            DownloadTransactionModel.DownloadReportRequest.LowSSN = DownloadTransactionModel.SSN;
+            DownloadTransactionModel.DownloadReportRequest.HighSSN = DownloadTransactionModel.SSN;
+        }
+        else
+        {
+            // SSN filter is off - always restore the full unfiltered range, in case a
+            // previous download narrowed it and it was never widened back.
+            DownloadTransactionModel.DownloadReportRequest.LowSSN = _defaultLowSSN ?? DownloadTransactionModel.DownloadReportRequest.LowSSN;
+            DownloadTransactionModel.DownloadReportRequest.HighSSN = _defaultHighSSN ?? DownloadTransactionModel.DownloadReportRequest.HighSSN;
+        }
+    }
+    private void ApplyFileExtension()
+    {
+        var extension = DownloadTransactionModel?.FileTypeSelected switch
+        {
+            "1" => "txt",
+            "2" => "csv",
+            "6" => "xls",
+            "3" => "xlsx",
+            "4" => "prn",
+            "5" => "xml",
+            _ => null
+        };
+        if (extension != null)
+        {
+            DownloadTransactionModel!.DownloadReportRequest.FileExtension = extension;
+        }
+    }
+    private async Task ExecuteDownloadAsync()
+    {
+        var request = DownloadTransactionModel?.DownloadReportRequest;
+        if (request == null)
+        {
+            return;
+        }
+        try
+        {
+            var fileResponse = await DownloadTransactionService.DownloadBenefitChargesAndAdjustmentsAsync(request);
+            if (fileResponse == null || fileResponse.FileContent == null || fileResponse.FileContent.Length == 0)
+            {
+                // No records is an informational outcome, not a validation error, so it
+                // surfaces in an Information NotificationBanner rather than the error summary.
+                ResetValidationState();
+                if (DownloadTransactionModel != null)
+                {
+                    DownloadTransactionModel.NoRecordsFoundMessage = "There were no records found for your current date range chosen";
+                }
+                StateHasChanged();
+                return;
+            }
+            var stream = new MemoryStream(fileResponse.FileContent);
+            using var streamRef = new DotNetStreamReference(stream);
+            await JS.InvokeVoidAsync("handleFileFromStream", fileResponse.FileName, streamRef, false);
+        }
+        catch (Exception)
+        {
+            ShowDownloadError("We were unable to process your download request. Please try again, or contact support if the issue continues.");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_validationModule is not null)
+        {
+            try
+            {
+                await _validationModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+        }
+    }
+}

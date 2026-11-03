@@ -1,0 +1,17 @@
+.section-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.section-header {
+    color: var(--color-header-nav);
+    font-size: 28px;
+    margin: 0 0 16px 0;
+}
+
+.section-description {
+    color: var(--color-text);
+    font-size: 16px;
+    margin: 0;
+}

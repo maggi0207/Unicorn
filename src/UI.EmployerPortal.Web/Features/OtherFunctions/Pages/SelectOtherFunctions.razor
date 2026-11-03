@@ -1,0 +1,98 @@
+@page "/other-functions/select-other-functions"
+@using Microsoft.AspNetCore.Components.Authorization
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
+<PageTitle>Other Functions</PageTitle>
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    <div class="select-other-functions">
+        <h1 class="page-title">Other Functions</h1>
+        <hr class="page-divider" />
+        <br />
+        @if (_showValidationError)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert" Message="Please select an option to continue." />
+        }
+
+        <div class="function-cards" role="radiogroup" aria-label="Other Functions" aria-required="true">
+
+            <AuthorizeView Policy="@AuthorizationPolicies.RequiresOtherTaxPermissions_DownloadBenefitsChargesOrReserveFundTransactionsPermission">
+                <Authorized>
+                    <ReportingMethodCard
+                        Id="reporting-card-0"
+                        Title="Benefit Charges or Reserve Fund Transactions"
+                        BoldTitle="true"
+                        IsSelected="@(_selectedIndex == 0)"
+                        IsFocusable="@(_selectedIndex == 0)"
+                        OnSelected="@(() => HandleCardSelected(0))"
+                        OnNextCardSelected="HandleNextCard"
+                        OnPreviousCardSelected="HandlePreviousCard">
+                        <CustomDescription>
+                            Download benefit charges and adjustments or other transactions that affect your Reserve Fund Balance. Update mailing preferences for your Reserve Fund Balance Statement.
+                        </CustomDescription>
+                    </ReportingMethodCard>
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="@AuthorizationPolicies.RequiresOtherTaxPermissions_EmployerAbstractRecertificationRequest940CPermission">
+                <Authorized>
+                    <ReportingMethodCard
+                        Id="reporting-card-1"
+                        Title="Request 940-C Recertification Form"
+                        BoldTitle="true"
+                        IsSelected="@(_selectedIndex == 1)"
+                        IsFocusable="@(_selectedIndex == 1)"
+                        OnSelected="@(() => HandleCardSelected(1))"
+                        OnNextCardSelected="HandleNextCard"
+                        OnPreviousCardSelected="HandlePreviousCard">
+                        <CustomDescription>
+                            If you've been instructed by the IRS to get a recertification from the state of Wisconsin regarding a discrepancy with your federal unemployment tax, request the form here.
+                        </CustomDescription>
+                    </ReportingMethodCard>
+                </Authorized>
+            </AuthorizeView>
+            <ReportingMethodCard
+                Id="reporting-card-2"
+                Title="Manage Email Subscriptions"
+                BoldTitle="true"
+                IsSelected="@(_selectedIndex == 2)"
+                IsFocusable="@(_selectedIndex == 2)"
+                OnSelected="@(() => HandleCardSelected(2))"
+                OnNextCardSelected="HandleNextCard"
+                OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    Update email subscription preferences.
+                </CustomDescription>
+            </ReportingMethodCard>
+
+            <ReportingMethodCard
+                Id="reporting-card-3"
+                Title="Audit File Upload"
+                BoldTitle="true"
+                IsSelected="@(_selectedIndex == 3)"
+                IsFocusable="@(_selectedIndex == 3)"
+                OnSelected="@(() => HandleCardSelected(3))"
+                OnNextCardSelected="HandleNextCard"
+                OnPreviousCardSelected="HandlePreviousCard">
+                <CustomDescription>
+                    Upload files for tax audits.
+                </CustomDescription>
+            </ReportingMethodCard>
+
+        </div>
+        <div class="action-row">
+            <Button Variant="Button.ButtonVariant.Primary" Size="Button.ButtonSize.Medium"
+                    AriaLabel="Continue" Onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))">
+                CONTINUE <img src="@(Assets["icons/chevron-right.svg"])" alt="" />
+            </Button>
+        </div>
+    </div>
+}

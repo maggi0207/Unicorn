@@ -1,0 +1,87 @@
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+
+@if (IsOpen)
+{
+    <div class="cal-drawer-overlay" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleClose, "Close Clicked", DateTime.Now))" aria-hidden="true"></div>
+
+    <aside class="cal-drawer"
+           role="dialog"
+           aria-modal="false"
+           aria-labelledby="cal-drawer-title"
+           @onkeydown="HandleKeyDown"
+           @ref="_drawerRef"
+           tabindex="-1">
+
+        <div class="cal-drawer-header">
+            <div class="cal-drawer-title-row">
+                <img src="@Assets["icons/Information_Outline.svg"]" width="36.3" height="36" alt="" aria-hidden="true" />
+                <h2 id="cal-drawer-title" class="cal-drawer-title">Unemployment Insurance Benefit Calendar</h2>
+            </div>
+            <button type="button" class="cal-drawer-cancel" aria-label="Close Benefit Week Calendar panel" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleClose, "Close Clicked", DateTime.Now))">
+                Close <img src="@Assets["icons/close_x_blue.svg"]" width="14" height="14" alt="" aria-hidden="true" />
+            </button>
+        </div>
+
+        <div class="cal-drawer-content">
+
+            <div class="year-navigation" role="navigation" aria-label="Calendar year navigation">
+                <button class="nav-year-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(PreviousYear, "Previous Year Clicked", DateTime.Now))" aria-label="Previous year">
+                    &#8249; PREVIOUS YEAR
+                </button>
+                <span class="current-year" aria-live="polite">@_displayYear</span>
+                <button class="nav-year-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(NextYear, "Next Year Clicked", DateTime.Now))" aria-label="Next year">
+                    NEXT YEAR &#8250;
+                </button>
+            </div>
+            @if (_isLoading)
+            {
+                <LoadingSpinner Message="Loading..." />
+            }
+            else
+            {
+                <div class="calendar-grid">
+                    @foreach (var month in new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 })
+                    {
+                        var m = month;
+                        var monthName = GetMonthName(m);
+                        var tableLabel = monthName + " " + _displayYear.ToString();
+                        var monthWeeks = GetWeeksForMonth(m).ToList();
+                        <div class="month-container">
+                            <div class="month-title-container">
+                                <div class="pre-month-title"></div>
+                                <h3 class="month-title">@monthName</h3>
+                            </div>
+                            <table class="month-table" aria-label="@tableLabel">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="week-header-cell">Week</th>
+                                        @foreach (var day in new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" })
+                                        {
+                                            <th scope="col" class="day-header-cell">
+                                                <span aria-hidden="true">@(day[0])</span
+                                                <span class="visually-hidden">@day</span>
+                                            </th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var week in monthWeeks)
+                                    {
+                                        <tr>
+                                            <th scope="row" class="week-number-cell">@week.WeekNumber</th>
+                                            @foreach (var date in GetWeekDates(week))
+                                            {
+                                                <td class="@GetDateCellClass(date, m)">@date.Day</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </aside>
+}

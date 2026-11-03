@@ -1,0 +1,49 @@
+.select-other-functions{
+    max-width:990px;
+    width:100%;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-top: 24px;
+    font-family: Verdana;
+}
+
+.page-divider {
+    width: 990px;
+    height:1px;
+    border: none;
+    background: var(--color-stroke-dark-divider-header-validation, #ADADAD);
+    margin: 0;
+    opacity:1;
+}
+
+.function-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.action-row{
+    display:flex;
+    justify-content:flex-end;
+
+    padding-top:16px;
+
+}
+
+.email-subscription-list{
+    margin:0;
+    padding-left:20px;
+}
+
+.email-subscription-list 
+li{
+    margin-bottom:2px;
+}
+
+::deep .method-card-title{
+    font-weight:700;
+}

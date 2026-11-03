@@ -1,0 +1,298 @@
+@page "/other-functions/940c"
+@using UI.EmployerPortal.Web.Auth
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@using System.ServiceModel
+@using UI.EmployerPortal.Generated.ServiceClients.PortalCorrespondenceService
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+
+@inject NavigationManager _nav;
+@inject IPortalCorrespondenceService _portalCorrespondenceService;
+@inject IDashboardOrchestrator _dashboardOrchestrator;
+@inject IUserAccountService _userAccountService;
+@inject IConfiguration _configuration;
+@inject IJSRuntime _jsRuntime;
+
+<PageTitle>940 Recertification Request</PageTitle>
+
+<div class="article-wrapper">
+    <h1 class="vf-page-title" id="PageHeader">Federal Unemployment Tax Recertification (940-C) Request</h1>
+    <hr />
+    
+
+
+    @if (_employerData != null)
+    {
+        <div class="recertification">
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                Title="Network Error"
+                                Message="@_toastError"
+                                Announce="true"
+                                Visible="@(!string.IsNullOrWhiteSpace(_toastError))" />
+            <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                Title="Success"
+                                Message="@_toastSuccess"
+                                Announce="true"
+                                Action="View Your Correspondence"
+                                ActionCallback="() => GetPdf()"
+                                Visible="@(!string.IsNullOrWhiteSpace(_toastSuccess))" />
+
+            <EditForm EditContext="@_editContext" FormName="StatusChange" OnSubmit="Submit" role="form">
+                <ValidationErrorSummary ShowSummary="_formSubmitted"
+                                        FieldIds="@(new Dictionary<string, string> { { nameof(_model.RecertificationYear), "recertification-year" } })"
+                                        SummaryId="recertification-validation-summary" />
+                <p>If the IRS has asked you to get a recertification from the State of Wisconsin due to a discrepancy with your Federal Unemployment Tax (FUTA), you can request the form here. To get started, enter the year the IRS is questioning and select Submit. You&lsquo;ll receive a completed federal form showing your state unemployment payroll and payment information for that year.</p>
+                <p><strong>Please print this form and return to the IRS as requested.</strong></p>
+                <p>The 940-C only includes payroll that has been reported for the specified calendar year. If the year to be recertified is prior to 2022, <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.</p>
+                <div class="account-information">
+                    <dl>
+                        <div>
+                            <dt>UI Account Number</dt>
+                            <dd>@FormatUIAccountNumber(_employerData.UIAccountNo)</dd>
+                        </div>
+                        <div>
+                            <dt>Legal Name</dt>
+                            <dd>@_employerData.LegalName</dd>
+                        </div>
+                    </dl>
+                </div>
+                <div class="form-body">
+                    <div class="half-width">
+                        <label for="recertification-year"><strong>Year to be Recertified</strong></label>
+                        <GenericOutlinedSelectField Id="recertification-year"
+                                                    TValue="int?"
+                                                    Options="_yearOptions"
+                                                    For="@(() => _model.RecertificationYear)"
+                                                    OnBlur="@(() => TouchField(nameof(_model.RecertificationYear)))"
+                                                    ErrorVisible="@(HasFieldErrors(nameof(_model.RecertificationYear)))"
+                                                    @bind-Value="_model.RecertificationYear">
+                        </GenericOutlinedSelectField>
+                    </div>
+                    <div class="footer">
+                        <Button Text="CANCEL"
+                                Variant="ButtonVariant.Secondary"
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(() => _nav.NavigateTo("other-functions/select-other-functions"), "Cancel Clicked", DateTime.Now))" />
+                        <Button Text="SUBMIT"
+                                Variant="ButtonVariant.Primary"
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(Submit, "Submit Clicked", DateTime.Now))"
+                                Disabled="@(_working)" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _working = false;
+    private bool _formSubmitted = false;
+    private EditContext _editContext = default!;
+    private ValidationMessageStore _messageStore = default!;
+    private readonly HashSet<FieldIdentifier> _touchedFields = new();
+
+    private string _technicalDifficulties { get; set; } = string.Empty;
+    private string _generalError { get; set; } = "There was an error";
+
+    private string _toastError { get; set; } = string.Empty;
+    private string _toastSuccess { get; set; } = string.Empty;
+
+    private RecertificationModel _model { get; set; } = new();
+
+    private EmployerAccount? _employerData { get; set; } = null;
+
+    private CorrespondenceCreationResponse? _submitResponse { get; set; } = null;
+    private CorrespondencePDFResponse? _pdfResponse { get; set; } = null;
+
+
+    /// <inheritdoc />
+    protected override async Task OnAuthorizedInitAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _editContext = new EditContext(_model);
+        _messageStore = new ValidationMessageStore(_editContext);
+
+        _technicalDifficulties = _configuration.GetValue<string>("Messages:TechnicalDifficulties") ?? "There was an error.";
+
+        //Track validation state as user interacts
+        _editContext.OnFieldChanged += (_, f) =>
+        {
+            _touchedFields.Add(f.FieldIdentifier);
+            RunValidation(f.FieldIdentifier);
+
+            _editContext.NotifyValidationStateChanged();
+        };
+        _editContext.OnValidationRequested += (_, __) =>
+        {
+            RunValidation();
+        };
+
+        _employerData = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
+    }
+
+    private void TouchField(string fieldName)
+    {
+        var fieldIdentifier = _editContext.Field(fieldName);
+
+        if (!_touchedFields.TryGetValue(fieldIdentifier, out var actualValue))
+        {
+            _touchedFields.Add(fieldIdentifier);
+        }
+        RunValidation(fieldIdentifier);
+    }
+
+    private List<KeyValuePair<int?, string>> _yearOptions =>
+        Enumerable.Range(DateTime.Now.Year - 7, 7)
+            .Select(y => new KeyValuePair<int?, string>(y, $"{y}"))
+            .ToList();
+
+    private string FormatUIAccountNumber(string value)
+    {
+        return $"{value[..6]}-{value[6..9]}-{value[9..]}";
+    }
+
+    private bool HasFieldErrors(string fieldName) =>
+        (_touchedFields.Contains(_editContext.Field(fieldName)) || _formSubmitted)
+        && _editContext.GetValidationMessages(_editContext.Field(fieldName)).Count() > 0;
+
+    private void RunValidation(FieldIdentifier? changedField = null)
+    {
+        if (changedField.HasValue)
+        {
+            // Clear only that field’s errors
+            _messageStore.Clear(changedField.Value);
+        }
+        else
+        {
+            // Full validation (on submit)
+            _messageStore.Clear();
+        }
+
+        ValidateModel();
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private void ValidateModel()
+    {
+        _messageStore.Clear();
+
+        if (!_model.RecertificationYear.HasValue)
+        {
+            _messageStore.Add(_editContext.Field(nameof(_model.RecertificationYear)), "Year to be Recertified is required.");
+        }
+        _editContext.NotifyValidationStateChanged();
+    }
+
+    private async Task Submit()
+    {
+        _working = true;
+        RunValidation();
+        _formSubmitted = true;
+
+        if (!(_editContext.GetValidationMessages().Count() > 0)
+            && _model.RecertificationYear.HasValue)
+        {
+            var secureUserSk = _userAccountService.GetUserSKClaim();
+
+            var employer = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
+
+            if (employer == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var request = new PortalCorrespondenceFor940CRequest()
+                {
+                    Year = _model.RecertificationYear.Value,
+                    SecureUserSK = secureUserSk,
+                    EmployerSK = employer.Id,
+                };
+
+                _submitResponse = await _portalCorrespondenceService.GenerateCorrespondenceFor940CAsync(request);
+
+                _toastSuccess = "Federal Unemployment Tax Recertification(940-C) Request Completed";
+            }
+            catch (CommunicationException)
+            {
+                _toastError = _technicalDifficulties;
+            }
+            catch
+            {
+                _toastError = _generalError;
+            }
+            finally
+            {
+                _working = false;
+            }
+        }
+        _working = false;
+        await _jsRuntime.InvokeVoidAsync("focusElement", "main-content");
+    }
+
+    private async Task GetPdf()
+    {
+        _working = true;
+        var secureUserSk = _userAccountService.GetUserSKClaim();
+
+        var employer = await _dashboardOrchestrator.GetSelectedEmployerAccountAsync();
+
+        if (employer == null)
+        {
+            return;
+        }
+
+        if (_submitResponse != null)
+        {
+            try
+            {
+                var request = new PortalCorrespondenceRequest()
+                {
+                    SecureUserSK = secureUserSk,
+                    EmployerSK = employer.Id,
+                    GenerationSK = (int)_submitResponse.GenerationSK,
+                };
+
+                _pdfResponse = await _portalCorrespondenceService.GenerateCorrespondencePDFAsync(request);
+
+                if (_pdfResponse.RuleViolations.Count() > 0)
+                {
+                    _toastError = _pdfResponse.RuleViolations.First().RuleViolation;
+                }
+
+                await OpenPdf(_pdfResponse.PDFFilePath);
+            }
+            catch (CommunicationException)
+            {
+                _toastError = _technicalDifficulties;
+            }
+            catch
+            {
+                _toastError = _generalError;
+            }
+            finally
+            {
+                _working = false;
+            }
+        }
+        _working = false;
+    }
+
+    private async Task OpenPdf(string pdfFilePath)
+    {
+        await using var fileStream = File.OpenRead(pdfFilePath);
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+        await _jsRuntime.InvokeVoidAsync("openPdfInNewTab", streamRef);
+    }
+}

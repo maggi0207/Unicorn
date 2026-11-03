@@ -1,0 +1,142 @@
+@page "/other-functions/reserve-balance-form"
+@using Microsoft.AspNetCore.Components.Web
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+@if (_isLoading)
+{
+    <LoadingSpinner Message="Loading..." />
+}
+else
+{
+    <div class="mail-reserve-container">
+
+        <section class="page-header-section">
+            <h1 class="page-title">Mail Your Benefits Charges & Adjustments Form</h1>
+        </section>
+        @if (_showBanner)
+        {
+            <div class="info-note" role="note">
+                <div class="info-note-icon">
+                    <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/confirmation-notification.svg" alt="Confirmation" />
+                </div>
+                <div class="info-note-text">
+                    @_bannerMessage
+                </div>
+            </div>
+        }
+        <section class="description-section">
+            <p class="description-text">
+                  @_instructionText
+            </p>
+
+            <p class="description-text">
+                You can view your Benefits Charges and Adjustments on the
+                <a href="ui-documents", class="inline-link">UI Documents</a> page.
+            </p>
+        </section>
+   
+        <section class="checkbox-section">
+            <label class="checkbox-row" for="doNotMailStatements">
+                <input id="doNotMailStatements"
+                       type="checkbox"
+                       class="custom-checkbox"
+                       checked="@Model.DoNotMailReserveFundBalanceStatements"
+                       @onchange="HandleCheckboxChanged" />
+
+                <span class="checkbox-title">
+                    Do not mail Benefits Charges and Adjustments Form
+                </span>
+            </label>
+        </section>
+
+        @if (ShowHistoryTable)
+        {
+            <section class="history-section">
+                <div class="sub-section-header">
+                    <h2 class="sub-section-title">History of Changes</h2>
+                </div>
+                <br />
+                <div class="=table-container">
+                    <table class="table" aria-label="Reserve Fund Balance Statement mailing history">
+                        <caption class="visually-hidden">
+                            List of Reserve Fund Balance Statement mailing preference updates
+                        </caption>
+
+                        <thead>
+                            <tr class="header-row">
+                                <th scope="col"
+                                    class="header-cell updated-by-cell"
+                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("updatedBy"), "Sort By Updated By Clicked", DateTime.Now))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "updatedBy"))"
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("updatedBy")">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold fs-sm">Updated By</span>
+                                        @GetSortIcon("updatedBy")
+                                    </div>
+                                </th>
+
+                                <th scope="col"
+                                    class="header-cell updated-date-cell"
+                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("updatedDate"), "Sort By Updated Date Clicked", DateTime.Now))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "updatedDate"))"
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("updatedDate")">
+                                    <div class="header-content header-content-left">
+                                        <span class="header-label fw-bold fs-sm">Updated Date</span>
+                                        @GetSortIcon("updatedDate")
+                                    </div>
+                                </th>
+                                <th scope="col"
+                                    class="header-cell action-cell"
+                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("action"), "Sort By Continue/Discontinue Clicked", DateTime.Now))"
+                                    @onkeydown="@(e => HandleHeaderKeyDown(e, "action"))"
+                                    tabindex="0"
+                                    aria-sort="@GetAriaSort("action")">
+                                    <div class="header-content" header-content-left>
+                                        <span class="header-label fw-bold fs-sm">Continue/Discontinue</span>
+                                        @GetSortIcon("action")
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in GetSortedHistory())
+                            {
+                                <tr class="body-row">
+                                    <td class="body-cell updated-by-cell">@item.UpdatedBy</td>
+                                    <td class="body-cell updated-date-cell">@item.UpdateDate.ToString("M/d/yyyy h:mm:ss tt")</td>
+                                    <td class="body-cell action-cell">@item.Action</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+        <!--BUTTON BAR-->
+
+        <div class="page-navigation">
+
+            <div class="page-navigation-left">
+
+                <Button Variant="Button.ButtonVariant.Secondary"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
+                    <img src="@(Assets["icons/chevron-left.svg"])" alt="" />
+                    BACK
+                </Button>
+            </div>
+
+            <div class="page-navigation-right">
+
+                <Button Text="SAVE"
+                        Variant="Button.ButtonVariant.Primary"
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSave, "Save Clicked", DateTime.Now))"
+                        Disabled="@IsSaveDisabled" />
+            </div>
+        </div>
+    </div>
+
+}

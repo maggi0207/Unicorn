@@ -1,0 +1,92 @@
+@page "/other-functions/upload-audit"
+@page "/audit-file-upload"
+@using UI.EmployerPortal.Web.Features.OtherFunctions.AuditFileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+@using static UI.EmployerPortal.Razor.SharedComponents.Button
+<PageTitle>Audit File Upload</PageTitle>
+<div class="audit-file-upload-page">
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else if (!_isEmployerSelected)
+    {
+        <AuditFileAccountLookup OnContinue="HandleAccountLookupContinue"
+                                OnCancel="HandleBack"
+                                ExternalErrors="@_lookupErrors"
+                                InitialUIAccountNumber="@_lastEnteredUIAccountNumber"
+                                InitialFein="@_lastEnteredFein" />
+    }
+    else if (_pageState == PageState.Confirmation)
+    {
+        <AuditFileUploadConfirmation FileName="@_uploadResult.FileName"
+                                     UploadDateTime="@_uploadResult.UploadDateTime"
+                                     ConfirmationNumber="@(_uploadResult.ConfirmationNumber ?? string.Empty)"
+                                     OnUploadAnother="HandleUploadAnother"
+                                     EmployerAccount="_employerAccountNotSavedInSession"
+                                     ShowEmployerDashboard="@(_employerAccountNotSavedInSession is null)" />
+    }
+    else
+    {
+        <h1 class="page-header">Audit File Upload</h1>
+        <CascadingValue Value="_submitEditContext" IsFixed="false">
+            <ValidationErrorSummary ShowSummary="@_showSubmitErrors"
+                                    FieldIds="_submitFieldIds"
+                                    SummaryId="audit-upload-submit-summary" />
+        </CascadingValue>
+
+
+
+        <div class="page-intro">
+            <p>
+                You must provide contact information, including an e-mail address and telephone number, in order to upload audit files.
+            </p>
+        </div>
+        <hr class="title-divider" />
+
+        <div class="page-instructions">
+            <p class="page-intro">Verify your contact information. If it is incorrect, please update where necessary.</p>
+            <br/>
+            <p class="page-intro">All fields are required unless noted.</p>
+
+        </div>
+
+        <AuditContactInformation Model="@_model.Contact"
+                                 @ref="_contactFormRef"
+                                 OnValidationChanged="RefreshSubmitErrors" />
+        <p class="upload-instructions">
+            You can only upload one file at a time. Create a ZIP file to upload all files together: select all of the files you want to upload, right click, and select compress to create the single file.
+        </p>
+        <div id="audit-file-upload-section" class="upload-section">
+            <FileUpload2 @ref="_fileUploadRef"
+                         Title="Audit File"
+                         FileType="FileAcceptableType.Audit"
+                         FolderPath="@_folderPath"
+                         SaveOnUpload="true"
+                         AllowMultiple="false"
+                         OnFileUpload="HandleFileUploaded"
+                         OnFileRemoved="HandleFileRemoved"
+                         FileName="@_model.FileName"
+                         FilePath="@_model.UploadedFilePath" />
+        </div>
+        <div class="audit-actions">
+            <Button Variant="ButtonVariant.Secondary"
+                    Size="ButtonSize.Medium"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))"
+                    AriaLabel="Go back to Other Functions">
+                <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
+                BACK
+            </Button>
+            <Button Variant="ButtonVariant.Primary"
+                    Size="ButtonSize.Medium"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleSubmit, "Submit File Clicked", DateTime.Now))"
+                    AriaLabel="Submit audit file">
+                SUBMIT FILE
+                <img src="@Assets["icons/chevron-right.svg"]" alt="" aria-hidden="true" />
+            </Button>
+        </div>
+    }
+</div>
