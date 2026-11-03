@@ -29,8 +29,9 @@
             <div class="coe-success-links">
                 <button type="button"
                         class="coe-success-link"
+                        disabled="@_isOpeningIdLetter"
                         @onclick="@(() => tracker.LogNavigationSessionActivity(HandleViewInitialDetermination, "View Initial Determination Clicked", DateTime.Now))">
-                    View Your Initial Determination letter
+                    @(_isOpeningIdLetter ? "Opening Initial Determination letter…" : "View Your Initial Determination letter")
                 </button>
                 <button type="button"
                         class="coe-success-link"

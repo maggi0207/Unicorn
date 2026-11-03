@@ -6,6 +6,7 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
+using UI.EmployerPortal.Web.Features.Shared.OtherFunctions.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
 
@@ -42,7 +43,7 @@ public partial class CorporateOfficerExclusion
     private const string MailCopyBannerMessage = "Initial Determination letter will be mailed to your main business mailing address.";
 
     /// <summary>
-    /// Description fragment used to find the COE Initial Determination row in UI Documents.
+    /// Matches the UI Documents description for the COE Initial Determination letter.
     /// </summary>
     private const string IdLetterDescriptionMarker = "Corporate Officer Exclusion";
 
@@ -66,7 +67,15 @@ public partial class CorporateOfficerExclusion
     [Inject]
     private IAsyncRetryPolicy<CorporateOfficerExclusionService> RetryPolicy { get; set; } = default!;
 
+    [Inject]
+    private IUIDocumentService UIDocumentService { get; set; } = default!;
+
     private int _employerSK = 0;
+
+    /// <summary>
+    /// True while the Initial Determination PDF is being opened (same path as UI Documents Action).
+    /// </summary>
+    private bool _isOpeningIdLetter;
 
     private COEReasonableResponse _response = default!;
 
@@ -625,13 +634,86 @@ public partial class CorporateOfficerExclusion
     }
 
     /// <summary>
-    /// Opens UI Documents and auto-opens the COE Initial Determination via its description match.
+    /// Opens the COE Initial Determination PDF in a new tab using the same
+    /// <see cref="IUIDocumentService"/> path as UI Documents Action (Pending/View).
     /// </summary>
-    private void HandleViewInitialDetermination()
+    private async Task HandleViewInitialDetermination()
     {
-        Navigation.NavigateTo(
-            $"ui-documents?autoOpen={Uri.EscapeDataString(IdLetterDescriptionMarker)}",
-            forceLoad: true);
+        if (_isOpeningIdLetter)
+        {
+            return;
+        }
+
+        _isOpeningIdLetter = true;
+        try
+        {
+            var employerSK = _employerSK;
+            if (employerSK <= 0)
+            {
+                var selected = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
+                employerSK = selected?.Id ?? 0;
+            }
+
+            if (employerSK <= 0)
+            {
+                return;
+            }
+
+            var documents = await UIDocumentService.GetCorrespondenceAsync(
+                employerSK,
+                DateTime.Today.AddMonths(-6),
+                DateTime.Today);
+
+            var document = documents
+                .Where(d => d.Description.Contains(IdLetterDescriptionMarker, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(d => d.Date)
+                .FirstOrDefault();
+
+            if (document is null)
+            {
+                Navigation.NavigateTo("ui-documents", forceLoad: true);
+                return;
+            }
+
+            // Same open/poll loop as UIDocuments.HandleView.
+            var deadline = DateTime.UtcNow.AddMinutes(2);
+            var pollInterval = TimeSpan.FromSeconds(5);
+
+            while (DateTime.UtcNow < deadline)
+            {
+                try
+                {
+                    var pdfUrl = await UIDocumentService.GenerateCorrespondencePdfAsync(
+                        employerSK,
+                        document.GenerationSK);
+
+                    if (!string.IsNullOrEmpty(pdfUrl) && File.Exists(pdfUrl))
+                    {
+                        await using var fileStream = File.OpenRead(pdfUrl);
+                        using var streamRef = new DotNetStreamReference(stream: fileStream);
+                        await JSRuntime.InvokeVoidAsync("openPdfInNewTab", streamRef);
+                        return;
+                    }
+                }
+                catch
+                {
+                    // Keep polling until the PDF is ready or deadline passes.
+                }
+
+                var remaining = deadline - DateTime.UtcNow;
+                var delay = remaining < pollInterval ? remaining : pollInterval;
+                if (delay > TimeSpan.Zero)
+                {
+                    await Task.Delay(delay);
+                }
+            }
+
+            Navigation.NavigateTo("ui-documents", forceLoad: true);
+        }
+        finally
+        {
+            _isOpeningIdLetter = false;
+        }
     }
 
     /// <summary>
