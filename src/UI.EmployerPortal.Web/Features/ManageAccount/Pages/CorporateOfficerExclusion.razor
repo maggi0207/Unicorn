@@ -22,6 +22,14 @@
                                     DismissButton="false">
                 </NotificationBanner>
             }
+
+            @if (_idLetterOpenFailed)
+            {
+                <NotificationBanner NotificationType="NotificationType.Warning"
+                                    Message="@IdLetterOpenFailedMessage"
+                                    DismissButton="false">
+                </NotificationBanner>
+            }
         </div>
 
         <div class="coe-success-block">

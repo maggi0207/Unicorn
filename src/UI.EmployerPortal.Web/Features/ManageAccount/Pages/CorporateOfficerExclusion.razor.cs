@@ -47,6 +47,12 @@ public partial class CorporateOfficerExclusion
     /// </summary>
     private const string IdLetterDescriptionMarker = "Corporate Officer Exclusion";
 
+    /// <summary>
+    /// Shown when the Initial Determination PDF could not be opened from this page.
+    /// </summary>
+    private const string IdLetterOpenFailedMessage =
+        "The Initial Determination letter is not ready yet. Try again in a moment, or open it from UI Documents.";
+
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
 
@@ -76,6 +82,13 @@ public partial class CorporateOfficerExclusion
     /// True while the Initial Determination PDF is being opened (same path as UI Documents Action).
     /// </summary>
     private bool _isOpeningIdLetter;
+
+    /// <summary>
+    /// True when opening the Initial Determination PDF failed after polling.
+    /// </summary>
+    private bool _idLetterOpenFailed;
+
+    private bool _coePdfJsReady;
 
     private COEReasonableResponse _response = default!;
 
@@ -634,6 +647,46 @@ public partial class CorporateOfficerExclusion
     }
 
     /// <summary>
+    /// Ensures COE PDF helper JS is registered (opens tab on user gesture, then loads the PDF).
+    /// </summary>
+    private async Task EnsureCoePdfJsAsync()
+    {
+        if (_coePdfJsReady)
+        {
+            return;
+        }
+
+        await JSRuntime.InvokeVoidAsync(
+            "eval",
+            """
+            window.coePreparePdfTab = () => {
+              window.__coePdfTab = window.open('about:blank', '_blank');
+              return !!(window.__coePdfTab);
+            };
+            window.coeClosePdfTab = () => {
+              if (window.__coePdfTab && !window.__coePdfTab.closed) {
+                window.__coePdfTab.close();
+              }
+              window.__coePdfTab = null;
+            };
+            window.coeOpenPdfInPreparedTab = async (streamRef) => {
+              const arrayBuffer = await streamRef.arrayBuffer();
+              const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              const tab = window.__coePdfTab;
+              window.__coePdfTab = null;
+              if (tab && !tab.closed) {
+                tab.location = url;
+              } else {
+                window.open(url, '_blank', 'noopener,noreferrer');
+              }
+            };
+            """);
+
+        _coePdfJsReady = true;
+    }
+
+    /// <summary>
     /// Opens the COE Initial Determination PDF in a new tab using the same
     /// <see cref="IUIDocumentService"/> path as UI Documents Action (Pending/View).
     /// </summary>
@@ -645,8 +698,17 @@ public partial class CorporateOfficerExclusion
         }
 
         _isOpeningIdLetter = true;
+        _idLetterOpenFailed = false;
+        await InvokeAsync(StateHasChanged);
+
+        var preparedTab = false;
         try
         {
+            await EnsureCoePdfJsAsync();
+
+            // Open the tab during the click gesture so the browser does not block it after polling.
+            preparedTab = await JSRuntime.InvokeAsync<bool>("coePreparePdfTab");
+
             var employerSK = _employerSK;
             if (employerSK <= 0)
             {
@@ -659,23 +721,8 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
-            var documents = await UIDocumentService.GetCorrespondenceAsync(
-                employerSK,
-                DateTime.Today.AddMonths(-6),
-                DateTime.Today);
-
-            var document = documents
-                .Where(d => d.Description.Contains(IdLetterDescriptionMarker, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(d => d.Date)
-                .FirstOrDefault();
-
-            if (document is null)
-            {
-                Navigation.NavigateTo("ui-documents", forceLoad: true);
-                return;
-            }
-
-            // Same open/poll loop as UIDocuments.HandleView.
+            var fromDate = DateTime.Today.AddMonths(-6);
+            var toDate = DateTime.Today;
             var deadline = DateTime.UtcNow.AddMinutes(2);
             var pollInterval = TimeSpan.FromSeconds(5);
 
@@ -683,16 +730,32 @@ public partial class CorporateOfficerExclusion
             {
                 try
                 {
-                    var pdfUrl = await UIDocumentService.GenerateCorrespondencePdfAsync(
-                        employerSK,
-                        document.GenerationSK);
+                    var documents = await UIDocumentService.GetCorrespondenceAsync(employerSK, fromDate, toDate);
+                    var document = documents
+                        .Where(d => d.Description.Contains(IdLetterDescriptionMarker, StringComparison.OrdinalIgnoreCase)
+                                    && d.GenerationSK > 0)
+                        .OrderByDescending(d => d.Date)
+                        .FirstOrDefault();
 
-                    if (!string.IsNullOrEmpty(pdfUrl) && File.Exists(pdfUrl))
+                    if (document is null)
                     {
-                        await using var fileStream = File.OpenRead(pdfUrl);
-                        using var streamRef = new DotNetStreamReference(stream: fileStream);
-                        await JSRuntime.InvokeVoidAsync("openPdfInNewTab", streamRef);
-                        return;
+                        // Letter may not be listed yet — keep polling.
+                    }
+                    else
+                    {
+                        var pdfUrl = await UIDocumentService.GenerateCorrespondencePdfAsync(
+                            employerSK,
+                            document.GenerationSK);
+
+                        if (!string.IsNullOrWhiteSpace(pdfUrl))
+                        {
+                            // Match 940cRecertification: open the path directly (do not rely on File.Exists).
+                            await using var fileStream = File.OpenRead(pdfUrl);
+                            using var streamRef = new DotNetStreamReference(stream: fileStream);
+                            await JSRuntime.InvokeVoidAsync("coeOpenPdfInPreparedTab", streamRef);
+                            preparedTab = false;
+                            return;
+                        }
                     }
                 }
                 catch
@@ -708,11 +771,24 @@ public partial class CorporateOfficerExclusion
                 }
             }
 
-            Navigation.NavigateTo("ui-documents", forceLoad: true);
+            _idLetterOpenFailed = true;
         }
         finally
         {
+            if (preparedTab)
+            {
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("coeClosePdfTab");
+                }
+                catch
+                {
+                    // Ignore cleanup failures.
+                }
+            }
+
             _isOpeningIdLetter = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
