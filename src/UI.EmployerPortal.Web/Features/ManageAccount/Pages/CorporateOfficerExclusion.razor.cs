@@ -65,6 +65,9 @@ public partial class CorporateOfficerExclusion
     [Inject]
     private IUIDocumentService UIDocumentService { get; set; } = default!;
 
+    [Inject]
+    private ILogger<CorporateOfficerExclusion> Logger { get; set; } = default!;
+
     private int _employerSK = 0;
 
     private bool _isLoading = false;
@@ -685,7 +688,7 @@ public partial class CorporateOfficerExclusion
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Error generating Initial Determination PDF");
+                    LogErrorGeneratingInitialDeterminationPdf(Logger, ex);
                 }
 
                 var remaining = deadline - DateTime.UtcNow;
@@ -806,4 +809,14 @@ public partial class CorporateOfficerExclusion
             ? $"{digits[..6]}-{digits[6..9]}-{digits[9..]}"
             : accountNo;
     }
+
+    #region LoggerMessage Delegates
+
+    [LoggerMessage(
+        EventId = 1004,
+        Level = LogLevel.Error,
+        Message = "Error generating Initial Determination PDF")]
+    private static partial void LogErrorGeneratingInitialDeterminationPdf(ILogger logger, Exception ex);
+
+    #endregion
 }
