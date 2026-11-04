@@ -34,6 +34,16 @@ public partial class CorporateOfficerExclusion
     private const string AlreadyElectedStatusMessage = "The Corporate Officer Exclusion status is already 'Elected'.";
 
     /// <summary>
+    /// First paragraph of the past-deadline information banner (UIEP-4024).
+    /// </summary>
+    private const string PastDeadlineIntroMessage = "Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.";
+
+    /// <summary>
+    /// Second paragraph of the past-deadline information banner (UIEP-4024).
+    /// </summary>
+    private const string PastDeadlineFilingMessage = "To be effective for a calendar year, the Corporate Officer Exclusion Election must be filed by March 31 of that year.";
+
+    /// <summary>
     /// Centered success copy shown immediately after a successful election (Figma Success).
     /// </summary>
     private const string ElectionSubmittedMessage = "Your election successfully submitted.";
@@ -133,6 +143,11 @@ public partial class CorporateOfficerExclusion
     private bool _isAlreadyElected = false;
 
     /// <summary>
+    /// True when GetCOEEligibility reports the employer is outside the filing window.
+    /// </summary>
+    private bool _isIneligible = false;
+
+    /// <summary>
     /// Account number shown on intro / already-elected / success cards.
     /// </summary>
     private string _accountNumber = string.Empty;
@@ -204,7 +219,7 @@ public partial class CorporateOfficerExclusion
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected)
+        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected || _isIneligible)
         {
             await JSRuntime.InvokeVoidAsync("focusElement", "save-heading");
         }
@@ -235,6 +250,14 @@ public partial class CorporateOfficerExclusion
             if (existingElection.IsAlreadyElected)
             {
                 ApplyExistingElection(existingElection);
+                return;
+            }
+
+            var isEligible = await CorporateOfficerExclusionService.IsEligibleAsync(_employerSK, secureUserSK);
+            if (!isEligible)
+            {
+                _isIneligible = true;
+                _showIntro = false;
                 return;
             }
 

@@ -105,6 +105,29 @@ else if (_isAlreadyElected)
         </div>
     </div>
 }
+else if (_isIneligible)
+{
+    <div class="container-page">
+        <div class="header-container">
+            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+
+            <div class="coe-ineligible-banner">
+                <NotificationBanner NotificationType="NotificationType.Information"
+                                    MessageStyle="MessageStyle.ChildContent"
+                                    DismissButton="false">
+                    <p>@PastDeadlineIntroMessage</p>
+                    <p>@PastDeadlineFilingMessage</p>
+                </NotificationBanner>
+            </div>
+        </div>
+
+        <div class="flex-button flex-button-start">
+            <Button Text="BACK"
+                    Variant="Button.ButtonVariant.Secondary"
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))" />
+        </div>
+    </div>
+}
 else if (_showIntro)
 {
     @* ── Intro screen (Figma Initial) ── *@

@@ -439,6 +439,37 @@ tbody td:first-child {
     font-weight: 700;
 }
 
+.coe-ineligible-banner ::deep .nb-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+}
+
+.coe-ineligible-banner ::deep .nb-child-content-icon {
+    display: flex;
+    width: auto;
+    flex-shrink: 0;
+    margin: 2px 0 0 0;
+    padding: 0;
+}
+
+.coe-ineligible-banner ::deep .nb-child-content-body {
+    display: block;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+}
+
+.coe-ineligible-banner ::deep .nb-child-content-body p {
+    margin: 0 0 12px 0;
+}
+
+.coe-ineligible-banner ::deep .nb-child-content-body p:last-child {
+    margin-bottom: 0;
+}
+
 .btn-recalculate {
     padding: 0 40px 0 0;
     background: none;

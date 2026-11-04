@@ -43,6 +43,15 @@ public interface ICorporateOfficerExclusionService
     Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK);
 
     /// <summary>
+    /// Determines whether the employer may start a Corporate Officer Exclusion election.
+    /// <c>GetCOEEligibility</c> applies the March 31 deadline and extensions for newly subject and successor employers.
+    /// </summary>
+    /// <param name="employerSK">The employer surrogate key.</param>
+    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
+    /// <returns><see langword="true"/> when the employer may elect, including when the service returns no response.</returns>
+    Task<bool> IsEligibleAsync(int employerSK, int secureUserSK);
+
+    /// <summary>
     /// Loads EmployerPortalAPIParameters used by the reasonableness worksheet labels
     /// (FUTA threshold/rates and taxable wage base).
     /// </summary>
@@ -339,6 +348,21 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         }
 
         return summary;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> IsEligibleAsync(int employerSK, int secureUserSK)
+    {
+        var request = new AccountSummary.EmployerRequest
+        {
+            EmployerSK = employerSK,
+            SecureUserSK = secureUserSK
+        };
+
+        var response = await _accountSummaryService.GetCOEEligibilityAsync(request);
+
+        // A missing response must not block an employer who is still inside the filing window.
+        return response == null || response.IsEligible;
     }
 
     /// <summary>
