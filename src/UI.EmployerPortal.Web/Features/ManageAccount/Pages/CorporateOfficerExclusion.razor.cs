@@ -810,9 +810,12 @@ public partial class CorporateOfficerExclusion
             : accountNo;
     }
 
-    [LoggerMessage(
-        EventId = 1004,
-        Level = LogLevel.Error,
-        Message = "Failed to generate Initial Determination PDF for {EmployerSK}.")]
-    private static partial void LogErrorGeneratingInitialDeterminationPdf(ILogger logger, int employerSK, Exception ex);
+    /// <summary>
+    /// Cached <see cref="LoggerMessage"/> delegate for Initial Determination PDF generation errors.
+    /// </summary>
+    private static readonly Action<ILogger, int, Exception?> LogErrorGeneratingInitialDeterminationPdf =
+        LoggerMessage.Define<int>(
+            LogLevel.Error,
+            new EventId(1004, nameof(LogErrorGeneratingInitialDeterminationPdf)),
+            "Failed to generate Initial Determination PDF for {EmployerSK}.");
 }
