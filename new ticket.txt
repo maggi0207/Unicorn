@@ -1,12 +1,9 @@
-Hi Reetha,
+I reused the HandleView flow from UIDocuments.razor.cs (which uses that banner message when PDF generation times out). For the document == null check here before the polling loop, I updated the message to "The Initial Determination letter could not be found. Please check UI Documents or try again later."
+Replaced Console.WriteLine with ILogger<CorporateOfficerExclusion> using a [LoggerMessage] delegate per docs/conventions/Logging.md.
+UIDocumentService.GenerateCorrespondencePdfAsync already uses IAsyncRetryPolicy for transient WCF faults. This loop (same as UIDocuments.razor.cs HandleView and SuccessRegistration.razor DownloadPdf) polls every 5 seconds waiting for the async correspondence batch job to finish writing the PDF file (File.Exists(pdfUrl)) when the document is still in Pending state.
 
-Currently, the front-end is mapping two different fields from response.COEReasonablenessProxy to the two columns on Line 5 (Your 2026 WI UI Tax Rate):
+You 21:44
+Extracted private const int MinimumValidEffectiveYear = 2000; and replaced all three occurrences.
 
-Without Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRate
-With Exclusion column: Mapped to COEReasonablenessProxy.WIUITaxRatePercentage
-Why the 100x difference happens: Both fields are formatted the exact same way in the UI (using C# .ToString("P")). However, as seen in your debugger screenshot, the backend returns them in two different scales:
-
-WIUITaxRate = 0.0040 (decimal format for 0.40%)
-WIUITaxRatePercentage = 0.4000 (percentage format for 0.40% — 100x larger)
-Since the business requirement states that "Line 5 under both columns should be the same and it should be whatever the employer's actually assigned tax rate is for the year in question", please let us know if the front-end should map both columns ("Without Exclusion" and "With Exclusion") to the same field (WIUITaxRatePercentage / WIUITaxRate), or if the backend will return both fields in the same scale.
-
+You 21:50
+I replaced Console.WriteLine with an injected ILogger<CorporateOfficerExclusion>. It logs through a cached LoggerMessage delegate (LogErrorGeneratingInitialDeterminationPdf), so CA1848 is satisfied and the log includes the EmployerSK and the exception.
