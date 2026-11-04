@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>[#UIEP-4024] Corporate Officer Exclusion (COE) When Past The Due Date For Timely Election</title>
+    <meta http-equiv="Content-Type" Content="application/vnd.ms-word; charset=UTF-8">
+        <style type="text/css">
+
+.tableBorder, .grid
+{
+    background-color: #fff;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tableBorder td, .grid td
+{
+    vertical-align: top;
+    padding: 2px;
+    border: 1px solid #ccc;
+}
+
+.noPadding
+{
+    padding: 0 !important;
+}
+
+h3 .subText
+{
+    font-size: 60%;
+    font-weight: normal;
+}
+
+.tabLabel
+{
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-bottom:none;
+    padding: 2px;
+    display: inline;
+}
+
+td.blank
+{
+    padding: 0;
+    margin: 0;
+}
+
+.blank td
+{
+    border: none;
+}
+
+#descriptionArea
+{
+    margin: 0;
+    padding: 2px;
+    border: 1px solid #ccc;
+}
+
+hr
+{
+    border-top:1px solid #aaa;
+}
+
+hr.fullcontent
+{
+  height: 15px;
+  padding: 10px 0;
+  background: #fff url('https://dwd-wi.atlassian.net/images/icons/hr.gif') no-repeat scroll center;
+}
+
+</style>
+
+</head>
+<body>
+
+<table class="tableBorder" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+        <td bgcolor="#f0f0f0" width="100%" colspan="2" valign="top">
+                            <b><a id="parent_issue_summary" href="https://dwd-wi.atlassian.net/browse/UIEP-622">NN Tech Mod - View/Update Employer Information</a></b>
+                <span style="font-size: 9px">(<a id="parent_issue_key" href="https://dwd-wi.atlassian.net/browse/UIEP-622">UIEP-622</a>)</span>
+                <h3 class="formtitle"><img src="https://dwd-wi.atlassian.net/images/icons/link_out_bot.gif" width="16" height="16" />
+                        [UIEP-4024]&nbsp;<a href="https://dwd-wi.atlassian.net/browse/UIEP-4024">Corporate Officer Exclusion (COE) When Past The Due Date For Timely Election</a>
+            <span class="subText">
+               Created: Oct 28, 2026                   &nbsp;Updated: Oct 31, 2026
+
+                                            </span>
+            </h3>
+        </td>
+    </tr>
+    <tr>
+        <td width="20%"><b>Status:</b></td>
+        <td width="80%">In Progress</td>
+    </tr>
+    <tr>
+        <td width="20%"><b>Project:</b></td>
+        <td width="80%"><a href="https://dwd-wi.atlassian.net/secure/BrowseProject.jspa?id=10108">UI Employer Portal</a></td>
+    </tr>
+
+        <tr>
+            <td><b>Components:</b></td>
+            <td>
+                            None
+                </td>
+    </tr>
+    
+
+        <tr>
+            <td><b>Affects versions:</b></td>
+            <td>
+                            None
+                </td>
+    </tr>
+    
+
+        <tr>
+            <td><b>Fix versions:</b></td>
+            <td>
+                                        <a title="P1: Production Release 1"
+                href="https://dwd-wi.atlassian.net/issues/?jql=project%3D10108%20AND%20%22fixVersion%22%3D18992%20ORDER%20BY%20priority%20ASC"
+            >P1: Production Release 1</a>,                    <a title="Nov 4 UAT Release"
+                href="https://dwd-wi.atlassian.net/issues/?jql=project%3D10108%20AND%20%22fixVersion%22%3D28605%20ORDER%20BY%20priority%20ASC"
+            >Nov 4 UAT Release</a>                        </td>
+    </tr>
+    
+    
+            <td width="20%"><b>Parent:</b></td>
+        <td width="80%"><a href="https://dwd-wi.atlassian.net/browse/UIEP-622">NN Tech Mod - View/Update Employer Information</a></td>
+    </table>
+
+<br />
+<table class="grid" cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+        <td bgcolor="#f0f0f0" valign="top" width="20%">
+            <b>Type:</b>
+        </td>
+        <td bgcolor="#ffffff" valign="top"  width="30%" >
+            Bug
+        </td>
+
+                    <td bgcolor="#f0f0f0">
+                <b>Priority:</b>
+            </td>
+            <td bgcolor="#ffffff" valign="top" nowrap>
+                High
+            </td>
+            </tr>
+    <tr>
+                        <td bgcolor="#f0f0f0" valign="top" width="20%">
+                <b>Reporter:</b>
+            </td>
+            <td bgcolor="#ffffff" valign="top"  width="30%" >
+                                        
+                
+        
+            <a class="user-hover" rel="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5"
+                id="word_reporter_712020:0899fb7e-27de-4aba-bd24-969b2540a1c5"
+                href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A0899fb7e-27de-4aba-bd24-969b2540a1c5">
+                    Shaun Meinert
+                </a>
+
+                            </td>
+        
+                    <td bgcolor="#f0f0f0" width="20%">
+                <b>Assignee:</b>
+            </td>
+            <td bgcolor="#ffffff" valign="top" nowrap  width="30%" >
+                                        
+                
+        
+            <a class="user-hover" rel="712020:50d766e2-699c-45ea-b199-8b8500992cdf"
+                id="word_assignee_712020:50d766e2-699c-45ea-b199-8b8500992cdf"
+                href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A50d766e2-699c-45ea-b199-8b8500992cdf">
+                    Mahendra Bathula
+                </a>
+
+                            </td>
+            </tr>
+    	<tr>
+		<td bgcolor="#f0f0f0" width="20%">
+			<b>Resolution:</b>
+		</td>
+		<td bgcolor="#ffffff" valign="top" width="30%" nowrap>
+            				Unresolved
+                    </td>
+                    <td bgcolor="#f0f0f0" width="20%">
+                <b>Votes:</b>
+            </td>
+            <td bgcolor="#ffffff" valign="top" width="30%" nowrap>
+                0
+            </td>
+        
+    </tr>
+    
+        <tr>
+        <td bgcolor="#f0f0f0" width="20%">
+            <b>Labels:</b>
+        </td>
+        <td id="labels-593198-value" class="value" bgcolor="#ffffff" valign="top" colspan="3" nowrap>
+                            M2CriticalPath, NNMilestone2                    </td>
+    </tr>
+    
+    	<tr>
+        		<td bgcolor="#f0f0f0" width="20%"><b>Remaining Estimate:</b></td>
+        <td bgcolor="#ffffff" valign="top" nowrap width="80%" colspan="3">
+                            Not Specified
+            		</td>
+    </tr>
+    <tr>
+                <td bgcolor="#f0f0f0" width="20%"><b>Time Spent:</b></td>
+		<td bgcolor="#ffffff" valign="top" nowrap width="80%" colspan="3">
+                            Not Specified
+            		</td>
+	</tr>
+    <tr>
+                <td bgcolor="#f0f0f0" width="20%"><b>Original estimate:</b></td>
+		<td bgcolor="#ffffff" valign="top" nowrap width="80%" colspan="3">
+                            Not Specified
+            		</td>
+    </tr>
+    
+    </table>
+
+
+
+    <br />
+
+    	<table class="grid" cellpadding="0" cellspacing="0" border="0" width="100%">
+            
+
+                <tr>
+            <td bgcolor="#f0f0f0" width=20% valign=top>
+                <b>Attachments:</b>
+            </td>
+            <td bgcolor="#ffffff" valign="top">
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/image.gif" height="16" width="16" border="0" alt="PNG File">
+                    image-20261028-205310.png &nbsp;&nbsp;&nbsp;
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/image.gif" height="16" width="16" border="0" alt="PNG File">
+                    image-20261028-205321.png &nbsp;&nbsp;&nbsp;
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/file.gif" height="16" width="16" border="0" alt="File">
+                    10-28-2026 914793-000-7 Old Portal When You Go To The Corporate Officer Exclusion Screen Outside of the Time Frame for a Timely Election.mp4 &nbsp;&nbsp;&nbsp;
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/file.gif" height="16" width="16" border="0" alt="File">
+                    10-28-2026 914793-000-7 New Portal When You Go To The Corporate Officer Exclusion Page Outside of Timeframe For A Timely Elections.mp4 &nbsp;&nbsp;&nbsp;
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/image.gif" height="16" width="16" border="0" alt="PNG File">
+                    image-20261029-151237.png &nbsp;&nbsp;&nbsp;
+                                    <img src="https://dwd-wi.atlassian.net/images/icons/attach/image.gif" height="16" width="16" border="0" alt="PNG File">
+                    Wisconsin Corporate Officer Exclusion Portal.png &nbsp;&nbsp;&nbsp;
+                            </td>
+        </tr>
+        
+    
+
+
+    
+                        <tr>
+                <td bgcolor="#f0f0f0" width="20%" valign="top"><b>Sprint:</b></td>
+                <td id="customfield_10020-593198-value" class="value" bgcolor="#ffffff" width="80%">NN Mendota Sprint 29</td>
+            </tr>
+                                <tr>
+                <td bgcolor="#f0f0f0" width="20%" valign="top"><b>Team:</b></td>
+                <td id="customfield_10001-593198-value" class="value" bgcolor="#ffffff" width="80%"><div class="shorten" id="customfield_10001-field">
+    <span></span>
+</div>
+</td>
+            </tr>
+            </table>
+
+    <br/>
+
+    <table cellpadding="2" cellspacing="0" border="0" width="100%" align="center">
+    <tr>
+        <td bgcolor="#bbbbbb" width="1%" nowrap align="center">
+            &nbsp;<font color="#ffffff"><b>Description</b></font>&nbsp;
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+        <td id="descriptionArea">
+            <p><b>Problem</b></p>
+
+<p>The new Employer Portal currently allows employers who are outside the allowable COE election period to begin the election process and complete the Reasonableness Worksheet. Only after selecting Calculate does the portal return the following error:</p>
+
+<p>"Request was received after the application deadline. Corporate Officer Exclusion not allowed."</p>
+
+<p>This differs from the legacy portal, which prevents employers from beginning the election process when they are outside the allowable filing period.</p>
+
+<p><b>Required Changes</b></p>
+
+<ol>
+	<li><b>Validate COE filing eligibility upon accessing the COE page</b>, before the employer can enter the election workflow or Reasonableness Worksheet.</li>
+	<li>If the employer is within the allowable filing period, continue to display the existing COE election workflow.</li>
+	<li>If the employer is outside the allowable filing period:
+	<ul>
+		<li>Display informational messaging explaining COE eligibility and the filing deadline (in the blue “informational” style, on the initial COE page upon page load, see messaging below).</li>
+		<li>Do not display or provide access to the election workflow or Reasonableness Worksheet.</li>
+	</ul>
+	</li>
+	<li>Back-end requirement: Eligibility determination must account for both the standard March 31 filing deadline and applicable extensions for newly subject or successor employers.</li>
+	<li>Unrelated to eligibility: change the URL for COE from
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>https://acc-beta-ui.dwd.wisconsin.gov/Employer/manage-account/corporate-office-exclusion</pre>
+</div></div></li>
+</ol>
+
+
+<p>to: </p>
+
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>https://acc-beta-ui.dwd.wisconsin.gov/Employer/manage-account/corporate-officer-exclusion</pre>
+</div></div>
+
+<p>(note the addition of the “r” in officer)</p>
+
+<p><b>Informational Message for Ineligible Employers</b></p>
+
+<p>Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in "Help and Resources".</p>
+
+<p>To be effective for a calendar year, the Corporate Officer Exclusion Election must be filed by March 31 of that year.</p>
+
+<p><b>Note:</b> The second paragraph is proposed wording from Shaun and differs from the current portal.</p>
+
+<p><b>Related Tickets</b></p>
+
+<ul>
+	<li><a href="https://dwd-wi.atlassian.net/browse/UIEP-3831" title="smart-link" class="external-link" rel="nofollow noreferrer">https://dwd-wi.atlassian.net/browse/UIEP-3831</a> — COE election rule violation for missing wage reports.</li>
+	<li><a href="https://dwd-wi.atlassian.net/browse/UIEP-3751" title="smart-link" class="external-link" rel="nofollow noreferrer">https://dwd-wi.atlassian.net/browse/UIEP-3751</a> — Previously reported issue involving first-year subjectivity and COE elections.</li>
+</ul>
+
+
+<p>These might already use some of the eligibility logic that could be re-used.</p>
+
+<p><b>Current Portal Screenshot (use the text defined above, not the text in this screenshot):</b></p>
+
+<p><span class="image-wrap" style=""><img src="https://dwd-wi.atlassian.net/rest/api/3/attachment/content/139223" alt="image-20261029-151237.png" width="920" style="border: 0px solid black" /></span></p>
+
+<p><b>Mockup of New Portal (use previously defined message, text, button styles):</b></p>
+
+<p><span class="image-wrap" style=""><img src="https://dwd-wi.atlassian.net/rest/api/3/attachment/content/139344" alt="Wisconsin Corporate Officer Exclusion Portal.png" width="920" style="border: 0px solid black" /></span></p>
+
+
+
+<hr />
+
+<p><b><em>Original Bug, as submitted:</em></b></p>
+
+<p>Note: The URL in the New Portal for the Corporate Officer Exclusion Page :</p>
+
+<p><a href="https://acc-beta-ui.dwd.wisconsin.gov/Employer/manage-account/corporate-office-exclusion" title="smart-link" class="external-link" rel="nofollow noreferrer">https://acc-beta-ui.dwd.wisconsin.gov/Employer/manage-account/corporate-office-exclusion</a> </p>
+
+<p>I would think that it would end in /corporate-office*r-*election (so officer instead of office) but I don't know if that matters</p>
+
+
+
+<p>In the old portal when a user tried to go to the Corporate Officer Exclusion Election page outside of the timeframe for the election to be timely they just get messaging about the COE:</p>
+
+<p> "Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. Click on the Help button to read more information about this exclusion.</p>
+
+<p> To be effective for a calendar year the Corporate Officer Exclusion Election must be filed by March 31 of that year. Newly subject and successor employers have until their first quarterly report due to file the election."</p>
+
+<p>Side note I think it would be better if the second paragraph just said, "To be effective for a calendar year the Corporate Officer Exclusion Election must be filed by March 31 of that year." The second part of the paragraph is meaningless to employers and if they were eligble at that moment as a newly subject employer then they'd be able to proceed with taking the election. </p>
+
+<p>In the new portal users are taken to the initial screen and then into the Corporate Officer Exclusion Reasonableness Worksheet which they have to complete and hit calculate only to get an error message:</p>
+
+<p>"Please fix the following errors:<br/>
+Request was received after the application deadline. Corporate Officer Exclusion not allowed."</p>
+
+<p>First point is that there aren't any errors for them to fix, they just can't take the election. Second pont is that it is a bad user experience to go through all of the steps only to then be told that they can't actually submit the election. </p>
+
+<p>The new portal should behave like the old portal. If that particular employer is within the allowable timeframe to take the election then they should be able to take the election. If they are outside of that timeframe then they should get the messaging (hopefully altered per my suggestion) just like in the old portal.</p>
+
+<p>Generally speaking an election has to be submitted by 03/31 of the year in which they want the COE to be effective but there are extended due dates for newly subject employers. We have discussed this extensively and I believe that [
+    <span class="jira-issue-macro" data-jira-key="UIEP-3831" >
+                <a href="https://dwd-wi.atlassian.net/browse/UIEP-3831" class="jira-issue-macro-key issue-link"  title="Corporate Officer Exclusion Elections - rule violation for missing wage reports should not be sent" >
+            <img class="icon" src="https://dwd-wi.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium" />
+            UIEP-3831
+        </a>
+                                                    <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-current jira-macro-single-issue-export-pdf">In Progress</span>
+            </span>
+ Corporate Officer Exclusion Elections - rule violation for missing wage reports should not be sent - Jira|https://dwd-wi.atlassian.net/browse/UIEP-3831] deals with this. The basic idea is that somewhere in SUITES the system knows that a newly subject (recently activated) employer has until their initial report due date or within 30 days of the mailing date on whatever Initial Determination (ID) notified them that they were subject to our tax (either coverage ID or transfer ID) to elect the COE back to their first year of subjectivity. The first year of subjectivity thing is not currently working correctly in the new portal or at least it wasn't when <a href="https://dwd-wi.atlassian.net/browse/UIEP-3751" title="smart-link" class="external-link" rel="nofollow noreferrer">https://dwd-wi.atlassian.net/browse/UIEP-3751</a>  was written but does work in the old portal. </p>
+
+<p>Attaching two videos of me trying to take the COE. One in the old portal and one in the new portal but both for 914793-000-7 which is an employer who has been subject for several years. </p>
+
+
+<p><span class="image-wrap" style=""><img src="https://dwd-wi.atlassian.net/rest/api/3/attachment/content/139191" alt="image-20261028-205310.png" width="667" style="border: 0px solid black" /></span></p>
+
+<p><span class="image-wrap" style=""><img src="https://dwd-wi.atlassian.net/rest/api/3/attachment/content/139192" alt="image-20261028-205321.png" width="667" style="border: 0px solid black" /></span></p>
+
+<p><div class="embeddedObject"><object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" codebase="https://www.apple.com/qtactivex/qtplugin.cab" data="/rest/api/3/attachment/content/139194?stream=true" height="380" type="video/mp4" width="667" ><param name="data" value="/rest/api/3/attachment/content/139194?stream=true"/><param name="src" value="/rest/api/3/attachment/content/139194?stream=true"/><param name="type" value="video/mp4"/><embed height="380" pluginspage="https://www.apple.com/quicktime/download/" src="/rest/api/3/attachment/content/139194?stream=true" type="video/mp4" width="667" /></object></div></p>
+
+
+
+<p><div class="embeddedObject"><object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" codebase="https://www.apple.com/qtactivex/qtplugin.cab" data="/rest/api/3/attachment/content/139193?stream=true" height="380" type="video/mp4" width="667" ><param name="data" value="/rest/api/3/attachment/content/139193?stream=true"/><param name="src" value="/rest/api/3/attachment/content/139193?stream=true"/><param name="type" value="video/mp4"/><embed height="380" pluginspage="https://www.apple.com/quicktime/download/" src="/rest/api/3/attachment/content/139193?stream=true" type="video/mp4" width="667" /></object></div></p>
+
+
+
+<p>Steps to recreate:<br/>
+Obtain access to the same employer account in both the old and new portal.</p>
+
+<p>It would need to be a corporation account and they will have had to have been activated more than 30 day ago and with an initial report due date prior to the date that you do the test. The Initial Report Due date can be found on the employer's Employer Account Summary screen in SUITES it is at the top of the right-hand column near the bottom of that screen just under the Rate Data information that looks like a spreadsheet (screenshot attached). You can see the mailing date on whatever Initial Determination was issued when their account was activated by going to SUITES&gt;Employer&gt;Initial Determinations (screenshot attached).</p>
+
+<p>Once you have access to a qualifying account in both portals try to take the Corporate Officer Exclusion (COE) in the View &amp; Manage Account area in the new portal and the View And Update Account area in the old portal. </p>
+            <br/>
+        </td>
+    </tr>
+    </table>
+
+    <br/>
+
+    <table cellpadding="2" cellspacing="0" border="0" width="100%" align="center">
+    <tr>
+        <td bgcolor="#bbbbbb" width="1%" nowrap align="center">
+            &nbsp;<font color="#ffffff"><b>Comments</b></font>&nbsp;
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" class="grid" style="margin: 0;">
+                <tr id="comment-header-231014"><td bgcolor="#f0f0f0">
+            Comment by  
+                                                    
+                
+        
+            <a class="user-hover" rel="712020:ba50c93a-1082-4ba6-bd5b-57cf0a24abb3"
+                id="word_commented_712020:ba50c93a-1082-4ba6-bd5b-57cf0a24abb3"
+                href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Aba50c93a-1082-4ba6-bd5b-57cf0a24abb3">
+                    Michael Johnson
+                </a>
+
+                                        <font size="-2">
+            [
+                <font color="#336699">Oct 29, 2026</font>
+
+                            ]
+            </font>
+
+        </td></tr>
+        <tr id="comment-body-231014"><td bgcolor="#ffffff">
+            <p><a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A0899fb7e-27de-4aba-bd24-969b2540a1c5" class="user-hover" rel="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" data-account-id="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" accountid="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" rel="noreferrer">Shaun Meinert</a> please see my summary for the developers above your original bug content - especially the mockup of the initial page with the eligibility message. Does this meet your expectations? If you have additional input, we can bring this to office hours for further discussion. Thanks! CC: <a href="https://dwd-wi.atlassian.net/jira/people/team/998ededc-ed96-4dec-9387-beb444ae1310?ref=jira$&amp;src=issue" class="external-link" rel="nofollow noreferrer">ERP Tag Group</a> (<a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A7f1bd484-db0f-4d26-bad0-c849fc59f797" class="user-hover" rel="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" data-account-id="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" accountid="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" rel="noreferrer">Grace Konyar</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A0899fb7e-27de-4aba-bd24-969b2540a1c5" class="user-hover" rel="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" data-account-id="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" accountid="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" rel="noreferrer">Shaun Meinert</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" class="user-hover" rel="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" data-account-id="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" accountid="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" rel="noreferrer">Heather Westley</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A10ac90e7-1a7d-4d2c-8a75-b712026dff48" class="user-hover" rel="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" data-account-id="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" accountid="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" rel="noreferrer">Gayle Cottrill</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A2b95043f-e1ce-40db-987f-f9912471e07e" class="user-hover" rel="712020:2b95043f-e1ce-40db-987f-f9912471e07e" data-account-id="712020:2b95043f-e1ce-40db-987f-f9912471e07e" accountid="712020:2b95043f-e1ce-40db-987f-f9912471e07e" rel="noreferrer">Vada Bodimer</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Af311f009-771e-44b7-be33-ea3ba5f56991" class="user-hover" rel="712020:f311f009-771e-44b7-be33-ea3ba5f56991" data-account-id="712020:f311f009-771e-44b7-be33-ea3ba5f56991" accountid="712020:f311f009-771e-44b7-be33-ea3ba5f56991" rel="noreferrer">Joseph Dottl</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=610164e78c15ca006f1a74e3" class="user-hover" rel="610164e78c15ca006f1a74e3" data-account-id="610164e78c15ca006f1a74e3" accountid="610164e78c15ca006f1a74e3" rel="noreferrer">Helen Ramsden</a>), <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A50d766e2-699c-45ea-b199-8b8500992cdf" class="user-hover" rel="712020:50d766e2-699c-45ea-b199-8b8500992cdf" data-account-id="712020:50d766e2-699c-45ea-b199-8b8500992cdf" accountid="712020:50d766e2-699c-45ea-b199-8b8500992cdf" rel="noreferrer">Mahendra Bathula</a> , <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A7fb2c784-fb95-4468-832e-da4851ba61bc" class="user-hover" rel="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" data-account-id="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" accountid="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" rel="noreferrer">Sateesh Damacharla</a> , <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Af0214802-6c83-4fec-af49-59f7a4cc3ae5" class="user-hover" rel="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" data-account-id="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" accountid="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" rel="noreferrer">Dennis Shebesta</a> </p>
+        </td></tr>
+                <tr id="comment-header-231228"><td bgcolor="#f0f0f0">
+            Comment by  
+                                                    
+                
+        
+            <a class="user-hover" rel="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5"
+                id="word_commented_712020:0899fb7e-27de-4aba-bd24-969b2540a1c5"
+                href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A0899fb7e-27de-4aba-bd24-969b2540a1c5">
+                    Shaun Meinert
+                </a>
+
+                                        <font size="-2">
+            [
+                <font color="#336699">Oct 30, 2026</font>
+
+                            ]
+            </font>
+
+        </td></tr>
+        <tr id="comment-body-231228"><td bgcolor="#ffffff">
+            <p><a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Aba50c93a-1082-4ba6-bd5b-57cf0a24abb3" class="user-hover" rel="712020:ba50c93a-1082-4ba6-bd5b-57cf0a24abb3" data-account-id="712020:ba50c93a-1082-4ba6-bd5b-57cf0a24abb3" accountid="712020:ba50c93a-1082-4ba6-bd5b-57cf0a24abb3" rel="noreferrer">Michael Johnson</a> This ticket looks good. We would like to update the text on the new mockup to the following:</p>
+
+<p>Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available "Help and Resources".</p>
+
+<p>To be effective for a calendar year, the Corporate Officer Exclusion Election must be filed by March 31 of that year. </p>
+
+<p>CC: <a href="https://dwd-wi.atlassian.net/jira/people/team/998ededc-ed96-4dec-9387-beb444ae1310?ref=jira$&amp;src=issue" class="external-link" rel="nofollow noreferrer">ERP Tag Group</a> (<a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A7f1bd484-db0f-4d26-bad0-c849fc59f797" class="user-hover" rel="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" data-account-id="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" accountid="712020:7f1bd484-db0f-4d26-bad0-c849fc59f797" rel="noreferrer">Grace Konyar</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A0899fb7e-27de-4aba-bd24-969b2540a1c5" class="user-hover" rel="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" data-account-id="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" accountid="712020:0899fb7e-27de-4aba-bd24-969b2540a1c5" rel="noreferrer">Shaun Meinert</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" class="user-hover" rel="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" data-account-id="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" accountid="712020:87ced96f-2dfb-46cf-8c85-5f9b0305a8ea" rel="noreferrer">Heather Westley</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A10ac90e7-1a7d-4d2c-8a75-b712026dff48" class="user-hover" rel="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" data-account-id="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" accountid="712020:10ac90e7-1a7d-4d2c-8a75-b712026dff48" rel="noreferrer">Gayle Cottrill</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A2b95043f-e1ce-40db-987f-f9912471e07e" class="user-hover" rel="712020:2b95043f-e1ce-40db-987f-f9912471e07e" data-account-id="712020:2b95043f-e1ce-40db-987f-f9912471e07e" accountid="712020:2b95043f-e1ce-40db-987f-f9912471e07e" rel="noreferrer">Vada Bodimer</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Af311f009-771e-44b7-be33-ea3ba5f56991" class="user-hover" rel="712020:f311f009-771e-44b7-be33-ea3ba5f56991" data-account-id="712020:f311f009-771e-44b7-be33-ea3ba5f56991" accountid="712020:f311f009-771e-44b7-be33-ea3ba5f56991" rel="noreferrer">Joseph Dottl</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=610164e78c15ca006f1a74e3" class="user-hover" rel="610164e78c15ca006f1a74e3" data-account-id="610164e78c15ca006f1a74e3" accountid="610164e78c15ca006f1a74e3" rel="noreferrer">Helen Ramsden</a>) <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3Af0214802-6c83-4fec-af49-59f7a4cc3ae5" class="user-hover" rel="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" data-account-id="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" accountid="712020:f0214802-6c83-4fec-af49-59f7a4cc3ae5" rel="noreferrer">Dennis Shebesta</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A7fb2c784-fb95-4468-832e-da4851ba61bc" class="user-hover" rel="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" data-account-id="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" accountid="712020:7fb2c784-fb95-4468-832e-da4851ba61bc" rel="noreferrer">Sateesh Damacharla</a> <a href="https://dwd-wi.atlassian.net/secure/ViewProfile.jspa?accountId=712020%3A50d766e2-699c-45ea-b199-8b8500992cdf" class="user-hover" rel="712020:50d766e2-699c-45ea-b199-8b8500992cdf" data-account-id="712020:50d766e2-699c-45ea-b199-8b8500992cdf" accountid="712020:50d766e2-699c-45ea-b199-8b8500992cdf" rel="noreferrer">Mahendra Bathula</a> </p>
+        </td></tr>
+            </table>
+Generated at Sun Nov 01 14:49:29 UTC 2026 by Mahendra Bathula using Jira 1001.0.0-SNAPSHOT#100295-rev:d794cfb4c7554a89092e2f32783da3a72153f3f0.
+
+</body>
+</html>

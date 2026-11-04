@@ -69,6 +69,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -83,6 +84,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -160,6 +162,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem))]
@@ -189,6 +192,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -779,6 +783,104 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.SuccessField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BenefitsAppealTribunalDecisionsResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class BenefitsAppealTribunalDecisionsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
+    {
+        
+        private int DocumentCountField;
+        
+        private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[] DocumentsField;
+        
+        private string HearingNumberField;
+        
+        private string MessageField;
+        
+        private bool SuccessField;
+        
+        private bool ValueField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int DocumentCount
+        {
+            get
+            {
+                return this.DocumentCountField;
+            }
+            set
+            {
+                this.DocumentCountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[] Documents
+        {
+            get
+            {
+                return this.DocumentsField;
+            }
+            set
+            {
+                this.DocumentsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string HearingNumber
+        {
+            get
+            {
+                return this.HearingNumberField;
+            }
+            set
+            {
+                this.HearingNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message
+        {
+            get
+            {
+                return this.MessageField;
+            }
+            set
+            {
+                this.MessageField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Success
+        {
+            get
+            {
+                return this.SuccessField;
+            }
+            set
+            {
+                this.SuccessField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Value
+        {
+            get
+            {
+                return this.ValueField;
+            }
+            set
+            {
+                this.ValueField = value;
             }
         }
     }
@@ -1737,6 +1839,59 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="COEEligibilityResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class COEEligibilityResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
+    {
+        
+        private string EligibilityMessageField;
+        
+        private int[] EligibleCOEYearsField;
+        
+        private bool IsEligibleField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EligibilityMessage
+        {
+            get
+            {
+                return this.EligibilityMessageField;
+            }
+            set
+            {
+                this.EligibilityMessageField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int[] EligibleCOEYears
+        {
+            get
+            {
+                return this.EligibleCOEYearsField;
+            }
+            set
+            {
+                this.EligibleCOEYearsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsEligible
+        {
+            get
+            {
+                return this.IsEligibleField;
+            }
+            set
+            {
+                this.IsEligibleField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="COEReasonablenessResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceResponses.Portal")]
     public partial class COEReasonablenessResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
@@ -1861,6 +2016,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private int EFTPaymentSKField;
         
+        private string TypeField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ConfirmationID
         {
@@ -1884,6 +2041,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.EFTPaymentSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Type
+        {
+            get
+            {
+                return this.TypeField;
+            }
+            set
+            {
+                this.TypeField = value;
             }
         }
     }
@@ -3265,6 +3435,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private int MaximumEmployeesAllowedForWageEntryField;
         
+        private int MaximumEmployeesAllowedForWageEntryMessageField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int EmployeeCount
         {
@@ -3288,6 +3460,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.MaximumEmployeesAllowedForWageEntryField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MaximumEmployeesAllowedForWageEntryMessage
+        {
+            get
+            {
+                return this.MaximumEmployeesAllowedForWageEntryMessageField;
+            }
+            set
+            {
+                this.MaximumEmployeesAllowedForWageEntryMessageField = value;
             }
         }
     }
@@ -4515,6 +4700,29 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SearchNotificationsResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class SearchNotificationsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
+    {
+        
+        private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[] NotificationInfoProxiesField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[] NotificationInfoProxies
+        {
+            get
+            {
+                return this.NotificationInfoProxiesField;
+            }
+            set
+            {
+                this.NotificationInfoProxiesField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="ObtainStaffMemberResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceResponses.Portal")]
     public partial class ObtainStaffMemberResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
@@ -5418,7 +5626,22 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class StatusChangeRequestResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
     {
         
+        private string MessageField;
+        
         private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[] StatusChangeRequestsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message
+        {
+            get
+            {
+                return this.MessageField;
+            }
+            set
+            {
+                this.MessageField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[] StatusChangeRequests
@@ -5476,6 +5699,29 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.ValueField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SubmitAppealDocumentsResponse", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceResponses.Portal")]
+    public partial class SubmitAppealDocumentsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
+    {
+        
+        private bool SuccessField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Success
+        {
+            get
+            {
+                return this.SuccessField;
+            }
+            set
+            {
+                this.SuccessField = value;
             }
         }
     }
@@ -5830,6 +6076,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class VoluntaryContributionCalculatorResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
     {
         
+        private string DisclaimerTextField;
+        
         private decimal EstimatedTaxablePayrollField;
         
         private decimal NetTaxSavingsField;
@@ -5851,6 +6099,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private decimal VcRequiredField;
         
         private decimal VoluntaryNextLowerRateField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DisclaimerText
+        {
+            get
+            {
+                return this.DisclaimerTextField;
+            }
+            set
+            {
+                this.DisclaimerTextField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public decimal EstimatedTaxablePayroll
@@ -6240,11 +6501,30 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class WageTaxFilingPayrollQuestionsResponse : UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.PortalResponseBase
     {
         
+        private string CategoryField;
+        
         private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerPortalPayrollQuestionsCategoryProxy[] EmployerPortalPayrollQuestionCategoriesField;
         
         private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerPortalQuestionProxy[] EmployerPortalPayrollQuestionsField;
         
+        private bool HasQuestionsField;
+        
         private int NumberOfPayrollQuestionsField;
+        
+        private string SubCategoryField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Category
+        {
+            get
+            {
+                return this.CategoryField;
+            }
+            set
+            {
+                this.CategoryField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerPortalPayrollQuestionsCategoryProxy[] EmployerPortalPayrollQuestionCategories
@@ -6273,6 +6553,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool HasQuestions
+        {
+            get
+            {
+                return this.HasQuestionsField;
+            }
+            set
+            {
+                this.HasQuestionsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int NumberOfPayrollQuestions
         {
             get
@@ -6282,6 +6575,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.NumberOfPayrollQuestionsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SubCategory
+        {
+            get
+            {
+                return this.SubCategoryField;
+            }
+            set
+            {
+                this.SubCategoryField = value;
             }
         }
     }
@@ -6682,9 +6988,24 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class RuleViolationProxy : object
     {
         
+        private bool IsSystemErrorField;
+        
         private string RuleIDField;
         
         private string RuleViolationField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsSystemError
+        {
+            get
+            {
+                return this.IsSystemErrorField;
+            }
+            set
+            {
+                this.IsSystemErrorField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string RuleID
@@ -8496,6 +8817,209 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BenefitsAppealTribunalDecisionsProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceProxies.Portal")]
+    public partial class BenefitsAppealTribunalDecisionsProxy : object
+    {
+        
+        private string ContentTypeField;
+        
+        private int CorrespondenceDocumentSKField;
+        
+        private System.Nullable<int> CorrespondenceDocumentSourceSKField;
+        
+        private System.Nullable<int> CorrespondenceDocumentTypeSKField;
+        
+        private System.Nullable<System.DateTime> CreatedDateField;
+        
+        private decimal EndPageNumberField;
+        
+        private string FileNameField;
+        
+        private string FilePathTextField;
+        
+        private string FormDescriptionField;
+        
+        private string FormNumberField;
+        
+        private string FullFilePathField;
+        
+        private string RelatedKeyTextField;
+        
+        private decimal StartPageNumberField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ContentType
+        {
+            get
+            {
+                return this.ContentTypeField;
+            }
+            set
+            {
+                this.ContentTypeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CorrespondenceDocumentSK
+        {
+            get
+            {
+                return this.CorrespondenceDocumentSKField;
+            }
+            set
+            {
+                this.CorrespondenceDocumentSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> CorrespondenceDocumentSourceSK
+        {
+            get
+            {
+                return this.CorrespondenceDocumentSourceSKField;
+            }
+            set
+            {
+                this.CorrespondenceDocumentSourceSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> CorrespondenceDocumentTypeSK
+        {
+            get
+            {
+                return this.CorrespondenceDocumentTypeSKField;
+            }
+            set
+            {
+                this.CorrespondenceDocumentTypeSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<System.DateTime> CreatedDate
+        {
+            get
+            {
+                return this.CreatedDateField;
+            }
+            set
+            {
+                this.CreatedDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal EndPageNumber
+        {
+            get
+            {
+                return this.EndPageNumberField;
+            }
+            set
+            {
+                this.EndPageNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FileName
+        {
+            get
+            {
+                return this.FileNameField;
+            }
+            set
+            {
+                this.FileNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FilePathText
+        {
+            get
+            {
+                return this.FilePathTextField;
+            }
+            set
+            {
+                this.FilePathTextField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FormDescription
+        {
+            get
+            {
+                return this.FormDescriptionField;
+            }
+            set
+            {
+                this.FormDescriptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FormNumber
+        {
+            get
+            {
+                return this.FormNumberField;
+            }
+            set
+            {
+                this.FormNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FullFilePath
+        {
+            get
+            {
+                return this.FullFilePathField;
+            }
+            set
+            {
+                this.FullFilePathField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string RelatedKeyText
+        {
+            get
+            {
+                return this.RelatedKeyTextField;
+            }
+            set
+            {
+                this.RelatedKeyTextField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal StartPageNumber
+        {
+            get
+            {
+                return this.StartPageNumberField;
+            }
+            set
+            {
+                this.StartPageNumberField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BenefitWeekProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceProxies.Portal")]
     public partial class BenefitWeekProxy : object
@@ -9075,6 +9599,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -9089,6 +9614,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -9175,6 +9701,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -9208,6 +9735,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -9253,6 +9781,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -9344,6 +9874,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -9391,6 +9923,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -9461,8 +9995,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -9955,6 +10489,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -9969,6 +10504,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -10055,6 +10591,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -10088,6 +10625,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -10133,6 +10671,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -10225,6 +10765,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -10272,6 +10814,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -10342,8 +10886,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommonClient))]
@@ -11269,6 +11813,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private System.Nullable<System.DateTime> CreatedDateField;
         
+        private byte[] DocumentBytesField;
+        
         private decimal EndPageNumberField;
         
         private string FileNameField;
@@ -11347,6 +11893,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.CreatedDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public byte[] DocumentBytes
+        {
+            get
+            {
+                return this.DocumentBytesField;
+            }
+            set
+            {
+                this.DocumentBytesField = value;
             }
         }
         
@@ -14184,6 +14743,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class PortalEFormUserResponseDischargeAdditionalInformationProxy : object
     {
         
+        private System.Nullable<int> DischargeAdditionalInformationSKField;
+        
         private string EmployerReasonTextField;
         
         private System.Nullable<System.DateTime> IncidentDateField;
@@ -14193,6 +14754,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private System.Nullable<bool> NoticeGivenFlagField;
         
         private string ProperNoticeTextField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> DischargeAdditionalInformationSK
+        {
+            get
+            {
+                return this.DischargeAdditionalInformationSKField;
+            }
+            set
+            {
+                this.DischargeAdditionalInformationSKField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string EmployerReasonText
@@ -14423,6 +14997,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private System.Nullable<int> EFTPaymentTypeCodeSKField;
         
+        private string FileUploadConfirmationNumberField;
+        
         private System.Nullable<int> FileUploadDetailSKField;
         
         private System.Nullable<System.DateTime> LastSubmitDateField;
@@ -14632,6 +15208,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.EFTPaymentTypeCodeSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FileUploadConfirmationNumber
+        {
+            get
+            {
+                return this.FileUploadConfirmationNumberField;
+            }
+            set
+            {
+                this.FileUploadConfirmationNumberField = value;
             }
         }
         
@@ -21734,6 +22323,464 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="NotificationInfoProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceProxies.Portal")]
+    public partial class NotificationInfoProxy : object
+    {
+        
+        private int AreaCodeSKField;
+        
+        private string ClaimantNameField;
+        
+        private int CommonClientSKField;
+        
+        private string EFormNameField;
+        
+        private string EmailAddressField;
+        
+        private string GranicusIdField;
+        
+        private string GranicusRecipientIdField;
+        
+        private string ItemSentField;
+        
+        private System.DateTime ItemSentDateField;
+        
+        private string LegalNameField;
+        
+        private int MailBoxSKField;
+        
+        private string NameFirstField;
+        
+        private string NameLastField;
+        
+        private System.DateTime NotificationFailureDateField;
+        
+        private System.DateTime NotificationSentDateField;
+        
+        private string NotificationSourceField;
+        
+        private string NotificationStatusField;
+        
+        private string NotificationTypeField;
+        
+        private string OktaIdField;
+        
+        private string PhoneNumberField;
+        
+        private int RelatedSKField;
+        
+        private int RelatedTypeCodeSKField;
+        
+        private string SSNField;
+        
+        private int SecureMessageSKField;
+        
+        private int SecureUserSKField;
+        
+        private int ThreadSKField;
+        
+        private string UIAccountNumberField;
+        
+        private string WIUIDField;
+        
+        private int WebUserNotifyResponseSkField;
+        
+        private int WebUserNotifySkField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int AreaCodeSK
+        {
+            get
+            {
+                return this.AreaCodeSKField;
+            }
+            set
+            {
+                this.AreaCodeSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ClaimantName
+        {
+            get
+            {
+                return this.ClaimantNameField;
+            }
+            set
+            {
+                this.ClaimantNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CommonClientSK
+        {
+            get
+            {
+                return this.CommonClientSKField;
+            }
+            set
+            {
+                this.CommonClientSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EFormName
+        {
+            get
+            {
+                return this.EFormNameField;
+            }
+            set
+            {
+                this.EFormNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string EmailAddress
+        {
+            get
+            {
+                return this.EmailAddressField;
+            }
+            set
+            {
+                this.EmailAddressField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string GranicusId
+        {
+            get
+            {
+                return this.GranicusIdField;
+            }
+            set
+            {
+                this.GranicusIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string GranicusRecipientId
+        {
+            get
+            {
+                return this.GranicusRecipientIdField;
+            }
+            set
+            {
+                this.GranicusRecipientIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ItemSent
+        {
+            get
+            {
+                return this.ItemSentField;
+            }
+            set
+            {
+                this.ItemSentField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime ItemSentDate
+        {
+            get
+            {
+                return this.ItemSentDateField;
+            }
+            set
+            {
+                this.ItemSentDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string LegalName
+        {
+            get
+            {
+                return this.LegalNameField;
+            }
+            set
+            {
+                this.LegalNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MailBoxSK
+        {
+            get
+            {
+                return this.MailBoxSKField;
+            }
+            set
+            {
+                this.MailBoxSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NameFirst
+        {
+            get
+            {
+                return this.NameFirstField;
+            }
+            set
+            {
+                this.NameFirstField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NameLast
+        {
+            get
+            {
+                return this.NameLastField;
+            }
+            set
+            {
+                this.NameLastField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime NotificationFailureDate
+        {
+            get
+            {
+                return this.NotificationFailureDateField;
+            }
+            set
+            {
+                this.NotificationFailureDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime NotificationSentDate
+        {
+            get
+            {
+                return this.NotificationSentDateField;
+            }
+            set
+            {
+                this.NotificationSentDateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NotificationSource
+        {
+            get
+            {
+                return this.NotificationSourceField;
+            }
+            set
+            {
+                this.NotificationSourceField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NotificationStatus
+        {
+            get
+            {
+                return this.NotificationStatusField;
+            }
+            set
+            {
+                this.NotificationStatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NotificationType
+        {
+            get
+            {
+                return this.NotificationTypeField;
+            }
+            set
+            {
+                this.NotificationTypeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string OktaId
+        {
+            get
+            {
+                return this.OktaIdField;
+            }
+            set
+            {
+                this.OktaIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string PhoneNumber
+        {
+            get
+            {
+                return this.PhoneNumberField;
+            }
+            set
+            {
+                this.PhoneNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RelatedSK
+        {
+            get
+            {
+                return this.RelatedSKField;
+            }
+            set
+            {
+                this.RelatedSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RelatedTypeCodeSK
+        {
+            get
+            {
+                return this.RelatedTypeCodeSKField;
+            }
+            set
+            {
+                this.RelatedTypeCodeSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SSN
+        {
+            get
+            {
+                return this.SSNField;
+            }
+            set
+            {
+                this.SSNField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SecureMessageSK
+        {
+            get
+            {
+                return this.SecureMessageSKField;
+            }
+            set
+            {
+                this.SecureMessageSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SecureUserSK
+        {
+            get
+            {
+                return this.SecureUserSKField;
+            }
+            set
+            {
+                this.SecureUserSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ThreadSK
+        {
+            get
+            {
+                return this.ThreadSKField;
+            }
+            set
+            {
+                this.ThreadSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UIAccountNumber
+        {
+            get
+            {
+                return this.UIAccountNumberField;
+            }
+            set
+            {
+                this.UIAccountNumberField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string WIUID
+        {
+            get
+            {
+                return this.WIUIDField;
+            }
+            set
+            {
+                this.WIUIDField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int WebUserNotifyResponseSk
+        {
+            get
+            {
+                return this.WebUserNotifyResponseSkField;
+            }
+            set
+            {
+                this.WebUserNotifyResponseSkField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int WebUserNotifySk
+        {
+            get
+            {
+                return this.WebUserNotifySkField;
+            }
+            set
+            {
+                this.WebUserNotifySkField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="StaffMemberProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
         "viceProxies.Portal")]
     public partial class StaffMemberProxy : object
@@ -22042,6 +23089,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -22056,6 +23104,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -22142,6 +23191,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -22175,6 +23225,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -22220,6 +23271,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -22312,6 +23365,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -22358,6 +23413,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -22428,8 +23485,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -22885,6 +23942,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -22899,6 +23957,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -22985,6 +24044,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -23018,6 +24078,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -23063,6 +24124,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -23155,6 +24218,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -23201,6 +24266,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -23271,8 +24338,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -23856,6 +24923,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -23870,6 +24938,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -23956,6 +25025,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -23989,6 +25059,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -24034,6 +25105,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -24126,6 +25199,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -24172,6 +25247,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -24242,8 +25319,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -24421,6 +25498,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -24435,6 +25513,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -24521,6 +25600,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -24554,6 +25634,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -24599,6 +25680,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -24691,6 +25774,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -24737,6 +25822,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -24807,8 +25894,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -24926,6 +26013,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -24940,6 +26028,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -25026,6 +26115,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -25059,6 +26149,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -25104,6 +26195,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -25196,6 +26289,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -25242,6 +26337,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -25312,8 +26409,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -26129,6 +27226,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -26143,6 +27241,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -26229,6 +27328,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -26262,6 +27362,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -26307,6 +27408,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -26399,6 +27502,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -26445,6 +27550,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -26515,8 +27622,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -29007,11 +30114,17 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private string CreateUserNameField;
         
+        private string DestinationFilePathTextField;
+        
         private string FilePathTextField;
+        
+        private string FileUploadedByField;
         
         private string FormattedFileNameField;
         
         private string OriginalFileNameField;
+        
+        private string SSNField;
         
         private int SecureMessageFileUploadSKField;
         
@@ -29065,6 +30178,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DestinationFilePathText
+        {
+            get
+            {
+                return this.DestinationFilePathTextField;
+            }
+            set
+            {
+                this.DestinationFilePathTextField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string FilePathText
         {
             get
@@ -29074,6 +30200,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.FilePathTextField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FileUploadedBy
+        {
+            get
+            {
+                return this.FileUploadedByField;
+            }
+            set
+            {
+                this.FileUploadedByField = value;
             }
         }
         
@@ -29100,6 +30239,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.OriginalFileNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SSN
+        {
+            get
+            {
+                return this.SSNField;
+            }
+            set
+            {
+                this.SSNField = value;
             }
         }
         
@@ -29362,6 +30514,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private int SecureMessageSKField;
         
+        private string SecureMessageUserIDField;
+        
         private int SecureUserSKField;
         
         private System.DateTime SentTimestampField;
@@ -29574,6 +30728,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SecureMessageUserID
+        {
+            get
+            {
+                return this.SecureMessageUserIDField;
+            }
+            set
+            {
+                this.SecureMessageUserIDField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int SecureUserSK
         {
             get
@@ -29687,6 +30854,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private int AreaCodeField;
         
+        private int AttachmentsCountField;
+        
         private string CreateProcessNameField;
         
         private System.DateTime CreateTimestampField;
@@ -29709,6 +30878,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private System.DateTime DueDateField;
         
+        private System.DateTime EmployerMessageSentField;
+        
         private int EmployerSKField;
         
         private bool EnableVideoUploadField;
@@ -29728,6 +30899,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private string MessageDirectionField;
         
         private int SecureMessageTopicCodeSKField;
+        
+        private string SecureMessageUserIDField;
         
         private string SignatureField;
         
@@ -29759,6 +30932,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private string UserEnteredUIAccountNumberField;
         
+        private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[] WebControlsField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int AreaCode
         {
@@ -29769,6 +30944,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.AreaCodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int AttachmentsCount
+        {
+            get
+            {
+                return this.AttachmentsCountField;
+            }
+            set
+            {
+                this.AttachmentsCountField = value;
             }
         }
         
@@ -29916,6 +31104,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime EmployerMessageSent
+        {
+            get
+            {
+                return this.EmployerMessageSentField;
+            }
+            set
+            {
+                this.EmployerMessageSentField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int EmployerSK
         {
             get
@@ -30042,6 +31243,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.SecureMessageTopicCodeSKField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SecureMessageUserID
+        {
+            get
+            {
+                return this.SecureMessageUserIDField;
+            }
+            set
+            {
+                this.SecureMessageUserIDField = value;
             }
         }
         
@@ -30239,6 +31453,72 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
                 this.UserEnteredUIAccountNumberField = value;
             }
         }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[] WebControls
+        {
+            get
+            {
+                return this.WebControlsField;
+            }
+            set
+            {
+                this.WebControlsField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SecureMessageThreadWebControlProxy", Namespace="http://schemas.datacontract.org/2004/07/DWD.UI.SUITES.Services.ServiceLibrary.Ser" +
+        "viceProxies.Portal")]
+    public partial class SecureMessageThreadWebControlProxy : object
+    {
+        
+        private int ThreadIdField;
+        
+        private string WebControlNameField;
+        
+        private int WebControlSKField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ThreadId
+        {
+            get
+            {
+                return this.ThreadIdField;
+            }
+            set
+            {
+                this.ThreadIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string WebControlName
+        {
+            get
+            {
+                return this.WebControlNameField;
+            }
+            set
+            {
+                this.WebControlNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int WebControlSK
+        {
+            get
+            {
+                return this.WebControlSKField;
+            }
+            set
+            {
+                this.WebControlSKField = value;
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -30265,6 +31545,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -30279,6 +31560,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -30365,6 +31647,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -30398,6 +31681,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -30443,6 +31727,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -30535,6 +31821,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -30582,6 +31870,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BusinessClassificationGroupCodeProxy))]
@@ -30651,8 +31941,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -31908,21 +33198,21 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private string FileNameField;
         
-        private decimal FilePaymentAmountField;
+        private System.Nullable<decimal> FilePaymentAmountField;
         
         private string FileStatusField;
         
         private int FileUploadSKField;
         
-        private decimal PaymentAmountField;
+        private System.Nullable<decimal> PaymentAmountField;
         
-        private decimal PaymentAmountForErrorRecordsField;
+        private System.Nullable<decimal> PaymentAmountForErrorRecordsField;
         
-        private int ReportsInFileField;
+        private System.Nullable<int> ReportsInFileField;
         
-        private int ReportsWithErrorsField;
+        private System.Nullable<int> ReportsWithErrorsField;
         
-        private int ReportsWithoutErrorsField;
+        private System.Nullable<int> ReportsWithoutErrorsField;
         
         private System.Nullable<System.DateTime> StatusDateTimeField;
         
@@ -31955,7 +33245,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal FilePaymentAmount
+        public System.Nullable<decimal> FilePaymentAmount
         {
             get
             {
@@ -31994,7 +33284,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal PaymentAmount
+        public System.Nullable<decimal> PaymentAmount
         {
             get
             {
@@ -32007,7 +33297,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal PaymentAmountForErrorRecords
+        public System.Nullable<decimal> PaymentAmountForErrorRecords
         {
             get
             {
@@ -32020,7 +33310,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ReportsInFile
+        public System.Nullable<int> ReportsInFile
         {
             get
             {
@@ -32033,7 +33323,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ReportsWithErrors
+        public System.Nullable<int> ReportsWithErrors
         {
             get
             {
@@ -32046,7 +33336,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ReportsWithoutErrors
+        public System.Nullable<int> ReportsWithoutErrors
         {
             get
             {
@@ -32873,8 +34163,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         
         private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.UITaxRateControlCode[] RateControlsField;
         
-        private string RateLimiterDescriptionField;
-        
         private int RateNoticeCodeSKField;
         
         private string RateNoticeDescriptionField;
@@ -32882,6 +34170,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private decimal ReserveFundBalanceRateFactorAmountField;
         
         private decimal SolvencyRateField;
+        
+        private string TaxRateDescriptionField;
         
         private int TaxRateYearField;
         
@@ -33039,19 +34329,6 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string RateLimiterDescription
-        {
-            get
-            {
-                return this.RateLimiterDescriptionField;
-            }
-            set
-            {
-                this.RateLimiterDescriptionField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public int RateNoticeCodeSK
         {
             get
@@ -33100,6 +34377,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this.SolvencyRateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string TaxRateDescription
+        {
+            get
+            {
+                return this.TaxRateDescriptionField;
+            }
+            set
+            {
+                this.TaxRateDescriptionField = value;
             }
         }
         
@@ -33730,6 +35020,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     public partial class WageReportDetailProxy : object
     {
         
+        private bool AuditSourceCodeField;
+        
         private string BatchNumberField;
         
         private string BenefitClaimIndicatorField;
@@ -33797,6 +35089,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private System.Nullable<int> WageReportReasonCodeSKField;
         
         private long WageReportSKField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool AuditSourceCode
+        {
+            get
+            {
+                return this.AuditSourceCodeField;
+            }
+            set
+            {
+                this.AuditSourceCodeField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string BatchNumber
@@ -35770,6 +37075,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -35784,6 +37090,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -35870,6 +37177,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -35903,6 +37211,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -35948,6 +37257,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -36040,6 +37351,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -36087,6 +37400,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -36156,8 +37471,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -38658,6 +39973,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -38672,6 +39988,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -38758,6 +40075,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -38791,6 +40109,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -38836,6 +40155,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -38928,6 +40249,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -38975,6 +40298,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -39044,8 +40369,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.RateSummaryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -39269,6 +40594,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -39283,6 +40609,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -39369,6 +40696,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -39402,6 +40730,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -39447,6 +40776,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -39539,6 +40870,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -39586,6 +40919,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -39656,8 +40991,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommonClient))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BaseEntity))]
@@ -39699,6 +41034,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableString _adUserNameField;
         
         private bool _adUserNameSearchedField;
+        
+        private UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableString _adjudicatorCodeField;
         
         private System.Array _contactInfoField;
         
@@ -39801,6 +41138,19 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
             set
             {
                 this._adUserNameSearchedField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableString _adjudicatorCode
+        {
+            get
+            {
+                return this._adjudicatorCodeField;
+            }
+            set
+            {
+                this._adjudicatorCodeField = value;
             }
         }
         
@@ -40296,6 +41646,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -40310,6 +41661,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -40396,6 +41748,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -40429,6 +41782,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -40474,6 +41828,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -40566,6 +41922,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -40613,6 +41971,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -40683,8 +42043,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BaseEntity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.RuleViolation[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.RuleViolation))]
@@ -40893,6 +42253,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -40907,6 +42268,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -40993,6 +42355,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -41026,6 +42389,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -41071,6 +42435,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -41163,6 +42529,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -41210,6 +42578,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -41280,8 +42650,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.RuleViolation[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.RuleViolation))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.DayWeekCode))]
@@ -41910,6 +43280,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BatchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitChargesAndAdjustmentsFileResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealsWithdrawalSubmitResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryReimbursableResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BillDetailSummaryResponse))]
@@ -41924,6 +43295,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CheckBankAccountRoutingNumberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClaimantDocumentsUCB20Response))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ClosureReasonResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CommentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CorporateOfficerExclusionResponse))]
@@ -42010,6 +43382,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NullableIntResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainESPPendingPaymentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainFileContactResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SearchNotificationsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainStaffMemberResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.ObtainWorkersResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WorkerItem[]))]
@@ -42043,6 +43416,7 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StreetAddressResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StringResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SubmitAppealDocumentsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SummaryReportResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SystemParameterResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxFileUploadDetailListResponse))]
@@ -42088,6 +43462,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.TaxWageFilingSelectionMethodEligiblity))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WageTaxFilingSelectionCodeProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitsAppealTribunalDecisionsProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BenefitWeekProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.CalendarWeekProxy[]))]
@@ -42180,6 +43556,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.MissingReportProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NAICCodeProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.NotificationInfoProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMemberProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.WebSecurityControlProxy))]
@@ -42227,6 +43605,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadProxy))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureMessageThreadWebControlProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StatusChangeRequestProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.AccountTypeCodeProxy))]
@@ -42297,8 +43677,8 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.FirstQuarterDeferralHistoryProxy))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(string[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.Array))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(int[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(System.DateTime[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.StaffMember))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.SecureUser))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.Individual))]
@@ -42555,6 +43935,9 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IAccountSummaryService/GetCOEReasonableness", ReplyAction="http://tempuri.org/IAccountSummaryService/GetCOEReasonablenessResponse")]
         System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse> GetCOEReasonablenessAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessRequest coerequest);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IAccountSummaryService/GetCOEEligibility", ReplyAction="http://tempuri.org/IAccountSummaryService/GetCOEEligibilityResponse")]
+        System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse> GetCOEEligibilityAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerRequest eRequest);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IAccountSummaryService/GetEmployerBusinessTransfers", ReplyAction="http://tempuri.org/IAccountSummaryService/GetEmployerBusinessTransfersResponse")]
         System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BusinessTransfersResponse> GetEmployerBusinessTransfersAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerRequest eRequest);
         
@@ -42657,6 +44040,11 @@ namespace UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
         public System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessResponse> GetCOEReasonablenessAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEReasonablenessRequest coerequest)
         {
             return base.Channel.GetCOEReasonablenessAsync(coerequest);
+        }
+        
+        public System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.COEEligibilityResponse> GetCOEEligibilityAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerRequest eRequest)
+        {
+            return base.Channel.GetCOEEligibilityAsync(eRequest);
         }
         
         public System.Threading.Tasks.Task<UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.BusinessTransfersResponse> GetEmployerBusinessTransfersAsync(UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService.EmployerRequest eRequest)
