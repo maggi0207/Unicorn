@@ -688,7 +688,7 @@ public partial class CorporateOfficerExclusion
                 }
                 catch (Exception ex)
                 {
-                    LogErrorGeneratingInitialDeterminationPdf(Logger, employerSK, document.GenerationSK, ex);
+                    Logger.LogError(ex, "Error generating Initial Determination PDF for EmployerSK {EmployerSK}, GenerationSK {GenerationSK}.", employerSK, document.GenerationSK);
                 }
 
                 var remaining = deadline - DateTime.UtcNow;
@@ -809,14 +809,4 @@ public partial class CorporateOfficerExclusion
             ? $"{digits[..6]}-{digits[6..9]}-{digits[9..]}"
             : accountNo;
     }
-
-    [LoggerMessage(
-        EventId = 2001,
-        Level = LogLevel.Error,
-        Message = "Error generating Initial Determination PDF for EmployerSK {EmployerSK}, GenerationSK {GenerationSK}.")]
-    private static partial void LogErrorGeneratingInitialDeterminationPdf(
-        ILogger logger,
-        int employerSK,
-        int generationSK,
-        Exception ex);
 }
