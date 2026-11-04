@@ -70,6 +70,11 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     private const string FutaTaxRateParameterName = "FUTATaxRate";
     private const string MaxFutaCreditAvailableRateParameterName = "MaxFUTACreditAvailableRate";
 
+    /// <summary>
+    /// Minimum valid calendar year used to filter out default/unset WCF DateTime values (e.g. 0001-01-01 or 1900-01-01).
+    /// </summary>
+    private const int MinimumValidEffectiveYear = 2000;
+
     private readonly AccountSummary.IAccountSummaryService _accountSummaryService;
     private readonly AccountMaintenance.IAccountMaintenanceService _accountMaintenanceService;
     private readonly IPortalUtilityService _portalUtilityService;
@@ -343,12 +348,12 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     private static DateTime? ResolveElectionEffectiveDate(AccountSummary.CorporateOfficerExclusionProxy election)
     {
-        if (election.EffectiveDate.HasValue && election.EffectiveDate.Value.Year >= 2000)
+        if (election.EffectiveDate.HasValue && election.EffectiveDate.Value.Year >= MinimumValidEffectiveYear)
         {
             return election.EffectiveDate;
         }
 
-        if (election.Year.HasValue && election.Year.Value >= 2000)
+        if (election.Year.HasValue && election.Year.Value >= MinimumValidEffectiveYear)
         {
             return new DateTime(election.Year.Value, 1, 1);
         }
@@ -544,7 +549,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         var res = await _accountMaintenanceService.SaveNewCOEElectionAsync(request);
         // Probe may return Success=true with CorporateOfficeExclusionEffectiveDate already
         // computed for new employer / successor / COE-window rules — do not discard on Success.
-        return res == null || res.CorporateOfficeExclusionEffectiveDate.Year < 2000
+        return res == null || res.CorporateOfficeExclusionEffectiveDate.Year < MinimumValidEffectiveYear
             ? null
             : res.CorporateOfficeExclusionEffectiveDate;
     }

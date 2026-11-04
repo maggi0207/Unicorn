@@ -65,6 +65,9 @@ public partial class CorporateOfficerExclusion
     [Inject]
     private IUIDocumentService UIDocumentService { get; set; } = default!;
 
+    [Inject]
+    private ILogger<CorporateOfficerExclusion> Logger { get; set; } = default!;
+
     private int _employerSK = 0;
 
     private bool _isLoading = false;
@@ -664,7 +667,7 @@ public partial class CorporateOfficerExclusion
 
             if (document == null)
             {
-                _bannerMessage = "Request timed out while generating the document. Please try again.";
+                _bannerMessage = "The Initial Determination letter could not be found. Please check UI Documents or try again later.";
                 _showBanner = true;
                 return;
             }
@@ -685,7 +688,7 @@ public partial class CorporateOfficerExclusion
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    LogErrorGeneratingInitialDeterminationPdf(Logger, employerSK, document.GenerationSK, ex);
                 }
 
                 var remaining = deadline - DateTime.UtcNow;
@@ -806,4 +809,14 @@ public partial class CorporateOfficerExclusion
             ? $"{digits[..6]}-{digits[6..9]}-{digits[9..]}"
             : accountNo;
     }
+
+    [LoggerMessage(
+        EventId = 2001,
+        Level = LogLevel.Error,
+        Message = "Error generating Initial Determination PDF for EmployerSK {EmployerSK}, GenerationSK {GenerationSK}.")]
+    private static partial void LogErrorGeneratingInitialDeterminationPdf(
+        ILogger logger,
+        int employerSK,
+        int generationSK,
+        Exception ex);
 }
