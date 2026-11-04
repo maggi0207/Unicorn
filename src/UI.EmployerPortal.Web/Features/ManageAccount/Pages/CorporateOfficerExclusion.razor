@@ -11,44 +11,50 @@
 @* ── Fresh success after Submit (Figma Success / Success with banner) ── *@
 @if (!_isAlreadyElected && _saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value)
 {
-    <div class="container-page">
-        <div class="header-container">
-            <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+    @if (_isLoading)
+    {
+        <LoadingSpinner Message="Loading..." />
+    }
+    else
+    {
+        <div class="container-page">
+            <div class="header-container">
+                <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
 
-            @if (_mailCopyRequested)
-            {
-                <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                    Message="@MailCopyMessage"
-                                    DismissButton="false">
-                </NotificationBanner>
-            }
+                @if (_mailCopyRequested)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                        Message="@MailCopyMessage"
+                                        DismissButton="false">
+                    </NotificationBanner>
+                }
 
-            @if (_idLetterOpenFailed)
-            {
-                <NotificationBanner NotificationType="NotificationType.Warning"
-                                    Message="@IdLetterOpenFailedMessage"
-                                    DismissButton="false">
-                </NotificationBanner>
-            }
-        </div>
+                @if (_showBanner)
+                {
+                    <NotificationBanner NotificationType="NotificationType.Warning"
+                                        Message="@_bannerMessage"
+                                        DismissButton="false">
+                    </NotificationBanner>
+                }
+            </div>
 
-        <div class="coe-success-block">
-            <p class="coe-success-message">@ElectionSuccessMessage</p>
-            <div class="coe-success-links">
-                <button type="button"
-                        class="coe-success-link"
-                        disabled="@_isOpeningIdLetter"
-                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleViewInitialDetermination, "View Initial Determination Clicked", DateTime.Now))">
-                    @(_isOpeningIdLetter ? "Opening Initial Determination letter…" : "View Your Initial Determination letter")
-                </button>
-                <button type="button"
-                        class="coe-success-link"
-                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleRequestMailCopy, "Mail Copy Clicked", DateTime.Now))">
-                    Mail a copy of the ID to the main business mailing address
-                </button>
+            <div class="coe-success-block">
+                <p class="coe-success-message">@ElectionSuccessMessage</p>
+                <div class="coe-success-links">
+                    <button type="button"
+                            class="coe-success-link"
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleViewInitialDetermination(), "View Initial Determination Clicked", DateTime.Now))">
+                        View Your Initial Determination letter
+                    </button>
+                    <button type="button"
+                            class="coe-success-link"
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(HandleRequestMailCopy, "Mail Copy Clicked", DateTime.Now))">
+                        Mail a copy of the ID to the main business mailing address
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 }
 else if (_isAlreadyElected)
 {
