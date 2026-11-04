@@ -67,6 +67,9 @@ internal static class LogEventIds
     public const int SessionWriteFailed = 15_002;
     public const int SessionEntryCorrupt = 15_003;
 
+    // Corporate Officer Exclusion Log Events
+    public const int GenerateInitialDeterminationPdfServiceException = 16_001;
+
     // This is an example of the appropriate way to deprecate a log event id as noted in bullet point 3 above
     [Obsolete]
     public const int ExampleDeprecatedEventId = -1;

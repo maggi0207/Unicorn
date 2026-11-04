@@ -8,6 +8,7 @@ using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
 using UI.EmployerPortal.Web.Features.Shared.OtherFunctions.Services;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
+using UI.EmployerPortal.Web.Logging;
 using UI.EmployerPortal.Web.Startup.ResiliencyProtocols;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
@@ -816,6 +817,6 @@ public partial class CorporateOfficerExclusion
     private static readonly Action<ILogger, int, Exception?> LogErrorGeneratingInitialDeterminationPdf =
         LoggerMessage.Define<int>(
             LogLevel.Error,
-            new EventId(1004, nameof(LogErrorGeneratingInitialDeterminationPdf)),
+            new EventId(LogEventIds.GenerateInitialDeterminationPdfServiceException, nameof(LogErrorGeneratingInitialDeterminationPdf)),
             "Failed to generate Initial Determination PDF for {EmployerSK}.");
 }
