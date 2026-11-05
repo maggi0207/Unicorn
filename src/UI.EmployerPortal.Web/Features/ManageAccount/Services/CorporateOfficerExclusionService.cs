@@ -48,7 +48,7 @@ public interface ICorporateOfficerExclusionService
     /// </summary>
     /// <param name="employerSK">The employer surrogate key.</param>
     /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns>Eligibility and <c>EligibleCOEYears</c>. A missing response is treated as eligible with no years.</returns>
+    /// <returns>Eligibility and <c>EligibleCOEYears</c>. A missing response has <c>HasResponse</c> false.</returns>
     Task<COEEligibility> GetEligibilityAsync(int employerSK, int secureUserSK);
 
     /// <summary>
@@ -362,8 +362,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         var response = await _accountSummaryService.GetCOEEligibilityAsync(request);
         if (response == null)
         {
-            // A missing response must not block an employer who is still inside the filing window.
-            return new COEEligibility { IsEligible = true };
+            return new COEEligibility { HasResponse = false };
         }
 
         var years = new List<int>();
@@ -380,6 +379,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
 
         return new COEEligibility
         {
+            HasResponse = true,
             IsEligible = response.IsEligible,
             EligibleYears = years
         };

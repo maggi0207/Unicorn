@@ -44,6 +44,11 @@ public partial class CorporateOfficerExclusion
     private const string PastDeadlineFilingMessage = "To be effective for a calendar year, the Corporate Officer Exclusion Election must be filed by March 31 of that year.";
 
     /// <summary>
+    /// Shown when GetCOEEligibility does not return a response or returns no years for an eligible employer.
+    /// </summary>
+    private const string EligibilityUnavailableMessage = "Corporate Officer Exclusion eligibility could not be confirmed. Please try again later.";
+
+    /// <summary>
     /// Centered success copy shown immediately after a successful election (Figma Success).
     /// </summary>
     private const string ElectionSubmittedMessage = "Your election successfully submitted.";
@@ -148,6 +153,11 @@ public partial class CorporateOfficerExclusion
     private bool _isIneligible = false;
 
     /// <summary>
+    /// True when eligibility did not return a usable year, so the election must not continue.
+    /// </summary>
+    private bool _eligibilityCheckFailed = false;
+
+    /// <summary>
     /// Account number shown on intro / already-elected / success cards.
     /// </summary>
     private string _accountNumber = string.Empty;
@@ -225,7 +235,7 @@ public partial class CorporateOfficerExclusion
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected || _isIneligible)
+        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected || _isIneligible || _eligibilityCheckFailed)
         {
             await JSRuntime.InvokeVoidAsync("focusElement", "save-heading");
         }
@@ -259,6 +269,13 @@ public partial class CorporateOfficerExclusion
             }
 
             var eligibility = await CorporateOfficerExclusionService.GetEligibilityAsync(_employerSK, secureUserSK);
+            if (!eligibility.HasResponse || (eligibility.IsEligible && eligibility.EligibleYears.Count == 0))
+            {
+                _eligibilityCheckFailed = true;
+                _showIntro = false;
+                return;
+            }
+
             if (!eligibility.IsEligible)
             {
                 _isIneligible = true;
@@ -267,15 +284,19 @@ public partial class CorporateOfficerExclusion
             }
 
             _eligibleYears = eligibility.EligibleYears;
-            var electionYear = _eligibleYears.Count > 0 ? _eligibleYears[0] : DateTime.Now.Year;
             _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
-            await ApplyEligibleYearAsync(electionYear, secureUserSK);
+            await ApplyEligibleYearAsync(_eligibleYears[0], secureUserSK);
 
             _showIntro = true;
             _isAlreadyElected = false;
         }
         catch
         {
+            if (!_isAlreadyElected && !_isIneligible)
+            {
+                _eligibilityCheckFailed = true;
+                _showIntro = false;
+            }
         }
         finally
         {

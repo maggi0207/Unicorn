@@ -6,6 +6,12 @@ namespace UI.EmployerPortal.Web.Features.ManageAccount.Models;
 public class COEEligibility
 {
     /// <summary>
+    /// Gets or sets a value indicating whether <c>GetCOEEligibility</c> returned a response.
+    /// A missing response is not a valid eligibility result.
+    /// </summary>
+    public bool HasResponse { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the employer may start an election.
     /// </summary>
     public bool IsEligible { get; set; }
