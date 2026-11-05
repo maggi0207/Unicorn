@@ -165,8 +165,14 @@ public partial class CorporateOfficerExclusion
 
     /// <summary>
     /// Estimate / payroll year shown on the worksheet and sent to GetCOEReasonableness / SaveNewCOEElection.
+    /// Comes from <c>EligibleCOEYears</c>, not the current calendar year.
     /// </summary>
     private int _estimateYear;
+
+    /// <summary>
+    /// Years returned by GetCOEEligibility. More than one requires a choice on the intro screen.
+    /// </summary>
+    private IReadOnlyList<int> _eligibleYears = [];
 
     /// <summary>
     /// Confirmation ID when an election already exists or was just saved.
@@ -242,7 +248,6 @@ public partial class CorporateOfficerExclusion
 
             _accountNumber = FormatUIAccountNumber(selected?.EmployerAccount?.UIAccountNo ?? string.Empty);
             _legalName = selected?.EmployerAccount?.LegalName ?? string.Empty;
-            ApplyEstimateYear(DateTime.Now.Year);
 
             var secureUserSK = UserAccountService.GetUserSKClaim();
 
@@ -253,27 +258,21 @@ public partial class CorporateOfficerExclusion
                 return;
             }
 
-            var isEligible = await CorporateOfficerExclusionService.IsEligibleAsync(_employerSK, secureUserSK);
-            if (!isEligible)
+            var eligibility = await CorporateOfficerExclusionService.GetEligibilityAsync(_employerSK, secureUserSK);
+            if (!eligibility.IsEligible)
             {
                 _isIneligible = true;
                 _showIntro = false;
                 return;
             }
 
-            var defaultEffectiveDate = await CorporateOfficerExclusionService.GetDefaultEffectiveDateAsync(
-                _employerSK,
-                secureUserSK,
-                _estimateYear);
-            if (defaultEffectiveDate.HasValue)
-            {
-                ApplyEffectiveDateFromService(defaultEffectiveDate.Value);
-            }
+            _eligibleYears = eligibility.EligibleYears;
+            var electionYear = _eligibleYears.Count > 0 ? _eligibleYears[0] : DateTime.Now.Year;
+            _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
+            await ApplyEligibleYearAsync(electionYear, secureUserSK);
 
             _showIntro = true;
             _isAlreadyElected = false;
-            _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
-            _response = await CorporateOfficerExclusionService.GetData(_employerSK, _estimateYear, secureUserSK);
         }
         catch
         {
@@ -330,6 +329,49 @@ public partial class CorporateOfficerExclusion
     {
         _estimateYear = year;
         _effectiveDate = new DateTime(year, 1, 1);
+    }
+
+    /// <summary>
+    /// Applies an <c>EligibleCOEYears</c> value and reloads the worksheet for that year.
+    /// The service effective date is kept only when it falls in the same year.
+    /// </summary>
+    /// <param name="year">The election year selected from eligibility.</param>
+    /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
+    private async Task ApplyEligibleYearAsync(int year, int secureUserSK)
+    {
+        ApplyEstimateYear(year);
+
+        var defaultEffectiveDate = await CorporateOfficerExclusionService.GetDefaultEffectiveDateAsync(
+            _employerSK,
+            secureUserSK,
+            year);
+        if (defaultEffectiveDate.HasValue && defaultEffectiveDate.Value.Year == year)
+        {
+            _effectiveDate = defaultEffectiveDate;
+        }
+
+        _response = await CorporateOfficerExclusionService.GetData(_employerSK, year, secureUserSK);
+    }
+
+    /// <summary>
+    /// Reloads worksheet values when the employer picks a different eligible year.
+    /// </summary>
+    /// <param name="args">The select change event.</param>
+    private async Task HandleEligibleYearChanged(ChangeEventArgs args)
+    {
+        if (!int.TryParse(args.Value?.ToString(), out var year) || year == _estimateYear || !_eligibleYears.Contains(year))
+        {
+            return;
+        }
+
+        try
+        {
+            var secureUserSK = UserAccountService.GetUserSKClaim();
+            await ApplyEligibleYearAsync(year, secureUserSK);
+        }
+        catch
+        {
+        }
     }
 
     /// <summary>

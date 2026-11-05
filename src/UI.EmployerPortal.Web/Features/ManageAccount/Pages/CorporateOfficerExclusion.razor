@@ -150,6 +150,21 @@ else if (_showIntro)
                 <div class="label">Legal Name</div>
                 <div class="value">@_legalName</div>
             </div>
+            @if (_eligibleYears.Count > 1)
+            {
+                <div class="item">
+                    <label class="label" for="coe-election-year">Election Year</label>
+                    <select id="coe-election-year"
+                            class="form-select coe-year-select"
+                            value="@_estimateYear"
+                            @onchange="HandleEligibleYearChanged">
+                        @foreach (var year in _eligibleYears)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </div>
+            }
             <div class="effective-date">
                 <strong>Corporate Officer Exclusion will be effective as of @_effectiveDate?.ToString("MM/dd/yyyy").</strong>
             </div>

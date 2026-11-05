@@ -29,6 +29,10 @@
     font-weight: 900;
 }
 
+.coe-year-select {
+    max-width: 160px;
+}
+
 .header-cell-narrow {
     width: 45px;
 }

@@ -43,13 +43,13 @@ public interface ICorporateOfficerExclusionService
     Task<COEElectionSummary> GetExistingElectionAsync(int employerSK, int secureUserSK);
 
     /// <summary>
-    /// Determines whether the employer may start a Corporate Officer Exclusion election.
+    /// Loads COE eligibility and the years the employer may elect.
     /// <c>GetCOEEligibility</c> applies the March 31 deadline and extensions for newly subject and successor employers.
     /// </summary>
     /// <param name="employerSK">The employer surrogate key.</param>
     /// <param name="secureUserSK">The signed-in secure user surrogate key.</param>
-    /// <returns><see langword="true"/> when the employer may elect, including when the service returns no response.</returns>
-    Task<bool> IsEligibleAsync(int employerSK, int secureUserSK);
+    /// <returns>Eligibility and <c>EligibleCOEYears</c>. A missing response is treated as eligible with no years.</returns>
+    Task<COEEligibility> GetEligibilityAsync(int employerSK, int secureUserSK);
 
     /// <summary>
     /// Loads EmployerPortalAPIParameters used by the reasonableness worksheet labels
@@ -351,7 +351,7 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     }
 
     /// <inheritdoc/>
-    public async Task<bool> IsEligibleAsync(int employerSK, int secureUserSK)
+    public async Task<COEEligibility> GetEligibilityAsync(int employerSK, int secureUserSK)
     {
         var request = new AccountSummary.EmployerRequest
         {
@@ -360,9 +360,29 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
         };
 
         var response = await _accountSummaryService.GetCOEEligibilityAsync(request);
+        if (response == null)
+        {
+            // A missing response must not block an employer who is still inside the filing window.
+            return new COEEligibility { IsEligible = true };
+        }
 
-        // A missing response must not block an employer who is still inside the filing window.
-        return response == null || response.IsEligible;
+        var years = new List<int>();
+        if (response.EligibleCOEYears != null)
+        {
+            foreach (var year in response.EligibleCOEYears)
+            {
+                if (year >= MinimumValidEffectiveYear && !years.Contains(year))
+                {
+                    years.Add(year);
+                }
+            }
+        }
+
+        return new COEEligibility
+        {
+            IsEligible = response.IsEligible,
+            EligibleYears = years
+        };
     }
 
     /// <summary>
