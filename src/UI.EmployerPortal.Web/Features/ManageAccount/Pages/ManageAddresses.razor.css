@@ -1,8 +1,7 @@
 /* ── Page layout ──────────────────────────────────────────────────────────── */
 .page-content {
-    width: 100%;
-    max-width: 1392px;
-    padding: var(--spacing-lg);
+    max-width: var(--width-quarterly-tax);
+    padding: 24px;
 }
 
 .flash-banner-wrapper {

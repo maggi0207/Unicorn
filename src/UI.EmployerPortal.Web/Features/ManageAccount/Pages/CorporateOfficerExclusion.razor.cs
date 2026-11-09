@@ -106,6 +106,7 @@ public partial class CorporateOfficerExclusion
 
     private bool _isCalculateClicked = false;
     private bool _isNoSavingsShown = false;
+    private bool _focusWorksheetWarning = false;
 
     /// <summary>
     /// True when Submit was clicked before Calculate.
@@ -235,7 +236,13 @@ public partial class CorporateOfficerExclusion
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected || _isIneligible || _eligibilityCheckFailed)
+        if (_focusWorksheetWarning)
+        {
+            _focusWorksheetWarning = false;
+            await JSRuntime.InvokeVoidAsync("focusWorksheetWarning", "coe-warning-section");
+            return;
+        }
+        if ((_saveResponse != null && _isSaveSuccess.HasValue && _isSaveSuccess.Value) || _isAlreadyElected)
         {
             await JSRuntime.InvokeVoidAsync("focusElement", "save-heading");
         }
@@ -652,6 +659,11 @@ public partial class CorporateOfficerExclusion
         finally
         {
             _isSaving = false;
+
+            if (_isSaveSuccess == false)
+            {
+                _focusWorksheetWarning = true;
+            }
         }
     }
 

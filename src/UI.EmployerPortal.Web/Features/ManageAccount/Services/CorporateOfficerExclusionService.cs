@@ -392,17 +392,9 @@ public class CorporateOfficerExclusionService : ICorporateOfficerExclusionServic
     /// </summary>
     private static DateTime? ResolveElectionEffectiveDate(AccountSummary.CorporateOfficerExclusionProxy election)
     {
-        if (election.EffectiveDate.HasValue && election.EffectiveDate.Value.Year >= MinimumValidEffectiveYear)
-        {
-            return election.EffectiveDate;
-        }
-
-        if (election.Year.HasValue && election.Year.Value >= MinimumValidEffectiveYear)
-        {
-            return new DateTime(election.Year.Value, 1, 1);
-        }
-
-        return null;
+        return election.EffectiveDate.HasValue && election.EffectiveDate.Value.Year >= MinimumValidEffectiveYear
+            ? election.EffectiveDate
+            : election.Year.HasValue && election.Year.Value >= MinimumValidEffectiveYear ? new DateTime(election.Year.Value, 1, 1) : null;
     }
 
     /// <summary>

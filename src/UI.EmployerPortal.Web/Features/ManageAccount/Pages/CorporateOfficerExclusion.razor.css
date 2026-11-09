@@ -466,13 +466,13 @@ tbody td:first-child {
     min-width: 0;
 }
 
-.coe-ineligible-banner ::deep .nb-child-content-body p {
-    margin: 0 0 12px 0;
-}
+    .coe-ineligible-banner ::deep .nb-child-content-body p {
+        margin: 0 0 12px 0;
+    }
 
-.coe-ineligible-banner ::deep .nb-child-content-body p:last-child {
-    margin-bottom: 0;
-}
+        .coe-ineligible-banner ::deep .nb-child-content-body p:last-child {
+            margin-bottom: 0;
+        }
 
 .btn-recalculate {
     padding: 0 40px 0 0;
@@ -521,4 +521,13 @@ tbody td:first-child {
     .page-info {
         margin-right: 1rem;
     }
+}
+
+/* Corporate Officer Exclusion - Warning Focus */
+#coe-warning-section {
+    scroll-margin-top: 100px;
+}
+
+#coe-warning-section:focus {
+     outline: none;
 }

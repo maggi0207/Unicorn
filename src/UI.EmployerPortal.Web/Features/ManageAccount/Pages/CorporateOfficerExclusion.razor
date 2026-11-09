@@ -206,7 +206,9 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
             <h2 class="worksheet-subtitle">Corporate Officer Exclusion Reasonableness Worksheet</h2>
         </div>
         <div class="container-page">
-            <div class="header-container header-container--worksheet">
+            <div id="coe-warning-section"
+                 class="header-container header-container--worksheet"
+                 tabindex="-1">
                 @if (_fieldValidationMessages.Count > 0)
                 {
                     <NotificationBanner NotificationType="NotificationType.Alert"
@@ -232,7 +234,9 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                 }
                 else if (_isNoSavingsShown && _saveResponse?.WarningMessage?.Count > 0)
                 {
-                    <div class="coe-no-savings-banner">
+                    <div id="coe-no-savings-warning"
+                         class="coe-no-savings-banner"
+                         tabindex="-1">
                         <NotificationBanner NotificationType="NotificationType.Warning"
                                             MessageStyle="MessageStyle.ChildContent"
                                             DismissButton="false">

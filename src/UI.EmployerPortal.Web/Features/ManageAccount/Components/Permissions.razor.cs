@@ -179,13 +179,13 @@ public partial class Permissions
         var selected = new HashSet<int>(GetSelectedWebControlSKs());
 
         // Rule 1: 'Employer Abstract Recertification Request 940C' (264) requires
-        //         'View' (262) and 'Employer Account Abstract Recertification 940C' (268).
+        //         'View UI Account Information' (262) and 'Employer Account Abstract Recertification 940C' (268).
         if (selected.Contains(SK_EMPLOYER_ABSTRACT_RECERT_REQUEST))
         {
             var missing = new List<string>();
             if (!selected.Contains(SK_VIEW))
             {
-                missing.Add("'View'");
+                missing.Add("'View UI Account Information'");
             }
             if (!selected.Contains(SK_EMPLOYER_ACCOUNT_ABSTRACT_RECERT))
             {
@@ -197,12 +197,12 @@ public partial class Permissions
             }
         }
 
-        // Rule 2: any Correspondence child (267, 268, 269) requires 'View' (262).
+        // Rule 2: any Correspondence child (267, 268, 269) requires 'View UI Account Information' (262).
         var correspondenceChildren = new[] { SK_BENEFIT_CHARGES_ADJUSTMENTS, SK_EMPLOYER_ACCOUNT_ABSTRACT_RECERT, SK_REIMBURSABLE_ASSURANCE };
         var hasCorrespondenceChild = correspondenceChildren.Any(selected.Contains);
         if (hasCorrespondenceChild && !selected.Contains(SK_VIEW))
         {
-            errors.Add("Granting any Correspondence permission requires 'View' to also be selected.");
+            errors.Add("Granting any Correspondence permission requires 'View UI Account Information' to also be selected.");
         }
 
         return errors;

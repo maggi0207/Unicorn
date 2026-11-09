@@ -202,7 +202,9 @@ internal class AccountUserService : IAccountUserService
                 FirstName = user.FirstName,
                 Role = MapESPRole(user.Role),
                 CreatedBy = user.CreatedBy,
-                AccessGranted = user.AccessGranted.Date == DateTime.MinValue.Date ? null : user.AccessGranted,
+                AccessGranted = user.AccessGranted is null || user.AccessGranted.Value.Date == DateTime.MinValue.Date
+                    ? null
+                    : user.AccessGranted,
                 AccessKeyMasked = user.AccessKey,
                 SecureUserSK = user.SecureUserSK,
                 EmployerServiceProviderSecureUserSK = user.EmployerServiceProviderSecureUserSK
