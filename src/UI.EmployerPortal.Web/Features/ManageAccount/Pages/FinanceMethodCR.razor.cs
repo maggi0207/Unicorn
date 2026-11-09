@@ -51,8 +51,25 @@ public partial class FinanceMethodCR
 
     private List<SelectOption>? SelectOption { get; set; }
 
+    private const string PendingRequestTitle = "This account has a pending finance change request.";
+
+    private const string PendingRequestMessage = "You cannot make another until the prior request is either approved or denied.";
+
     private string Title { get; set; } = string.Empty;
     private int SelectedYear { get; set; } = default;
+
+    /// <summary>
+    /// True when FinanceMethodRequestPrecheck reports the employer cannot submit because a request is pending.
+    /// </summary>
+    private bool HasPendingRequest => _response != null && !_response.FinanceMethodChangeIsEligible;
+
+    /// <summary>
+    /// Change Effective Year from the pending request. Precheck returns it in EligibleYears.
+    /// </summary>
+    private string PendingEffectiveYear =>
+        _response?.EligibleYears is { Length: > 0 } years
+            ? string.Join(", ", years)
+            : string.Empty;
     /// <summary>
     ///
     /// </summary>

@@ -15,6 +15,13 @@
                             Title='@Title'
                             Message='@Message' />
     }
+    else if (HasPendingRequest)
+    {
+        <NotificationBanner NotificationType="NotificationType.Warning"
+                            Title="@PendingRequestTitle"
+                            Message="@PendingRequestMessage"
+                            DismissButton="false" />
+    }
 </div>
 <div style="width:81%">
     <p>
@@ -58,23 +65,21 @@
                 </div>
             </div>
             <div class="item">
-                @if (_isSaveSuccess.HasValue && _isSaveSuccess.Value)
+                @if ((_isSaveSuccess.HasValue && _isSaveSuccess.Value) || HasPendingRequest)
                 {
-
                     <div class="label">
                         Change Effective Year
                     </div>
 
                     <div class="value">
-                        @SelectedYear
+                        @(_isSaveSuccess.HasValue && _isSaveSuccess.Value ? SelectedYear.ToString() : PendingEffectiveYear)
                     </div>
                 }
             </div>
 
         </div>
-        @if (_isSaveSuccess.HasValue && _isSaveSuccess.Value)
+        @if ((_isSaveSuccess.HasValue && _isSaveSuccess.Value) || HasPendingRequest)
         {
-
         }
         else
         {
