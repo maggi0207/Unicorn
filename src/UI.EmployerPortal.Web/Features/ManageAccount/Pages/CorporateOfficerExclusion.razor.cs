@@ -854,8 +854,12 @@ public partial class CorporateOfficerExclusion
     /// <param name="value">The new FUTA payroll amount.</param>
     private void OnFUTAPayrollChanged(decimal? value)
     {
-        _response.FUTAPayroll = value ?? 0.0m;
+        _response.FUTAPayroll = value;
         InvalidateCalculation();
+        if (value.HasValue && value.Value > 0m)
+        {
+            ClearFieldValidation("futaPayroll", ref _futaPayrollMissing);
+        }
     }
 
     /// <summary>
@@ -864,8 +868,12 @@ public partial class CorporateOfficerExclusion
     /// <param name="value">The new WI taxable payroll without exclusion.</param>
     private void OnWITaxablePayrollWithoutCOEChanged(decimal? value)
     {
-        _response.WITaxablePayrollWithoutCOE = value ?? 0.0m;
+        _response.WITaxablePayrollWithoutCOE = value;
         InvalidateCalculation();
+        if (value.HasValue && value.Value > 0m)
+        {
+            ClearFieldValidation("WITaxablePayrollWithoutCOE", ref _wiPayrollWithoutMissing);
+        }
     }
 
     /// <summary>
@@ -876,15 +884,45 @@ public partial class CorporateOfficerExclusion
     {
         _response.WITaxablePayrollWithCOE = value;
         InvalidateCalculation();
+        if (value.HasValue)
+        {
+            ClearFieldValidation("WITaxablePayrollWithCOE", ref _wiPayrollWithMissing);
+        }
     }
 
     /// <summary>
     /// Marks the worksheet as needing Calculate after an input change.
+    /// Field errors on the other inputs stay until those inputs are corrected or Calculate runs again.
     /// </summary>
     private void InvalidateCalculation()
     {
         _isCalculateClicked = false;
-        ClearWorksheetErrors();
+        _mustCalculateError = false;
+        _submitFailedError = false;
+    }
+
+    /// <summary>
+    /// Removes one field from the missing-value banner after that field becomes valid.
+    /// </summary>
+    /// <param name="fieldId">Input element id aligned with the banner message.</param>
+    /// <param name="missing">The missing flag for that input.</param>
+    private void ClearFieldValidation(string fieldId, ref bool missing)
+    {
+        missing = false;
+
+        for (var index = _fieldValidationFieldIds.Count - 1; index >= 0; index--)
+        {
+            if (!string.Equals(_fieldValidationFieldIds[index], fieldId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            _fieldValidationFieldIds.RemoveAt(index);
+            if (index < _fieldValidationMessages.Count)
+            {
+                _fieldValidationMessages.RemoveAt(index);
+            }
+        }
     }
 
     /// <summary>
