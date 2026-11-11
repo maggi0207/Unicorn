@@ -365,7 +365,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                     </div>
                                 </td>
                                 <td class="fw-normal fs-md">
-                                    <div class="decimal-input">
+                                    <div class="decimal-input @(_wiPayrollWithMissing ? "decimal-input--error" : null)">
                                         <NumericTextBox Value="@_response.WITaxablePayrollWithCOE"
                                                         Id="WITaxablePayrollWithCOE"
                                                         AriaLabel="Payroll subject to Wisconsin UI tax with corporate officer exclusion"
@@ -374,7 +374,19 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                                         DecimalPlaces="2"
                                                         Min="0"
                                                         Max="1000000000"
+                                                        CssClass="@(_wiPayrollWithMissing ? "coe-input-error" : string.Empty)"
                                                         ValueChanged="OnWITaxablePayrollWithCOEChanged"></NumericTextBox>
+                                        @if (_wiPayrollWithMissing)
+                                        {
+                                            <p class="coe-field-error">
+                                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                    <circle cx="8" cy="8" r="8" fill="#C82838" />
+                                                    <rect x="7" y="3.5" width="2" height="5.5" rx="1" fill="white" />
+                                                    <rect x="7" y="10.5" width="2" height="2" rx="1" fill="white" />
+                                                </svg>
+                                                Missing value
+                                            </p>
+                                        }
                                     </div>
                                 </td>
                             </tr>

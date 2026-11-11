@@ -129,6 +129,11 @@ public partial class CorporateOfficerExclusion
     private bool _wiPayrollWithoutMissing = false;
 
     /// <summary>
+    /// True when Line 4 WI payroll with exclusion has no value. Zero is allowed.
+    /// </summary>
+    private bool _wiPayrollWithMissing = false;
+
+    /// <summary>
     /// Top validation banner messages collected in field layout order.
     /// </summary>
     private List<string> _fieldValidationMessages = [];
@@ -292,7 +297,7 @@ public partial class CorporateOfficerExclusion
 
             _eligibleYears = eligibility.EligibleYears;
             _apiParameters = await CorporateOfficerExclusionService.GetEmployerPortalApiParametersAsync();
-            await ApplyEligibleYearAsync(_eligibleYears[0], secureUserSK);
+            await ApplyEligibleYearAsync(ResolveDefaultElectionYear(_eligibleYears), secureUserSK);
 
             _showIntro = true;
             _isAlreadyElected = false;
@@ -346,6 +351,25 @@ public partial class CorporateOfficerExclusion
             ConfirmationId = _confirmationId,
             DateSubmitted = _dateSubmitted
         };
+    }
+
+    /// <summary>
+    /// Picks the registration subject year when the current calendar year is also eligible.
+    /// A single eligible year is used as returned.
+    /// </summary>
+    /// <param name="years">Years returned by GetCOEEligibility.</param>
+    /// <returns>The year to select on the intro screen.</returns>
+    private static int ResolveDefaultElectionYear(IReadOnlyList<int> years)
+    {
+        foreach (var year in years)
+        {
+            if (year != DateTime.Now.Year)
+            {
+                return year;
+            }
+        }
+
+        return years[0];
     }
 
     /// <summary>
@@ -444,14 +468,15 @@ public partial class CorporateOfficerExclusion
     {
         _futaPayrollMissing = false;
         _wiPayrollWithoutMissing = false;
+        _wiPayrollWithMissing = false;
         _fieldValidationMessages = [];
         _fieldValidationFieldIds = [];
     }
 
     /// <summary>
     /// Validates the required payroll inputs and builds the top error banner list.
-    /// FUTA Without and WI UI Without must be greater than zero ($0.00 is treated as missing per Figma).
-    /// WI UI With may be zero when all officer wages are excluded.
+    /// FUTA Without and WI UI Without must be greater than zero ($0.00 is treated as missing).
+    /// WI UI With is required, and $0.00 is a valid amount.
     /// </summary>
     /// <returns>True when required fields are present.</returns>
     private bool ValidateRequiredPayrollFields()
@@ -478,7 +503,14 @@ public partial class CorporateOfficerExclusion
             _fieldValidationFieldIds.Add("WITaxablePayrollWithoutCOE");
         }
 
-        return !_futaPayrollMissing && !_wiPayrollWithoutMissing;
+        if (_response.WITaxablePayrollWithCOE == null)
+        {
+            _wiPayrollWithMissing = true;
+            _fieldValidationMessages.Add("Payroll Subject to WI UI Tax with exclusion missing.");
+            _fieldValidationFieldIds.Add("WITaxablePayrollWithCOE");
+        }
+
+        return !_futaPayrollMissing && !_wiPayrollWithoutMissing && !_wiPayrollWithMissing;
     }
 
     /// <summary>
@@ -842,7 +874,7 @@ public partial class CorporateOfficerExclusion
     /// <param name="value">The new WI taxable payroll with exclusion.</param>
     private void OnWITaxablePayrollWithCOEChanged(decimal? value)
     {
-        _response.WITaxablePayrollWithCOE = value ?? 0.0m;
+        _response.WITaxablePayrollWithCOE = value;
         InvalidateCalculation();
     }
 
