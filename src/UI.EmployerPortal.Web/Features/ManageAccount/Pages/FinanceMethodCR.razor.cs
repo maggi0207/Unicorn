@@ -96,9 +96,9 @@ public partial class FinanceMethodCR
         var secureUserSK = UserAccountService.GetUserSKClaim();
 
         _response = await RetryPolicy.ExecuteAsync(() =>
-       {
-           return FinanceMethodCRService.GetFinanceMethodData(employerSk, secureUserSK);
-       });
+        {
+            return FinanceMethodCRService.GetFinanceMethodData(employerSk, secureUserSK);
+        });
 
 
     }

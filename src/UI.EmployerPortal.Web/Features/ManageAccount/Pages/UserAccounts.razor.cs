@@ -6,6 +6,7 @@ using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
+using UI.EmployerPortal.Web.Features.Shared.Layout;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 
 namespace UI.EmployerPortal.Web.Features.ManageAccount.Pages;
@@ -30,6 +31,9 @@ public partial class UserAccounts
     [Inject]
     private NavigationManager Navigation { get; set; } = default!;
 
+    [Inject]
+    private ILayoutOrchestator LayoutOrchestator { get; set; } = default!;
+
     private List<AccountUserModel> _allUsers = [];
     private bool _isLoading = true;
     private bool _hasError = false;
@@ -49,6 +53,13 @@ public partial class UserAccounts
     private bool _isRemoving = false;
     private string? _removeError = null;
     private AccountUserModel? _userToRemove = null;
+
+    /// <summary>
+    /// Whether the pending removal would leave the account with no manager. Decided when the
+    /// user clicks the bin, not when the modal renders, so the list reloading underneath cannot
+    /// change which confirmation is on screen while the user is reading it.
+    /// </summary>
+    private bool _isLastManagerRemoval = false;
 
     private string _searchText = string.Empty;
     private bool _roleDropdownOpen = false;
@@ -204,7 +215,7 @@ public partial class UserAccounts
         {
             case "permissions-updated":
                 _flashTitle = "Permissions Updated";
-                _flashMessage = $"The {displayName}'s permissions have been updated.";
+                _flashMessage = $"{displayName}'s permissions have been updated.";
                 _flashKey++;
                 break;
             case "user-removed":
@@ -378,6 +389,12 @@ public partial class UserAccounts
         _userToRemove = user;
         _removeError = null;
         _isRemoving = false;
+
+        // The rule is the same for both lists - an ESP user's role comes back as "Manager" or
+        // "Worker" exactly as an employer user's does. Only the consequence differs, and that is
+        // the modal's business.
+        _isLastManagerRemoval = ManagerAccess.IsLastManager(_allUsers, user.SecureUserSK);
+
         _showRemoveModal = true;
     }
 
@@ -390,6 +407,7 @@ public partial class UserAccounts
         _showRemoveModal = false;
         _userToRemove = null;
         _removeError = null;
+        _isLastManagerRemoval = false;
     }
 
     private async Task ConfirmRemoveAsync()
@@ -402,24 +420,69 @@ public partial class UserAccounts
         _isRemoving = true;
         _removeError = null;
 
-        var (success, message) = await UserAccountService.IsEspUserAsync() ? await AccountUserService.RemoveESPUser(_userToRemove.EmployerServiceProviderSecureUserSK) : await AccountUserService.DeleteUserAsync(_employerSK, _userToRemove.WebUserSecuritySK);
+        var isEspRemoval = await UserAccountService.IsEspUserAsync();
+
+        // Whether the user is removing themselves, decided before the call while the row is still
+        // in hand. In practice a last-manager removal always is - the page is manager-only, so the
+        // only manager left can only be the person looking at it - but the session clean-up below
+        // is too important to rest on that holding.
+        var removedSelf = _userToRemove.SecureUserSK == AccountUserService.GetCurrentUserSk();
+
+        var (success, message) = isEspRemoval
+            ? await AccountUserService.RemoveESPUser(_userToRemove.EmployerServiceProviderSecureUserSK)
+            : await AccountUserService.DeleteUserAsync(_employerSK, _userToRemove.WebUserSecuritySK);
 
         _isRemoving = false;
 
-        if (success)
-        {
-            _flashTitle = "User Removed";
-            _flashMessage = $"You've successfully removed {_userToRemove.FirstName} {_userToRemove.LastName} from this UI account. If you wish to reinstate this user's access you will need to generate a new access key.";
-            _flashKey++;
-            _showRemoveModal = false;
-            _userToRemove = null;
-            await LoadUsersAsync();
-            await ScrollToTopAsync();
-        }
-        else
+        if (!success)
         {
             _removeError = string.IsNullOrWhiteSpace(message) ? "Unable to remove user." : message;
+            return;
         }
+
+        if (_isLastManagerRemoval)
+        {
+            await ReturnToLandingPageAsync(removedOwnServiceProviderAccess: isEspRemoval && removedSelf);
+            return;
+        }
+
+        _flashTitle = "User Removed";
+        _flashMessage = $"You've successfully removed {_userToRemove.FirstName} {_userToRemove.LastName} from this UI account. If you wish to reinstate this user's access you will need to generate a new access key.";
+        _flashKey++;
+        _showRemoveModal = false;
+        _userToRemove = null;
+        await LoadUsersAsync();
+        await ScrollToTopAsync();
+    }
+
+    /// <summary>
+    /// Sends a user who has just given up the last manager seat back to the landing page with a
+    /// rebuilt account list.
+    /// </summary>
+    /// <remarks>
+    /// Staying put is not an option: the page is manager-only, so reloading it would replace the
+    /// list with "Access Denied" while the header still offers the employer they no longer have.
+    /// <para>
+    /// The selection is cleared first, then the navigation is forced. A soft navigation would keep
+    /// the circuit, and the landing page refreshes the account list at most once per circuit — so
+    /// for anyone who arrived through the landing page, which is everyone, it would show the
+    /// account they just left.
+    /// </para>
+    /// <para>
+    /// A service provider user who removed their own membership also stops being one, so the
+    /// cached service provider identity goes with it. Leaving it would send them to a landing page
+    /// still offering the service provider experience they no longer have.
+    /// </para>
+    /// </remarks>
+    private async Task ReturnToLandingPageAsync(bool removedOwnServiceProviderAccess)
+    {
+        if (removedOwnServiceProviderAccess)
+        {
+            await LayoutOrchestator.ClearServiceProviderSessionAsync();
+        }
+
+        await LayoutOrchestator.ClearEmployerSelectionAsync();
+        Navigation.NavigateTo("landing-page", forceLoad: true);
     }
 
     private async Task ScrollToTopAsync()

@@ -3,6 +3,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.Landing.Components
 @using UI.EmployerPortal.Web.Features.ManageAccount.Components
+@using UI.EmployerPortal.Web.Features.Shared.Components
 @using UI.EmployerPortal.Web.Auth;
 @using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject INavigationSessionTracker tracker
@@ -27,8 +28,8 @@
     {
         <div>
             <NotificationBanner NotificationType="NotificationType.Alert"
-            Title="Access Denied"
-            Message="Your account currently does not have access to view this page. Please contact your account manager for further assistance.">
+                                Title="Access Denied"
+                                Message="Your account currently does not have access to view this page. Please contact your account manager for further assistance.">
             </NotificationBanner>
         </div>
     }
@@ -56,82 +57,82 @@
             <div class="user-list-header">
 
                 <h2 class="user-list-title fw-bold">User List</h2>
-            <div class="filter-controls">
-                @* Role filter — styled like FilterDropdown *@
-                <div class="role-dropdown-container" @onclick:stopPropagation="true">
-                    <div class="role-dropdown-wrapper">
-                        <span class="role-dropdown-label">Role</span>
-                        <button type="button"
-                                class="role-dropdown-trigger"
-                                @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleRoleDropdown, "Toggle Clicked", DateTime.Now))"
-                                @onclick:stopPropagation="true"
-                                @onclick:preventDefault="true"
-                                aria-expanded="@(_roleDropdownOpen.ToString())"
-                                aria-haspopup="true"
-                                aria-label="Filter by role"
-                                aria-controls="filter-menu">
-                            <span class="role-dropdown-value @(_selectedRoles.Count > 0 ? "hasSelection" : "")">@RoleDisplayText</span>
-                            <span class="role-dropdown-arrow @(_roleDropdownOpen ? "open" : "")" aria-hidden="true">
-                                <img src="@Assets["icons/dropdown-arrow.svg"]" alt="" />
-                            </span>
-                        </button>
+                <div class="filter-controls">
+                    @* Role filter — styled like FilterDropdown *@
+                    <div class="role-dropdown-container" @onclick:stopPropagation="true">
+                        <div class="role-dropdown-wrapper">
+                            <span class="role-dropdown-label">Role</span>
+                            <button type="button"
+                                    class="role-dropdown-trigger"
+                                    @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleRoleDropdown, "Toggle Clicked", DateTime.Now))"
+                                    @onclick:stopPropagation="true"
+                                    @onclick:preventDefault="true"
+                                    aria-expanded="@(_roleDropdownOpen.ToString())"
+                                    aria-haspopup="true"
+                                    aria-label="Filter by role"
+                                    aria-controls="filter-menu">
+                                <span class="role-dropdown-value @(_selectedRoles.Count > 0 ? "hasSelection" : "")">@RoleDisplayText</span>
+                                <span class="role-dropdown-arrow @(_roleDropdownOpen ? "open" : "")" aria-hidden="true">
+                                    <img src="@Assets["icons/dropdown-arrow.svg"]" alt="" />
+                                </span>
+                            </button>
 
-                        @if (_roleDropdownOpen)
-                        {
-                            <div id="filter-menu" class="role-dropdown-menu" role="menu" aria-label="Role filter options" @onclick:stopPropagation="true">
-                                <div class="role-dropdown-options" aria-label="Filter options">
-                                    @foreach (var role in AvailableRoles)
-                                    {
-                                        <label class="role-dropdown-option">
-                                            <input type="checkbox"
-                                                role="menuitemcheckbox"
-                                                   checked="@_selectedRoles.Contains(role)"
-                                                   @onchange="e => HandleRoleChange(role, (bool)(e.Value ?? false))"
-                                                   aria-label="@role" />
-                                            <span>@role</span>
-                                        </label>
-                                    }
-                                </div>
-                                <div class="role-dropdown-actions">
+                            @if (_roleDropdownOpen)
+                            {
+                                <div id="filter-menu" class="role-dropdown-menu" role="menu" aria-label="Role filter options" @onclick:stopPropagation="true">
+                                    <div class="role-dropdown-options" aria-label="Filter options">
+                                        @foreach (var role in AvailableRoles)
+                                        {
+                                            <label class="role-dropdown-option">
+                                                <input type="checkbox"
+                                                       role="menuitemcheckbox"
+                                                       checked="@_selectedRoles.Contains(role)"
+                                                       @onchange="e => HandleRoleChange(role, (bool)(e.Value ?? false))"
+                                                       aria-label="@role" />
+                                                <span>@role</span>
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="role-dropdown-actions">
                                         <button type="button" role="meuitem" class="role-dropdown-btn-reset" @onclick="@(() => tracker.LogNavigationSessionActivity(ResetRoleFilter, "Reset Clicked", DateTime.Now))" aria-label="Reset role filter">
-                                        RESET
-                                    </button>
+                                            RESET
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
+                    </div>
+
+                    @* Search box — styled like TableFilterBar search-input *@
+                    <div class="search-wrapper">
+                        <label for="user-search" class="visually-hidden">Search by first name or last name</label>
+                        <input type="text"
+                               id="user-search"
+                               class="search-input"
+                               style="--icon-bg: url('@Assets["icons/searchIconBlack.svg"]')"
+                               placeholder="Search"
+                               value="@_searchText"
+                               @oninput="HandleSearchInput"
+                               aria-label="Search by first name or last name" />
                     </div>
                 </div>
-
-                @* Search box — styled like TableFilterBar search-input *@
-                <div class="search-wrapper">
-                    <label for="user-search" class="visually-hidden">Search by first name or last name</label>
-                    <input type="text"
-                           id="user-search"
-                           class="search-input"
-                           style="--icon-bg: url('@Assets["icons/searchIconBlack.svg"]')"
-                           placeholder="Search"
-                           value="@_searchText"
-                           @oninput="HandleSearchInput"
-                           aria-label="Search by first name or last name" />
-                </div>
             </div>
-        </div>
 
-        <div class="results-row">
-            <p class="results-count fw-normal fs-sm" aria-live="polite">@_resultsText</p>
-            @if (_selectedRoles.Count > 0)
-            {
-                <div class="filter-chips" role="list" aria-label="Active filters">
-                    @foreach (var role in _selectedRoles.ToList())
-                    {
-                        <FilterChip Text="@role"
-                                    Role="listitem"
-                                    OnRemove="() => RemoveRoleFilter(role)" />
-                    }
-                </div>
+            <div class="results-row">
+                <p class="results-count fw-normal fs-sm" aria-live="polite">@_resultsText</p>
+                @if (_selectedRoles.Count > 0)
+                {
+                    <div class="filter-chips" role="list" aria-label="Active filters">
+                        @foreach (var role in _selectedRoles.ToList())
+                        {
+                            <FilterChip Text="@role"
+                                        Role="listitem"
+                                        OnRemove="() => RemoveRoleFilter(role)" />
+                        }
+                    </div>
                     <ClearFiltersButton Onclick="@(() => tracker.LogNavigationSessionActivity(ResetRoleFilter, "Clear Filters Clicked", DateTime.Now))" />
-            }
-        </div>
+                }
+            </div>
 
             <div class="table-container">
                 <table class="table  user-accounts-table" aria-label="Account users">
@@ -248,7 +249,7 @@
                                 </select>
                             </div>
                             <div class="d-flex align-items-center">
-                               <span class="page-info">@PaginationStart-@PaginationEnd of @FilteredUsers.Count</span>
+                                <span class="page-info">@PaginationStart-@PaginationEnd of @FilteredUsers.Count</span>
                                 <button class="btn btn-sm p-1 paging-btn" disabled="@(_currentPage <= 1)" @onclick="@(() => tracker.LogNavigationSessionActivity(FirstPage, "First Page Clicked", DateTime.Now))" title="First">
                                     <img src="@Assets[_currentPage <= 1 ? "images/paging/page-first-disabled.svg" : "images/paging/page-first.svg"]" alt="First" />
                                 </button>
@@ -270,9 +271,18 @@
     }
 </div>
 
-<RemoveUserModal IsOpen="_showRemoveModal"
+@* Two confirmations, never both: removing the account's last manager costs the employer its
+   electronic communications, which the ordinary wording does not say. *@
+<RemoveUserModal IsOpen="_showRemoveModal && !_isLastManagerRemoval"
                  IsBusy="_isRemoving"
                  ErrorMessage="@_removeError"
                  UserDisplayName="@($"{_userToRemove?.FirstName} {_userToRemove?.LastName}".Trim())"
                  OnCancel="CloseRemoveModal"
                  OnConfirm="ConfirmRemoveAsync" />
+
+<RemoveManagerModal IsOpen="_showRemoveModal && _isLastManagerRemoval"
+                    IsBusy="_isRemoving"
+                    ErrorMessage="@_removeError"
+                    IsServiceProvider="_isEspUser"
+                    OnCancel="CloseRemoveModal"
+                    OnConfirm="ConfirmRemoveAsync" />
