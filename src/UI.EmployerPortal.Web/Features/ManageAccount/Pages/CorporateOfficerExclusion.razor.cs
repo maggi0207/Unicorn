@@ -499,7 +499,7 @@ public partial class CorporateOfficerExclusion
         if ((_response.WITaxablePayrollWithoutCOE ?? 0m) <= 0m)
         {
             _wiPayrollWithoutMissing = true;
-            _fieldValidationMessages.Add("Payroll Subject to WI UI Tax missing.");
+            _fieldValidationMessages.Add("Payroll Subject to WI UI Tax without exclusion missing.");
             _fieldValidationFieldIds.Add("WITaxablePayrollWithoutCOE");
         }
 
