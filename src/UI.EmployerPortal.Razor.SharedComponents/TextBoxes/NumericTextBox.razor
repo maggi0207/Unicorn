@@ -459,7 +459,7 @@
             if (Value != null)
             {
                 Value = null;
-                _ = ValueChanged.InvokeAsync(null);
+                await ValueChanged.InvokeAsync(null);
                 notifyDecimalFieldChanged();
             }
         }
