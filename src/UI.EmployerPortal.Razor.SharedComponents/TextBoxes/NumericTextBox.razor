@@ -188,6 +188,11 @@
     /// </summary>
     [Parameter] public bool ClearZeroOnFocus { get; set; } = true;
 
+    /// <summary>
+    /// When true, clearing 0.00 stores null and leaves the field blank. Default keeps the existing behavior.
+    /// </summary>
+    [Parameter] public bool AcceptBlank { get; set; }
+
     [Parameter] public bool ShowCurrencyIcon { get; set; } = true;
     /// <summary>
     /// Identifies the field whose validation messages this input displays. Supplied automatically by
@@ -390,6 +395,11 @@
     {
         var input = e.Value?.ToString() ?? string.Empty;
 
+        if (AcceptBlank)
+        {
+            rawInput = input;
+        }
+
         if (InputType == InputDataTypes.NumericOnly)
         {
             parseAndUpdateIntValue(input);
@@ -408,6 +418,13 @@
             return;
         }
         hasFocus = true;
+
+        if (AcceptBlank)
+        {
+            rawInput = Value is null ? string.Empty : FormatForEditing(Value.Value);
+            await OnFocusCallback.InvokeAsync();
+            return;
+        }
 
         if (ClearZeroOnFocus &&
             ((Value is not null && Value.Value == 0m)
@@ -436,7 +453,17 @@
         }
         hasFocus = false;
 
-        if (Value is not null)
+        if (AcceptBlank && string.IsNullOrWhiteSpace(rawInput))
+        {
+            rawInput = string.Empty;
+            if (Value != null)
+            {
+                Value = null;
+                _ = ValueChanged.InvokeAsync(null);
+                notifyDecimalFieldChanged();
+            }
+        }
+        else if (Value is not null)
         {
             rawInput = formatDecimal(Value.Value);
         }
@@ -461,6 +488,11 @@
     {
         if (string.IsNullOrWhiteSpace(input))
         {
+            if (AcceptBlank)
+            {
+                rawInput = string.Empty;
+            }
+
             if (Value != null)
             {
                 Value = null;
