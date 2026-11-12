@@ -1,59 +1,625 @@
-@using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
+@* ---------------------------------------------------------------------------------------------
+   HOW TO BIND THIS COMPONENT
 
-<input type="number"
-       id="@Id"
-       aria-label="@AriaLabel"
-       class="numeric-textbox @CssClass @(IsReadonly ? "textboxReadOnlyBackgroundColor" : "")"
-       value="@Value"
-       min="@Min"
-       max="@Max"
-       step="@Step"
-       readonly="@IsReadonly"
-       @onchange="HandleChange" />
+   Use @bind-Value / @bind-IntValue when the bound property is NULLABLE and the change handler is a
+   plain assignment. Razor then supplies Value, ValueChanged and ValueExpression for you.
+
+   Otherwise supply the three explicitly - Value, ValueChanged and ValueExpression - because
+   @bind-Value is unavailable in two cases:
+
+     * the property is NON-NULLABLE. @bind-Value generates "property = __value" from an
+       EventCallback<decimal?>, which will not compile against a decimal or int. Pass the expression
+       yourself with a cast: ValueExpression="@(() => (decimal?)model.Amount)". The component strips
+       the cast; see ResolveField.
+
+     * the change handler does more than assign - recalculating a total, raising a callback. Inline
+       that logic in ValueChanged.
+
+   ValueExpression IS NOT OPTIONAL. It is what tells the input which field owns its validation
+   messages. Omit it and the input silently never shows an error, even while the validation summary
+   lists one against that very field - which is exactly the defect this component was fixed for.
+   --------------------------------------------------------------------------------------------- *@
+@using System.Globalization
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+@{
+    var isCurrency = InputType == InputDataTypes.Currency;
+    var isNumeric = InputType == InputDataTypes.NumericOnly;
+}
+
+<div class="numeric-text-field">
+    @if (isCurrency && ShowCurrencyIcon)
+    {
+        <div class="numeric-input-wrapper">
+            <span id="@(ResolvedId)-currency-desc" class="numeric-input-icon" aria-hidden="true">
+                <img src="@Assets["icons/input-dollar-sign.svg"]" alt="$" />
+            </span>
+
+            @RenderInput(withCurrencyIcon: true)
+        </div>
+    }
+    else
+    {
+        @RenderInput(false)
+    }
+
+    @if (HasError)
+    {
+        <div id="@($"{ResolvedId}-error")" class="numeric-error" aria-live="polite">
+            @foreach (var msg in ErrorMessages)
+            {
+                <span>@msg</span>
+            }
+        </div>
+    }
+</div>
+
+@{
+    RenderFragment RenderInput(bool withCurrencyIcon) =>
+        @<input @ref="_inputRef"
+                    value="@CurrentDisplayValue"
+                    @oninput="HandleInput"
+                    @onblur="HandleBlur"
+                    @onfocus="HandleFocus"
+                    id="@ResolvedId"
+                    inputmode="@Inputmode"
+                    pattern="@Pattern"
+                    class="@InputCssClass(withCurrencyIcon)"
+                    readonly="@IsReadonly"
+                    disabled="@Disabled"
+                    placeholder="@Placeholder"
+                    tabindex="@TabIndex"
+                    aria-label="@AriaLabel"
+                    aria-labelledby="@AriaLabelledBy"
+                    aria-readonly="@(IsReadonly ? "true" : null)"
+                    aria-disabled="@(Disabled ? "true" : null)"
+                    aria-required="@(IsRequired ? "true" : AriaRequired ? "true" : null)"
+                    aria-invalid="@(HasError ? "true" : null)"
+                    aria-description="@AriaDescription"
+                    aria-describedby="@BuildAriaDescribedby(withCurrencyIcon)" />;
+}
 
 @code {
-    /// <summary>The current numeric value.</summary>
+    private string? rawInput;
+    private bool hasFocus;
+    private bool _touched;
+    private ElementReference _inputRef;
+    private FieldIdentifier? decimalField;
+    private FieldIdentifier? intField;
+    private EditContext? _previousEditContext;
+    private readonly string _instanceId = Guid.NewGuid().ToString("N")[..8];
+
+    [CascadingParameter]
+    public EditContext? EditContext { get; set; }
+
+    /// <summary>
+    /// Optional id attribute for the input element. Auto-generated if not provided.
+    /// </summary>
+    [Parameter] public string? Id { get; set; }
+    /// <summary>
+    /// Explicit aria-label for screen readers when no visible label is present.
+    /// </summary>
+    [Parameter] public string? AriaLabel { get; set; }
+    /// <summary>
+    /// Space-separated list of element ids that label this input (rendered as aria-labelledby).
+    /// Use when the accessible name is supplied by visible elements such as table column/row
+    /// headers or an adjacent prompt. When set, it takes precedence over aria-label per the ARIA spec.
+    /// </summary>
+    [Parameter] public string? AriaLabelledBy { get; set; }
+    /// <summary>
+    /// Optionally override the normal IsRequired logic to set aria-required to true.  Normally aria-required will be automatically set if the Required
+    /// ValidationAttribute is present on the model field, but if some reason that is not possible (such as due to custom validation) then set this to true for required inputs.
+    /// </summary>
+    [Parameter] public bool AriaRequired { get; set; }
+    /// <summary>
+    /// Fully disables the input when true.
+    /// </summary>
+    [Parameter] public bool Disabled { get; set; }
+    /// <summary>
+    /// Sets the tabindex attribute on the input element.
+    /// </summary>
+    [Parameter] public int? TabIndex { get; set; }
+    /// <summary>
+    /// Fires when the input loses focus, after internal blur logic.
+    /// </summary>
+    [Parameter] public EventCallback OnBlurCallback { get; set; }
+    /// <summary>
+    /// Fires when the input gains focus, after internal focus logic.
+    /// </summary>
+    [Parameter] public EventCallback OnFocusCallback { get; set; }
+    /// <summary>
+    /// When true, forces error display even if the field hasn't been touched (e.g., on form submit).
+    /// </summary>
+    [Parameter] public bool Visible { get; set; }
+    /// <summary>
+    /// Indicates the type of numeric input: Currency, NumericOnly, or DecimalOnly.
+    /// </summary>
+    [Parameter] public InputDataTypes InputType { get; set; }
+    /// <summary>
+    /// Decimal value to be displayed in the input. Should be used when InputType is either Currency or DecimalOnly. If InputType is NumericOnly, IntValue should be used instead.
+    /// </summary>
     [Parameter] public decimal? Value { get; set; }
-
-    /// <summary>Callback invoked when the value changes.</summary>
+    /// <summary>
+    /// Optional placeholder text to display when the input is empty.
+    /// </summary>
+    [Parameter] public string? Placeholder { get; set; }
+    /// <summary>
+    /// Callback that is invoked when the Value parameter changes. Should be used when InputType is either Currency or DecimalOnly. If InputType is NumericOnly, IntValueChanged should be used instead.
+    /// </summary>
     [Parameter] public EventCallback<decimal?> ValueChanged { get; set; }
-
-    /// <summary>The input data type controlling display formatting.</summary>
-    [Parameter] public InputDataTypes InputType { get; set; } = InputDataTypes.None;
-
-    /// <summary>When true, a currency symbol is shown alongside the input.</summary>
-    [Parameter] public bool ShowCurrencyIcon { get; set; }
-
-    /// <summary>HTML id applied to the input for validation banner focus links.</summary>
-    [Parameter] public string Id { get; set; } = string.Empty;
-
-    /// <summary>Accessible name for the input.</summary>
-    [Parameter] public string AriaLabel { get; set; } = string.Empty;
-
-    /// <summary>Additional CSS classes applied to the input element.</summary>
-    [Parameter] public string CssClass { get; set; } = string.Empty;
-
-    /// <summary>Number of decimal places allowed.</summary>
-    [Parameter] public int DecimalPlaces { get; set; } = 2;
-
-    /// <summary>When true, the input is read-only.</summary>
+    /// <summary>
+    /// Integer value to be displayed in the input. Should be used when InputType is NumericOnly. If InputType is either Currency or DecimalOnly, Value should be used instead.
+    /// </summary>
+    [Parameter] public int? IntValue { get; set; }
+    /// <summary>
+    /// Callback that is invoked when the IntValue parameter changes. Should be used when InputType is NumericOnly. If InputType is either Currency or DecimalOnly, ValueChanged should be used instead.
+    /// </summary>
+    [Parameter] public EventCallback<int?> IntValueChanged { get; set; }
+    /// <summary>
+    /// Specifies whether the input is read-only. When true, the input will be displayed but not editable by the user.
+    /// </summary>
     [Parameter] public bool IsReadonly { get; set; }
+    /// <summary>
+    /// Optional custom CSS class to apply to the input element for additional styling. This allows the parent component to pass in custom styles as needed.
+    /// </summary>
+    [Parameter] public string? CssClass { get; set; }
+    /// <summary>
+    /// Specifies the culture to use for formatting and parsing the numeric value. This affects how decimal separators, thousand separators, and currency symbols are displayed and interpreted. If not provided, it defaults to the current culture of the user's environment (CultureInfo.CurrentCulture).
+    /// </summary>
+    [Parameter] public CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
+    /// <summary>
+    /// Optional minimum value allowed for the input. If the user enters a value below this minimum, it will be adjusted to the minimum value.
+    /// </summary>
+    [Parameter] public decimal? Min { get; set; }
+    /// <summary>
+    /// Optional maximum value allowed for the input. If the user enters a value above this maximum, it will be adjusted to the maximum value.
+    /// </summary>
+    [Parameter] public decimal? Max { get; set; }
+    /// <summary>
+    /// Specifies the number of decimal places to display and accept in the input. This determines the precision of the numeric value. Default is 2.
+    /// </summary>
+    [Parameter] public int DecimalPlaces { get; set; } = 2;
+    /// <summary>
+    /// Clears zero from the text box on focus.
+    /// </summary>
+    [Parameter] public bool ClearZeroOnFocus { get; set; } = true;
 
-    /// <summary>Minimum allowed value.</summary>
-    [Parameter] public decimal Min { get; set; } = 0;
+    [Parameter] public bool ShowCurrencyIcon { get; set; } = true;
+    /// <summary>
+    /// Identifies the field whose validation messages this input displays. Supplied automatically by
+    /// <c>@bind-Value</c>; pass it explicitly otherwise. Omitting it means the input can never show
+    /// an error - see the binding notes at the top of this file.
+    ///
+    /// A non-nullable property needs a cast to satisfy this signature. That is expected:
+    /// <see cref="ResolveField" /> strips it.
+    /// </summary>
+    [Parameter] public Expression<Func<decimal?>>? ValueExpression { get; set; }
+    /// <summary>
+    /// The <see cref="ValueExpression" /> equivalent for <see cref="IntValue" />, supplied
+    /// automatically by <c>@bind-IntValue</c>. The same rules apply.
+    /// </summary>
+    [Parameter] public Expression<Func<int?>>? IntValueExpression { get; set; }
+    [Parameter] public string? AriaDescription { get; set; }
+    [Parameter] public string? AriaDescribedby { get; set; }
 
-    /// <summary>Maximum allowed value.</summary>
-    [Parameter] public decimal Max { get; set; } = decimal.MaxValue;
+    private IJSObjectReference? _jsModule;
 
-    /// <summary>The increment step for the input.</summary>
-    private string Step => DecimalPlaces > 0 ? $"0.{new string('0', DecimalPlaces - 1)}1" : "1";
+    // --- Computed properties for the single input element ---
 
-    /// <summary>Handles the native change event and raises <see cref="ValueChanged"/>.</summary>
-    private async Task HandleChange(ChangeEventArgs e)
+    private string Inputmode => InputType == InputDataTypes.NumericOnly ? "numeric" : "decimal";
+
+    private string Pattern =>
+        InputType == InputDataTypes.NumericOnly ? "[0-9]*"
+        : InputType == InputDataTypes.Currency ? @"\$?[0-9,\.]*"
+        : @"[0-9,\.]*";
+
+    private string InputCssClass(bool withCurrencyIcon) =>
+            $"{(withCurrencyIcon ? "numeric-input-with-icon " : "")}numeric-input {CssClass} {ErrorClass}";
+
+    private string BuildAriaDescribedby(bool withCurrencyIcon) =>
+        $"{(withCurrencyIcon ? String.Concat(ResolvedId, "-currency-desc") : "")} {AriaDescribedby}";
+
+    private string CurrentDisplayValue
     {
-        if (decimal.TryParse(e.Value?.ToString(), out var parsed))
-            await ValueChanged.InvokeAsync(parsed);
+        get
+        {
+            /*
+            * While the field is focused, NEVER fall through the formatDecimal.
+             * formatDecimal emits the currency/grouoped display (e.g. "$3.00"),
+             * which must not appear inside the editing surface -otherwise the
+             * user's next keystroke lands afte rthe phantom decimal point.
+             * If rawInput hasn't been initiazlied for some reason (race between
+             * focus events and re-renders), synthesize a clean editing string
+             * from the current bound value instead.
+             */
+            if (InputType == InputDataTypes.NumericOnly)
+            {
+                if (hasFocus)
+                    return rawInput ?? IntValue?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+                return IntValue?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+            }
+
+            if (hasFocus)
+                return rawInput ?? (Value is null ? string.Empty : FormatForEditing(Value.Value));
+
+            if (Value is null)
+                return string.Empty;
+
+            return formatDecimal(Value.Value);
+        }
+    }
+
+    private string ResolvedId => Id ?? $"numeric-input-{_instanceId}";
+
+    // --- Validation ---
+
+    private bool HasError =>
+        (_touched || Visible) &&
+        EditContext is not null &&
+        ErrorMessages.Any();
+
+    private string ErrorClass => HasError ? "numeric-input--error" : "";
+
+    private IEnumerable<string> ErrorMessages
+    {
+        get
+        {
+            if (EditContext is null) return Enumerable.Empty<string>();
+
+            var messages = new List<string>();
+            if (decimalField.HasValue)
+                messages.AddRange(EditContext.GetValidationMessages(decimalField.Value));
+            if (intField.HasValue)
+                messages.AddRange(EditContext.GetValidationMessages(intField.Value));
+            return messages.Distinct(); // A rule enforced by both an attribute and code lands twice.
+        }
+    }
+
+    private bool IsRequired
+    {
+        get
+        {
+            if (ValueExpression is not null)
+            {
+                var fi = ResolveField(ValueExpression);
+                var prop = fi.Model.GetType().GetProperty(fi.FieldName);
+                if (prop is not null &&
+                    Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.RequiredAttribute)))
+                    return true;
+            }
+            if (IntValueExpression is not null)
+            {
+                var fi = ResolveField(IntValueExpression);
+                var prop = fi.Model.GetType().GetProperty(fi.FieldName);
+                if (prop is not null &&
+                    Attribute.IsDefined(prop, typeof(System.ComponentModel.DataAnnotations.RequiredAttribute)))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Resolves an accessor to the field that owns its validation messages, tolerating the cast a
+    /// NON-NULLABLE property needs in order to satisfy <c>Expression&lt;Func&lt;decimal?&gt;&gt;</c>.
+    ///
+    /// WHY: binding a non-nullable <c>decimal</c> or <c>int</c> means writing
+    /// <c>() =&gt; (decimal?)model.Amount</c>. The cast makes the expression body a
+    /// <c>UnaryExpression</c>, and <c>FieldIdentifier.Create</c> only unwraps conversions to
+    /// <c>object</c> - so it throws. Callers who hit that were left with no FieldIdentifier at all,
+    /// which means <c>HasError</c> is permanently false and the input silently never shows an error
+    /// even while the validation summary lists one against it. Stripping the conversion first makes
+    /// nullable and non-nullable properties behave identically.
+    ///
+    /// An accessor that needed no unwrapping takes the original framework call unchanged, so every
+    /// existing caller is on exactly the code path it was before - including the descriptive
+    /// exception the framework raises for an expression that is not a simple member access.
+    /// </summary>
+    private static FieldIdentifier ResolveField<T>(Expression<Func<T>> accessor)
+    {
+        var body = accessor.Body;
+        while (body is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } conversion)
+        {
+            body = conversion.Operand;
+        }
+
+        // Re-box rather than building the FieldIdentifier by hand, so resolving the model instance
+        // (and its closure handling) stays the framework's job rather than being duplicated here.
+        return !ReferenceEquals(body, accessor.Body) && body is MemberExpression
+            ? FieldIdentifier.Create(Expression.Lambda<Func<object>>(Expression.Convert(body, typeof(object))))
+            : FieldIdentifier.Create(accessor);
+    }
+
+    // --- Lifecycle ---
+
+    protected override void OnParametersSet()
+    {
+        if (EditContext != _previousEditContext)
+        {
+            if (_previousEditContext is not null)
+            {
+                _previousEditContext.OnValidationRequested -= OnValidationRequested;
+            }
+
+            if (EditContext is not null)
+            {
+                EditContext.OnValidationRequested += OnValidationRequested;
+            }
+
+            _previousEditContext = EditContext;
+            _touched = false;
+        }
+
+        if (EditContext is not null)
+        {
+            if (ValueExpression is not null)
+            {
+                decimalField = ResolveField(ValueExpression);
+            }
+
+            if (IntValueExpression is not null)
+            {
+                intField = ResolveField(IntValueExpression);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/numeric-input.js");
+            var allowDecimal = InputType != InputDataTypes.NumericOnly;
+            await _jsModule.InvokeVoidAsync("attachNumericFilter", _inputRef, allowDecimal, Max);
+        }
+    }
+
+    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs e)
+    {
+        _touched = true;
+        StateHasChanged();
+    }
+
+    // --- Event handlers ---
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+
+        if (InputType == InputDataTypes.NumericOnly)
+        {
+            parseAndUpdateIntValue(input);
+        }
         else
-            await ValueChanged.InvokeAsync(null);
+        {
+            parseAndUpdateValue(input);
+        }
+    }
+
+    private async Task HandleFocus(FocusEventArgs _)
+    {
+        if (IsReadonly)
+        {
+            await OnFocusCallback.InvokeAsync();
+            return;
+        }
+        hasFocus = true;
+
+        if (ClearZeroOnFocus &&
+            ((Value is not null && Value.Value == 0m)
+            || (IntValue is not null && IntValue.Value == 0)))
+        {
+            rawInput = string.Empty;
+        }
+        else if (Value is not null && (InputType == InputDataTypes.Currency || InputType == InputDataTypes.DecimalOnly))
+        {
+            rawInput = FormatForEditing(Value.Value);
+        }
+        else
+        {
+            rawInput = null;
+        }
+
+        await OnFocusCallback.InvokeAsync();
+    }
+
+    private async Task HandleBlur(FocusEventArgs _)
+    {
+        if (IsReadonly)
+        {
+            await OnBlurCallback.InvokeAsync();
+            return;
+        }
+        hasFocus = false;
+
+        if (Value is not null)
+        {
+            rawInput = formatDecimal(Value.Value);
+        }
+        else
+        {
+            rawInput = null;
+        }
+
+        if (!_touched)
+        {
+            _touched = true;
+            notifyDecimalFieldChanged();
+            notifyIntFieldChanged();
+        }
+
+        await OnBlurCallback.InvokeAsync();
+    }
+
+    // --- Decimal parsing/formatting ---
+
+    private void parseAndUpdateValue(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            if (Value != null)
+            {
+                Value = null;
+                _ = ValueChanged.InvokeAsync(Value);
+                notifyDecimalFieldChanged();
+            }
+            return;
+        }
+
+        var nf = Culture.NumberFormat;
+        var cleaned = cleanInput(input, nf.NumberDecimalSeparator, nf.NumberGroupSeparator);
+
+        if (string.IsNullOrEmpty(cleaned))
+        {
+            return;
+        }
+
+        if (decimal.TryParse(cleaned, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed))
+        {
+            parsed = Math.Round(parsed, DecimalPlaces, MidpointRounding.AwayFromZero);
+
+            if (Min.HasValue && parsed < Min.Value)
+            {
+                parsed = Min.Value;
+            }
+
+            if (Max.HasValue && parsed > Max.Value)
+            {
+                return;
+            }
+
+            if (Value != parsed)
+            {
+                Value = parsed;
+                _ = ValueChanged.InvokeAsync(Value);
+                notifyDecimalFieldChanged();
+            }
+        }
+    }
+
+    private void notifyDecimalFieldChanged()
+    {
+        if (EditContext is not null && decimalField.HasValue)
+        {
+            EditContext.NotifyFieldChanged(decimalField.Value);
+        }
+    }
+
+    private string FormatForEditing(decimal value)
+    {
+        // only show a fraction part if it's actually non-zero. Padding a whole-dollar value like 3 to 3.00 forces a decimal point into
+        // the editing surface, so the next digit the user types lands after decimal (e.g. "3" + "4" -> "3.004" -> rounds to 3.00).
+        if (value == decimal.Truncate(value))
+        {
+            return decimal.Truncate(value).ToString("0", CultureInfo.InvariantCulture);
+        }
+        return value.ToString($"F{DecimalPlaces}", CultureInfo.InvariantCulture).TrimEnd('0').TrimEnd('.');
+    }
+
+    private string formatDecimal(decimal value)
+    {
+        if (InputType == InputDataTypes.DecimalOnly)
+        {
+            var format = "N" + DecimalPlaces;
+            return value.ToString(format, Culture);
+        }
+
+        var nfi = (NumberFormatInfo)Culture.NumberFormat.Clone();
+        nfi.CurrencyDecimalDigits = DecimalPlaces;
+
+        return value.ToString("C", nfi);
+    }
+
+    // --- Int parsing ---
+
+    private void parseAndUpdateIntValue(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            if (IntValue != null)
+            {
+                IntValue = null;
+                _ = IntValueChanged.InvokeAsync(IntValue);
+                notifyIntFieldChanged();
+            }
+
+            return;
+        }
+
+        var cleaned = new string(input.Where(char.IsDigit).ToArray());
+
+        if (string.IsNullOrEmpty(cleaned))
+        {
+            return;
+        }
+
+        if (int.TryParse(cleaned, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed))
+        {
+            if (Min.HasValue && parsed < Min.Value)
+            {
+                parsed = (int)Min.Value;
+            }
+
+            if (Max.HasValue && parsed > Max.Value)
+            {
+                return;
+            }
+
+            if (IntValue != parsed)
+            {
+                IntValue = parsed;
+                _ = IntValueChanged.InvokeAsync(IntValue);
+                notifyIntFieldChanged();
+            }
+        }
+    }
+
+    private void notifyIntFieldChanged()
+    {
+        if (EditContext is not null && intField.HasValue)
+        {
+            EditContext.NotifyFieldChanged(intField.Value);
+        }
+    }
+
+    // --- Helpers ---
+
+    private static string cleanInput(string input, string decimalSep, string groupSep)
+    {
+        //use the culture's actual decimal and group separators rather than treating '.' and ',' as interchangable.
+        //Otherwise, an en-US value like "4,334,343,234" would see it's first ',' converted to '.' and every remaining digit would land after the decimal point.
+        var decChar = decimalSep.Length > 0 ? decimalSep[0] : '.';
+        var grpChar = groupSep.Length > 0 ? groupSep[0] : '\0';
+
+        var sb = new System.Text.StringBuilder();
+        bool decimalSeen = false;
+
+        foreach (var ch in input)
+        {
+            if (char.IsDigit(ch))
+            {
+                sb.Append(ch);
+                continue;
+            }
+
+            if (ch == decChar && !decimalSeen)
+            {
+                sb.Append('.');
+                decimalSeen = true;
+                continue;
+            }
+
+            if (ch == grpChar)
+            {
+                //Thousand separator - skip it entirely
+                continue;
+            }
+        }
+
+        return sb.ToString();
     }
 }
