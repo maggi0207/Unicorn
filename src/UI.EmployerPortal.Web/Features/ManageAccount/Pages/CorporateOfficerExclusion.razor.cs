@@ -361,15 +361,8 @@ public partial class CorporateOfficerExclusion
     /// <returns>The year to select on the intro screen.</returns>
     private static int ResolveDefaultElectionYear(IReadOnlyList<int> years)
     {
-        foreach (var year in years)
-        {
-            if (year != DateTime.Now.Year)
-            {
-                return year;
-            }
-        }
-
-        return years[0];
+        var current = DateTime.Now.Year;
+        return years.FirstOrDefault(y => y != current, years[0]);
     }
 
     /// <summary>

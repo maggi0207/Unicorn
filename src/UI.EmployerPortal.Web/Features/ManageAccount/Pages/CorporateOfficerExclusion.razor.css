@@ -63,8 +63,10 @@
     width: 100%;
 }
 
-    .coe-field-error svg {
+    .coe-field-error img {
         flex-shrink: 0;
+        width: 14px;
+        height: 14px;
     }
 
 ::deep .coe-input-error {
