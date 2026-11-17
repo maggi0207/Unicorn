@@ -1,14 +1,10 @@
-@using System.ComponentModel.DataAnnotations;
 @using UI.EmployerPortal.Razor.SharedComponents.Address;
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs;
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
-@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components;
-@using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
-@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
-@using UI.EmployerPortal.Web.Features.Shared.Extensions;
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
-@using System.Linq.Expressions;
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
+@using UI.EmployerPortal.Web.Features.Shared.Extensions;
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components;
+@using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models;
 @inject NavigationManager Nav;
 
 <PageTitle>Preliminary Questions</PageTitle>
@@ -16,7 +12,6 @@
 <div class="page_wrapper">
     <div class="bi-page-content">
         <h2 class="page-title">Preliminary Questions</h2>
-        <p class="page-subtitle">All fields are required unless noted</p>
 
         <!-- Validation Error Summary -->
         @if (_formSubmitted && ValidationErrors.Any())
@@ -27,10 +22,8 @@
                                 MessageFieldIds="ValidationFieldIds"
                                 DismissButton="false">
             </NotificationBanner>
-            <br />
-            <br />
         }
-
+        <p class="page-subtitle">All fields are required unless noted</p>
 
         <EditForm EditContext="_editContext">
             <DataAnnotationsValidator />
@@ -39,22 +32,19 @@
                        Id="FEIN"
                        @bind-Value="Model.FEIN"
                        For="() => Model.FEIN"
-                       Placeholder="99-9999999"
-                       Visible="@IsVisible(()=>Model.FEIN)"
                        OnBlur="@(() => _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.FEIN))))" />
 
             <br />
 
             <!-- UI Account Number -->
             <!--Use Mask shared component at line 23 as reference in all your pages whereever needed-->
-            <OutlinedTextField Label="Employer UI Account Number (Optional)"
+            <OutlinedTextField Label="Employer UI Account Number (optional)"
                                Id="UIAccountNumber"
                                InputMode="numeric"
                                @bind-Value="Model.UIAccountNumber"
                                For="() => Model.UIAccountNumber"
-                               Visible="@IsVisible(()=>Model.UIAccountNumber)"
                                Mask="000000-000-0"
-                               Placeholder="999999-999-9"/>
+                               FormatText="Format: 999999-999-9" />
             <br />
 
             <!-- Question 1 -->
@@ -67,7 +57,6 @@
                         ValueChanged="OnIsNonProfitOrgChanged"
                         ValueExpression="() => Model.IsNonProfitOrg"
                         Options="@YesNoRadioOptions" />
-            <br />
 
             @if (Show501c3SubTree)
             {
@@ -99,10 +88,10 @@
                                  FilePath="@Model.RulingDocFilename" />
 
                     <CheckboxInput Id="chk-supply-docs-ruling"
-                                   Label= "I will supply required documentation at a later date."
-                                   Value= "@Model.WillSupplyDocumentationLater"
+                                   Label="I will supply required documentation at a later date."
+                                   Value="@Model.WillSupplyDocumentationLater"
                                    ValueChanged="OnWillSupplyDocumentationLaterChanged"
-                                   Disabled= "@RulingDocUploaded" />
+                                   Disabled="@RulingDocUploaded" />
                     <FieldError For="@(() => Model.WillSupplyDocumentationLater)" Visible="@_formSubmitted" />
                     <br />
                 }
@@ -114,7 +103,7 @@
                     <FieldError For="@(() => Model.HasAppliedFor501c3WithIRS)"
                                 Visible="@_formSubmitted" />
                     <RadioGroup TValue="bool?"
-                        LabelledById="data-questionid2"
+                                LabelledById="data-questionid2"
                                 Value="Model.HasAppliedFor501c3WithIRS"
                                 ValueChanged="OnHasAppliedFor501c3WithIRSChanged"
                                 ValueExpression="() => Model.HasAppliedFor501c3WithIRS"
@@ -125,41 +114,41 @@
                     {
                         <!-- Q1.1.2 Yes: applied -->
                         <p data-questionid="1.1.2.1">Please upload your articles of incorporation and the application acceptance letter from the IRS.</p>
-                           <FileUpload2 Title="Articles of Incorporation"
-                                 OnFileUpload="@ReceiveArticlesDoc"
-                                 OnFileRemoved="@RemoveArticlesDoc"
-                                 AllowMultiple="false"
-                                 FileType="FileAcceptableType.Registration"
-                                 FolderPath="@UploadFolderPath"
-                                 SaveOnUpload="true"
-                                 FileName="@(Model.ArticlesOfIncorporationFilename?.ToDisplayFileName())"
-                                 FilePath="@Model.ArticlesOfIncorporationFilename" />
+                        <FileUpload2 Title="Articles of Incorporation"
+                                     OnFileUpload="@ReceiveArticlesDoc"
+                                     OnFileRemoved="@RemoveArticlesDoc"
+                                     AllowMultiple="false"
+                                     FileType="FileAcceptableType.Registration"
+                                     FolderPath="@UploadFolderPath"
+                                     SaveOnUpload="true"
+                                     FileName="@(Model.ArticlesOfIncorporationFilename?.ToDisplayFileName())"
+                                     FilePath="@Model.ArticlesOfIncorporationFilename" />
 
-                            <CheckboxInput Id="chk-supply-docs-articles"
-                                           Label="I will supply required documentation at a later date."
-                                           Value="@Model.WillSupplyArticlesLater"
-                                           ValueChanged="OnWillSupplyArticlesLaterChanged"
-                                           Disabled="@ArticlesDocUploaded" />
+                        <CheckboxInput Id="chk-supply-docs-articles"
+                                       Label="I will supply required documentation at a later date."
+                                       Value="@Model.WillSupplyArticlesLater"
+                                       ValueChanged="OnWillSupplyArticlesLaterChanged"
+                                       Disabled="@ArticlesDocUploaded" />
 
                         <FieldError For="@(() => Model.WillSupplyArticlesLater)" Visible="@_formSubmitted" />
 
                         <FileUpload2 Title="IRS Acceptance Letter"
-                                 OnFileUpload="@ReceiveIrsAcceptanceDoc"
-                                 OnFileRemoved="@RemoveIrsAcceptanceDoc"
-                                 AllowMultiple="false"
-                                 FileType="FileAcceptableType.Registration"
-                                 FolderPath="@UploadFolderPath"
-                                 SaveOnUpload="true"
-                                 FileName="@(Model.IRSAcceptanceLetterFilename?.ToDisplayFileName())"
+                                     OnFileUpload="@ReceiveIrsAcceptanceDoc"
+                                     OnFileRemoved="@RemoveIrsAcceptanceDoc"
+                                     AllowMultiple="false"
+                                     FileType="FileAcceptableType.Registration"
+                                     FolderPath="@UploadFolderPath"
+                                     SaveOnUpload="true"
+                                     FileName="@(Model.IRSAcceptanceLetterFilename?.ToDisplayFileName())"
                                      FilePath="@Model.IRSAcceptanceLetterFilename" />
 
-                            <CheckboxInput Id="chk-supply-docs-irs"
-                                           Label="I will supply required documentation at a later date."
-                                           Value="@Model.WillSupplyIrsAcceptanceLater"
-                                           ValueChanged="OnWillSupplyIrsAcceptanceLaterChanged"
-                                           Disabled="@IrsAcceptanceDocUploaded" />
-                            <FieldError For="@(() => Model.WillSupplyIrsAcceptanceLater)" Visible="@_formSubmitted" />
-                            <br />
+                        <CheckboxInput Id="chk-supply-docs-irs"
+                                       Label="I will supply required documentation at a later date."
+                                       Value="@Model.WillSupplyIrsAcceptanceLater"
+                                       ValueChanged="OnWillSupplyIrsAcceptanceLaterChanged"
+                                       Disabled="@IrsAcceptanceDocUploaded" />
+                        <FieldError For="@(() => Model.WillSupplyIrsAcceptanceLater)" Visible="@_formSubmitted" />
+                        <br />
                     }
 
                     @if (ShowNotAppliedText)
@@ -173,20 +162,20 @@
                             your application acceptance letter.
                         </p>
                         <FileUpload2 Title="Articles of Incorporation"
-                                 OnFileUpload="@ReceiveArticlesDoc"
-                                 OnFileRemoved="@RemoveArticlesDoc"
-                                 AllowMultiple="false"
-                                 FileType="FileAcceptableType.Registration"
-                                 FolderPath="@UploadFolderPath"
-                                 SaveOnUpload="true"
-                                 FileName="@(Model.ArticlesOfIncorporationFilename?.ToDisplayFileName())"
-                                 FilePath="@Model.ArticlesOfIncorporationFilename" />
+                                     OnFileUpload="@ReceiveArticlesDoc"
+                                     OnFileRemoved="@RemoveArticlesDoc"
+                                     AllowMultiple="false"
+                                     FileType="FileAcceptableType.Registration"
+                                     FolderPath="@UploadFolderPath"
+                                     SaveOnUpload="true"
+                                     FileName="@(Model.ArticlesOfIncorporationFilename?.ToDisplayFileName())"
+                                     FilePath="@Model.ArticlesOfIncorporationFilename" />
 
-                            <CheckboxInput Id="chk-supply-docs-articles"
-                                           Label="I will supply required documentation at a later date."
-                                           Value="@Model.WillSupplyArticlesLater"
-                                           ValueChanged="OnWillSupplyArticlesLaterChanged"
-                                           Disabled="@ArticlesDocUploaded" />
+                        <CheckboxInput Id="chk-supply-docs-articles"
+                                       Label="I will supply required documentation at a later date."
+                                       Value="@Model.WillSupplyArticlesLater"
+                                       ValueChanged="OnWillSupplyArticlesLaterChanged"
+                                       Disabled="@ArticlesDocUploaded" />
 
                         <FieldError For="@(() => Model.WillSupplyArticlesLater)" Visible="@_formSubmitted" />
                         <br />
@@ -229,7 +218,6 @@
                                        Id="AcquiredBusinessAccountNumber"
                                        @bind-Value="Model.AcquiredBusinessAccountNumber"
                                        For="() => Model.AcquiredBusinessAccountNumber"
-                                       Visible="@IsVisible(()=>Model.AcquiredBusinessAccountNumber)"
                                        Mask="000000-000-0"
                                        Placeholder="999999-999-9" />
                     <br />
@@ -331,25 +319,32 @@
             {
                 <!-- Question 3.1.2 (Question 3.1 No) -->
                 <span data-questionid="3.1.2"></span>
-                <OutlinedTextField Label="Last Date You Had Employees"
-                                   Id="LastEmploymentDate"
-                                   Type="date"
-                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
-                                   max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
-                                   @bind-Value="LastEmploymentDateAsString"
-                                   For="() => LastEmploymentDateAsString"
-                                   Visible="@IsVisible(()=>Model.LastEmploymentDate)"
-                                   FocusKey="response:3025" />
+                <ValidatedDateInput Id="LastEmploymentDate"
+                                    Label="Last Date You Had Employees"
+                                    Value="@LastEmploymentDateAsDateTime"
+                                    ValueChanged="@(v => OnLastEmploymentDateChanged(v))"
+                                    Min="@LastEmploymentDateMin"
+                                    Max="@LastEmploymentDateMax"
+                                    Width="350"
+                                    IsRequired="true"
+                                    HasError="@LastEmploymentDateHasError"
+                                    ErrorMessage="@LastEmploymentDateError"
+                                    Visible="@_formSubmitted"
+                                    OnBlur="@(() => NotifyDateFieldChanged(nameof(Model.LastEmploymentDate)))"
+                                    FocusKey="response:3025" />
                 <br />
-
-                <OutlinedTextField Label="Date of Last Payroll"
-                                   Id="LastPayrollDate"
-                                   Type="date"
-                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
-                                   max="@DateOnly.FromDateTime(DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd")"
-                                   @bind-Value="LastPayrollDateAsString"
-                                   For="() => LastPayrollDateAsString"
-                                   Visible="@IsVisible(()=>Model.LastPayrollDate)" />
+                <ValidatedDateInput Id="LastPayrollDate"
+                                    Label="Date of Last Payroll"
+                                    Value="@LastPayrollDateAsDateTime"
+                                    ValueChanged="@(v => OnLastPayrollDateChanged(v))"
+                                    Min="@LastEmploymentDateMin"
+                                    Max="@LastEmploymentDateMax"
+                                    Width="350"
+                                    IsRequired="true"
+                                    HasError="@LastPayrollDateHasError"
+                                    ErrorMessage="@LastPayrollDateError"
+                                    Visible="@_formSubmitted"
+                                    OnBlur="@(() => NotifyDateFieldChanged(nameof(Model.LastPayrollDate)))" />
                 <br />
                 <div class="no-employee-section">
                     <p id="SelectedNoEmployeeReason" class="section-title">
@@ -376,18 +371,16 @@
                                                    For="() => Model.PEOName"
                                                    Visible="@IsVisible(()=>Model.PEOName)" />
                             </div>
-                            <br />
                             <div class="peo-row">
                                 <div class="peo-ui">
                                     <OutlinedTextField Label="UI Account Number of the PEO"
                                                        @bind-Value="Model.PEOUIAccountNumber"
-                                                       @bind-Value:after="() => Model.PEOFEIN =string.Empty"
+                                                       @bind-Value:after="() => Model.PEOFEIN = string.Empty"
                                                        InputMode="numeric"
                                                        Id="PEOUIAccountNumber"
                                                        For="() => Model.PEOUIAccountNumber"
                                                        Mask="000000-000-0"
-                                                       Placeholder="999999-999-9"                                                       
-                                                       Visible="@IsVisible(()=>Model.PEOUIAccountNumber)" />
+                                                       Placeholder="999999-999-9" />
                                 </div>
 
                                 <span class="or-text">OR</span>
@@ -399,20 +392,21 @@
                                                @bind-Value:after="() => Model.PEOUIAccountNumber = string.Empty"
                                                For="() => Model.PEOFEIN"
                                                Placeholder="99-9999999"
-                                               Visible="@IsVisible(()=>Model.PEOFEIN)"                                              
                                                OnBlur="@(() => _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.PEOFEIN))))" />
                                 </div>
                             </div>
-                            <br />
                             <div class="field-wrapper peo-date">
-                                <OutlinedTextField Label="Start Date of Employee Leasing Agreement"
-                                                   Id="LeasingStartDate"
-                                                   Type="date"
-                                                   min="@DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)).ToString("yyyy-MM-dd")"
-                                                   max="9999-12-31"
-                                                   @bind-Value="LeasingStartDateAsString"
-                                                   For="() => LeasingStartDateAsString"
-                                                   Visible="@IsVisible(()=>Model.LeasingStartDate)" />
+                                <ValidatedDateInput Id="LeasingStartDate"
+                                                    Label="Start Date of Employee Leasing Agreement"
+                                                    Value="@LeasingStartDateAsDateTime"
+                                                    ValueChanged="@(v => OnLeasingStartDateChanged(v))"
+                                                    Min="@LastEmploymentDateMin"
+                                                    Max="@LeasingStartDateMax"
+                                                    IsRequired="true"
+                                                    HasError="@LeasingStartDateHasError"
+                                                    ErrorMessage="@LeasingStartDateError"
+                                                    Visible="@_formSubmitted"
+                                                    OnBlur="@(() => NotifyDateFieldChanged(nameof(Model.LeasingStartDate)))" />
                             </div>
                         </div>
                     }
@@ -422,12 +416,12 @@
                             <label for="NoEmployeeExplanation">
                                 Why is the business continuing without employees?
                             </label>
-                            <FieldError For="@(() => Model.NoEmployeeExplanation)"
-                                        Visible="@_formSubmitted" />
                             <ValidatedTextArea Width="750"
                                                Id="NoEmployeeExplanation"
                                                @bind-Value="Model.NoEmployeeExplanation"
-                                               MaxLength="500"/>
+                                               MaxLength="500" />
+                            <FieldError For="@(() => Model.NoEmployeeExplanation)"
+                                        Visible="@_formSubmitted" />
                         </div>
                     }
 
@@ -444,7 +438,6 @@
                                                        Visible="@IsVisible(()=>Model.FiscalAgentName)" />
                                 </div>
                             </div>
-                            <br />
                             <!-- Full width: UI Account Number -->
                             <div class="field-wrapper fiscal-full">
                                 <OutlinedTextField Label="Fiscal Agent UI Account Number"
@@ -452,8 +445,7 @@
                                                    @bind-Value="Model.FiscalAgentUIAccountNumber"
                                                    For="() => Model.FiscalAgentUIAccountNumber"
                                                    Mask="000000-000-0"
-                                                   Placeholder="999999-999-9"
-                                                   Visible="@IsVisible(()=>Model.FiscalAgentUIAccountNumber)" />
+                                                   Placeholder="999999-999-9" />
                             </div>
                         </div>
                     }

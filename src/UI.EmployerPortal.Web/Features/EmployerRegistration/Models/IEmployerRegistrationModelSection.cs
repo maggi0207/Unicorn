@@ -108,7 +108,9 @@ public interface IEmployerRegistrationModelSection
     /// <returns></returns>
     static string FormatUiAccountNumberResponseString(string response)
     {
-        return $"{response[..6]}-{response[6..9]}-{response[9..]}";
+        var digitsOnly = response.Replace("-", "");
+        var result = $"{digitsOnly[..6]}-{digitsOnly[6..9]}-{digitsOnly[9..]}";
+        return result;
     }
 
     /// <summary>

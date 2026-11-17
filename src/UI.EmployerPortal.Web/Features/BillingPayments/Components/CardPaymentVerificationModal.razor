@@ -1,15 +1,16 @@
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
-@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inject IJSRuntime JS
 
 <div id="orbipay-modal" class="payment-modal-overlay @(_isVisible ? "visible" : "hidden")" role="dialog" aria-modal="true" aria-labelledby="orbipay-modal-title">
-    <div class="payment-modal-backdrop" @onclick="HandleCloseClick"></div>
+    <div class="payment-modal-backdrop" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleCloseClick, "Complete Payment Clicked", DateTime.Now))"></div>
     <div class="payment-modal-container">
         <div class="payment-modal-header">
             <h2 id="orbipay-modal-title" class="payment-modal-title">Complete Payment</h2>
             <button type="button"
                     class="payment-modal-close-btn"
-                    @onclick="Close"
+                    @onclick="@(() => tracker.LogNavigationSessionActivity(Close, "Close payment dialog Clicked", DateTime.Now))"
                     aria-label="Close payment dialog">
                 ×
             </button>
@@ -32,7 +33,7 @@
             {
                 <div class="payment-error-display">
                     <p>@_errorMessage</p>
-                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="@(() => tracker.LogNavigationSessionActivity(Close, "Close Clicked", DateTime.Now))">Close</button>
                 </div>
             }
         </div>

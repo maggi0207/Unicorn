@@ -156,7 +156,10 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_FUTA_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasFutaLiabilityInOtherStates.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasFutaLiabilityInOtherStates.Value) });
             }
-
+            if (PayWagesPerformWI.HasValue) //6.21) // have futa has paid ag wages in wisconsin
+            {
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_PAID_WI_WGE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(PayWagesPerformWI.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(PayWagesPerformWI.Value) });
+            }
             if (PaidWagesOver1500Employees.HasValue) //6.12 // have paid over 1k in a quarter in a year in wi
             {
                 responses.Add(new SurveyResponse()
@@ -192,6 +195,17 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             if (ExpectToPayWagesPerformWI.HasValue) //6.13) // expect to pay wisconsin wages
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPCT_WI_WGE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesPerformWI.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesPerformWI.Value) });
+                if (ExpectToPayWagesPerformWI.Value
+                && !string.IsNullOrWhiteSpace(AFL_XPCT_PY_WI_WGS_WHN_TXT)
+                && Enum.TryParse<FuturePayPeriod>(AFL_XPCT_PY_WI_WGS_WHN_TXT, out var whenExpectToPayAgWagesValue)) //6.23) // have futa when expect future ag wages in wisconsin
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.DMSTC_XPT_PY_1K_WHN_TXT,
+                        _response = WhenExpectToPayWagesInAQuarter,
+                        _responseDisplay = whenExpectToPayAgWagesValue.GetDisplayName()
+                    });
+                }
             }
         }
 
@@ -212,13 +226,13 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             {
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesPerformWI.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesPerformWI.Value) });
 
-                if (ExpectToPayWagesPerformWI.Value 
+                if (ExpectToPayWagesPerformWI.Value
                     && !string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
                     && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPayAgWagesInAQuarterValue)) //6.23) // have futa when expect future ag wages in wisconsin
                 {
-                    responses.Add(new SurveyResponse() 
-                    { 
-                        _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT, 
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.AFL_XPCT_PY_WI_WGS_WHN_TXT,
                         _response = WhenExpectToPayWagesInAQuarter,
                         _responseDisplay = whenExpectToPayAgWagesInAQuarterValue.GetDisplayName()
                     });
@@ -253,9 +267,9 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             if (!string.IsNullOrWhiteSpace(WhenExpectToPayWagesInAQuarter)
                 && Enum.TryParse<FuturePayPeriod>(WhenExpectToPayWagesInAQuarter, out var whenExpectToPay20kAgWagesInAQuarterValue)) //6.29) // ag when expect to pay 20k or have 10 employees for 20 weeks
             {
-                responses.Add(new SurveyResponse() 
-                { 
-                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, 
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT,
                     _response = WhenExpectToPayWagesInAQuarter,
                     _responseDisplay = whenExpectToPay20kAgWagesInAQuarterValue.GetDisplayName()
                 });
@@ -263,9 +277,9 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             else if (!string.IsNullOrWhiteSpace(WhenExpectToHaveWagesInAQuarter)
                      && Enum.TryParse<FuturePayPeriod>(WhenExpectToHaveWagesInAQuarter, out var whenExpectToHaveWagesInAQuarterValue))
             {
-                responses.Add(new SurveyResponse() 
-                { 
-                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT, 
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.AX_20K_10IN20_WHN_TXT,
                     _response = WhenExpectToHaveWagesInAQuarter,
                     _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName()
                 });
@@ -325,6 +339,18 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                     _responseDisplay = whenExpectToHaveWagesInAQuarterValue.GetDisplayName()
                 });
             }
+            //sv
+            if (HasAppliedFor501c3Status.HasValue)
+            {
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_APPLY_501C3S,
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HasAppliedFor501c3Status.Value),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HasAppliedFor501c3Status.Value)
+                });
+            }
+            //sv
+
         }
 
         if (BusinessCategory.HasValue
@@ -351,6 +377,7 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                 responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.CX_1500_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectToPayWagesInAQuarter.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectToPayWagesInAQuarter.Value) });
             }
 
+
         }
 
         if (BusinessCategory.HasValue
@@ -374,187 +401,188 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             }
         }
 
-        var orderedWages = Wages.OrderBy(w =>
+        if (PaidWagesOver1500Employees.HasValue && PaidWagesOver1500Employees.Value)
         {
-            return w.Year;
-        }).ToList();
+            var orderedWages = Wages.OrderBy(w =>
+            {
+                return w.Year;
+            }).ToList();
+            if (orderedWages != null && orderedWages.Count > 0)
+            {
+                var yearOne = orderedWages[0];
 
-        if (orderedWages != null && orderedWages.Count > 0)
-        {
-            var yearOne = orderedWages[0];
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_YR, _response = yearOne.Year! });
 
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_YR, _response = yearOne.Year! });
+                if (yearOne.Q1Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q1_WAGES,
+                        _response = yearOne.Q1Wages.Value.ToString(),
+                        _responseDisplay = yearOne.Q1Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearOne.Q2Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q2_WAGES,
+                        _response = yearOne.Q2Wages.Value.ToString(),
+                        _responseDisplay = yearOne.Q2Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearOne.Q3Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q3_WAGES,
+                        _response = yearOne.Q3Wages.Value.ToString(),
+                        _responseDisplay = yearOne.Q3Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearOne.Q4Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q4_WAGES,
+                        _response = yearOne.Q4Wages.Value.ToString(),
+                        _responseDisplay = yearOne.Q4Wages.Value.ToString("C2")
+                    });
+                }
+            }
 
-            if (yearOne.Q1Wages.HasValue)
+            if (orderedWages != null && orderedWages.Count > 1)
             {
-                responses.Add(new SurveyResponse()
+                var yearTwo = orderedWages[1];
+
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_YR, _response = yearTwo.Year! });
+
+                if (yearTwo.Q1Wages.HasValue)
                 {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q1_WAGES,
-                    _response = yearOne.Q1Wages.Value.ToString(),
-                    _responseDisplay = yearOne.Q1Wages.Value.ToString("C2")
-                });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q1_WAGES,
+                        _response = yearTwo.Q1Wages.Value.ToString(),
+                        _responseDisplay = yearTwo.Q1Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearTwo.Q2Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q2_WAGES,
+                        _response = yearTwo.Q2Wages.Value.ToString(),
+                        _responseDisplay = yearTwo.Q2Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearTwo.Q3Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q3_WAGES,
+                        _response = yearTwo.Q3Wages.Value.ToString(),
+                        _responseDisplay = yearTwo.Q3Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearTwo.Q4Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q4_WAGES,
+                        _response = yearTwo.Q4Wages.Value.ToString(),
+                        _responseDisplay = yearTwo.Q4Wages.Value.ToString("C2")
+                    });
+                }
             }
-            if (yearOne.Q2Wages.HasValue)
+
+            if (orderedWages != null && orderedWages.Count > 2)
             {
-                responses.Add(new SurveyResponse()
+                var yearThree = orderedWages[2];
+
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_YR, _response = yearThree.Year! });
+
+                if (yearThree.Q1Wages.HasValue)
                 {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q2_WAGES,
-                    _response = yearOne.Q2Wages.Value.ToString(),
-                    _responseDisplay = yearOne.Q2Wages.Value.ToString("C2")
-                });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q1_WAGES,
+                        _response = yearThree.Q1Wages.Value.ToString(),
+                        _responseDisplay = yearThree.Q1Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearThree.Q2Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q2_WAGES,
+                        _response = yearThree.Q2Wages.Value.ToString(),
+                        _responseDisplay = yearThree.Q2Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearThree.Q3Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES,
+                        _response = yearThree.Q3Wages.Value.ToString(),
+                        _responseDisplay = yearThree.Q3Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearThree.Q4Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES,
+                        _response = yearThree.Q4Wages.Value.ToString(),
+                        _responseDisplay = yearThree.Q4Wages.Value.ToString("C2")
+                    });
+                }
             }
-            if (yearOne.Q3Wages.HasValue)
+
+            if (orderedWages != null && orderedWages.Count > 3)
             {
-                responses.Add(new SurveyResponse()
+                var yearFour = orderedWages[3];
+
+                responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_YR, _response = yearFour.Year! });
+
+                if (yearFour.Q1Wages.HasValue)
                 {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q3_WAGES,
-                    _response = yearOne.Q3Wages.Value.ToString(),
-                    _responseDisplay = yearOne.Q3Wages.Value.ToString("C2")
-                });
-            }
-            if (yearOne.Q4Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q1_WAGES,
+                        _response = yearFour.Q1Wages.Value.ToString(),
+                        _responseDisplay = yearFour.Q1Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearFour.Q2Wages.HasValue)
                 {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_ONE_Q4_WAGES,
-                    _response = yearOne.Q4Wages.Value.ToString(),
-                    _responseDisplay = yearOne.Q4Wages.Value.ToString("C2")
-                });
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q2_WAGES,
+                        _response = yearFour.Q2Wages.Value.ToString(),
+                        _responseDisplay = yearFour.Q2Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearFour.Q3Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q3_WAGES,
+                        _response = yearFour.Q3Wages.Value.ToString(),
+                        _responseDisplay = yearFour.Q3Wages.Value.ToString("C2")
+                    });
+                }
+                if (yearFour.Q4Wages.HasValue)
+                {
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q4_WAGES,
+                        _response = yearFour.Q4Wages.Value.ToString(),
+                        _responseDisplay = yearFour.Q4Wages.Value.ToString("C2")
+                    });
+                }
             }
         }
-
-        if (orderedWages != null && orderedWages.Count > 1)
-        {
-            var yearTwo = orderedWages[1];
-
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_YR, _response = yearTwo.Year! });
-
-            if (yearTwo.Q1Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q1_WAGES,
-                    _response = yearTwo.Q1Wages.Value.ToString(),
-                    _responseDisplay = yearTwo.Q1Wages.Value.ToString("C2")
-                });
-            }
-            if (yearTwo.Q2Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q2_WAGES,
-                    _response = yearTwo.Q2Wages.Value.ToString(),
-                    _responseDisplay = yearTwo.Q2Wages.Value.ToString("C2")
-                });
-            }
-            if (yearTwo.Q3Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q3_WAGES,
-                    _response = yearTwo.Q3Wages.Value.ToString(),
-                    _responseDisplay = yearTwo.Q3Wages.Value.ToString("C2")
-                });
-            }
-            if (yearTwo.Q4Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_TWO_Q4_WAGES,
-                    _response = yearTwo.Q4Wages.Value.ToString(),
-                    _responseDisplay = yearTwo.Q4Wages.Value.ToString("C2")
-                });
-            }
-        }
-
-        if (orderedWages != null && orderedWages.Count > 2)
-        {
-            var yearThree = orderedWages[2];
-
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_YR, _response = yearThree.Year! });
-
-            if (yearThree.Q1Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q1_WAGES,
-                    _response = yearThree.Q1Wages.Value.ToString(),
-                    _responseDisplay = yearThree.Q1Wages.Value.ToString("C2")
-                });
-            }
-            if (yearThree.Q2Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q2_WAGES,
-                    _response = yearThree.Q2Wages.Value.ToString(),
-                    _responseDisplay = yearThree.Q2Wages.Value.ToString("C2")
-                });
-            }
-            if (yearThree.Q3Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q3_WAGES,
-                    _response = yearThree.Q3Wages.Value.ToString(),
-                    _responseDisplay = yearThree.Q3Wages.Value.ToString("C2")
-                });
-            }
-            if (yearThree.Q4Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_THREE_Q4_WAGES,
-                    _response = yearThree.Q4Wages.Value.ToString(),
-                    _responseDisplay = yearThree.Q4Wages.Value.ToString("C2")
-                });
-            }
-        }
-
-        if (orderedWages != null && orderedWages.Count > 3)
-        {
-            var yearFour = orderedWages[3];
-
-            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_YR, _response = yearFour.Year! });
-
-            if (yearFour.Q1Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q1_WAGES,
-                    _response = yearFour.Q1Wages.Value.ToString(),
-                    _responseDisplay = yearFour.Q1Wages.Value.ToString("C2")
-                });
-            }
-            if (yearFour.Q2Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q2_WAGES,
-                    _response = yearFour.Q2Wages.Value.ToString(),
-                    _responseDisplay = yearFour.Q2Wages.Value.ToString("C2")
-                });
-            }
-            if (yearFour.Q3Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q3_WAGES,
-                    _response = yearFour.Q3Wages.Value.ToString(),
-                    _responseDisplay = yearFour.Q3Wages.Value.ToString("C2")
-                });
-            }
-            if (yearFour.Q4Wages.HasValue)
-            {
-                responses.Add(new SurveyResponse()
-                {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_YR_FOUR_Q4_WAGES,
-                    _response = yearFour.Q4Wages.Value.ToString(),
-                    _responseDisplay = yearFour.Q4Wages.Value.ToString("C2")
-                });
-            }
-        }
-
         return responses;
     }
 
@@ -596,9 +624,18 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
             // (6.13) // expect to pay wisconsin wages
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PAID_WI_WGE_FLG, out var hasWisconsinWages))
             {
-                ExpectToPayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasWisconsinWages.ReplyText);
+                PayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(hasWisconsinWages.ReplyText);
             }
+            // (6.22) // expect to pay futa ag wages in wisconsin
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_XPCT_WI_WGE_FLG, out var expectToPayFutaWagesInWisconsin))
+            {
+                ExpectToPayWagesPerformWI = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectToPayFutaWagesInWisconsin.ReplyText);
 
+                if (ExpectToPayWagesPerformWI.Value && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.BUS_CAT_TXT, out var whenExpectFutreFutaAgWagesInWisconsin))
+                {
+                    AFL_XPCT_PY_WI_WGS_WHN_TXT = whenExpectFutreFutaAgWagesInWisconsin.ReplyText;
+                }
+            }
             // (5.12) // have paid 1k in a quarter
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.DMSTC_PD_1K_FLG, out var paid1kFlagValue))
             {
@@ -744,6 +781,14 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                     WhenExpectToHaveWagesInAQuarter = whenExpectToPay1500CommercialWagesInQuarter.ReplyText;
                 }
             }
+            //sv
+            //HasAppliedFor501c3Status
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_APPLY_501C3S, out var nonProfit501C3Flag))
+            {
+                HasAppliedFor501c3Status = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(nonProfit501C3Flag.ReplyText);
+            }
+            //sv
+
         }
 
         if (BusinessCategory is Models.BusinessCategory.NonProfit_501c3)
@@ -776,8 +821,8 @@ public class SubjectivityModel : IEmployerRegistrationModelSection
                     WhenExpectToHaveWagesInAQuarter = whenNonProfitExpects4EmployeesForSameDayIn20WeeksInYear.ReplyText;
                 }
             }
-        }
 
+        }
         // year one wages
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_YR_ONE_YR, out var yearOne))
         {

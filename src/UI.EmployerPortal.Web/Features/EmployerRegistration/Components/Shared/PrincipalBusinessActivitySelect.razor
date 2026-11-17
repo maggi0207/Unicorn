@@ -1,46 +1,47 @@
 @using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
-@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Features.Shared.Layout.Components
+@using Microsoft.JSInterop;
 
 <div class="form-group master-text-field-full @(ShowError ? "master-text-field--error" : "")"
     @onfocusout="HandleBlur">
-    <label for="@Id" class="form-label @(ShowError ? "master-label--error" : "")">
-        @Label
-    </label>
-    <InputSelect id="@Id"
-                 class="@GetCssClass()"
-                 @bind-Value="Value"
-                 @bind-Value:after="OnValueChanged"
-                 aria-label="@Label"
-                 aria-invalid="@HasError"
-                 aria-required="@IsRequired"
-                 aria-describedby="@AriaDescribedBy"
-                 disabled="@Disabled">
-        <option value="@PrincipalBusinessActivityType.None">-- Select Principal Business Activity --</option>
-        @foreach (var activity in GetAllActivities())
-        {
-            <option value="@activity">@activity.GetDisplayName()</option>
-        }
-    </InputSelect>
-
+    <BoldDropdown TItem="PrincipalBusinessActivityType"
+                Items="GetAllActivitiesToList()"
+                Id="activity => activity.ToAttributeValue()"
+                ComboboxId="@Id"
+                AdditionalClasses="@GetCssClass()"
+                FirstLabel="activity => activity.GetDisplayName()"
+                ComboboxLabel="Principal Business Activity"
+                Placeholder="Select Principal Business Activity"
+                DefaultOptionLabel="-- Select Principal Business Activity --"
+                Value="Value"
+                ShouldUseTruncatedLabels="false"
+                OnChange="@OnValueChanged"
+                aria-describedby="@ErrorId"
+                aria-invalid="@HasError.ToString()"
+                aria-required="@IsRequired.ToString()">
+    </BoldDropdown>
     @if (ShowError && !string.IsNullOrWhiteSpace(ErrorMessage))
     {
         <ValidationError ErrorMessage="@ErrorMessage" ErrorId="@ErrorId" />
     }
 </div>
-
 @code {
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
     [CascadingParameter]
     private EditContext? EditContext { get; set; }
 
     [Parameter] public string Id { get; set; } = "principal-activity";
     [Parameter] public string Label { get; set; } = "Principal Business Activity";
-    [Parameter] public PrincipalBusinessActivityType Value { get; set; } = PrincipalBusinessActivityType.None;
+    [Parameter] public PrincipalBusinessActivityType Value { get; set; }
     [Parameter] public EventCallback<PrincipalBusinessActivityType> ValueChanged { get; set; }
     [Parameter] public Expression<Func<PrincipalBusinessActivityType>>? ValueExpression { get; set; }
     [Parameter] public bool IsRequired { get; set; } = true;
-    [Parameter] public bool Disabled { get; set; } = false;
     [Parameter] public string CssClass { get; set; } = string.Empty;
 
     /// <summary>When true, applies error styling to the select element.</summary>
@@ -83,8 +84,9 @@
         Touched = true;
     }
 
-    private async Task OnValueChanged()
+    private async Task OnValueChanged(PrincipalBusinessActivityType item)
     {
+        Value = item;
         Touched = true;
         await ValueChanged.InvokeAsync(Value);
 
@@ -93,13 +95,16 @@
             var field = FieldIdentifier.Create(ValueExpression);
             EditContext.NotifyFieldChanged(field);
         }
+
+        await JSRuntime.InvokeVoidAsync("focusElement", Id);
     }
 
-    private IEnumerable<PrincipalBusinessActivityType> GetAllActivities()
+    private List<PrincipalBusinessActivityType> GetAllActivitiesToList()
     {
         return Enum.GetValues<PrincipalBusinessActivityType>()
             .Where(a => a != PrincipalBusinessActivityType.None)
-            .OrderBy(a => a.GetDisplayName());
+            .OrderBy(a => a.GetDisplayName())
+            .ToList();
     }
 
     private string GetCssClass()

@@ -283,15 +283,18 @@ public partial class UISubjectivity
         }
         var currentWeekSat = today.AddDays(daysUntilSaturday);
         var minDate = TwentiethWeekMinSaturday();
-        
+
         if (minDate > currentWeekSat)
         {
             var endOfYear = new DateTime(minDate.Year, 12, 31);
-            int offset = (int)endOfYear.DayOfWeek - (int)DayOfWeek.Saturday;
-            if (offset < 0) offset += 7;
+            var offset = (int) endOfYear.DayOfWeek - (int) DayOfWeek.Saturday;
+            if (offset < 0)
+            {
+                offset += 7;
+            }
             return endOfYear.AddDays(-offset);
         }
-        
+
         return currentWeekSat;
     }
 
@@ -378,7 +381,7 @@ public partial class UISubjectivity
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
             BusinessCategory.NonProfit_501c3 => nonProfit,
-            BusinessCategory.NonProfit_Other => nonProfit,
+            BusinessCategory.NonProfit_Other => commercial,
             _ => commercial
         };
     }
@@ -395,7 +398,7 @@ public partial class UISubjectivity
             BusinessCategory.Domestic => domestic,
             BusinessCategory.Agricultural => agricultural,
             BusinessCategory.NonProfit_501c3 => nonProfit,
-            BusinessCategory.NonProfit_Other => nonProfit,
+            BusinessCategory.NonProfit_Other => commercial,
             _ => String.Empty
         };
     }
@@ -419,13 +422,13 @@ public partial class UISubjectivity
     {
         var commercial = "Have you had at least one full- or part-time employee working for you in 20 different calendar weeks in a calendar year?";
         var agricultural = "Have you had at least 10 full- or part-time agricultural employees working for you on the same day in 20 different calendar weeks in a calendar year?";
-        var nonProfit = "Have you had at least 4 full- or part-time employees working for you in Wisconsin on the same day in 20 different calendar weeks in a calendar year?";
+        var nonProfit_501c3 = "Have you had at least 4 full- or part-time employees working for you in Wisconsin on the same day in 20 different calendar weeks in a calendar year?";
         return BusinessCategory switch
         {
             BusinessCategory.Commercial => commercial,
             BusinessCategory.Domestic => string.Empty,
             BusinessCategory.Agricultural => agricultural,
-            BusinessCategory.NonProfit_501c3 => nonProfit,
+            BusinessCategory.NonProfit_501c3 => nonProfit_501c3,
             BusinessCategory.NonProfit_Other => commercial,
             _ => string.Empty
         };
@@ -531,10 +534,11 @@ public partial class UISubjectivity
         {
             SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
             SubjectivityModel.ExpectToPayWagesInAQuarter = null;
+            SubjectivityModel.ExpectToHaveWagesInAQuarter = null;
             ResetField(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter);
             ResetField(() => SubjectivityModel.ExpectToPayWagesInAQuarter);
+            ResetField(() => SubjectivityModel.ExpectToHaveWagesInAQuarter);
         }
-        //0601
         SubjectivityModel.HasEmployeeIn20Weeks = null;
         SubjectivityModel.Week20EndDate = null;
         _subjectivityContext.NotifyFieldChanged(_subjectivityContext.Field(nameof(SubjectivityModel.PaidWagesOver1500Employees)));
@@ -545,7 +549,6 @@ public partial class UISubjectivity
     {
         SubjectivityModel.HasEmployeeIn20Weeks = value;
         SubjectivityModel.Week20EndDate = null;
-        //0610
         SubjectivityModel.ExpectToPayWagesInAQuarter = null;
         SubjectivityModel.WhenExpectToPayWagesInAQuarter = string.Empty;
         if (SubjectivityModel.BusinessCategory == BusinessCategory.NonProfit_501c3)
@@ -747,7 +750,7 @@ public partial class UISubjectivity
         }
         if (IsVisible(() => SubjectivityModel.Week20EndDate) && Section10Visible)
         {
-            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Week20EndDate));
+            var field = _subjectivityContext.Field(nameof(SubjectivityModel.Week20EndDateTxt));
             var currentWeekSaturday = DateTime.Today.AddDays(DayOfWeek.Saturday - DateTime.Today.DayOfWeek);
             if (!SubjectivityModel.Week20EndDate.HasValue)
             {
@@ -984,7 +987,7 @@ public partial class UISubjectivity
     private bool Section0Visible => BusinessCategory == BusinessCategory.NonProfit_501c3;
     private bool Section3Visible => BusinessCategory != BusinessCategory.NonProfit_501c3;
     private bool Section6Visible => SubjectivityModel.HasEmployeesOutsideWisconsin == true && BusinessCategory != BusinessCategory.NonProfit_501c3;
-    private bool Section15Visible => false;// SubjectivityModel.HasFutaLiabilityInOtherStates == true && (BusinessCategory == BusinessCategory.Agricultural || BusinessCategory == BusinessCategory.Domestic);
+    private bool Section15Visible => SubjectivityModel.HasFutaLiabilityInOtherStates == true && (BusinessCategory == BusinessCategory.Agricultural || BusinessCategory == BusinessCategory.Domestic);
     private bool Section16Visible => SubjectivityModel.PayWagesPerformWI == false;
     private bool Section17Visible => SubjectivityModel.ExpectToPayWagesPerformWI == true;
     // paid employees over x in calendar quarter
@@ -1004,4 +1007,5 @@ public partial class UISubjectivity
     private bool Section18Visible => (Section13Visible && SubjectivityModel.ExpectToPayWagesInAQuarter == false && BusinessCategory != BusinessCategory.Domestic) || (SubjectivityModel.BusinessCategory == BusinessCategory.NonProfit_501c3 && SubjectivityModel.HasEmployeeIn20Weeks == false);
     // 10 yes, when?
     private bool Section19Visible => Section18Visible && SubjectivityModel.ExpectToHaveWagesInAQuarter == true;
+
 }

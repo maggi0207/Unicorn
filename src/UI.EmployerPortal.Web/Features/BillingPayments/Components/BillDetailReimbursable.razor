@@ -8,6 +8,7 @@
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
 @using UI.EmployerPortal.Web.Features.Shared.Layout.Components
 
+<PageTitle>Billing Details</PageTitle>
 @if (_isLoading)
 {
     <LoadingSpinner Message="Loading billing details, please wait..." />
@@ -15,14 +16,14 @@
 else
 {
     <div class="billing-container" role="region" aria-label="Billing Details Section">
-        <h2 id="billing-heading" class="billing-title"> Billing Details</h2>
+        <h1 id="billing-heading" class="billing-title"> Billing Details</h1>
 
         <p class="billing-description">
             This page reflects the amount due on the most recent monthly statement. Payments made this month will be reflected in the next billing statement.
         </p>
         @if (_showValidationSummary && _validationErrors.Any())
         {
-            <div class="fix-section-width" style="max-width:684px;">
+            <div class="fix-section-width">
                 <NotificationBanner NotificationType="NotificationType.Alert"
                 MessageStyle="MessageStyle.MultiLine"
                 Messages="_validationErrors"
@@ -34,90 +35,91 @@ else
         <EditForm EditContext="_editContext"
         OnValidSubmit="HandleContinue"
         OnInvalidSubmit="OnInvalid" >
-            <DataAnnotationsValidator/>        
-            <ValidationSummary />
 
-            <div class="billing-summary" aria-labelledby="billing-heading">    
-                <div class="billing-row">
-                    <span class="label">Balance Due From Last Statement</span>
-                    <span class="value" aria-label="Balance Due">
-                        @Model.TotalOutstandingBalance.ToString("C")                       
-                    </span>
-                </div>
+            <div class="billing-summary" aria-labelledby="billing-heading">
+                <dl>
+                    <div class="billing-row">
+                        <dt class="label">Balance Due From Last Statement</dt>
+                        <dd class="value" aria-label="Balance Due">
+                            @Model.TotalOutstandingBalance.ToString("C")
+                        </dd>
+                    </div>
 
-                <div class="billing-row">
-                    <span class="label">Pending EFT Payments</span>
-                    <span class="value" aria-label="Pending EFT Payments">
-                        @Model.TotalEFTPayments.ToString("C")                      
-                    </span>
-                </div>
+                    <div class="billing-row">
+                        <dt class="label">Pending EFT Payments</dt>
+                        <dd class="value" aria-label="Pending EFT Payments">
+                            @Model.TotalEFTPayments.ToString("C")
+                        </dd>
+                    </div>
+                </dl>
 
                 <div class="billing-row">
                     <label for="amount" class="label">Amount to Pay</label>
                     <span class="value">
                         <NumericTextBox Value="@Model.AmountToPay"
-                        Id="amount"
-                        AriaLabel="Amount to pay"
-                        IsReadonly="false"
-                        InputType="@InputDataTypes.Currency"
-                        ShowCurrencyIcon="false"
-                        DecimalPlaces="2"
-                        Min="0"
-                        Max="1000000000"
-                        CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
-                        AriaDescribedby="@(_amountHasError ? "amount-error" : null)"
-                        ValueChanged="OnAmountChanged" />
+                            Id="amount"
+                            IsReadonly="false"
+                            InputType="@InputDataTypes.Currency"
+                            ShowCurrencyIcon="false"
+                            DecimalPlaces="2"
+                            Min="0"
+                            Max="1000000000"
+                            CssClass="@($"form-control amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
+                            AriaDescribedby="@(_amountHasError ? "amount-error" : null)"
+                            ValueChanged="OnAmountChanged" />
                         @if (_amountHasError)
                         {
-                            <ValidationError ErrorMessage="This field is required" ErrorId="amount-error" />
+                            <ValidationError ErrorMessage="Amount to pay must be greater than $0.00" ErrorId="amount-error" />
                         }
                     </span>
                 </div>
             </div>
+            <br />
             <p class="billing-description">
                 If you have any questions regarding the balance due, please email UIReimburseErs@dwd.wisconsin.gov or call the Reimbursement Specialist at (608) 266-9989.
             </p>
 
-            <h3 id="payment-method-heading" class="section-title">
+            <h2 id="payment-method-heading" class="section-title">
                 Payment Method
-            </h3>
+            </h2>
 
             <fieldset aria-labelledby="payment-method-heading"
-            class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
-            aria-invalid="@(_paymentMethodHasError ? "true" : "false")"
-            aria-describedby="@(_paymentMethodHasError ? "payment-method-error" : null)">
+                    class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
+                    aria-invalid="@(_paymentMethodHasError ? "true" : "false")"
+                    aria-describedby="@(_paymentMethodHasError ? "payment-method-error" : null)"
+                    aria-required="true">
                 <legend class="sr-only">Payment Method Selection</legend>
                 @if (_paymentMethodHasError)
                 {
-                    <ValidationError ErrorMessage="This field is required" ErrorId="payment-method-error" />
+                    <ValidationError ErrorMessage="Payment method selection is required" ErrorId="payment-method-error" />
                 }
                 <div class="option">
                     <label for="ach">
                         <input type="radio"
-                        id="ach"
-                        name="paymentMethod"
-                        value="ACH"
-                        checked="@(_selectedpayment == "ACH")"
-                        @onchange="OnpaymentChanged"
-                        aria-label="ACH payment method" />           
+                            id="ach"
+                            name="paymentMethod"
+                            value="ACH"
+                            checked="@(_selectedpayment == "ACH")"
+                            @onchange="OnpaymentChanged"
+                            aria-describedby="ach-description"/>
                         <strong>ACH</strong>   <br/>
-                        <div class="description">
+                        <div id="ach-description" class="description">
                             Pay your UI taxes online directly from your bank account.
                         </div>
-                    </label> 
+                    </label>
                 </div>
 
                 <div class="option">
                     <label for="card">
                         <input type="radio"
-                        id="card"
-                        name="paymentMethod"
-                        value="Card"
-                        checked="@(_selectedpayment == "Card")"
-                        @onchange="OnpaymentChanged"
-                        aria-label="Credit or Debit Card payment method" />           
+                            id="card"
+                            name="paymentMethod"
+                            value="Card"
+                            checked="@(_selectedpayment == "Card")"
+                            @onchange="OnpaymentChanged"
+                            aria-describedby="credit-description" />
                         <strong>Credit/Debit Card</strong>  <br />
-                        <div class="description">
+                        <div id="credit-description" class="description">
                             Make a payment by credit or debit card.
                         </div>
                     </label>
@@ -126,14 +128,14 @@ else
                 <div class="option">
                     <label for="check">
                         <input type="radio"
-                        id="check"
-                        name="paymentMethod"
-                        value="Check"
-                        checked="@(_selectedpayment == "Check")"
-                        @onchange="OnpaymentChanged"
-                        aria-label="Check payment method" />          
+                            id="check"
+                            name="paymentMethod"
+                            value="Check"
+                            checked="@(_selectedpayment == "Check")"
+                            @onchange="OnpaymentChanged"
+                            aria-describedby="check-description"/>
                         <strong>Check</strong>   <br />
-                        <div class="description">
+                        <div id="check-description" class="description">
                             Print out a payment coupon you can send in to us with your payment.
                         </div>
                     </label>

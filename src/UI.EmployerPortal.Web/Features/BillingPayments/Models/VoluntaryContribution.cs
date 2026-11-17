@@ -22,6 +22,10 @@ public class VoluntaryContribution
     /// <summary>
     /// 
     /// </summary>
+    public decimal PendingPaymentAmount { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
     public decimal NetTaxSavings { get; set; }
     /// <summary>
     /// 
@@ -83,3 +87,10 @@ public class VoluntaryContribution
         }
     }
 }
+/// <summary>
+/// Settlement date window and bank holidays for voluntary contribution payments.
+/// </summary>
+public sealed record VoluntaryPaymentDates(
+   DateOnly FirstAvailableSettlementDate,
+   DateOnly MaxSettlementDate,
+   IReadOnlyCollection<DateOnly> BankHolidays);

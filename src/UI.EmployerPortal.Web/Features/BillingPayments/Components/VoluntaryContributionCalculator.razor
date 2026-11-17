@@ -1,211 +1,189 @@
-@using Microsoft.FluentUI.AspNetCore.Components
 @using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using Microsoft.AspNetCore.Components.Forms
-@using UI.EmployerPortal.Web.Features.Shared.Layout.Components
-
+@using UI.EmployerPortal.Web.Features.Shared.Components
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="voluntary-Container" role="region" aria-label="Voluntary Contribution">
-    <h2 class="title-heading">Voluntary Contribution Calculator</h2>
-    <br />
-    <EditForm EditContext="_editContext"
-          OnValidSubmit="HandleContinue"
-          OnInvalidSubmit="OnInvalid">
+    <PageHeader Text="Voluntary Contribution Calculator" />
 
-     @if (_showValidationSummary && _validationErrors.Any())
-     {
-        <div class="fix-section-width" style="max-width:840px; padding-left:10px;">       
-       <NotificationBanner NotificationType="NotificationType.Alert"
-                               MessageStyle="MessageStyle.MultiLine"
-                                    Title="Please fix the following errors:"
-                                   Messages="_validationErrors"
-                            MessageFieldIds="@_bannerFieldIds"
-                              DismissButton="false" />
-        </div>
-        <br />
-     }
-      
-      <p class="title-smallheading">
-        Voluntary contributions are an optional means by which employers can lower their rate by one rate bracket.
-      </p>
-      <p class="title-smallheading">
-        Voluntary contributions must be received by November 30th to obtain a lower rate for the upcoming year.
-      </p>
-      <table class="table" aria-label="Contribution Details">
-        <tbody>
-            <tr>
-                    <th scope="row" class="col1">Reserve Fund Balance as of June 30, @DateTime.Now.Year</th>
-                    <td class="col2">@Model.ReserveFundBalance.ToString("C")</td>
-            </tr>
-            <tr>
-                    <th scope="row" class="col1">Taxable Payroll Fiscal Year Ended June 30, @DateTime.Now.Year</th>
-                    <td class="col2">@Model.TaxablePayRoll.ToString("C")</td>
-            </tr>
-            <tr>
-                    <th scope="row" class="col1">Reserve Fund Percentage</th>
-                    <td class="col2">@Model.ReserveFundPercentage.ToString("P2")</td>
-            </tr>
-            <tr>
-                    <th scope="row" class="col1">Tax Rate For Year @(DateTime.Now.Year +1)</th>
-                    <td class="col2">@Model.TaxRateForYear.ToString("P2")</td>
-            </tr>
-        </tbody>
-      </table>
-      <p class="sub-header">You are eligible to make a voluntary contribution to lower your @(DateTime.Now.Year +1) tax rate to @Model.Lowerrate.ToString("P2").</p>
-      <div class="taxable-payroll-row">
-                <div class="taxable-payroll-info">
-                    <div class="title">
-                    Estimated Taxable Payroll for @(DateTime.Now.Year + 1)
-                </div>
+    <EditForm EditContext="_editContext" OnValidSubmit="HandleContinue" OnInvalidSubmit="OnInvalid" style="width: 100%">
 
-                <div class="subtitle">
-                        Change if needed and press Recalculate
-                </div>
-        </div>
-        <div class="taxable-payroll-actions" aria-label="Estimated Taxable Payroll For @(DateTime.Now.Year + 1)">
-                <button type="button" class="recalculate-btn"  @onclick="() => RecalculatePayment()">
-                    @if(_isRecalculating)
-                    {
-                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                    }
-                    else
-                    {
-                        <img src="@Assets["icons/recalculate.svg"]" class="action-icon" alt="" /> 
-                    }
-                    Recalculate
-                </button>
-                <div class="visually-hidden" role="status" aria-live="polite"> @_recalculateStatus</div>
- 
-                <div class="value">
-                   <NumericTextBox Value="@Model.EstimatedTaxablePayroll"
-                                   Id="amount"
-                                   AriaLabel="Estimate Taxable Payroll"
-                                   IsReadonly="false"
-                                   InputType="@InputDataTypes.Currency"
-                                   ShowCurrencyIcon="false"
-                                   DecimalPlaces="2"
-                                   Min="0"
-                                   Max="1000000000"
-                                  CssClass="@($"form-control amount-input {(_payrollHasError ? "numeric-input--error" : string.Empty)}")"
-                                  ValueChanged="OnPayrollChanged" />
-                </div>
-            </div>        
-        </div>
-        @if (_payrollHasError)
+        @if (_showValidationSummary && _validationErrors.Any())
         {
-            <span style="padding-left:355px" class="field-error-message">@PayrollErrorMessage</span>
-        }
-        <div class="custom-divider"></div>
-                
-  <table class="table tblnomargin" aria-label="Contribution Tax Details">
-        <tbody>
-            
-            <tr>
-                <th scope="row" class="col1">Tax Savings Based On estimated payroll</th>
-                <th scope="row" class="col2">@Model.TaxSavingsBasedOnEstimatedPayroll.ToString("C")</th>
-            </tr>
-            <tr>
-                <th scope="row" class="col1">Voluntary contribution required to lower your @(DateTime.Now.Year +1) rate</th>
-                <th scope="row" class="col2 col2-highlight">@Model.VcRequired.ToString("C")</th>
-            </tr>
-            <tr>
-                <th scope="row" class="col1">Net tax savings for @(DateTime.Now.Year +1)</th>
-                    <th scope="row" class="col2">@Model.NetTaxSavings.ToString("C")</th>
-            </tr>
+            <div class="fix-section-width" style="max-width:840px; padding-left:10px;">
+                <NotificationBanner NotificationType="NotificationType.Alert" MessageStyle="MessageStyle.MultiLine"
+                                    Title="Please fix the following errors:" Messages="_validationErrors" MessageFieldIds="@_bannerFieldIds"
+                                    DismissButton="false" />
+            </div>
             <br />
-            <tr>
-                <th scope="row" class="col1">Voluntary Contribution Payment Amount</th>
-                    <th scope="row" class="col2 numeric-cell">
-                        <span class="value">
-                            <NumericTextBox Value="@Model.PaymentAmount"
-                                    Id="vamount"
-                                    AriaLabel="Contribution Amount to pay"
-                                    AriaDescribedby="vamount-error-message"
-                                    IsReadonly="false"
-                                    InputType="@InputDataTypes.Currency"
-                                    ShowCurrencyIcon="false"
-                                    DecimalPlaces="2" Min="0" Max="1000000000"
-                                    CssClass="@($"amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
-                                    ValueChanged="OnAmountChanged" />
-                            @if (_amountHasError)
-                            {
-                                <span id="vamount-error-message" class="field-error-message">@AmountErrorMessage</span>
-                            }
-                        </span>
-                    </th>
-            </tr>
-        </tbody>
-  </table>
-    
-    <div class="custom-divider payment-table-divider"></div>
-    <br />
-        <h3 id="payment-method-heading" class="payment">
-            Payment Method
-        </h3>
-        @if (_paymentMethodHasError)
-        {
-            <span id="payment-method-error-message" class="field-error-message">@PaymentMethodErrorMessage</span>
         }
-  <fieldset id="paymentMethodFieldset" tabindex="-1"
-       aria-labelledby="payment-method-heading"
-      class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)"
-      aria-invalid="@(_paymentMethodHasError ? "true" : "false")">
-      <div class="option">
-       <label for="ach">
-         <input type="radio"
-               id="ach"
-               name="paymentMethod"
-               value="ACH"
-               checked="@(_selectedpayment == "ACH")"
-               @onchange="OnpaymentChanged"
-               aria-label="ACH payment method" />
-         <strong>ACH</strong>
-       </label>
-      </div>
-      <div class="option">
-         <label for="card">
-            <input type="radio"
-               id="card"
-               name="paymentMethod"
-               value="Card"
-               checked="@(_selectedpayment == "Card")"
-               @onchange="OnpaymentChanged"
-               aria-label="Credit or Debit Card payment method" />
-            <strong>Credit/Debit Card</strong>
-         </label>
-      </div>
-      <div class="option">
-         <label for="check">
-            <input type="radio"
-               id="check"
-               name="paymentMethod"
-               value="Check"
-               checked="@(_selectedpayment == "Check")"
-               @onchange="OnpaymentChanged"
-               aria-label="Check payment method" />
-            <strong>Check</strong>
-         </label>
-      </div>
-      <br />
-  </fieldset>
-        <BillingButtonBar ShowBack="true"
-            ShowContinue="true"
-            ShowCancel="false"
-            OnContinue="PaymentAsync"
-            ContinueText="CONTINUE"
-            ButtonWidth="200"
-            OnBack="GoBack">
-        </BillingButtonBar>
 
-        <h3 id="disclaimer-heading" class="section-title">
-            Disclaimer
-        </h3>
-        <p class="section-paragraph">
-            @Model.DisclaimerText
+        <p class="title-smallheading">
+            Voluntary contributions are an optional means by which employers can lower their rate by one rate bracket.
         </p>
-    </EditForm>
-</div>
+        <p class="title-smallheading">
+            Voluntary contributions must be received by November 30th to obtain a lower rate for the upcoming year.
+        </p>
+        <div class="table-container">
+            <table class="table" aria-label="Contribution Details">
+                <tbody>
+                    <tr>
+                        <th scope="row" class="col1">Reserve Fund Balance as of June 30, @DateTime.Now.Year</th>
+                        <td class="col2">@Model.ReserveFundBalance.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col1">Taxable Payroll Fiscal Year Ended June 30, @DateTime.Now.Year</th>
+                        <td class="col2">@Model.TaxablePayRoll.ToString("C")</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col1">Reserve Fund Percentage</th>
+                        <td class="col2">@Model.ReserveFundPercentage%</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col1">Tax Rate For Year @(DateTime.Now.Year + 1)</th>
+                        <td class="col2">@Model.TaxRateForYear.ToString("P2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="sub-header">You are eligible to make a voluntary contribution to lower your @(DateTime.Now.Year + 1)
+            tax rate to @Model.Lowerrate.ToString("P2").</p>
+            <div class="taxable-payroll-row">
+                <div class="taxable-payroll-info">
+                    <label for="amount" class="title">
+                        Estimated Taxable Payroll for @(DateTime.Now.Year + 1)
+                    </label>
+
+                    <div id="amount-description" class="subtitle">
+                        Change if needed and press Recalculate
+                    </div>
+                </div>
+                <div class="taxable-payroll-actions" aria-label="Estimated Taxable Payroll For @(DateTime.Now.Year + 1)">
+                    <button type="button" class="recalculate-btn"
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => RecalculatePayment(), "Recalculate Payment Clicked", DateTime.Now))">
+                        @if (_isRecalculating)
+                        {
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <img src="@Assets["icons/recalculate.svg"]" class="action-icon" alt="" />
+                        }
+                        Recalculate
+                    </button>
+                    <div class="visually-hidden" role="status" aria-live="polite"> @_recalculateStatus</div>
+
+                    <div class="value">
+                        <NumericTextBox Value="@Model.EstimatedTaxablePayroll" Id="amount"
+                                        AriaDescribedby="amount-description" IsReadonly="false" InputType="@InputDataTypes.Currency"
+                                        ShowCurrencyIcon="false" DecimalPlaces="2" Min="0" Max="1000000000"
+                                        CssClass="@($"form-control amount-input {(_payrollHasError ? "numeric-input--error" : string.Empty)}")"
+                                        ValueChanged="OnPayrollChanged" />
+                    </div>
+                </div>
+            </div>
+            @if (_payrollHasError)
+            {
+                <span style="padding-left:355px" class="field-error-message">@PayrollErrorMessage</span>
+            }
+            <div class="custom-divider"></div>
+            <div class="table-container">
+                <table class="table tblnomargin" aria-label="Contribution Tax Details">
+                    <tbody>
+
+                        <tr>
+                            <th scope="row" class="col1">Tax Savings Based On estimated payroll</th>
+                            <td class="col2">@Model.TaxSavingsBasedOnEstimatedPayroll.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="col1">Voluntary contribution required to lower your @(DateTime.Now.Year
+                                                            + 1) rate</th>
+                                <td class="col2 col2-highlight">@Model.VcRequired.ToString("C")</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="col1">Net tax savings for @(DateTime.Now.Year + 1)</th>
+                                <td class="col2">
+                                    <span class="@(Model.NetTaxSavings < 0 ? "validation-message" : "")">@Model.NetTaxSavings.ToString("C")</span>
+                                </td>
+                            </tr>
+                            <br />
+                            <tr>
+                                <th id="payment-amount-label" scope="row" class="col1">Voluntary Contribution Payment Amount
+                                </th>
+                                <td class="col2 numeric-cell">
+                                    <span class="value">
+                                        <NumericTextBox Value="@Model.PaymentAmount" Id="vamount"
+                                                        AriaLabelledBy="payment-amount-label" AriaDescribedby="vamount-error-message"
+                                                        AriaRequired="true" IsReadonly="false" InputType="@InputDataTypes.Currency"
+                                                        ShowCurrencyIcon="false" DecimalPlaces="2" Min="0" Max="1000000000"
+                                                        CssClass="@($"amount-input {(_amountHasError ? "numeric-input--error" : string.Empty)}")"
+                                                        ValueChanged="OnAmountChanged" />
+                                        @if (_amountHasError)
+                                        {
+                                            <span id="vamount-error-message" class="field-error-message">@AmountErrorMessage</span>
+                                        }
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="fix-section-width" style="max-width:860px; padding-left:10px;">
+                    <NotificationBanner NotificationType="NotificationType.Information"
+                                        Title="@($"Employer account has a Voluntary Contribution payment amount of {@Model.PendingPaymentAmount.ToString("C2")}")"
+                                        DismissButton="false" />
+                </div>
+                <div class="custom-divider payment-table-divider"></div>
+                <br />
+                <h2 id="payment-method-heading" class="payment">
+                    Payment Method
+                </h2>
+                @if (_paymentMethodHasError)
+                {
+                    <span id="payment-method-error-message" class="field-error-message">@PaymentMethodErrorMessage</span>
+                }
+                <fieldset id="paymentMethodFieldset" tabindex="-1" aria-labelledby="payment-method-heading" aria-required="true"
+                          class="@(_paymentMethodHasError ? "billing-fieldset-error" : string.Empty)">
+                    <div class="option">
+                        <label for="ach">
+                            <input type="radio" id="ach" name="paymentMethod" value="ACH" checked="@(_selectedpayment == "ACH")"
+                                   @onchange="OnpaymentChanged" aria-label="ACH payment method" />
+                            <strong>ACH</strong>
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label for="card">
+                            <input type="radio" id="card" name="paymentMethod" value="Card"
+                                   checked="@(_selectedpayment == "Card")" @onchange="OnpaymentChanged"
+                                   aria-label="Credit or Debit Card payment method" />
+                            <strong>Credit/Debit Card</strong>
+                        </label>
+                    </div>
+                    <div class="option">
+                        <label for="check">
+                            <input type="radio" id="check" name="paymentMethod" value="Check"
+                                   checked="@(_selectedpayment == "Check")" @onchange="OnpaymentChanged"
+                                   aria-label="Check payment method" />
+                            <strong>Check</strong>
+                        </label>
+                    </div>
+                    <br />
+                </fieldset>
+                <BillingButtonBar ShowBack="true" ShowContinue="true" ShowCancel="false" OnContinue="PaymentAsync"
+                                  ContinueText="CONTINUE" ButtonWidth="200" OnBack="GoBack">
+                </BillingButtonBar>
+
+                <h2 id="disclaimer-heading" class="section-title">
+                    Disclaimer
+                </h2>
+                <p class="section-paragraph">
+                    @Model.DisclaimerText
+                </p>
+            </EditForm>
+        </div>
 
 @code {
 

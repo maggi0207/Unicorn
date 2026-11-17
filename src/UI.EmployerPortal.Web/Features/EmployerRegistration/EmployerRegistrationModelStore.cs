@@ -114,66 +114,48 @@ internal class EmployerRegistrationModelStore
         {
             try
             {
-
                 var secureUserSkClaim = _userAccountService.GetUserSKClaim();
-
-                var match = await _employerRegistrationService.HasExactMatchAsync(surveyResponseSk);
-
-                if (!match.Value)
+                // register employer
+                var registerRequest = new RequestForEmployerRegistration()
                 {
-                    match = await _employerRegistrationService.HasPartialMatchAsync(surveyResponseSk);
-                }
+                    SecureUserSK = secureUserSkClaim,
+                    SurveyResponseSK = surveyResponseSk
+                };
 
-                if (match.Value)
+
+                var registerResponse = await _employerRegistrationService.RegisterEmployerAsync(registerRequest);
+
+                if (registerResponse.RuleViolations.Any())
                 {
-                    // planned path registration
-                    _navigationManager.NavigateTo("employer-registration/planned-path");
-                    return new();
+                    return registerResponse.RuleViolations.Select(rv =>
+                    rv.IsSystemError ? _technicalDifficulties : rv.RuleViolation).ToList();
                 }
                 else
                 {
-                    // register employer
-                    var registerRequest = new RequestForEmployerRegistration()
+                    if (registerResponse.LiableRegistration == false || registerResponse.EmployerSK == null)
                     {
-                        SecureUserSK = secureUserSkClaim,
-                        SurveyResponseSK = surveyResponseSk
-                    };
-
-
-                    var registerResponse = await _employerRegistrationService.RegisterEmployerAsync(registerRequest);
-
-                    if (registerResponse.RuleViolations.Any())
-                    {
-                        return registerResponse.RuleViolations.Select(rv =>
+                        var plannedPathResponse = new SessionEmployerRegistrationResponse()
                         {
-                            return rv.RuleViolation;
-                        }).ToList();
-                    }
-                    else
-                    {
-                        if (registerResponse.LiableRegistration == false || registerResponse.EmployerSK == null)
-                        {
-                            var plannedPathResponse = new SessionEmployerRegistrationResponse()
-                            {
-                                Message = registerResponse.Message,
-                                SecondaryMessage = registerResponse.ResultSecondaryMessage,
-                            };
-                            await _sessionManager.ClearAsync<SessionEmployerRegistrationResponse>();
-                            await _sessionManager.SetAsync<SessionEmployerRegistrationResponse>(plannedPathResponse);
-                            _navigationManager.NavigateTo("employer-registration/planned-path");
-                            return new();
-                        }
-                        var sessionEmployerRegistrationInfo = new SessionEmployerRegistrationInfo()
-                        {
-                            EmployerSk = registerResponse.EmployerSK ?? 0,
-                            EmployerGenerationSk = registerResponse.CorrespondenceGenerationSK ?? 0
+                            Message = registerResponse.Message,
+                            SecondaryMessage = registerResponse.ResultSecondaryMessage,
+                            UIAccountNumber = registerResponse.UIAccountNumber,
+                            SurveyNumber = registerResponse.SurveyNumber
                         };
-
-                        await _sessionManager.SetAsync<SessionEmployerRegistrationInfo>(sessionEmployerRegistrationInfo);
-
-                        _navigationManager.NavigateTo("employer-registration/SuccessRegistration");
+                        await _sessionManager.ClearAsync<SessionEmployerRegistrationResponse>();
+                        await _sessionManager.SetAsync<SessionEmployerRegistrationResponse>(plannedPathResponse);
+                        _navigationManager.NavigateTo("employer-registration/planned-path");
                         return new();
                     }
+                    var sessionEmployerRegistrationInfo = new SessionEmployerRegistrationInfo()
+                    {
+                        EmployerSk = registerResponse.EmployerSK ?? 0,
+                        EmployerGenerationSk = registerResponse.CorrespondenceGenerationSK ?? 0
+                    };
+
+                    await _sessionManager.SetAsync<SessionEmployerRegistrationInfo>(sessionEmployerRegistrationInfo);
+
+                    _navigationManager.NavigateTo("employer-registration/SuccessRegistration");
+                    return new();
                 }
             }
             catch
@@ -186,8 +168,6 @@ internal class EmployerRegistrationModelStore
             return new() { _technicalDifficulties };
         }
     }
-
-
 
     /// <summary>
     /// Save the response to the WCF service that indicates they would like email notification of
@@ -248,36 +228,65 @@ internal class EmployerRegistrationModelStore
             : Tuple.Create((List<EmployerRegistrationValidationError>?) null, (List<string>?) null);
     }
 
-    public async Task ContinueSurvey(
+    public async Task<PortalContinueRegistrationResponse> ContinueSurvey(
         string? surveyNumber,
         string? fein)
     {
         try
         {
+            // Get the authenticated user's claim.
             var secureUserSKClaim = _userAccountService.GetUserSKClaim();
 
-            var continueRegistrationRequest = new ContinueRegistrationRequest()
+            var continueRegistrationRequest = new ContinueRegistrationRequest
             {
                 SecureUserSK = secureUserSKClaim,
                 FEIN = fein,
                 SurveyNumberText = surveyNumber ?? string.Empty
             };
 
-            var contiueRegistrationResponse = await _employerRegistrationService.ContinueRegistrationAsync(continueRegistrationRequest);
+            var response =
+                await _employerRegistrationService
+                    .ContinueRegistrationAsync(continueRegistrationRequest);
 
-            if (!contiueRegistrationResponse.SurveyResponseSK.HasValue)
+            // Protect against an unexpected null service response.
+            if (response is null)
             {
-                return;
+                return new PortalContinueRegistrationResponse
+                {
+                    Message = "Unable to continue the registration. Please try again."
+                };
             }
 
-            EmployerRegistrationModel.SurveyResponseSk = contiueRegistrationResponse.SurveyResponseSK?.ToString() ?? string.Empty;
+            // Only update the model after receiving a valid response.
+            EmployerRegistrationModel.SurveyResponseSk =
+                response.SurveyResponseSK?.ToString() ?? string.Empty;
 
-            LoadSurvey(contiueRegistrationResponse);
-
+            // Only load the survey when verification actually succeeded.
+            if (response.SurveyResponseSK.HasValue)
+            {
+                LoadSurvey(response);
+            }
+            return response;
         }
-        catch
+        catch (CommunicationException)
         {
-            return;
+            return new PortalContinueRegistrationResponse
+            {
+                Message = "Service is temporarily unavailable. Please try again."
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            // Don't hide cancellation as an unexpected application error.
+            throw;
+        }
+        catch (Exception)
+        {
+            // Consider logging the exception here.
+            return new PortalContinueRegistrationResponse
+            {
+                Message = "An unexpected error occurred. Please try again."
+            };
         }
     }
 
@@ -464,7 +473,7 @@ internal class EmployerRegistrationModelStore
         {
             var secureUserSkClaim = _userAccountService.GetUserSKClaim();
             var hasSurveyResponseSk = int.TryParse(EmployerRegistrationModel.SurveyResponseSk, out var surveyResponseSkValue);
-
+            var partialSurveyResponse = new PartialSaveEmployerRegistrationResponse();
             if (responses != null)
             {
                 var saveResponseRequest = new SurveyResponses()
@@ -479,6 +488,11 @@ internal class EmployerRegistrationModelStore
                 };
 
                 var saveResponseResult = await _employerRegistrationService.SavePortalResponsesAsync(saveResponseRequest);
+
+                partialSurveyResponse.SurveyNumber = saveResponseResult.SurveyNumber;
+
+                await _sessionManager.ClearAsync<PartialSaveEmployerRegistrationResponse>();
+                await _sessionManager.SetAsync<PartialSaveEmployerRegistrationResponse>(partialSurveyResponse);
 
                 // if we only have registration violations that say to skip subjectivity, then we can do that, otherwise we are going to have to call again anyways
                 if (saveResponseResult.RegistrationViolations.Any()
@@ -533,9 +547,7 @@ internal class EmployerRegistrationModelStore
                 {
                     return Tuple.Create((List<EmployerRegistrationValidationError>?) null,
                         (List<string>?) saveResponseResult.RuleViolations.Select(rv =>
-                        {
-                            return rv.RuleViolation;
-                        }).ToList());
+                                 rv.IsSystemError ? _technicalDifficulties : rv.RuleViolation).ToList());
                 }
 
                 EmployerRegistrationModel.SurveyResponseSk = saveResponseResult.SurveyResponseSK?.ToString() ?? throw new ArgumentNullException("Validation Passed but the service returned no Survey Id");
@@ -574,9 +586,7 @@ internal class EmployerRegistrationModelStore
                     {
                         return Tuple.Create((List<EmployerRegistrationValidationError>?) null,
                             (List<string>?) addressSaveResult.RuleViolations.Select(rv =>
-                            {
-                                return rv.RuleViolation;
-                            }).ToList());
+                                        rv.IsSystemError ? _technicalDifficulties : rv.RuleViolation).ToList());
                     }
                 }
             }
@@ -615,9 +625,7 @@ internal class EmployerRegistrationModelStore
                 {
                     return Tuple.Create((List<EmployerRegistrationValidationError>?) null,
                         (List<string>?) contactSaveResponse.RuleViolations.Select(rv =>
-                        {
-                            return rv.RuleViolation;
-                        }).ToList());
+                          rv.IsSystemError ? _technicalDifficulties : rv.RuleViolation).ToList());
                 }
             }
 

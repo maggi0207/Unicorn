@@ -3,6 +3,10 @@
 @using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService;
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.Shared.Session.Managers
+@using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @inject NavigationManager Nav;
 
@@ -33,17 +37,17 @@
         <div class="action-container">
             <Button
                 Variant="Button.ButtonVariant.Secondary"
-                OnClick="@OnRegisterAnother">
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(OnRegisterAnother, "Register Another Employer Clicked", DateTime.Now))">
                 REGISTER ANOTHER EMPLOYER
             </Button>
             <Button
                 Variant="Button.ButtonVariant.Secondary"
                 ShowBorder="false"
-                OnClick="@OnExit">
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(OnExit, "Exit Clicked", DateTime.Now))">
                 EXIT
             </Button>
             <Button
-                OnClick="@OnContinue">
+                Onclick="@(() => tracker.LogNavigationSessionActivity(OnContinue, "Continue Clicked", DateTime.Now))">
                 CONTINUE >
             </Button>
         </div>
@@ -78,8 +82,19 @@
 
     private List<Tuple<RegistrationAddressCode, AddressModel>> Addresses { get; set; } = new();
 
+    [Inject]
+    private ISessionManager SessionManager { get; set; } = default!;
+
     protected override void OnInitialized()
-    {   
+    {
+        if(string.IsNullOrEmpty(ModelStore.EmployerRegistrationModel.SurveyNumber))
+        {
+            var partialSurverResponse =  SessionManager.GetAsync<PartialSaveEmployerRegistrationResponse>().GetAwaiter().GetResult();
+            if(partialSurverResponse != null)
+            {
+                ModelStore.EmployerRegistrationModel.SurveyNumber = partialSurverResponse.SurveyNumber;
+            }
+        }
         base.OnInitialized();
         LoadResponses();
         _ = LoadEmployerRegistrationQuestions();
@@ -117,7 +132,7 @@
 
     private void OnExit()
     {
-        Nav.NavigateTo($"{Nav.BaseUri}home");
+        Nav.NavigateTo($"{Nav.BaseUri}home", true);
     }
 
     private async Task OnContinue()

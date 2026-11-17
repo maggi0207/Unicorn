@@ -10,21 +10,15 @@
     justify-content: center;
 }
 
-    .page_wrapper ::deep .radio-option {
-        width: auto;
-    }
-
 .bi-page-content {
     display: flex;
     flex-direction: column;
     width: 750px !important;
     max-width: 100%;
-    padding-top: 32px;
-    padding-bottom: 32px;
     box-sizing: border-box;
     font-family: Verdana, sans-serif;
     font-size: 16px;
-    gap: 24px;
+    gap: 12px;
 }
 
 .page-title {
@@ -273,7 +267,7 @@
 /* ── Form Section ── */
 ::deep .form-section {
     background-color: #fff;
-    width:750px;
+    max-width:750px;
 }
 
 /* ── Form Row (Bootstrap) ── */
@@ -330,9 +324,9 @@
 }
 
     ::deep .form-control:focus {
-        border-color: #80bdff;
+        border: 2px solid var(--color-blue-focus, #258cfb);
         outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        box-shadow: none;
     }
 
     ::deep .form-control:disabled {
@@ -362,9 +356,8 @@
 }
 
     ::deep .form-select:focus {
-        border-color: #80bdff;
+        border: 2px solid var(--color-blue-focus, #258cfb);
         outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
 
     ::deep .form-select:disabled {
@@ -393,8 +386,8 @@
 
 /* ── Activity Sections ── */
 ::deep .activity-section {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 ::deep .activity-instruction {
@@ -550,6 +543,12 @@
     }
 }
 
+@media (max-width: 684px) {
+    ::deep textarea.master-input{
+        width: 100% !important;
+    }
+}
+
 
 /* Start - CSS for master input outlinetext */
 ::deep .master-text-field {
@@ -559,8 +558,7 @@
 }
 ::deep .master-text-field-full {
     position: relative;
-    width: 684px;
-    max-width: 750px;
+    max-width: 684px;
 }
 /* Input */
 ::deep input.master-input {
@@ -581,7 +579,7 @@
 }
     /* Focus state */
     ::deep .master-input:focus {
-        border-color: #003663;
+        border: 2px solid var(--color-blue-focus, #258cfb);
     }
 
 /* Label on border */
@@ -794,7 +792,7 @@
     width: 360px
 }
 ::deep textarea.master-input:focus {
-    border-color: #003663;
+    border: 2px solid var(--color-blue-focus, #258cfb);
     outline: none;
     box-shadow: none;
 }

@@ -1,15 +1,24 @@
 @using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@using UI.EmployerPortal.Web.Features.BillingPayments.Services
+@using UI.EmployerPortal.Web.Features.Dashboard
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@inject INavigationSessionTracker tracker
+@inject IBillingDetailService BillingDetailService
+@inject IDashboardOrchestrator DashboardOrchestrator
+@inject IUserAccountService UserAccountService
 @inject NavigationManager Nav;
 
 <div class="billing-main">
     <!-- Make a Payment Section -->
     <section class="billing-section" aria-labelledby="make-payment-heading">
-        <h2 id="make-payment-heading" class="billing-section-title fw-bold">Make a Payment</h2>
+        <h1 id="make-payment-heading" class="billing-section-title fw-bold">Make a Payment</h1>
         <!-- Validation Error Summary -->
         @if (_showValidationSummary && _validationErrors.Any())
         {
@@ -25,58 +34,42 @@
         <p id="payment-options-description" class="section-description">Select the payment options you wish to use.</p>
         <AnnouncementBanner AnnouncementType="AnnouncementType.PAYMENTPAGE" />
 
-        <div role="radiogroup"
-             aria-labelledby="make-payment-heading"
-             aria-describedby="payment-options-description"
-             aria-required="true">
+        <div>
 
             <!-- Bank Account Payments (ACH) -->
-            <div class="payment-option-card @(_selectedOption == "ach" ? "selected" : "")"
-                 @onclick="HandleContinueACH"               
-                 role="radio"
-                 aria-checked="@(_selectedOption == "ach" ? "true" : "false")"
-                 aria-label="Bank Account Payments (ACH). Pay your UI taxes electronically online by instructing DWD-UI to deduct payment from your financial institution."
-                 tabindex="@(_selectedOption == "ach" ? "0" : (_selectedOption == null ? "0" : "-1"))">
-                <div class="payment-option-header" aria-hidden="true">
+            <button class="payment-option-card" role="link" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinueACH, "Bank Account Payments (ACH) Clicked", DateTime.Now))">
+                <div class="payment-option-header">
                     <span class="payment-option-icon">
-                        <img src="@Assets["images/billing/bank.svg"]" alt="Bank" width="20" height="20" />
+                        <img src="@Assets["images/billing/bank.svg"]" alt="" width="20" height="20" />
                     </span>
-                    <h3 class="payment-option-title fw-bold">Bank Account Payments (ACH)</h3>
+                    <span class="payment-option-title fw-bold">Bank Account Payments (ACH)</span>
                 </div>
-                <p class="payment-option-description" aria-hidden="true">
+                <p class="payment-option-description">
                     Pay your UI taxes electronically online by instructing DWD-UI to deduct payment from your financial
                     institution for a specific payment amount on a day of your choosing.
                 </p>
-            </div>
+            </button>
 
             <!-- Credit/Debit Card Payment -->
-            <div class="payment-option-card @(_selectedOption == "card" ? "selected" : "")"                 
-                 @onclick="HandleContinueCard"  
-                 role="radio"
-                 aria-checked="@(_selectedOption == "card" ? "true" : "false")"
-                 aria-label="Credit/Debit Card Payment. Select this option to make a payment by credit or debit card."
-                 tabindex="@(_selectedOption == "card" ? "0" : (_selectedOption == null ? "0" : "-1"))">
-                <div class="payment-option-header" aria-hidden="true">
+            <button class="payment-option-card" role="link" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinueCard, "Credit/Debit Card Payment Clicked", DateTime.Now))">
+                <div class="payment-option-header">
                     <span class="payment-option-icon">
-                        <img src="@Assets["images/billing/credit-card.svg"]" alt="Credit Card" width="20" height="20" />
+                        <img src="@Assets["images/billing/credit-card.svg"]" alt="" width="20" height="20" />
                     </span>
-                    <h3 class="payment-option-title fw-bold">Credit/Debit Card Payment</h3>
+                    <span class="payment-option-title fw-bold">Credit/Debit Card Payment</span>
                 </div>
-                <p class="payment-option-description" aria-hidden="true">
+                <p class="payment-option-description">
                     Select this option to make a payment by credit or debit card.
                 </p>
-            </div>
+            </button>
 
         </div>
-        <div aria-live="assertive" aria-atomic="true" class="sr-only" role="status">
-            @_selectionAnnouncement
-        </div>
     </section>
-    
+
 
     <!-- Other Options Section -->
     <section class="billing-section" aria-labelledby="other-options-heading">
-        <h3 id="other-options-heading" class="other-options-title fw-bold">Other Options</h3>
+        <h2 id="other-options-heading" class="other-options-title fw-bold">Other Options</h2>
         <hr class="section-divider" aria-hidden="true" />
 
         <div class="other-option-item">
@@ -97,16 +90,11 @@
         </div>
 
         <div class="other-option-item">
-            <a href="https://dwd.wisconsin.gov/uitax/payments/eft/credit.htm" target="_blank"
-                   class="other-option-link fw-bold"
-                   aria-describedby="desc-ach-credit"
-                   aria-label="ACH Credit Payment"
-                   rel="noreferrer">
-                ACH Credit Payment
-                <span class="external-link-icon" aria-hidden="true">
-                    <img src="@Assets["images/billing/link.svg"]" alt="External link" width="24" height="24" />
-                </span>
-            </a>
+            <ExternalLink Url="https://dwd.wisconsin.gov/uitax/payments/eft/credit.htm"
+                Text="ACH Credit Payment"
+                OpenNew="true"
+                ShowIcon="true"
+                CssClass="fw-bold"/>
             <p id="desc-ach-credit" class="other-option-description">
                 Information you need if you are going to have your financial institution send a payment electronically to the
                 states financial institution.
@@ -114,16 +102,11 @@
         </div>
 
         <div class="other-option-item">
-            <a href="https://dwd.wisconsin.gov/uitax/payments/eft/debit.htm#blocking" target="_blank"
-                   rel="noreferrer"
-                   aria-describedby="desc-block-ach"
-                   aria-label="Blocking ACH Payments From Being Deducted"
-                   class="other-option-link fw-bold">
-                Blocking ACH Payments From Being Deducted
-                <span class="external-link-icon" aria-hidden="true">
-                    <img src="@Assets["images/billing/link.svg"]" alt="External link" width="24" height="24" />
-                </span>
-            </a>
+            <ExternalLink Url="https://dwd.wisconsin.gov/uitax/payments/eft/debit.htm#blocking"
+                Text="Blocking ACH Payments From Being Deducted"
+                OpenNew="true"
+                ShowIcon="true"
+                CssClass="fw-bold"/>
             <p id="desc-block-ach" class="other-option-description">
                 Information you need if you have a debit block on your bank account and want to authorize DWD-UI to be able
                 to deduct payments from your bank account.
@@ -131,17 +114,11 @@
         </div>
 
         <div class="other-option-item">
-            <a href="https://dwd.wisconsin.gov/uitax/taxcolquest.htm" target="_blank"
-                   rel="noreferrer"
-                   aria-describedby="desc-block-plan"
-                   aria-label="Payment Plan for Delinquent UI Tax"
-                   class="other-option-link fw-bold">
-                Payment Plan for Delinquent UI Tax
-                
-                <span class="external-link-icon" aria-hidden="true">
-                    <img src="@Assets["images/billing/link.svg"]" alt="External link" width="24" height="24" />
-                </span>
-            </a>
+            <ExternalLink Url="https://dwd.wisconsin.gov/ui/employer/faqs/taxcolquest"
+                Text="Payment Plan for Delinquent UI Tax"
+                OpenNew="true"
+                ShowIcon="true"
+                CssClass="fw-bold"/>
             <p id="desc-block-plan" class="other-option-description">
                 View instructions for setting up a payment plan for the delinquent tax on your UI account.
             </p>
@@ -160,6 +137,7 @@
 @code {
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
+    [Inject] private IBillDetailServices BillDetailServices { get; set; } = default!;
     [Parameter] public EmployerAccount? EmployerAccount { get; set; }
     [Parameter] public NavigationSource Source { get; set; } = NavigationSource.Menu;
     [Parameter] public string? ReturnUrl { get; set; }
@@ -168,7 +146,6 @@
     private bool IsFlowEntry => Source == NavigationSource.Flow;
 
     private string? _selectedOption;
-    private string _selectionAnnouncement = string.Empty;
     private bool _showValidationSummary;
     private List<string> _validationErrors = new();
 
@@ -177,22 +154,6 @@
         if (string.IsNullOrWhiteSpace(ReturnUrl))
         {
             ReturnUrl = "billing-payments";
-        }
-    }
-
-    private void SelectPaymentOption(string option, string announcement)
-    {
-        _selectedOption = option;
-        _selectionAnnouncement = announcement;
-        _showValidationSummary = false;
-        _validationErrors.Clear();
-    }
-
-    private void HandleCardKeyDown(KeyboardEventArgs eventArgs, Action selectAction)
-    {
-        if (eventArgs.Key is "Enter" or " ")
-        {
-            selectAction();
         }
     }
 
@@ -209,25 +170,13 @@
         }
     }
 
-    // private void HandleCancel()
-    // {
-    //     try
-    //     {
-    //         // Exit the payment flow back to the employer dashboard
-    //         Nav.NavigateTo("employer-dashboard");
-    //     }
-    //     catch (Exception)
-    //     {
-    //         ShowNavigationError();
-    //     }
-    // }
     private async Task HandleContinueACH()
     {
-      await HandleContinue("ach");
+        await HandleContinue("ach");
     }
-     private async Task HandleContinueCard()
+    private async Task HandleContinueCard()
     {
-      await HandleContinue("card");
+        await HandleContinue("card");
     }
 
 
@@ -243,10 +192,12 @@
 
         try
         {
+            var self = IsFlowEntry? $"billing-payments/payment-options?source=flow&returnUrl={Uri.EscapeDataString(ReturnUrl ?? "billing-payments")}": "billing-payments/payment-options";
+            var encoded = Uri.EscapeDataString(self);
             var nextPath = _selectedOption switch
             {
-                "ach" => "/billing-payments/bank-account-payment-ach?source=flow&returnUrl=billing-payments/payment-options",
-                "card" => "/billing-payments/card-payment?source=flow&returnUrl=billing-payments/payment-options",
+                "ach" => $"/billing-payments/bank-account-payment-ach?source=flow&returnUrl={encoded}",
+                "card" => $"/billing-payments/card-payment?source=flow&returnUrl={encoded}",
                 _ => "/billing-payments/payment-options?source=flow&returnUrl=billing-payments"
             };
 
@@ -257,6 +208,43 @@
                 SelectedPaymentMethod = _selectedOption
             };
             await BankAccountOrchestrator.SavePaymentStateToSessionAsync(reirsePayment);
+
+            if (!IsFlowEntry)
+            {
+
+                var secureUserSK = UserAccountService.GetUserSKClaim();
+                var employerSK = EmployerAccount?.Id ?? 0;
+                bool isTaxable = EmployerAccount?.IsTaxable ?? false;
+
+                var request = new UI.EmployerPortal.Generated.ServiceClients.BillDetailService.EmployerRequest
+                {
+                   EmployerSK = employerSK,
+                   SecureUserSK = secureUserSK
+                };
+
+                if(isTaxable)
+                {
+                    var billingResult = await BillingDetailService.GetTaxableBillingDetail(request);
+
+                    if (billingResult != null)
+                    {
+                        var AmountToPay = billingResult.AmountToPay;
+                        await BankAccountOrchestrator.SavePaymentToSessionAsync(AmountToPay.ToString(), "Payment");
+                    }
+                }
+                else
+                {
+                    var reimbursableResult = await BillDetailServices.GetReimburseBillingDetail(request);
+                    if (reimbursableResult != null)
+                    {
+                      var AmountToPay = reimbursableResult.AmountToPay;
+                      await BankAccountOrchestrator.SavePaymentToSessionAsync(AmountToPay.ToString(), "Payment");
+                    }
+
+                }
+
+            }
+
 
             Nav.NavigateTo(BuildPath(nextPath));
         }

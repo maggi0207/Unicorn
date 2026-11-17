@@ -1,10 +1,10 @@
 .ownership-container {
-    /*max-width: 800px;*/
     margin: 0 auto;
     padding: 0;
     background-color: #fff;
     font-family: Verdana, sans-serif;
     font-size: 16px;
+    width: 95%;
 }
 
 .ownership-title {
@@ -60,7 +60,8 @@
     ::deep .form-select:focus,
     ::deep .form-input:focus {
         outline: none;
-        border-color: #666;
+        border: 2px solid var(--color-blue-focus, #258cfb);
+        box-shadow: none;
     }
 
 /* Checkbox */
@@ -129,6 +130,7 @@
     position: relative;
     display: flex;
     align-items: center;
+    width: 205px;
 }
 
 ::deep .ssn-input {
@@ -351,7 +353,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     ::deep .ownership-container {
         padding: 1rem;
     }
@@ -386,6 +388,10 @@
     ::deep .btn-save {
         order: 2;
     }
+}
+
+::deep .required-fields-text {
+    padding-bottom: 16px;
 }
 
 ::deep .officers-table,
@@ -531,7 +537,7 @@
 }
     /* Focus state */
     ::deep .master-input:focus {
-        border-color: #003663;
+        border: 2px solid var(--color-blue-focus, #258cfb);
     }
 
 /* Label on border */
@@ -664,16 +670,9 @@
     color: #C62828;
 }
 
-::deep .radio-option .radio-label {
-    color: #000;
-}
-
 ::deep .file-upload-dropzone--drag-over{
     border-color:#1565C0;
     background-color:#e3f2fd;
-}
-
-::deep .large-date-input {
 }
 
 ::deep .large-date-input label {
@@ -736,17 +735,26 @@
 }
 
 ::deep .qsf-section .form-select {
-    width: 330px;
+    max-width: 330px;
 }
 ::deep .frame,
 ::deep .frame-inner {
-    width: 684px !important;
-    height: 260px !important;
+    max-width: 684px !important;
 }
 
 ::deep .upload-content-right .btn-row .btn{
     font-size:13px;
 }
 ::deep .gov-section .form-select {
-    width: 330px;
+    max-width: 330px;
+}
+
+::deep .action-btn {
+    border: none;
+    background: none;
+    margin-left: 4px;
+}
+
+::deep .action-btn:focus {
+    outline: 2px solid var(--color-blue-focus, #258cfb);
 }

@@ -1,3 +1,4 @@
+using UI.EmployerPortal.Razor.SharedComponents.Ach.Models;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.BillingPayments.Models;
 using UI.EmployerPortal.Web.Features.BillingPayments.Services;
@@ -49,26 +50,56 @@ public interface IBankAccountOrchestrator
     /// Returns all existing bank accounts for the currently selected employer.
     /// </summary>
     Task<IReadOnlyList<SavedBankAccount>> GetExistingAccountsAsync();
+
     /// <summary>
     /// GetPendingReimbursePaymentToSessionAsync
     /// </summary>
     /// <returns></returns>
-    Task<String?> GetPaymentToSessionAsync();
+    Task<string?> GetPaymentToSessionAsync();
+
     /// <summary>
     /// GetPaymentDescriptionToSessionAsync
     /// </summary>
     /// <returns></returns>
-    Task<String?> GetPaymentDescriptionToSessionAsync();
+    Task<string?> GetPaymentDescriptionToSessionAsync();
+
     /// <summary>
     /// Stores the selected payment in session storage.
     /// </summary>
     Task SavePaymentToSessionAsync(string amount, string desc);
 
     /// <summary>
+    /// Clears the selected payment in session storage.
+    /// </summary>
+    Task ClearPaymentFromSessionAsync();
+
+    /// <summary>
+    /// Stores the in-progress ACH payment entry (amount and settlement date) in session storage
+    /// so it survives the add-contact / add-bank-account round trip.
+    /// </summary>
+    Task SaveAchPaymentDraftToSessionAsync(AchPaymentFormModel draft);
+
+    /// <summary>
+    /// Returns the in-progress ACH payment entry from session storage, or null if none is stored.
+    /// </summary>
+    Task<AchPaymentFormModel?> GetAchPaymentDraftFromSessionAsync();
+
+    /// <summary>
+    /// Clears the in-progress ACH payment entry from session storage.
+    /// </summary>
+    Task ClearAchPaymentDraftFromSessionAsync();
+
+    /// <summary>
+    /// Stores the selected payment in session storage.
+    /// </summary>
+    Task SaveVCRequiredToSessionAsync(string amount);
+
+
+    /// <summary>
     /// GetPendingReimbursePaymentToSessionAsync
     /// </summary>
     /// <returns></returns>
-    Task<String?> GetVCEstPayrollToSessionAsync();
+    Task<string?> GetVCEstPayrollToSessionAsync();
 
 
     /// <summary>
@@ -78,11 +109,16 @@ public interface IBankAccountOrchestrator
 
 
     /// <summary>
-    /// GetPendingReimbursePaymentToSessionAsync
+    /// GetVoluntaryContributionPaymentToSessionAsync
     /// </summary>
     /// <returns></returns>
-    Task<String?> GetVCPaymentToSessionAsync();
+    Task<string?> GetVCPaymentToSessionAsync();
 
+    /// <summary>
+    /// GetRequiredToSessionAsync
+    /// </summary>
+    /// <returns></returns>
+    Task<string?> GetVCRequiredToSessionAsync();
 
     /// <summary>
     /// Stores the selected payment in session storage.
@@ -116,13 +152,13 @@ public interface IBankAccountOrchestrator
     Task SavePaymentStateToSessionAsync(PaymentState model);
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <returns></returns>
-    Task<(String?, bool)> GetPaymentToSessionWithStatusAsync();
+    Task<(string?, bool)> GetPaymentToSessionWithStatusAsync();
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <returns></returns>
     Task UpdatePaymentSessionAsync();
@@ -243,9 +279,12 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
     {
         var employerSk = await GetEmployerSkAsync();
 
-        return employerSk is null ? new SaveBankAccountResult(false, "No employer account selected") : await _bankAccountService.InactivateBankAccountAsync(bankAccountSk, employerSk.Value);
+        return employerSk is null
+            ? new SaveBankAccountResult(false, "No employer account selected")
+            : await _bankAccountService.InactivateBankAccountAsync(bankAccountSk, employerSk.Value);
     }
 
+    /// <inheritdoc/>
     public async Task SavePaymentToSessionAsync(string amount, string desc)
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -257,6 +296,60 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
     }
 
+    /// <inheritdoc/>
+    public async Task ClearPaymentFromSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        if (selectedEmployer != null)
+        {
+            selectedEmployer.SelectPayment = string.Empty;
+            selectedEmployer.PaymentDescription = string.Empty;
+            selectedEmployer.IsAmountCalculatedForSession = true;
+            await _sessionManager.SetAsync(selectedEmployer);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveAchPaymentDraftToSessionAsync(AchPaymentFormModel draft)
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        if (selectedEmployer != null)
+        {
+            selectedEmployer.AchPaymentDraft = draft;
+            await _sessionManager.SetAsync(selectedEmployer);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<AchPaymentFormModel?> GetAchPaymentDraftFromSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        return selectedEmployer?.AchPaymentDraft;
+    }
+
+    /// <inheritdoc/>
+    public async Task ClearAchPaymentDraftFromSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        if (selectedEmployer != null)
+        {
+            selectedEmployer.AchPaymentDraft = null;
+            await _sessionManager.SetAsync(selectedEmployer);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task SaveVCRequiredToSessionAsync(string amount)
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        if (selectedEmployer != null)
+        {
+            selectedEmployer.VCRequired = amount;
+            await _sessionManager.SetAsync(selectedEmployer);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task SaveVCPaymentToSessionAsync(string amount, string desc)
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -268,6 +361,7 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
     }
 
+    /// <inheritdoc/>
     public async Task SaveVCEstPayrollToSessionAsync(string amount)
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -278,8 +372,8 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
     }
 
-
-    public async Task<String?> GetPaymentToSessionAsync()
+    /// <inheritdoc/>
+    public async Task<string?> GetPaymentToSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         if (selectedEmployer == null)
@@ -301,7 +395,8 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         return null;
     }
 
-    public async Task<String?> GetVCPaymentToSessionAsync()
+    /// <inheritdoc/>
+    public async Task<string?> GetVCPaymentToSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         return selectedEmployer switch
@@ -312,7 +407,20 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
 
     }
 
-    public async Task<String?> GetVCEstPayrollToSessionAsync()
+    /// <inheritdoc/>
+    public async Task<string?> GetVCRequiredToSessionAsync()
+    {
+        var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
+        return selectedEmployer switch
+        {
+            null => null,
+            _ => selectedEmployer.EmployerAccount != null ? (selectedEmployer?.VCRequired) : null,
+        };
+
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> GetVCEstPayrollToSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         return selectedEmployer switch
@@ -323,7 +431,8 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
 
     }
 
-    public async Task<(String?, bool)> GetPaymentToSessionWithStatusAsync()
+    /// <inheritdoc/>
+    public async Task<(string?, bool)> GetPaymentToSessionWithStatusAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         var isAmountCalculatedForSession = selectedEmployer?.IsAmountCalculatedForSession ?? false;
@@ -346,14 +455,13 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
         return (null, isAmountCalculatedForSession);
     }
+
     //GetPaymentDescriptionToSessionAsync
-    public async Task<String?> GetPaymentDescriptionToSessionAsync()
+    public async Task<string?> GetPaymentDescriptionToSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         return selectedEmployer == null ? null : selectedEmployer.PaymentDescription != null ? (selectedEmployer?.PaymentDescription) : null;
     }
-
-
 
     /// <inheritdoc/>
     public async Task<IReadOnlyList<BankCountryOption>> GetCountryCodesAsync()
@@ -373,6 +481,7 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         return await _bankAccountService.GetCanadianStateCodesAsync();
     }
 
+    /// <inheritdoc/>
     public async Task SavePaymentStateToSessionAsync(PaymentState model)
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -383,6 +492,7 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
         }
     }
 
+    /// <inheritdoc/>
     public async Task UpdatePaymentSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
@@ -392,10 +502,11 @@ internal class BankAccountOrchestrator : IBankAccountOrchestrator
             await _sessionManager.SetAsync(selectedEmployer);
         }
     }
+
+    /// <inheritdoc/>
     public async Task<PaymentState?> GetPaymentStateFromSessionAsync()
     {
         var selectedEmployer = await _sessionManager.GetAsync<SelectedEmployerAccount>();
         return selectedEmployer?.SelectedPaymentDetail;
     }
-
 }

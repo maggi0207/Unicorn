@@ -1,7 +1,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents
-@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop;
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsVisible)
 {
@@ -15,7 +16,7 @@
              @ref="_modalRef">
             <div class="modal-header">
                 <h3 id="remove-bank-modal-title" class="modal-title">Delete Bank Account?</h3>
-                <button class="modal-close" @onclick="OnCancel" aria-label="Close">
+                <button class="modal-close" @onclick="@(() => tracker.LogNavigationSessionActivity(OnCancel, "Close X Clicked", DateTime.Now))" aria-label="Close">
                     <img src="icons/close_x_blue.svg" />
                 </button>
             </div>
@@ -28,12 +29,12 @@
                 <Button Variant="Button.ButtonVariant.Secondary"
                         type="button"
                         ShowBorder="false"
-                        OnClick="OnCancel">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(OnCancel, "Cancel Clicked", DateTime.Now))">
                     CANCEL
                 </Button>
                 <Button Variant="Button.ButtonVariant.Secondary"
                         type="button"
-                        OnClick="OnConfirm">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(OnConfirm, "Confirm Clicked", DateTime.Now))">
                     CONFIRM
                 </Button>
             </div>

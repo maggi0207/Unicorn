@@ -19,7 +19,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     public string? FEIN { get; set; }
 
     /// <summary>
-    /// Unemployment Isurance Employer Account Number
+    /// Unemployment Insurance Employer Account Number
     /// </summary>
     public string UIAccountNumber { get; set; } = string.Empty;
 
@@ -486,158 +486,199 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     // 1.06
                     responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_NAM, _response = AcquiredBusinessName });
                 }
-            }
 
-            else if (!AcquiredExistingBusiness.Value && HavePaidEmployeesForWorkInWisconsin.HasValue)
+            }
+        }
+        if (HavePaidEmployeesForWorkInWisconsin.HasValue)
+        {
+            // 1.07
+            responses.Add(new SurveyResponse()
             {
-                // 1.07
+                _surveyResponseItemSk = (int) SurveyResponseItem.PAID_EE_FLG,
+                _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HavePaidEmployeesForWorkInWisconsin.Value),
+                _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HavePaidEmployeesForWorkInWisconsin.Value)
+            });
+
+            if (HavePaidEmployeesForWorkInWisconsin.Value && HaveEmployeesCurrentlyWorkingInWisconsin.HasValue)
+            {
+                // 1.10
                 responses.Add(new SurveyResponse()
                 {
-                    _surveyResponseItemSk = (int) SurveyResponseItem.PAID_EE_FLG,
-                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HavePaidEmployeesForWorkInWisconsin.Value),
-                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HavePaidEmployeesForWorkInWisconsin.Value)
+                    _surveyResponseItemSk = (int) SurveyResponseItem.STILL_EE_FLG,
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HaveEmployeesCurrentlyWorkingInWisconsin.Value),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HaveEmployeesCurrentlyWorkingInWisconsin.Value)
                 });
 
-                if (HavePaidEmployeesForWorkInWisconsin.Value && HaveEmployeesCurrentlyWorkingInWisconsin.HasValue)
+                if (HaveEmployeesCurrentlyWorkingInWisconsin.Value)
+                {
+                    // 1.16
+                    responses.Add(new SurveyResponse()
+                    {
+                        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ACCURATE_INFO,
+                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(InformationIsAccurate),
+                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(InformationIsAccurate)
+                    });
+                }
+
+                else if (!HaveEmployeesCurrentlyWorkingInWisconsin.Value)
+                {
+                    if (SelectedNoEmployeeReason.HasValue)
+                    {
+                        var reasonDisplay = SelectedNoEmployeeReason.Value switch
+                        {
+                            NoEmployeeReason.BusinessActivityEnded => "Business activity has ended but business has not been sold",
+                            NoEmployeeReason.NotOperatingInWisconsin => "No longer operating in Wisconsin but still operating in another state",
+                            NoEmployeeReason.HaveSoldOrTransferredBusiness => "Business activity sold or transferred",
+                            NoEmployeeReason.BusiessWithoutEmployees => "Business continuing without employees",
+                            NoEmployeeReason.EmployingIndependentContractors => "Employing Independent Contractors",
+                            NoEmployeeReason.Death => "Death",
+                            NoEmployeeReason.LeasingFromPEO => "Leasing employees from Professional Employer Organization (PEO)",
+                            NoEmployeeReason.FiscalAgent => "Fiscal Agent electing to be employer",
+                            NoEmployeeReason.Other => "Other",
+                            _ => SelectedNoEmployeeReason.Value.ToString()
+                        };
+                        // 1.14
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
+                            _response = ((int) SelectedNoEmployeeReason.Value).ToString(),
+                            _responseDisplay = reasonDisplay
+                        });
+
+                        if (SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
+                        {
+                            if (!string.IsNullOrWhiteSpace(PEOName))
+                            {
+                                // 1.26                               
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM,
+                                    _response = PEOName,
+                                });
+
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(PEOUIAccountNumber))
+                            {
+                                // 1.27
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM,
+                                    _response = PEOUIAccountNumber.Replace("-", string.Empty),
+                                });
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(PEOFEIN))
+                            {
+                                // 1.27
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM,
+                                    _response = PEOFEIN.Replace("-", string.Empty),
+                                });
+                            }
+
+                            if (LeasingStartDate.HasValue)
+                            {
+                                // 1.28                         
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_DATE,
+                                    _response = LeasingStartDate.Value.ToString("MM/dd/yyyy"),
+                                });
+                            }
+                        }
+
+                        else if (SelectedNoEmployeeReason == NoEmployeeReason.FiscalAgent)
+                        {
+                            if (!string.IsNullOrWhiteSpace(FiscalAgentName))
+                            {
+                                // 1.29
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM,
+                                    _response = FiscalAgentName,
+                                });
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(FiscalAgentUIAccountNumber))
+                            {
+                                // 1.30                         
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FA_UI_ACCT_NUM,
+                                    _response = FiscalAgentUIAccountNumber.Replace("-", string.Empty),
+                                });
+                            }
+                        }
+
+                        else if (SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
+                        {
+                            if (!string.IsNullOrWhiteSpace(NoEmployeeExplanation))
+                            {
+                                // 1.15                       
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_BUS_WITHOUT_EE,
+                                    _response = NoEmployeeExplanation,
+                                });
+                            }
+                        }
+
+                        else if (SelectedNoEmployeeReason == NoEmployeeReason.Other)
+                        {
+                            if (!string.IsNullOrWhiteSpace(OtherReason))
+                            {
+                                // 1.31                             
+                                responses.Add(new SurveyResponse()
+                                {
+                                    _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_OTHR_RSN,
+                                    _response = OtherReason,
+                                });
+                            }
+                        }
+                    }
+
+                    if (LastEmploymentDate.HasValue)
+                    {
+                        // 1.12              
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LAST_EMPL_DT,
+                            _response = LastEmploymentDate.Value.ToString("MM/dd/yyyy"),
+                        });
+                    }
+
+                    if (LastPayrollDate.HasValue)
+                    {
+                        // 1.13
+                        responses.Add(new SurveyResponse()
+                        {
+                            _surveyResponseItemSk = (int) SurveyResponseItem.LAST_PYRL_DT,
+                            _response = LastPayrollDate.Value.ToString("MM/dd/yyyy"),
+                        });
+                    }
+                }
+            }
+
+            else if (!HavePaidEmployeesForWorkInWisconsin.Value && ExpectFuturePayroll.HasValue)
+            {
+                // 1.09
+                responses.Add(new SurveyResponse()
+                {
+                    _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_FLG,
+                    _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectFuturePayroll.Value),
+                    _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectFuturePayroll.Value)
+                });
+                if (ExpectFuturePayroll.Value && ExpectedFuturePayrollPeriod.HasValue)
                 {
                     // 1.10
                     responses.Add(new SurveyResponse()
                     {
-                        _surveyResponseItemSk = (int) SurveyResponseItem.STILL_EE_FLG,
-                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(HaveEmployeesCurrentlyWorkingInWisconsin.Value),
-                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HaveEmployeesCurrentlyWorkingInWisconsin.Value)
+                        _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME,
+                        _response = ((int) ExpectedFuturePayrollPeriod.Value).ToString(),
+                        _responseDisplay = ExpectedFuturePayrollPeriod.Value.GetDisplayName()
                     });
-
-                    if (HaveEmployeesCurrentlyWorkingInWisconsin.Value)
-                    {
-                        // 1.16
-                        responses.Add(new SurveyResponse()
-                        {
-                            _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ACCURATE_INFO,
-                            _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(InformationIsAccurate),
-                            _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(InformationIsAccurate)
-                        });
-                    }
-
-                    else if (!HaveEmployeesCurrentlyWorkingInWisconsin.Value)
-                    {
-                        if (SelectedNoEmployeeReason.HasValue)
-                        {
-                            var reasonDisplay = SelectedNoEmployeeReason.Value switch
-                            {
-                                NoEmployeeReason.BusinessActivityEnded => "Business activity has ended but business has not been sold",
-                                NoEmployeeReason.NotOperatingInWisconsin => "No longer operating in Wisconsin but still operating in another state",
-                                NoEmployeeReason.HaveSoldOrTransferredBusiness => "Business activity sold or transferred",
-                                NoEmployeeReason.BusiessWithoutEmployees => "Business continuing without employees",
-                                NoEmployeeReason.EmployingIndependentContractors => "Employing Independent Contractors",
-                                NoEmployeeReason.Death => "Death",
-                                NoEmployeeReason.LeasingFromPEO => "Leasing employees from Professional Employer Organization (PEO)",
-                                NoEmployeeReason.FiscalAgent => "Fiscal Agent electing to be employer",
-                                NoEmployeeReason.Other => "Other",
-                                _ => SelectedNoEmployeeReason.Value.ToString()
-                            };
-                            // 1.14
-                            responses.Add(new SurveyResponse()
-                            {
-                                _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
-                                _response = ((int) SelectedNoEmployeeReason.Value).ToString(),
-                                _responseDisplay = reasonDisplay
-                            });
-
-                            if (SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
-                            {
-                                if (!string.IsNullOrWhiteSpace(PEOName))
-                                {
-                                    // 1.26
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NAME, _response = PEOName });
-                                }
-
-                                if (!string.IsNullOrWhiteSpace(PEOUIAccountNumber))
-                                {
-                                    // 1.27
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOUIAccountNumber.Replace("-", string.Empty) });
-                                }
-
-                                if (!string.IsNullOrWhiteSpace(PEOFEIN))
-                                {
-                                    // 1.27
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOFEIN.Replace("-", string.Empty) });
-                                }
-
-                                if (LeasingStartDate.HasValue)
-                                {
-                                    // 1.28
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_DATE, _response = LeasingStartDate.Value.ToString("MM/dd/yyyy") });
-                                }
-                            }
-
-                            else if (SelectedNoEmployeeReason == NoEmployeeReason.FiscalAgent)
-                            {
-                                if (!string.IsNullOrWhiteSpace(FiscalAgentName))
-                                {
-                                    // 1.29
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM, _response = FiscalAgentName });
-                                }
-
-                                if (!string.IsNullOrWhiteSpace(FiscalAgentUIAccountNumber))
-                                {
-                                    // 1.30
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FA_UI_ACCT_NUM, _response = FiscalAgentUIAccountNumber.Replace("-", string.Empty) });
-                                }
-                            }
-
-                            else if (SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
-                            {
-                                if (!string.IsNullOrWhiteSpace(NoEmployeeExplanation))
-                                {
-                                    // 1.15
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_BUS_WITHOUT_EE, _response = NoEmployeeExplanation });
-                                }
-                            }
-
-                            else if (SelectedNoEmployeeReason == NoEmployeeReason.Other)
-                            {
-                                if (!string.IsNullOrWhiteSpace(OtherReason))
-                                {
-                                    // 1.31
-                                    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_OTHR_RSN, _response = OtherReason });
-                                }
-                            }
-                        }
-
-                        if (LastEmploymentDate.HasValue)
-                        {
-                            // 1.12
-                            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LAST_EMPL_DT, _response = LastEmploymentDate.Value.ToString("MM/dd/yyyy") });
-                        }
-
-                        if (LastPayrollDate.HasValue)
-                        {
-                            // 1.13
-                            responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LAST_PYRL_DT, _response = LastPayrollDate.Value.ToString("MM/dd/yyyy") });
-                        }
-                    }
-                }
-
-                else if (!HavePaidEmployeesForWorkInWisconsin.Value && ExpectFuturePayroll.HasValue)
-                {
-                    // 1.09
-                    responses.Add(new SurveyResponse()
-                    {
-                        _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_FLG,
-                        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToString(ExpectFuturePayroll.Value),
-                        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectFuturePayroll.Value)
-                    });
-                    if (ExpectFuturePayroll.Value && ExpectedFuturePayrollPeriod.HasValue)
-                    {
-                        // 1.10
-                        responses.Add(new SurveyResponse()
-                        {
-                            _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME,
-                            _response = ((int) ExpectedFuturePayrollPeriod.Value).ToString(),
-                            _responseDisplay = ExpectedFuturePayrollPeriod.Value.GetDisplayName()
-                        });
-                    }
                 }
             }
         }
@@ -648,28 +689,19 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
     /// <inheritdoc/>
     public void LoadSurveyResponses(SurveyResponseItemProxy[] responses)
     {
-        //if (!string.IsNullOrWhiteSpace(FEIN))
-        //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.FEIN_NUM, _response = FEIN.Replace("-", string.Empty), _responseDisplay = FEIN });
-        //}
+
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.FEIN_NUM, out var fein))
         {
             FEIN = IEmployerRegistrationModelSection.FormatFeinResponseString(fein.ReplyText);
         }
 
-        //if (!string.IsNullOrWhiteSpace(UIAccountNumber))
-        //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ER_ACCT_NUM, _response = UIAccountNumber.Replace("-", string.Empty), _responseDisplay = UIAccountNumber });
-        //}
+
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_ACCT_NUM, out var employerUiAccountNumber))
         {
             UIAccountNumber = IEmployerRegistrationModelSection.FormatUiAccountNumberResponseString(employerUiAccountNumber.ReplyText);
         }
 
-        //if (IsNonProfitOrg.HasValue)
-        //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NON_PRFT_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(IsNonProfitOrg.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(IsNonProfitOrg.Value) });
-        //}
+
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_NON_PRFT_FLG, out var is501c3)) // 1.17
         {
             IsNonProfitOrg = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(is501c3.ReplyText);
@@ -738,37 +770,23 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
             }
         }
 
-        //if (AcquiredExistingBusiness.HasValue)
-        //{
-        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(AcquiredExistingBusiness.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(AcquiredExistingBusiness.Value) });
-        //}
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_BUS_FLG, out var acquiredExistingBusiness))
         {
             AcquiredExistingBusiness = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(acquiredExistingBusiness.ReplyText);
 
-            //if (visibilityQ2_1 && KnowAcquiredBusinessAccountNumber.HasValue)
-            //{
-            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_ACCT_NUM_KNWN, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(KnowAcquiredBusinessAccountNumber.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(KnowAcquiredBusinessAccountNumber.Value) });
-            //}
+
             if (AcquiredExistingBusiness.Value
                 && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_ACCT_NUM_KNWN, out var knowAcquiredBusinessAccountNumber))
             {
                 KnowAcquiredBusinessAccountNumber = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(knowAcquiredBusinessAccountNumber.ReplyText);
 
-                //if (visibilityQ2_1_1 && !string.IsNullOrWhiteSpace(AcquiredBusinessAccountNumber))
-                //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_ACCT_NUM, _response = AcquiredBusinessAccountNumber.Replace("-", string.Empty), _responseDisplay = AcquiredBusinessAccountNumber });
-                //}
+
                 if (KnowAcquiredBusinessAccountNumber.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_BUS_ACCT_NUM, out var acquiredBusinessUiAccountNumber))
                 {
                     AcquiredBusinessAccountNumber = IEmployerRegistrationModelSection.FormatUiAccountNumberResponseString(acquiredBusinessUiAccountNumber.ReplyText);
                 }
 
-                //if (visibilityQ2_1_2 && !string.IsNullOrWhiteSpace(AcquiredBusinessName))
-                //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.ACQ_BUS_NAM, _response = AcquiredBusinessName });
-                //}
                 else if (!KnowAcquiredBusinessAccountNumber.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ACQ_BUS_NAM, out var acquiredBusinessName))
                 {
@@ -776,64 +794,22 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                 }
             }
 
-            //if (visibilityQ3 && HavePaidEmployeesForWorkInWisconsin.HasValue)
-            //{
-            //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PAID_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(HavePaidEmployeesForWorkInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HavePaidEmployeesForWorkInWisconsin.Value) });
-            //}
-            else if (!AcquiredExistingBusiness.Value
-                && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PAID_EE_FLG, out var paidEeFlag))
+
+            if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PAID_EE_FLG, out var paidEeFlag))
             {
                 HavePaidEmployeesForWorkInWisconsin = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(paidEeFlag.ReplyText);
 
-                //if (visibilityQ3_1 && HaveEmployeesCurrentlyWorkingInWisconsin.HasValue)
-                //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.STILL_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(HaveEmployeesCurrentlyWorkingInWisconsin.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(HaveEmployeesCurrentlyWorkingInWisconsin.Value) });
-                //}
                 if (HavePaidEmployeesForWorkInWisconsin.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.STILL_EE_FLG, out var haveEmployeesCurrentlyWorkingInWisconsin))
                 {
                     HaveEmployeesCurrentlyWorkingInWisconsin = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(haveEmployeesCurrentlyWorkingInWisconsin.ReplyText);
 
-                    //// InformationIsAccurate — shown when Q3.1 Yes (still have employees in WI)
-                    //var visibilityCheckboxInfoAccurate = visibilityQ3_1 && HaveEmployeesCurrentlyWorkingInWisconsin == true;
-                    //if (visibilityCheckboxInfoAccurate)
-                    //{
-                    //    responses.Add(new SurveyResponse()
-                    //    {
-                    //        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_ACCURATE_INFO,
-                    //        _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(InformationIsAccurate),
-                    //        _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(InformationIsAccurate)
-                    //    });
-                    //}
                     if (HaveEmployeesCurrentlyWorkingInWisconsin.Value
                         && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_ACCURATE_INFO, out var informationAccurate))
                     {
                         InformationIsAccurate = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(informationAccurate.ReplyText);
                     }
 
-                    //// SelectedNoEmployeeReason — shown when Q4 (Q3.1 No)
-                    //if (visibilityQ4 && SelectedNoEmployeeReason.HasValue)
-                    //{
-                    //    var reasonDisplay = SelectedNoEmployeeReason.Value switch
-                    //    {
-                    //        NoEmployeeReason.BusinessActivityEnded => "Business activity has ended but business has not been sold",
-                    //        NoEmployeeReason.NotOperatingInWisconsin => "No longer operating in Wisconsin but still operating in another state",
-                    //        NoEmployeeReason.HaveSoldOrTransferredBusiness => "Business activity sold or transferred",
-                    //        NoEmployeeReason.BusiessWithoutEmployees => "Business continuing without employees",
-                    //        NoEmployeeReason.EmployingIndependentContractors => "Employing Independent Contractors",
-                    //        NoEmployeeReason.Death => "Death",
-                    //        NoEmployeeReason.LeasingFromPEO => "Leasing employees from Professional Employer Organization (PEO)",
-                    //        NoEmployeeReason.FiscalAgent => "Fiscal Agent electing to be employer",
-                    //        NoEmployeeReason.Other => "Other",
-                    //        _ => SelectedNoEmployeeReason.Value.ToString()
-                    //    };
-                    //    responses.Add(new SurveyResponse()
-                    //    {
-                    //        _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_NO_LNGR_EE,
-                    //        _response = SelectedNoEmployeeReason.Value.ToString(),
-                    //        _responseDisplay = reasonDisplay
-                    //    });
-                    //}
                     else if (!HaveEmployeesCurrentlyWorkingInWisconsin.Value)
                     {
                         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_NO_LNGR_EE, out var noEEReason)
@@ -843,19 +819,12 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                             if (SelectedNoEmployeeReason == NoEmployeeReason.LeasingFromPEO)
                             {
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(PEOName))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NAME, _response = PEOName });
-                                //}
+
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NAME, out var peoName))
                                 {
                                     PEOName = peoName.ReplyText;
                                 }
 
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(PEOUIAccountNumber))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOUIAccountNumber.Replace("-", string.Empty) });
-                                //}
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NUM, out var peoUiAccountNumber))
                                 {
 
@@ -871,19 +840,6 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                                 }
 
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(PEOFEIN))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_NUM, _response = PEOFEIN.Replace("-", string.Empty) });
-                                //}
-                                //if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_NUM, out var peoFein))
-                                //{
-                                //    PEOFEIN = IEmployerRegistrationModelSection.FormatFeinResponseString(peoFein.ReplyText);
-                                //}
-
-                                //if (visibilityQ4 && LeasingStartDate.HasValue)
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_PEO_DATE, _response = LeasingStartDate.Value.ToString("MM/dd/yyyy") });
-                                //}
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_PEO_DATE, out var peoDate)
                                     && DateOnly.TryParse(peoDate.ReplyText, out var peoDateValue))
                                 {
@@ -893,19 +849,12 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                             else if (SelectedNoEmployeeReason == NoEmployeeReason.FiscalAgent)
                             {
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(FiscalAgentName))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FSCL_AGNT_NAM, _response = FiscalAgentName });
-                                //}
+
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_FSCL_AGNT_NAM, out var fiscalAgentName))
                                 {
                                     FiscalAgentName = fiscalAgentName.ReplyText;
                                 }
 
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(FiscalAgentUIAccountNumber))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_FA_UI_ACCT_NUM, _response = FiscalAgentUIAccountNumber.Replace("-", string.Empty) });
-                                //}
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_FA_UI_ACCT_NUM, out var fiscalAgentUiAccountNumber))
                                 {
                                     FiscalAgentUIAccountNumber = IEmployerRegistrationModelSection.FormatUiAccountNumberResponseString(fiscalAgentUiAccountNumber.ReplyText);
@@ -914,10 +863,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                             else if (SelectedNoEmployeeReason == NoEmployeeReason.BusiessWithoutEmployees)
                             {
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(NoEmployeeExplanation))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_BUS_WITHOUT_EE, _response = NoEmployeeExplanation });
-                                //}
+
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_BUS_WITHOUT_EE, out var noEeExplanation))
                                 {
                                     NoEmployeeExplanation = noEeExplanation.ReplyText;
@@ -926,10 +872,7 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
 
                             else if (SelectedNoEmployeeReason == NoEmployeeReason.Other)
                             {
-                                //if (visibilityQ4 && !string.IsNullOrWhiteSpace(OtherReason))
-                                //{
-                                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.PRTL_OTHR_RSN, _response = OtherReason });
-                                //}
+
                                 if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRTL_OTHR_RSN, out var otherReason))
                                 {
                                     OtherReason = otherReason.ReplyText;
@@ -937,20 +880,13 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                             }
                         }
 
-                        //if (visibilityQ4 && LastEmploymentDate.HasValue)
-                        //{
-                        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LAST_EMPL_DT, _response = LastEmploymentDate.Value.ToString("MM/dd/yyyy") });
-                        //}
                         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.LAST_EMPL_DT, out var lastEmploymentDate)
                             && DateOnly.TryParse(lastEmploymentDate.ReplyText, out var lastEmploymentDateValue))
                         {
                             LastEmploymentDate = lastEmploymentDateValue;
                         }
 
-                        //if (visibilityQ4 && LastPayrollDate.HasValue)
-                        //{
-                        //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.LAST_PYRL_DT, _response = LastPayrollDate.Value.ToString("MM/dd/yyyy") });
-                        //}
+
                         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.LAST_PYRL_DT, out var lastPayrollDate)
                             && DateOnly.TryParse(lastPayrollDate.ReplyText, out var lastPayrollDateValue))
                         {
@@ -959,19 +895,11 @@ public class PreliminaryQuestionsModel : IEmployerRegistrationModelSection
                     }
                 }
 
-                //if (visibilityQ3_2 && ExpectFuturePayroll.HasValue)
-                //{
-                //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_FLG, _response = IEmployerRegistrationModelSection.ConvertBooleanResponseToSummaryString(ExpectFuturePayroll.Value), _responseDisplay = IEmployerRegistrationModelSection.ConvertBooleanResponseToDisplayString(ExpectFuturePayroll.Value) });
-                //}
                 else if (!HavePaidEmployeesForWorkInWisconsin.Value
                     && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_FLG, out var expectFuturePayroll))
                 {
                     ExpectFuturePayroll = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(expectFuturePayroll.ReplyText);
 
-                    //if (visibilityQ3_2_1 && ExpectedFuturePayrollPeriod.HasValue)
-                    //{
-                    //    responses.Add(new SurveyResponse() { _surveyResponseItemSk = (int) SurveyResponseItem.EXPT_PAY_EE_TIME, _response = ExpectedFuturePayrollPeriod.Value.ToString() });
-                    //}
                     if (ExpectFuturePayroll.Value
                         && IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.EXPT_PAY_EE_TIME, out var expectFuturePayrollPeriod)
                         && Enum.TryParse<FuturePayPeriod>(expectFuturePayrollPeriod.ReplyText, out var expectFuturePayrollPeriodValue))

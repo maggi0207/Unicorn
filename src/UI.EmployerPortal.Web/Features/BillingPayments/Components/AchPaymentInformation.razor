@@ -12,7 +12,14 @@
 
     <EditForm EditContext="_editContext">
         <DataAnnotationsValidator/>
-
+        @if (ConfirmationNum is not null)
+        {
+            <div class="ach-info-field ach-confirmation-number-field">
+                <span class="ach-info-label">Confirmation Number</span>
+                <strong class="ach-info-value">@ConfirmationNum</strong>
+            </div>
+            <br />
+        }
         @* ── Payment Amount + Amount Due Details ── *@
         <div class="ach-payment-amount-row">
             <div class="ach-payment-amount-field">
@@ -30,17 +37,18 @@
                                    ForceErrorMessage="@AmountError"/>
             </div>
             <a href="javascript:void(0);" onclick="@HandleAmountDueLink"
-                   class="ach-amount-due-link"
-                   aria-label="View Amount Due Details">
+                   class="ach-amount-due-link">
                 Amount Due Details
             </a>
         </div>
         @* ── Settlement Date ── *@
         <AchSettlementDateInput @ref="_settlementDateInput"
-                            Draft="Draft"
-                            InitialSettlementDate="InitialSettlementDate"
-                            SettlementDateChanged="SettlementDateChanged" />
-                            <br />
+                Id="settlement-date-input"
+                Draft="Draft"
+                InitialSettlementDate="InitialSettlementDate"
+                SettlementDateChanged="SettlementDateChanged"
+                IsVoluntaryContribution="IsVoluntaryContribution"/>
+        <br />
     @* ── Hint text ── *@
     <p id="settlementDateHint" class="ach-settlement-hint">
         The settlement date is the date the funds are withdrawn from your bank account.
@@ -61,6 +69,8 @@
     [Parameter] public EventCallback OnAmountBlurEvent { get; set; }
     [Parameter] public AchPaymentFormModel Draft { get; set; } = new();
     [Parameter] public string? ReturnUrl { get; set; }
+    [Parameter] public string? ConfirmationNum { get; set; }
+    [Parameter] public bool IsVoluntaryContribution { get; set; }
 
     public string? AmountError { get; private set; }
     public string? DateError => _settlementDateInput?.DateError;

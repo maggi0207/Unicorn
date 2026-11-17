@@ -21,8 +21,6 @@
     border-top: 1px solid #ADADAD;
     margin: 0 0 1.5rem;
 }
-
-
 /* ── Sections — 48px gap from Figma ── */
 .billing-detail-section {
     border-bottom: 1px solid var(--color-header-nav);
@@ -229,7 +227,7 @@
 .billing-detail-amount-to-pay-row {
     height: auto;
     min-height:56px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #ADADAD;
     align-items: flex-start;
     padding-top:9px;
     padding-bottom:9px;

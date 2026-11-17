@@ -1,4 +1,3 @@
-@using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
 @inject NavigationManager Nav
 <header class="billing-header" role="banner" aria-label="Account balance summary">
     <div class="billing-header-content fs-sm">
@@ -14,8 +13,7 @@
                 @LinkText
             </a> *@
             <a href="javascript:void(0);" onclick="@HandleAmountDueLink"
-               class="ach-amount-due-link"
-               aria-label="View Amount Due Details">
+               class="ach-amount-due-link">
                 Amount Due Details
             </a>
         </div>

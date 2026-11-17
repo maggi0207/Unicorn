@@ -23,7 +23,7 @@ public class OwnershipFormConfig
     /// <summary>
     /// Instruction text shown above the owner/member entry form
     /// </summary>
-    public string InstructionText { get; set; } = string.Empty;
+    public string InstructionText { get; set; } = "Complete for each representative of the organization.  Middle Initial is optional.";
 
     /// <summary>
     /// Whether a state selection is required

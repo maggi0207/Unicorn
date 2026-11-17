@@ -71,7 +71,6 @@
                                 Value="@(Model.ApproximatePayDate?.ToDateTime(TimeOnly.MinValue))"
                                 ValueChanged="OnApproximatePayDateChanged"
                                 Min="@DateTime.Today.AddDays(1)"
-                                Width="410"
                                 HintId="approximate-pay-date-hint"
                                 HasError="@(_invalidFields.Contains("ApproximatePayDate"))"
                                 ErrorMessage="@_fieldErrors.GetValueOrDefault("ApproximatePayDate")"

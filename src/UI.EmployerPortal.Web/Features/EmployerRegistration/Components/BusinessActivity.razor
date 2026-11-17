@@ -23,7 +23,6 @@
                                     MessageFieldIds="ValidationFieldIds"
                                     DismissButton="false">
                 </NotificationBanner>
-                <br />
             }
 
             @if (!_isSessionLoaded)
@@ -33,6 +32,7 @@
             else
             {
                 <div class="form-section">
+                    <br />
                     <!-- Date fields - Row 1 -->
                     @if (ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.HavePaidEmployeesForWorkInWisconsin.HasValue
                                     && ModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.HavePaidEmployeesForWorkInWisconsin.Value)
@@ -44,7 +44,6 @@
                                                     Value="@Model.DateBusinessStarted"
                                                     ValueChanged="@(v => {Model.DateBusinessStarted = v; ValidateForm(); OnFieldChanged("DateBusinessStarted");})"
                                                     Max="DateTime.Today"
-                                                    Width="350"
                                                     IsRequired="true"
                                                     HasError="@(FieldErrors.ContainsKey("DateBusinessStarted"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateBusinessStarted")"
@@ -59,7 +58,6 @@
                                                     Value="@Model.DateFirstPaidEmployeesInWI"
                                                     ValueChanged="@(v => {Model.DateFirstPaidEmployeesInWI = v;ValidateForm(); OnFieldChanged("DateFirstPaidEmployeesInWI");})"
                                                     Max="DateTime.Today"
-                                                    Width="360"
                                                     CSS="master-text-field"
                                                     IsRequired="true"
                                                     HasError="@(FieldErrors.ContainsKey("DateFirstPaidEmployeesInWI"))"
@@ -76,9 +74,8 @@
                                 <ValidatedDateInput Id="dateFirstWages"
                                                     Label="Date first paid wages for work performed in WI"
                                                     Value="@Model.DateFirstPaidWagesInWI"
-                                                    ValueChanged="@(v => {Model.DateFirstPaidWagesInWI = v; ValidateForm(); OnFieldChanged("DateFirstPaidWagesInWI");})"
+                                                    ValueChanged="@(v => {Model.DateFirstPaidWagesInWI = v; ValidateForm(); OnFieldChanged("DateBusinessStarted");})"
                                                     Max="DateTime.Today"
-                                                    Width="350"
                                                     IsRequired="true"
                                                     HasError="@(FieldErrors.ContainsKey("DateFirstPaidWagesInWI"))"
                                                     ErrorMessage="@FieldErrors.GetValueOrDefault("DateFirstPaidWagesInWI")"
@@ -299,6 +296,7 @@
                             <strong>Describe the primary business activity for your Wisconsin based employment</strong>, such as: Principal line of
                             merchandise sold, Type of construction work done, Products produced, Types of services provided
                         </label>
+                        <br />
                         <div class="checkbox-group">
                             <label class="checkbox-label">
                                 <input type="checkbox"

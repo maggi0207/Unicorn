@@ -84,11 +84,16 @@ public partial class VoluntaryContributionCalculator
             Model.Lowerrate = result.Lowerrate;
             Model.DisclaimerText = result.DisclaimerText;
         }
-        var sessionData = await BankAccountOrchestrator.GetVCPaymentToSessionAsync();
+        //var sessionData = await BankAccountOrchestrator.GetVCPaymentToSessionAsync();
 
-        if (!string.IsNullOrEmpty(sessionData))
+        //if (!string.IsNullOrEmpty(sessionData))
+        //{
+        //    Model.PaymentAmount = decimal.Parse(sessionData);
+        //}
+        var pending = await VoluntaryContributionServices.GetVoluntaryPendingPayments(employerSk);
+        if (pending != null)
         {
-            Model.PaymentAmount = decimal.Parse(sessionData);
+            Model.PendingPaymentAmount = pending.PendingAmount;
         }
 
         _editContext = new EditContext(Model);
@@ -120,28 +125,43 @@ public partial class VoluntaryContributionCalculator
             return;
         }
         var returnUrl = "billing-payments/voluntary-contribution";
-        if (_selectedpayment == "ACH")
+        if (_selectedpayment != "Check")
         {
             Model.SelectedPaymentMethod = _selectedpayment;
             await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
             await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+            await BankAccountOrchestrator.SaveVCRequiredToSessionAsync(Model.VcRequired.ToString());
             await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
-            Nav.NavigateTo($"billing-payments/bank-account-payment-ach?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            if (_selectedpayment is not null)
+            {
+                Nav.NavigateTo($"billing-payments/voluntary-contribution-ack?payment={Uri.EscapeDataString(_selectedpayment)}");
+            }
         }
-        else if (_selectedpayment == "Card")
+        else
         {
-            Model.SelectedPaymentMethod = _selectedpayment;
-            await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
-            await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
-            await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
-            Nav.NavigateTo($"billing-payments/card-payment?returnUrl={Uri.EscapeDataString(returnUrl)}");
-        }
-        else if (_selectedpayment == "Check")
-        {
-            Model.SelectedPaymentMethod = _selectedpayment;
-            await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.VcRequired.ToString(), "Voluntary Contribution");
-            await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
-            Nav.NavigateTo("billing-payments/pay-by-check-voluntary");
+            if (_selectedpayment == "ACH")
+            {
+                Model.SelectedPaymentMethod = _selectedpayment;
+                await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+                await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+                await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
+                Nav.NavigateTo($"billing-payments/bank-account-payment-ach?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+            else if (_selectedpayment == "Card")
+            {
+                Model.SelectedPaymentMethod = _selectedpayment;
+                await BankAccountOrchestrator.SaveVCPaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+                await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.PaymentAmount.ToString(), "Voluntary Contribution");
+                await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
+                Nav.NavigateTo($"billing-payments/card-payment?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+            else if (_selectedpayment == "Check")
+            {
+                Model.SelectedPaymentMethod = _selectedpayment;
+                await BankAccountOrchestrator.SavePaymentToSessionAsync(Model.VcRequired.ToString(), "Voluntary Contribution");
+                await BankAccountOrchestrator.SaveVCEstPayrollToSessionAsync(Model.EstimatedTaxablePayroll.ToString());
+                Nav.NavigateTo("billing-payments/pay-by-check-voluntary");
+            }
         }
     }
 

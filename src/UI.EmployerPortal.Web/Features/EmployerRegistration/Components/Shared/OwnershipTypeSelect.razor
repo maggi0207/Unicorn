@@ -10,7 +10,8 @@
                  class="@($"form-select form-select-medium {(ValidationErrors.Contains($"Ownership Type is required.") ? "input-validation-error" : "")}")"
                  @bind-Value="Value"
                  @bind-Value:after="OnValueChanged"
-                 disabled="@Disabled">
+                 disabled="@Disabled"
+                 aria-describedby="@ErrorId">
         <option value="@OwnershipType.None">Select Ownership Type</option>
         @foreach (var ownershipType in typeof(OwnershipType).GetFields(BindingFlags.Public |
                                             BindingFlags.Static).Select(f => (OwnershipType?)f.GetValue(null)))

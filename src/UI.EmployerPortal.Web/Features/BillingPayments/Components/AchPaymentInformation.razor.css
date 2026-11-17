@@ -9,9 +9,7 @@
     border-bottom: 1px solid #003663;
     font-family: Verdana;
     font-weight: 700;
-    font-style: Bold;
     font-size: 18px;
-    leading-trim: NONE;
     line-height: 160%;
     letter-spacing: 0%;
 }
@@ -33,6 +31,30 @@
     border: none;
 }
 
+.ach-confirmation-number-field {
+    margin-bottom: 16px;
+}
+
+.ach-info-value {
+    font-family: Verdana;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.ach-info-label {
+    display: block;
+    color: #000000;
+    margin-bottom: 2px;
+    font-family: Verdana;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 160%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+}
+
 .ach-payment-amount-field {
     flex: 0 0 330px;
     min-width: 0;
@@ -40,12 +62,9 @@
 
 .ach-amount-due-link {
     color: #006BB7;
-    text-decoration: none;
     font-family: Verdana;
     font-weight: 700;
-    font-style: Bold;
     font-size: 16px;
-    leading-trim: NONE;
     line-height: 160%;
     letter-spacing: 0%;
     vertical-align: middle;
@@ -214,9 +233,10 @@
 .master-input--error {
     border-color: #C82838 !important;
 }
-.master-input--error:focus {
-    border-width: 2px !important;
-}
+
+    .master-input--error:focus {
+        border-width: 2px !important;
+    }
 /* Red label text when validation fails */
 .master-label--error {
     color: #C82838 !important;

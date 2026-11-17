@@ -3,6 +3,8 @@
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.BillingPayments
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 @inject IRefundOrchestrator RefundOrchestrator
 @inject NavigationManager Nav
@@ -21,9 +23,9 @@
             <hr class="refund-confirmation-divider" aria-hidden="true" />
 
             <NotificationBanner NotificationType="NotificationType.Confirmation"
-            Title="@_headerMessage"
-            Message="Your refund request has been submitted. You will receive an email if your request is denied."
-            Visible="true" />
+                Title="@_confirmationBannerTitle"
+                Message="Your refund request has been submitted. You will receive an email if your request is denied."
+                Visible="true" />
 
             <div class="accordion-panel">
                 <div class="accordion-header d-flex justify-content-between align-items-center"
@@ -31,7 +33,7 @@
                      tabindex="0"
                      aria-expanded="@(_expanded ? "true" : "false")"
                      aria-controls="refund-info-accordion-body"
-                     @onclick="ToggleAccordion"
+                     @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleAccordion, "Toggle Accordion Clicked", DateTime.Now))"
                      @onkeydown="HandleAccordionKeyDown">
                     <h2 class="mb-0 accordion-title">Refund Information</h2>
                     <img src="@Assets["icons/chevron_up.svg"]"
@@ -76,7 +78,7 @@
                 <Button Variant="Button.ButtonVariant.Secondary"
                         Size="Button.ButtonSize.Medium"
                         AriaLabel="Return to Billing Details"
-                        OnClick="HandleReturnToBillingDetails">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleReturnToBillingDetails, "Return to Billing Details Clicked", DateTime.Now))">
                     RETURN TO BILLING DETAILS
                 </Button>
             </div>
@@ -88,7 +90,7 @@
     private RefundRequestModel? _model;
     private bool _isLoading = true;
     private bool _expanded = true;
-    private string _headerMessage = "";
+    private string _confirmationBannerTitle = string.Empty;
 
     protected override async Task OnAuthorizedInitAsync()
     {
@@ -99,7 +101,9 @@
             Nav.NavigateTo(BuildPath("/billing-payments/billing"));
             return;
         }
-        _headerMessage = $"Confirmation Number: {_model.ConfirmationNumber}";
+        _confirmationBannerTitle = !string.IsNullOrWhiteSpace(_model.ConfirmationNumber)
+            ? $"Confirmation Number: {_model.ConfirmationNumber}"
+            : string.Empty;
         _isLoading = false;
     }
 

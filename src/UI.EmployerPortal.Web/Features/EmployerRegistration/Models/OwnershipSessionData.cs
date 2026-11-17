@@ -736,7 +736,9 @@ public class OwnershipSessionData : IEmployerRegistrationModelSection
             ForeignCountry = foreignCountryValue.ReplyText;
             // Derive IsOutsideUSA from saved ForeignCountry in case OUT_US response was missing/false
             if (!IsOutsideUSA)
+            {
                 IsOutsideUSA = true;
+            }
         }
 
         //if (OwnershipType is OwnershipType.LLC or OwnershipType.LLP

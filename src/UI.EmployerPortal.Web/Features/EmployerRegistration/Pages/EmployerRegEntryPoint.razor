@@ -1,18 +1,15 @@
 @page "/employer-registration"
-@using System.Threading.Tasks
-@using Microsoft.AspNetCore.Components.Forms;
-@using Microsoft.AspNetCore.Components;
-@using Microsoft.FluentUI.AspNetCore.Components
+@using System.Linq.Expressions
 @using System.ServiceModel
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Forms;
+@using UI.EmployerPortal.Razor.SharedComponents
+@using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
-@using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Razor.SharedComponents
-@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using System.Linq.Expressions
-@using System.ComponentModel.DataAnnotations;
 @using UI.EmployerPortal.Web.Features.Shared.Session.Managers
 
 @inject EmployerRegistrationInfo RegistrationInfo;
@@ -31,19 +28,21 @@
         <EditForm EditContext="@editContext" OnValidSubmit="GoNext" OnInvalidSubmit="OnInvalid" FormName="EmployerRegistrationEntryPoint">
             <DataAnnotationsValidator />
             <!-- Top Error Banner - shows only when the form has validation errors -->
-            @if (formSubmitted && editContext?.GetValidationMessages().Any() == true)
+            @if (formSubmitted && _validationErrors.Any())
             {
                 <NotificationBanner NotificationType="NotificationType.Alert"
-                                    Title="Missing information"
-                                    Message="Please correct the errors below">
-                </NotificationBanner>
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Title="Please correct the following errors:"
+                                    Messages="_validationErrors"
+                                    MessageFieldIds="_validationFieldIds" />
             }
             @if (!string.IsNullOrEmpty(_errorMessage) && _formIsValid)
             {
-                <NotificationBanner NotificationType="NotificationType.Alert"
-                                    Title="Verification Unsuccessful"
-                                    Message="Please correct the errors below">
-                </NotificationBanner>
+                <div role="alert">
+                    <NotificationBanner NotificationType="NotificationType.Alert"
+                                        Title="System Error:"
+                                        Message="@_errorMessage" />
+                </div>
             }
 
             <p>
@@ -77,6 +76,7 @@
             {
                 <!-- Registration number input with validation binding -->
                 <OutlinedTextField Label="Registration Number"
+                                   Id="reg-number-input"
                                    @bind-Value="RegistrationInfo.RegistrationNumber"
                                    InputMode="numeric"
                                    MaxLength="8"
@@ -86,6 +86,7 @@
 
                 <!-- FEIN input with validation binding -->
                 <FEINField Label="Federal Employer Identification Number (FEIN)"
+                           Id="fein-input"
                            @bind-Value="RegistrationInfo.FEIN"
                            For="() => RegistrationInfo.FEIN"
                            Visible="formSubmitted" />
@@ -94,7 +95,7 @@
                 @* Service error from WCF call*@
                 @if (!string.IsNullOrEmpty(_errorMessage) && _formIsValid)
                 {
-                    <div class="field-error" role="alert" aria-label="Validation error">
+                    <div class="field-error" aria-label="Validation error">
                         <!-- Error message icon -->
                         <span class="field-error__icon" aria-hidden="true">
                             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -115,13 +116,12 @@
             <p>
                 <span class=fw-bold>Note:</span> Your UI account number is not a registration number. If you do not have or cannot locate a previously assigned registration number, answer no to this question.
             </p>
-            <ButtonBar ShowBack="true"
+            <BillingButtonBar ShowBack="true"
                        ShowContinue="true"
-                       ShowCancel="false"
-                       ShowSaveAndQuit="false"
+                       ShowCancel="false"                      
                        OnBack="GoBack"
                        ContinueText="NEXT">
-            </ButtonBar>
+            </BillingButtonBar>
         </EditForm>
 
     </div>
@@ -130,6 +130,8 @@
 
     [Inject]
     private ISessionManager SessionManager { get; set; } = default!;
+    [Inject]
+    private EmployerRegistrationModelStore employerRegistrationModelStore { get; set; } = default!;
 
     private RegistrationModel model = new();
     private EditContext editContext = default!;
@@ -141,6 +143,9 @@
 
     //Track whether the form has been submitted
     private bool formSubmitted = false;
+    private List<string> _validationErrors = [];
+    private readonly List<string> _validationFieldIds = [];
+    private ValidationMessageStore _serverErrors = default!;
 
     public static readonly IReadOnlyList<RadioOption<bool?>> HasRegistrationNumberOptions = new[]
     {
@@ -150,7 +155,6 @@
 
     private void GoBack()
     {
-        //Nav.NavigateTo($"{Nav.BaseUri}home");
         var baseUri = new Uri(Nav.BaseUri);
         var pathBase = new PathString(baseUri.AbsolutePath.TrimEnd('/'));
         Nav.NavigateTo(pathBase + "/home");
@@ -161,11 +165,13 @@
     {
         formSubmitted = true;
         _errorMessage = string.Empty;
+        _validationErrors.Clear();
 
         //If No - skip validation and navigate directly
         if (RegistrationInfo.HasRegistrationNumber == false)
         {
             Nav.NavigateTo("employer-registration/employer-registration-welcome");
+            employerRegistrationModelStore.ClearModel();
             return;
         }
 
@@ -186,12 +192,25 @@
         editContext = new EditContext(RegistrationInfo);
         //Clears WCF error
         _errorMessage = string.Empty;
+        _serverErrors = new ValidationMessageStore(editContext);
+        editContext.OnFieldChanged += (_, e) =>
+        {
+            _serverErrors.Clear(e.FieldIdentifier);
+            editContext.NotifyValidationStateChanged();
+            SetValidationMessages();
+        };
 
         _technicalDifficulties = Configuration.GetValue<string>("Messages:TechnicalDifficulties") ?? "There was an error.";
 
         //Track validation state as user interacts
         editContext.OnFieldChanged += (_, __) =>
         {
+            if (formSubmitted)
+            {
+                editContext.Validate();
+                SetValidationMessages();
+            }
+
             StateHasChanged();
         };
     }
@@ -202,8 +221,31 @@
         formSubmitted = true;
         //Clears WCF error
         _errorMessage = string.Empty;
+        SetValidationMessages();
+
         //Forces UI to refresh and show validation messages
         StateHasChanged();
+    }
+
+    private void SetValidationMessages()
+    {
+        _validationFieldIds.Clear();
+        _validationErrors = editContext.GetValidationMessages().Distinct().ToList();
+
+        foreach (var message in _validationErrors)
+        {
+            _validationFieldIds.Add(GetFieldIdForMessage(message));
+        }
+    }
+
+    private static string GetFieldIdForMessage(string message)
+    {
+        return message switch
+        {
+            var m when m.Contains("Registration Number", StringComparison.OrdinalIgnoreCase) => "reg-number-input",
+            var m when m.Contains("FEIN", StringComparison.OrdinalIgnoreCase) => "fein-input",
+            _ => string.Empty
+        };
     }
 
     private async Task OnInputChange(bool? value)
@@ -241,34 +283,35 @@
     {
         try
         {
-            var response = await EmployerRegistrationService.ContinueRegistration(fein: RegistrationInfo.FEIN ?? string.Empty,
-                surveyNumberText: RegistrationInfo.RegistrationNumber ?? string.Empty);
+
+            var response = await employerRegistrationModelStore.ContinueSurvey(surveyNumber: RegistrationInfo.RegistrationNumber,
+                fein: RegistrationInfo.FEIN);
 
             if (response?.SurveyResponseSK != null)
             {
                 //Save survey response key to your model
                 RegistrationInfo.SurveyResponseSK = response.SurveyResponseSK;
-
-                Console.WriteLine(RegistrationInfo.SurveyResponseSK);
-                var continueEmployerRegistration = new ContinueEmployerRegistrationModel()
-                {
-                    SurveyNumber = response.SurveyNumber,
-                    FEIN = RegistrationInfo.FEIN ?? string.Empty
-                };
-
-                await SessionManager.SetAsync(continueEmployerRegistration);
-
                 Nav.NavigateTo("employer-registration/employer-registration-welcome");
             }
             else
             {
-                if(response?.RuleViolations.Count()>0)
+                _serverErrors.Clear();
+                if (response?.RuleViolations != null)
                 {
-                    _errorMessage = response.RuleViolations.First().RuleViolation;
+
+                    foreach (var v in response.RuleViolations)
+                    {
+                        var field = v.RuleViolation.Contains("FEIN", StringComparison.OrdinalIgnoreCase)
+                            ? FieldIdentifier.Create(() => RegistrationInfo.FEIN)
+                            : FieldIdentifier.Create(() => RegistrationInfo.RegistrationNumber);
+                        _serverErrors.Add(field, v.RuleViolation);
+                    }
+                    _errorMessage = string.Empty;   // stop the separate alert box
+                    formSubmitted = true;           // if your summary is gated on this
+                    editContext.NotifyValidationStateChanged();
+                    SetValidationMessages();
+                    StateHasChanged();
                 }
-                // _errorMessage = "The registration number and the FEIN entered was not found";
-                editContext.NotifyValidationStateChanged();
-                StateHasChanged();
             }
         }
         catch (CommunicationException)
@@ -285,5 +328,4 @@
     {
         throw new NotImplementedException();
     }
-
 }

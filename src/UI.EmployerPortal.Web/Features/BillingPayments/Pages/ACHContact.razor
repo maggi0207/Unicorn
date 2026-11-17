@@ -10,8 +10,8 @@
 <div class="bi-page-content">
 <div class="page_wrapper">
        <div></div>
-        <h1 class="page-title">Contact Information</h1>  
-   
+        <h1 class="page-title">Contact Information</h1>
+
         <EditForm EditContext="@_editContext"
                   OnValidSubmit="HandleContinue"
                   OnInvalidSubmit="OnInvalid"
@@ -19,7 +19,7 @@
             <DataAnnotationsValidator />
             <CustomValidator @ref="_customValidator" />
 
-           
+
             <div id="notification-container" aria-live="polite">
                 @if (_contactexist)
                 {
@@ -79,8 +79,7 @@
                                           Mask ="@(Model.PhoneNumberFormat == "International" ? null : "(000) 000-0000")"
                                           Placeholder ="@(Model.PhoneNumberFormat == "International" ? null : "(999) 999-9999")"
                                           MaxLength="@(Model.PhoneNumberFormat == "International" ? 24:14)"
-                                          AllowedChars ="@(Model.PhoneNumberFormat == "International" ? "0123456789+- ()" : "numeric")"
-                                          Visible="@IsVisible(() => Model.PhoneNumber)" />
+                                          AllowedChars ="@(Model.PhoneNumberFormat == "International" ? "0123456789+- ()" : "numeric")" />
                     </div>
                     <span class="bi-zip-dash">—</span>
                     <div class="bi-ext-field">
@@ -96,8 +95,7 @@
                                        Id="record-email"
                                        Type="email"
                                        @bind-Value="Model.Email"
-                                       For="@(() => Model.Email)"
-                                       Visible="@IsVisible(() => Model.Email)" />
+                                       For="@(() => Model.Email)" />
 
                 </div>
                 <div class="bi-field">
@@ -105,8 +103,7 @@
                                        Id="record-confirm-email"
                                        Type="email"
                                        @bind-Value="Model.ConfirmEmail"
-                                       For="@(() => Model.ConfirmEmail)"
-                                       Visible="@IsVisible(() => Model.ConfirmEmail)" />
+                                       For="@(() => Model.ConfirmEmail)" />
                 </div>
             </div>
 

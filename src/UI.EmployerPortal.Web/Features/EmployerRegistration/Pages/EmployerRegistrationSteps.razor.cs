@@ -4,7 +4,6 @@ using global::UI.EmployerPortal.Razor.SharedComponents.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
-using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
 using UI.EmployerPortal.Web.Features.Shared.Session.Managers;
 using static UI.EmployerPortal.Web.Features.EmployerRegistration.EmployerRegistrationModelStore;
 
@@ -87,18 +86,6 @@ public partial class EmployerRegistrationSteps
                 await FinishHandleActionClick();
             }
         }
-        else
-        {
-            ModelStore.ClearModel();
-        }
-
-        var continueEmployerRegistration = await SessionManager.GetAsync<ContinueEmployerRegistrationModel>();
-
-        if (continueEmployerRegistration != null)
-        {
-            await SessionManager.ClearAsync<ContinueEmployerRegistrationModel>();
-            await ModelStore.ContinueSurvey(continueEmployerRegistration.SurveyNumber, continueEmployerRegistration.FEIN.Replace("-", string.Empty));
-        }
     }
 
     private async Task HandleVerificationEditClick(int stepNumber)
@@ -110,19 +97,33 @@ public partial class EmployerRegistrationSteps
 
     private async Task HandleActionClick()
     {
-        _processing = true;
-        _errorMessages.Clear();
-        _validationErrors.Clear();
-        var isValid = await Validate();
-
-        if (!isValid)
+        if (_processing)
         {
-            _processing = false;
             return;
         }
+        _processing = true;
+        StateHasChanged();
+        await Task.Delay(1);
+        try
+        {
 
-        await FinishHandleActionClick();
-        await ModelStore.Loadfile(_currentStep - 1);
+            _errorMessages.Clear();
+            _validationErrors.Clear();
+            var isValid = await Validate();
+
+            if (!isValid)
+            {
+                _processing = false;
+                return;
+            }
+
+            await FinishHandleActionClick();
+            await ModelStore.Loadfile(_currentStep - 1);
+        }
+        finally
+        {
+            _processing = false;
+        }
 
     }
 
@@ -279,4 +280,3 @@ public partial class EmployerRegistrationSteps
         return isValid;
     }
 }
-

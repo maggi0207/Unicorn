@@ -11,45 +11,45 @@ public enum NoEmployeeReason
     /// 
     /// </summary>
     [Display(Name = "BusinessActivityEnded")]
-    BusinessActivityEnded = 0,
+    BusinessActivityEnded = 1,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "NotOperatingInWisconsin")]
-    NotOperatingInWisconsin = 1,
+    NotOperatingInWisconsin = 2,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "HaveSoldOrTransferredBusiness")]
-    HaveSoldOrTransferredBusiness = 2,
+    HaveSoldOrTransferredBusiness = 3,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "BusiessWithoutEmployees")]
-    BusiessWithoutEmployees = 3,
+    BusiessWithoutEmployees = 4,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "EmployingIndependentContractors")]
-    EmployingIndependentContractors = 4,
+    EmployingIndependentContractors = 5,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "Death")]
-    Death = 5,
+    Death = 6,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "LeasingFromPEO")]
-    LeasingFromPEO = 6,
+    LeasingFromPEO = 7,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "FiscalAgent")]
-    FiscalAgent = 7,
+    FiscalAgent = 8,
     /// <summary>
     /// 
     /// </summary>
     [Display(Name = "Other")]
-    Other = 8,
+    Other = 9,
 }

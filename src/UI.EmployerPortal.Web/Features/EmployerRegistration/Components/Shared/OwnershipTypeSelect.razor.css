@@ -20,7 +20,7 @@
 }
     /* Focus state */
     .master-input:focus {
-        border-color: #003663;
+        border: 2px solid var(--color-blue-focus, #258cfb);
     }
 
 /* Label on border */

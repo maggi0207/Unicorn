@@ -8,6 +8,8 @@
 @using UI.EmployerPortal.Web.Features.BillingPayments.Services
 @using UI.EmployerPortal.Web.Features.Dashboard
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 @inject IBillingDetailService BillingDetailService
 @inject IDashboardOrchestrator DashboardOrchestrator
@@ -56,7 +58,7 @@ else
                     <h2 id="current-liability-heading" class="billing-detail-section-heading">Current Liability</h2>
                     <hr class="billing-detail-divider" aria-hidden="true" />
                     <p class="billing-detail-liability-amount">@CurrentLiability.ToString("C")</p>
-                
+
 
                   @* ── Billing Detail Table ── *@
                   <div class="billing-detail-table-wrapper" role="region" aria-label="Billing detail table">
@@ -74,7 +76,7 @@ else
                                         <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
                                             <button type="button"
                                                     class="billing-detail-sort-btn"
-                                                    @onclick="() => SortBills(col.Key)">
+                                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortBills(col.Key), $"{col.Label} Clicked", DateTime.Now))">
                                                 <span class="header-label">@col.Label</span>
                                                 <span aria-hidden="true">@GetSortIcon(col.Key, _billSortColumn, _billSortAscending)</span>
                                             </button>
@@ -129,7 +131,7 @@ else
                                                 class="billing-detail-th"
                                                 aria-sort="@GetAriaSort(col.Key, _creditSortColumn, _creditSortAscending)">
                                                 <div class="header-content @(IsNumericColumn(col.Key) ? "header-content-right" : "")">
-                                                    <button type="button" class="billing-detail-sort-btn" @onclick="() => SortCredits(col.Key)">
+                                                    <button type="button" class="billing-detail-sort-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortCredits(col.Key), $"{col.Label} Clicked", DateTime.Now))">
                                                         <span class="header-label">@col.Label</span>
                                                         <span aria-hidden="true">@GetSortIcon(col.Key, _creditSortColumn, _creditSortAscending)</span>
                                                     </button>
@@ -165,13 +167,13 @@ else
                                 <Button Variant="Button.ButtonVariant.Secondary"
                                         Size="Button.ButtonSize.Medium"
                                         AriaLabel="Request a refund"
-                                        OnClick="HandleRequestRefund">
+                                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleRequestRefund, "Request a Refund Clicked", DateTime.Now))">
                                     REQUEST A REFUND
                                 </Button>
                             </div>
-                            
+
                         }
-                    
+
                 }
                 <br /><br />
                 <section class="billing-detail-section" aria-labelledby="payment-summary-heading">
@@ -179,42 +181,44 @@ else
                     <hr class="billing-detail-divider" aria-hidden="true" />
 
                     <div class="billing-detail-summary" aria-label="Payment summary values" role="region">
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Tax Due</span>
-                            <span class="billing-detail-summary-value">@_model.TaxDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Interest Due</span>
-                            <span class="billing-detail-summary-value">@_model.InterestDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Penalty Due</span>
-                            <span class="billing-detail-summary-value">@_model.PenaltyDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Collection Costs Due</span>
-                            <span class="billing-detail-summary-value">@_model.CollectionCostsDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">NSF Fees Due</span>
-                            <span class="billing-detail-summary-value">@_model.NsfFeesDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Assessment Due</span>
-                            <span class="billing-detail-summary-value">@_model.AssessmentDue.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Credit</span>
-                            <span class="billing-detail-summary-value">@_model.TotalCredits.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label fw-bold">Total Outstanding Balance</span>
-                            <span class="billing-detail-summary-value fw-bold">@_model.TotalOutstandingBalance.ToString("C")</span>
-                        </div>
-                        <div class="billing-detail-summary-row">
-                            <span class="billing-detail-summary-label">Pending EFT Payments</span>
-                            <span class="billing-detail-summary-value">@_model.TotalEftPayments.ToString("C")</span>
-                        </div>
+                        <dl>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Tax Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.TaxDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Interest Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.InterestDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Penalty Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.PenaltyDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Collection Costs Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.CollectionCostsDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">NSF Fees Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.NsfFeesDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Assessment Due</dt>
+                                <dd class="billing-detail-summary-value">@_model.AssessmentDue.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Credit</dt>
+                                <dd class="billing-detail-summary-value">@_model.TotalCredits.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label fw-bold">Total Outstanding Balance</dt>
+                                <dd class="billing-detail-summary-value fw-bold">@_model.TotalOutstandingBalance.ToString("C")</dd>
+                            </div>
+                            <div class="billing-detail-summary-row">
+                                <dt class="billing-detail-summary-label">Pending EFT Payments</dt>
+                                <dd class="billing-detail-summary-value">@_model.TotalEftPayments.ToString("C")</dd>
+                            </div>
+                        </dl>
 
                         @* Amount to Pay — editable *@
                         <div class="billing-detail-summary-row billing-detail-amount-to-pay-row">
@@ -436,7 +440,7 @@ else
             Validate();
         }
         else
-        {   
+        {
             var cleaned = raw.Replace("$", "").Replace(",", "").Trim();
             if (!string.IsNullOrWhiteSpace(cleaned)
                 && decimal.TryParse(cleaned, System.Globalization.NumberStyles.Number,

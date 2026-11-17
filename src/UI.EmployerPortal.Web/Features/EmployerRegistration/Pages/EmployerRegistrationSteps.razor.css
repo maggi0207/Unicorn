@@ -1,7 +1,6 @@
 /* ── Page wrapper ───────────────────────────────────────────────── */
 .page-content {
     width: 100%;
-    padding-top: 20px;
     /*max-width: 1138px;*/ /*add this back if needed*/
     /*margin: 0 auto;*/
 }
@@ -9,7 +8,6 @@
 .notification-container {
     width: 684px;
     justify-self: center;
-    padding-bottom: 1em;
 }
 
 .page-heading {
@@ -85,8 +83,6 @@
     flex-direction: column;
     width: 684px;
     max-width: 100%;
-    padding-top: 32px;
-    padding-bottom: 32px;
     box-sizing: border-box;
     justify-content: center;
     margin-left: auto;
@@ -123,4 +119,16 @@
     width: 750px;
     max-width: 100%;
     margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    ::deep .wizard-navigation {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 415px) {
+    ::deep .wizard-navigation {
+        flex-direction: column;
+    }
 }

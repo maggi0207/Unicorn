@@ -18,7 +18,6 @@
     <div class="bi-page-content">
 
         <h2 class="page-title">Business Contact</h2>
-        <p class="page-subtitle">All fields are required unless noted</p>
 
         <!-- Validation Error Summary -->
         @if (_showValidationSummary && ValidationErrors.Any())
@@ -29,8 +28,6 @@
                                 MessageFieldIds="ValidationFieldIds"
                                 DismissButton="false">
             </NotificationBanner>
-            <br />
-            <br />
         }
 
         <EditForm EditContext="@editContext" FormName="BusinessContact" OnSubmit="Validate" role="form">
@@ -38,6 +35,7 @@
             <DataAnnotationsValidator />
             <CustomValidator @ref="customValidator" />
             @* ================= CONTACT NAME ================= *@
+            <p class="page-subtitle">All fields are required unless noted</p>
             <div class="bi-fields-grid" aria-label="contact-name">
                 <div class="bi-field" aria-label="first-name">
                     <OutlinedTextField Label="First Name"
@@ -65,8 +63,8 @@
 
             @* ================= ADDRESS QUESTION ================= *@
             <div class="bc-question">
-                <p id="IsDifferentAddress" aria-label="address-different" class="bc-question-text">Is the Business Contact Address different from the Business Mailing Address?</p>
-                <div class="bc-radio-group" aria-label="radio-options">
+                <p id="IsDifferentAddress" class="bc-question-text">Is the Business Contact Address different from the Business Mailing Address?</p>
+                <div class="bc-radio-group" >
                     <FieldError For="@(() => Model.IsDifferentAddress)"
                                 Visible="@formSubmitted" />
                     <RadioGroup TValue="bool?"
@@ -81,8 +79,8 @@
             @* ================= CONTACT ADDRESS (shown when Yes) ================= *@
             @if (Model.IsDifferentAddress == true)
             {
-                <div class="bi-section-header" aria-label="business-contact-address">
-                    <span>Business Contact Address</span>
+                <div class="bi-section-header" >
+                    <h2>Business Contact Address</h2>
                 </div>
 
                 <AddressField Address="Model.ContactAddress" Legend="Business Contact Address"
@@ -222,7 +220,7 @@
             foreach (var error in errors)
             {
                 if (prop.Name == "IsDifferentAddress")
-                    ValidationErrors.Add("Please select if the Business Contact Address is different from the Business mailing address");
+                    ValidationErrors.Add("Please select if the Business Contact Address is different from the Business Mailing Address");
                 else
                     ValidationErrors.Add(error);
                 ValidationFieldIds.Add(prop.Name);

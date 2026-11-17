@@ -6,11 +6,12 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inject NavigationManager Nav
 @inject AddressValidationCoordinator AddressCoordinator
 @inject RegistrationStateService RegistrationState
@@ -20,7 +21,6 @@
 <div class="page_wrapper">
     <div class="bi-page-content">
         <h2 class="page-title">Business Information</h2>
-        <p class="page-subtitle">All fields are required unless noted</p>
 
         <EditForm EditContext="@editContext" FormName="BusinessInformation" role="form">
 
@@ -36,11 +36,10 @@
                                     MessageFieldIds="ValidationFieldIds"
                                     DismissButton="false">
                 </NotificationBanner>
-                <br />
-                <br />
             }
 
             @* ================= BUSINESS DETAILS ================= *@
+            <p class="page-subtitle">All fields are required unless noted</p>
             <div class="bi-fields-grid" aria-label="Fill Buisness Details">
                 <div class="bi-field">
                     <OutlinedTextField Label="Legal Name"
@@ -67,8 +66,7 @@
                                        For="() => Model.Email"
                                        Placeholder="name@example.com"
                                        Id="Email"
-                                       MaxLength="255"
-                                       Visible="@IsVisible(() => Model.Email)" />
+                                       MaxLength="255"/>
                 </div>
             </div>
 
@@ -102,7 +100,7 @@
                                 <button
                                     id="btn-remove-physical-location"
                                     type="button" class="bi-remove-location"
-                                    @onclick="() => RemovePhysicalLocation(index)"
+                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => RemovePhysicalLocation(index), $"Remove (index: {index}) Clicked", DateTime.Now))"
                                     aria-describedby="@physicalLocationHeaderId">
                                     Remove
                                 </button>
@@ -116,7 +114,6 @@
                             aria-labelledby="checked-same-as-mailing">
                             <input type="checkbox"
                                    id="checked-same-as-mailing"
-                                   aria-label="Checked Physical Location"
                                    checked="@_physicalSameAsMailing"
                                    disabled="@IsMailingPoBox"
                                    class="form-check-input"
@@ -136,7 +133,7 @@
             }
 
             @* ================= ADD LOCATION BUTTON ================= *@
-            <button type="button" class="bi-add-location" @onclick="AddPhysicalLocation" aria-label="Add Another Location">
+            <button type="button" class="bi-add-location" @onclick="@(() => tracker.LogNavigationSessionActivity(AddPhysicalLocation, "Add Another Physical Location Clicked", DateTime.Now))">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M8 3V13M3 8H13"
                           stroke="#0D6EFD"
@@ -254,17 +251,35 @@
 
         if (ownershipType == OwnershipType.SoleProprietorship
             || ownershipType == OwnershipType.Individual
+            || ownershipType == OwnershipType.Estate
+            || ownershipType == OwnershipType.Partnership
            )
         {
-            var ownerList = ModelStore.EmployerRegistrationModel.OwnershipSessionData?.GetSurveyContacts().FirstOrDefault();
-            if (ownerList != null)
-            {
-                var legalName = $"{ownerList._firstName} {ownerList._middleName} {ownerList._lastName}";
-                legalName = Regex.Replace(legalName, @"\s+", " ");
-                Model.LegalName = legalName.Trim();
-            }
+            var owners = ModelStore.EmployerRegistrationModel?
+                .OwnershipSessionData?
+                .GetSurveyContacts()
+                .ToList();
 
+            if (owners?.Any() == true)
+            {
+                var ownerNames = owners
+                    .Select(owner => string.Join(" ", new[]
+                    {
+            owner._firstName,
+            owner._middleName,
+            owner._lastName
+                    }.Where(x => !string.IsNullOrWhiteSpace(x))))
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .ToList();
+
+                if (ownerNames.Any())
+                {
+                    Model.LegalName = BuildLegalName(ownerNames);
+                    isLegalNameReadOnly = true;
+                }
+            }
         }
+
         if (ownershipType == OwnershipType.LP)
         {
             var sessionData = ModelStore?.EmployerRegistrationModel?.OwnershipSessionData;
@@ -276,6 +291,81 @@
             }
         }
     }
+
+    /// <summary>
+    /// Builds the Legal Name based on the number of partners
+    /// and the 255-character field limit.
+    /// </summary>
+    private string BuildLegalName(List<string> names)
+    {
+        var partnerMoreThanFive = ModelStore.EmployerRegistrationModel?
+            .OwnershipSessionData?
+            .MoreThanFive;
+
+        if (names == null || names.Count == 0)
+            return string.Empty;
+
+        names = names
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .ToList();
+
+        if (names.Count == 0)
+            return string.Empty;
+
+        const int maxLength = 255;
+        const string etAl = ", et al";
+
+        bool moreThanFive = partnerMoreThanFive == true;
+
+        // Maximum 3 names when MoreThanFive is true.
+        var selectedNames = moreThanFive
+            ? names.Take(3).ToList()
+            : names.ToList();
+
+        bool appendEtAl = moreThanFive;
+
+        while (selectedNames.Count > 0)
+        {
+            string legalName;
+
+            if (appendEtAl)
+            {
+                // Names separated by commas, followed by et al.
+                legalName = string.Join(", ", selectedNames) + etAl;
+            }
+            else
+            {
+                // Use & before the final partner name.
+                legalName = FormatOwnerNames(selectedNames);
+            }
+
+            if (legalName.Length <= maxLength)
+                return legalName;
+
+            // Remove the last partner when exceeding 255.
+            selectedNames.RemoveAt(selectedNames.Count - 1);
+            appendEtAl = true;
+        }
+
+        return "et al";
+    }
+
+    private string FormatOwnerNames(List<string> names)
+    {
+        if (names.Count == 0)
+            return string.Empty;
+
+        if (names.Count == 1)
+            return names[0];
+
+        if (names.Count == 2)
+            return string.Join(" & ", names);
+
+        return string.Join(", ", names.Take(names.Count - 1))
+                   + ", & " + names.Last();
+    }
+
 
     private Dictionary<FieldIdentifier, List<string>> _customFieldErrors = new();
 
@@ -439,8 +529,16 @@
                 var idPrefix = addressPrefixes.TryGetValue(fi.Model, out var p) ? p : "";
                 foreach (var msg in messages)
                 {
-                    ValidationErrors.Add(string.IsNullOrEmpty(label) ? msg : $"{msg} ({label})");
-                    ValidationFieldIds.Add($"{idPrefix}{fi.FieldName}");
+                    if (msg.Contains("Phone Number") || msg.Contains("Phone Type"))
+                    {
+                        ValidationErrors.Add(msg);
+                        ValidationFieldIds.Add($"{idPrefix}{fi.FieldName}");
+                    }
+                    else
+                    {
+                        ValidationErrors.Add(string.IsNullOrEmpty(label) ? msg : $"{msg} ({label})");
+                        ValidationFieldIds.Add($"{idPrefix}{fi.FieldName}");
+                    }
                 }
             }
         }

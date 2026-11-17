@@ -13,6 +13,7 @@ using UI.EmployerPortal.Web.Features.BillingPayments.Models;
 using UI.EmployerPortal.Web.Features.Dashboard;
 //using UI.EmployerPortal.Web.Features.ESP.Models;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Services;
+using UI.EmployerPortal.Web.Logging;
 
 namespace UI.EmployerPortal.Web.Features.BillingPayments.Services;
 
@@ -290,6 +291,15 @@ internal sealed partial class CardPaymentService : ICardPaymentService
             var payLoadObject = JsonSerializer.Serialize(payload);
             var tokenPrefix = token?.Length > 8 ? token[..8] + "..." : "(short)";
             var fullToken = $"token={token}&digisign={digiSign}&customer_account_reference={customerAccountReference}&customer_reference={customerReference}";
+
+            Log.Info($"[STEP 1] ConfirmPaymentAsync invoked |" +
+               $"token={token}, " +
+               $"CustomerAccountReference={customerAccountReference}, " +
+               $"digiSign={digiSign}, " +
+               $"customerReference={customerReference}, " +
+               $"Amount={request.Amount:F2}, " +
+               $"FullToken={fullToken}, " +
+               $"RegistrationSK={request.RegistrationSk}");
 
             var ebillConfig = await _cardPaymentSystem.GetEBillConfigurationAsync();
             if (ebillConfig is null)
@@ -646,67 +656,67 @@ internal sealed partial class CardPaymentService : ICardPaymentService
     #region LoggerMessage Delegates
 
     [LoggerMessage(
-        EventId = 1001,
+        EventId = LogEventIds.OrbipayConfigMissing,
         Level = LogLevel.Error,
         Message = "Orbipay configuration section not found in appsettings")]
     private static partial void LogOrbipayConfigMissing(ILogger logger);
 
     [LoggerMessage(
-        EventId = 1002,
+        EventId = LogEventIds.OrbipayConfigIncomplete,
         Level = LogLevel.Error,
         Message = "Orbipay HostedFormUrl or ClientKey is missing")]
     private static partial void LogOrbipayConfigIncomplete(ILogger logger);
 
     [LoggerMessage(
-        EventId = 1003,
+        EventId = LogEventIds.HostedFormSessionCreated,
         Level = LogLevel.Information,
         Message = "Orbipay hosted form session created for amount {Amount}")]
     private static partial void LogHostedFormSessionCreated(ILogger logger, decimal amount);
 
     [LoggerMessage(
-        EventId = 1004,
+        EventId = LogEventIds.ErrorCreatingHostedFormSession,
         Level = LogLevel.Error,
         Message = "Error creating Orbipay hosted form session")]
     private static partial void LogErrorCreatingHostedFormSession(ILogger logger, Exception ex);
 
     [LoggerMessage(
-        EventId = 1005,
+        EventId = LogEventIds.OrbipayCredentialsIncomplete,
         Level = LogLevel.Error,
         Message = "Orbipay credentials incomplete")]
     private static partial void LogOrbipayCredentialsIncomplete(ILogger logger);
 
     [LoggerMessage(
-        EventId = 1006,
+        EventId = LogEventIds.PaymentConfirmed,
         Level = LogLevel.Information,
         Message = "Payment confirmed: ConfirmationNumber={ConfirmationNumber}, Amount={Amount}")]
     private static partial void LogPaymentConfirmed(ILogger logger, string confirmationNumber, decimal? amount);
 
     [LoggerMessage(
-        EventId = 1007,
+        EventId = LogEventIds.CommunicationErrorWithAlacritiApi,
         Level = LogLevel.Error,
         Message = "Communication error with Alacriti payment API")]
     private static partial void LogCommunicationErrorWithAlacritiApi(ILogger logger, Exception ex);
 
     [LoggerMessage(
-        EventId = 1008,
+        EventId = LogEventIds.ErrorConfirmingOrbipayPayment,
         Level = LogLevel.Error,
         Message = "Error confirming Orbipay payment")]
     private static partial void LogErrorConfirmingOrbipayPayment(ILogger logger, Exception ex);
 
     [LoggerMessage(
-       EventId = 1009,
+       EventId = LogEventIds.OrbipayPaymentError,
        Level = LogLevel.Warning,
        Message = "Orbipay payment error: {ErrorMessage} (codes: {ErrorCodes})")]
     private static partial void LogPaymentError(ILogger logger, string errorMessage, string errorCodes);
 
     [LoggerMessage(
-        EventId = 1010,
+        EventId = LogEventIds.PaymentSavedToSuites,
         Level = LogLevel.Information,
         Message = "Payment saved to SUITES: ConfirmationNumber={ConfirmationNumber}")]
     private static partial void LogPaymentSavedToSuites(ILogger logger, string confirmationNumber);
 
     [LoggerMessage(
-        EventId = 1011,
+        EventId = LogEventIds.ErrorSavingPaymentToSuites,
         Level = LogLevel.Error,
         Message = "Failed to save payment {ConfirmationNumber} to SUITES. Manual reconciliation required.")]
     private static partial void LogErrorSavingPaymentToSuites(ILogger logger, string confirmationNumber, Exception ex);

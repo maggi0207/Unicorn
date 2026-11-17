@@ -23,7 +23,13 @@ public interface IVoluntaryContributionServices
     /// <param name="employerSk"></param>
     /// <param name="securesk"></param>
     /// <returns></returns>
-    Task<VoluntaryContributionIneligibe> GetVoluntaryContributionIneligible(int employerSk, int securesk);
+    Task<VoluntaryContributionIneligible> GetVoluntaryContributionIneligible(int employerSk, int securesk);
+    /// <summary>
+    /// Gets the pending voluntary contribution payment for an employer.
+    /// </summary>
+    /// <param name="employerSk"></param>
+    /// <returns></returns>
+    Task<VoluntaryContributionPendingPayments> GetVoluntaryPendingPayments(int employerSk);
     /// <summary>
     /// Show VC Info Based period
     /// </summary>
@@ -35,6 +41,11 @@ public interface IVoluntaryContributionServices
     /// <param name="request"></param>
     /// <returns></returns>
     Task<VoluntaryContribution?> GetRecalculateVoluntaryContributionDetail(recalcRequest request);
+    /// <summary>
+    /// Gets the settlement date window and bank holidays for voluntary contribution payments.
+    /// </summary>
+    /// <returns></returns>
+    Task<VoluntaryPaymentDates?> GetVoluntaryPaymentDatesAsync();
 }
 internal class VoluntaryContributionServices : IVoluntaryContributionServices
 {
@@ -52,6 +63,7 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
         _userAccountService = userAccountService;
         _voluntaryContributionService = voluntaryContributionService;
     }
+
     public async Task<VoluntaryContribution?> GetVoluntaryContributionDetail(voluntaryRequest request)
     {
         var response = await _retryPolicy.ExecuteAsync(() =>
@@ -81,7 +93,7 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
         };
     }
 
-    public async Task<VoluntaryContributionIneligibe> GetVoluntaryContributionIneligible(int employerSk, int securesk)
+    public async Task<VoluntaryContributionIneligible> GetVoluntaryContributionIneligible(int employerSk, int securesk)
     {
         var secureusersk = _userAccountService.GetUserSKClaim();
         var request = new EmployerRequest
@@ -92,6 +104,7 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
 
         var eligibilityResponse = await _voluntaryContributionService.IsEligibleForVoluntaryContributionAsync(request);
         var eligible = eligibilityResponse.Eligibility.IsEligible;
+        var ineligibilityreason = eligibilityResponse.Eligibility.IneligibilityReason;
 
         var ruleViolations = new List<RuleViolationItem>();
         if (eligibilityResponse.RuleViolations.Length > 0)
@@ -102,9 +115,37 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
             }
         }
 
-        return new VoluntaryContributionIneligibe
+        return new VoluntaryContributionIneligible
         {
             Eligible = eligible,
+            IneligibilityReason = ineligibilityreason,
+            RuleViolations = ruleViolations,
+        };
+    }
+
+    public async Task<VoluntaryContributionPendingPayments> GetVoluntaryPendingPayments(int employerSk)
+    {
+        var secureusersk = _userAccountService.GetUserSKClaim();
+        var request = new EmployerRequest
+        {
+            EmployerSK = employerSk,
+            SecureUserSK = secureusersk
+        };
+
+        var response = await _voluntaryContributionService.GetVoluntaryPendingPaymentsAsync(request);
+
+        var ruleViolations = new List<RuleViolationItem>();
+        if (response.RuleViolations.Length > 0)
+        {
+            foreach (var viloation in response.RuleViolations)
+            {
+                ruleViolations.Add(new RuleViolationItem { RuleID = viloation.RuleID, RuleViolation = viloation.RuleViolation });
+            }
+        }
+
+        return new VoluntaryContributionPendingPayments
+        {
+            PendingAmount = response.Value,
             RuleViolations = ruleViolations,
         };
     }
@@ -164,5 +205,18 @@ internal class VoluntaryContributionServices : IVoluntaryContributionServices
         }
 
         return eligibilityResponse.Value;
+    }
+
+    public async Task<VoluntaryPaymentDates?> GetVoluntaryPaymentDatesAsync()
+    {
+        var response = await _retryPolicy.ExecuteAsync(() =>
+        {
+            return _voluntaryContributionService.GetVoluntaryPaymentDatesAsync();
+        });
+        return response?.RuleViolations == null ? null :
+         new VoluntaryPaymentDates(
+            DateOnly.FromDateTime(response.FirstAvailableSettlementDate.Value),
+            DateOnly.FromDateTime(response.MaxSettleDate.Value),
+            (response.BankHolidays ?? []).Select(DateOnly.FromDateTime).ToHashSet());
     }
 }

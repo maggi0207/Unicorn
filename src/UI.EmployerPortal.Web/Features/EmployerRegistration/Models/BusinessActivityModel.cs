@@ -141,7 +141,7 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
         }
         // Only emit Employer Services fields when the user actually selected an Employer Services activity.
         // Without this guard, these fields leak into registrations where the user was never asked these questions,
-        // causing ghost questions to appear on the Verification page (UIEP-2829).
+        // causing unwanted questions to appear on the Verification page.
         var isEmployerServices = PrincipalBusinessActivity is
             PrincipalBusinessActivityType.EmployerServices or
             PrincipalBusinessActivityType.EmployerServicesEmployeeLeasingCompany or
@@ -211,14 +211,11 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
         {
             PrincipalBusinessActivity = principalBusinessActivityValue;
         }
-        // Fix: PRIN_OTHR_ACTV_DSC is saved from PrimaryBusinessActivityDescription (see GetSurveyResponses).
-        // Previously these two keys were swapped here, causing descriptions to flip on update (UIEP-2829).
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_OTHR_ACTV_DSC, out var primaryBusinessActivityDescription))
         {
             PrimaryBusinessActivityDescription = primaryBusinessActivityDescription.ReplyText;
         }
 
-        // Fix: PRIN_SALE_DSC is saved from WisconsinSpecificBusinessActivity (see GetSurveyResponses).
         if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.PRIN_SALE_DSC, out var wisconsinSpecificBusinessActivity))
         {
             WisconsinSpecificBusinessActivity = wisconsinSpecificBusinessActivity.ReplyText;
@@ -245,8 +242,6 @@ public class BusinessActivityModel : IEmployerRegistrationModelSection
                 ProvidesEmployeeLeasing = IEmployerRegistrationModelSection.ConvertResponseStringToBoolean(providesEmployeeLeasing.ReplyText);
             }
 
-            // Fix: was incorrectly using ACQ_BUS_FLG (Step 1 'acquired business' key), causing the Yes/No
-            // answer from Step 1 to appear as EmployerServiceExplanation on the Verification page (UIEP-2829).
             if (IEmployerRegistrationModelSection.FindResultHelper(responses, SurveyResponseItem.ER_SRVC_REASON, out var employerServiceExplanation))
             {
                 EmployerServiceExplanation = employerServiceExplanation.ReplyText;

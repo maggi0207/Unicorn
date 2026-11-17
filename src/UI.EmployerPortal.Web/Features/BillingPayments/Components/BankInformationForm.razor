@@ -2,11 +2,15 @@
 @using UI.EmployerPortal.Razor.SharedComponents;
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners;
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="page-wrapper">
     <div class="form-content">
 
-        <h1 class="page-title">Manage Bank Accounts</h1>
+        <h1 class="page-title" tabindex="-1" id="pageHeading">Manage Bank Accounts
+            <span class="visually-hidden"> Bank Information Form</span>
+        </h1>
         <hr class="page-divider" />
 
         @if (IsEditMode && _pendingPayments.Count > 0)
@@ -25,7 +29,7 @@
                         <tr class="header-row">
                             <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("settlementDate")">
                                 <div class="header-content header-content-left">
-                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("settlementDate"))">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortPending("settlementDate"), "Sort By Settlement Date Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold">Pending Payments Settlement Date</span>
                                         <span aria-hidden="true">@GetPendingSortIcon("settlementDate")</span>
                                     </button>
@@ -33,7 +37,7 @@
                             </th>
                             <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("confirmationNumber")">
                                 <div class="header-content header-content-left">
-                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("confirmationNumber"))">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortPending("confirmationNumber"), "Sort By Confirmation Number Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold">Confirmation Number</span>
                                         <span aria-hidden="true">@GetPendingSortIcon("confirmationNumber")</span>
                                     </button>
@@ -41,7 +45,7 @@
                             </th>
                             <th scope="col" class="header-cell" aria-sort="@GetPendingAriaSort("amount")">
                                 <div class="header-content header-content-left">
-                                    <button type="button" class="header-sort-button" @onclick="@(() => SortPending("amount"))">
+                                    <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortPending("amount"), "Sort By Amount Clicked", DateTime.Now))">
                                         <span class="header-label fw-bold">Payment Amount</span>
                                         <span aria-hidden="true">@GetPendingSortIcon("amount")</span>
                                     </button>
@@ -84,7 +88,7 @@
         }
 
 
-        <button type="button" class="help-trigger" aria-label="Open Bank Account Help" @onclick="HandleOpenHelp">
+        <button type="button" class="help-trigger" aria-label="Open Bank Account Help" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleOpenHelp, "Bank Account Help Clicked", DateTime.Now))">
             <img src="@Assets["icons/information-notification.svg"]" width="16" height="16" alt="" aria-hidden="true" />
             Bank Account Help
         </button>
@@ -189,7 +193,7 @@
                 </p>
                 <button type="button"
                         class="portal-link"
-                        @onclick="HandleOpenIat">
+                        @onclick="@(() => tracker.LogNavigationSessionActivity(HandleOpenIat, "View Further Explanation Clicked", DateTime.Now))">
                     <img src="@Assets["icons/information-notification.svg"]" width="16" height="16" alt="" aria-hidden="true" />
                     View Further Explanation
                 </button>
@@ -203,7 +207,7 @@
             @if (_model.IsInternational)
             {
                 <div class="iat-fields"
-                     role="region"
+                     role="alert"
                      aria-label="International Financial Institution Address"
                      aria-live="polite"
                      aria-describedby="iat-warning">
@@ -275,13 +279,13 @@
                         <Button Variant="Button.ButtonVariant.Secondary"
                                 Size="Button.ButtonSize.Medium"
                                 AriaLabel="Go back"
-                                OnClick="HandleBack">
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
                             &lt; BACK
                         </Button>
                     }
                 </div>
 
-                <div class="button-group-right">                  
+                <div class="button-group-right">
 
                     <Button Variant="Button.ButtonVariant.Primary"
                             Type="submit"

@@ -21,10 +21,24 @@
 }
 
 .billing-row ::deep .amount-input {
-    width: 106px;
+    width: 180px;
     height: 38px;
-    flex: 0 0 auto;
+    text-align: right;
 }
+
+    .billing-row .value {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        max-width: 180px;
+        text-align: right;
+    }
+
+    .billing-row .master-error {
+        text-align: left;
+        font-weight: normal;
+    }
+
 .amount-due .highlight {
     width:106px;
     height:38px;  

@@ -8,12 +8,11 @@
     flex-direction: column;
     width: 684px;
     max-width: 100%;
-    padding-top: 32px;
-    padding-bottom: 32px;
     box-sizing: border-box;
     font-family: Verdana, sans-serif;
     font-size: 16px;
     gap: 24px;
+    overflow-wrap: break-word;
 }
 
 .vf-page-title {

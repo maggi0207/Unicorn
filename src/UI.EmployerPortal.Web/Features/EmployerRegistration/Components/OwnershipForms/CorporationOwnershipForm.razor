@@ -6,7 +6,7 @@
     <!-- Headquartered Outside USA Checkbox -->
     <div class="checkbox-group">
         <label class="checkbox-label">
-            <input type="checkbox" checked="@IsOutsideUSA" @onchange="OnIsOutsideUSAChanged" />
+            <input type="checkbox" @bind="IsOutsideUSA" @bind:after="OnIsOutsideUSAChanged" />
             <span>The business is headquartered outside of the United States</span>
         </label>
     </div>
@@ -42,6 +42,7 @@
     <!-- Owner Information Section -->
     <div class="owner-info-section">
         <h2 class="section-subtitle">@Config.Header</h2>
+        <p class="required-fields-text">@Config.InstructionText</p>
 
         @for (var i = 0; i < Officers.Count; i++)
         {
@@ -54,6 +55,7 @@
                 <div class="member-fields">
                     <ValidatedInput Id="@($"first-name-{officer.Role}")"
                                     Label="First Name"
+                                    AriaLabel="@($"First Name {officer.Role}")"
                                     Value="@officer.FirstName"
                                     ValueChanged="@(v => officer.FirstName = v)"
                                     MaxLength="64"
@@ -66,6 +68,7 @@
 
                     <ValidatedInput Id="@($"middle-initial-{officer.Role}")"
                                     Label="Middle Initial"
+                                    AriaLabel="@($"Middle Initial {officer.Role}")"
                                     Value="@officer.MiddleInitial"
                                     ValueChanged="@(v => officer.MiddleInitial = v)"
                                     MaxLength="1"
@@ -73,6 +76,7 @@
 
                     <ValidatedInput Id="@($"last-name-{officer.Role}")"
                                     Label="Last Name"
+                                    AriaLabel="@($"Last Name {officer.Role}")"
                                     Value="@officer.LastName"
                                     ValueChanged="@(v => officer.LastName = v)"
                                     MaxLength="64"
@@ -85,6 +89,7 @@
 
                     <SSNInput Id="@($"ssn-{officer.Role}")"
                               Label="SSN"
+                              AriaLabel="@($"SSN {officer.Role}")"
                               Value="@officer.SSN"
                               ValueChanged="@((string value) => OnSSNChanged(index, value))"
                               IsFocused="@officer.IsSSNFocused"
@@ -99,6 +104,7 @@
 
                     <ValidatedInput Id="@($"ownership-percentage-{officer.Role}")"
                                     Label="Ownership (%)"
+                                    AriaLabel="@($"Ownership (%) {officer.Role}")"
                                     InputType="number"
                                     Value="@(officer.OwnershipPercentage?.ToString())"
                                     ValueChanged="@(v => officer.OwnershipPercentage = decimal.TryParse(v, out var n) ? n : null)"
@@ -153,7 +159,7 @@
     {
         _previousISOutsideUSA = IsOutsideUSA;
         InitializeOfficers();
-        RestoreFromContinueData();      
+        RestoreFromContinueData();
         RegisterValidate?.Invoke(() => { _showAllErrors = true; ValidateForm(); return ValidationErrors; });
     }
 
@@ -172,14 +178,14 @@
 
         try
         {
-            IsOutsideUSA = ContinueData.IsOutsideUSA || !string.IsNullOrWhiteSpace(ContinueData.ForeignCountry);
+            IsOutsideUSA = ContinueData.IsOutsideUSA;
             _previousISOutsideUSA = IsOutsideUSA;
             IncorporationState = ContinueData.IncorporationState ?? string.Empty;
             ForeignCountry = ContinueData.ForeignCountry ?? string.Empty;
 
             if (ContinueData.Officers is { Count: > 0 })
             {
-                
+
                 foreach (var savedOfficer in ContinueData.Officers)
                 {
                     var existing = Officers.FirstOrDefault(o => o.Role == savedOfficer.Role);
@@ -236,18 +242,16 @@
         ValidateForm();
     }
 
-    /// <summary>
-    /// Called when the "headquartered outside USA" checkbox is toggled.
-    /// Clears the mutually exclusive field and triggers validation.
-    /// </summary>
-    /// <param name="e">The change event args.</param>
-    private void OnIsOutsideUSAChanged(ChangeEventArgs e)
+    private void OnIsOutsideUSAChanged()
     {
-        IsOutsideUSA = e.Value is true;
         if (IsOutsideUSA)
+        {
             IncorporationState = string.Empty;
+        }
         else
+        {
             ForeignCountry = string.Empty;
+        }
         ValidateForm();
     }
 
@@ -313,17 +317,19 @@
         InvalidFields.Clear();
         FieldErrors.Clear();
 
-        if (string.IsNullOrWhiteSpace(IncorporationState) && string.IsNullOrWhiteSpace(ForeignCountry))
+        if (IsOutsideUSA)
         {
-            var msg = $"{Config.StateLabel} or Foreign Country is required";
-            AddFieldError("IncorporationState", msg);
-            AddFieldError("ForeignCountry", msg);
+            if (string.IsNullOrWhiteSpace(ForeignCountry))
+            {
+                AddFieldError("ForeignCountry", "Foreign Country is required");
+            }
         }
-        else if (!string.IsNullOrWhiteSpace(IncorporationState) && !string.IsNullOrWhiteSpace(ForeignCountry))
+        else
         {
-            var msg = $"Either {Config.StateLabel} or Foreign Country is required, not both";
-            AddFieldError("IncorporationState", msg);
-            AddFieldError("ForeignCountry", msg);
+            if (string.IsNullOrWhiteSpace(IncorporationState))
+            {
+                AddFieldError("IncorporationState", $"{Config.StateLabel} is required");
+            }
         }
 
         var hasAnyOfficerData = Officers.Any(o =>
@@ -394,9 +400,9 @@
                 .Where(o => o.OwnershipPercentage.HasValue)
                 .Sum(o => o.OwnershipPercentage!.Value);
 
-            if (totalPercentage > 0 && Math.Round(totalPercentage, 2) != 100)
+            if (totalPercentage > 0 && Math.Round(totalPercentage, 2) > 100)
             {
-                var msg = "Total Ownership Percentage must equal 100.00";
+                var msg = "Total Ownership Percentage can not exceed 100%";
                 var firstOfficer = Officers.FirstOrDefault(m => m.OwnershipPercentage.HasValue);
                 _validationItems.Add(new ValidationItem(msg, firstOfficer != null ? $"ownership-percentage-{firstOfficer.Role}" : string.Empty));
                 ValidationErrors.Add(msg);

@@ -1,13 +1,11 @@
 .gov-frame {
-    width: 684px;
-    height: 625px;
+    max-width: 684px;
     gap: 8px;
     display: flex;
     flex-direction: column;
 }
 .gov-frame-h1 {
-    width: 684px;
-    height: 32px;
+    max-width: 684px;
     font: var(--font-primary);
     font-size: var(--font-size-title);
     font-weight: var(--font-weight-bold);

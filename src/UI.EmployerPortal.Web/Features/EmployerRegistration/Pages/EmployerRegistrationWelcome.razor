@@ -31,7 +31,7 @@
                 </li>
                 <li>
                     Applicable documentation. Some items will instruct you to submit additional
-                    documentation to our department (examples are federal 501(c)(3) ruling, or a federal
+                    documentation to our department (examples are the federal 501(c)(3) ruling, or a federal
                     notice of acceptance of an LLC electing to be taxed as a corporation).
                 </li>
             </ol>
@@ -58,38 +58,14 @@
             </ul>
         </Accordion>
 
-        <div class="welcome-button-row">
-            <div class="welcome-button-row-left">
-                <button type="button"
-                        class="btn btn--secondary"
-                        @onclick="GoBack">
-                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                        <path d="M7 1L1 6.5L7 12"
-                              stroke="#003663"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round" />
-                    </svg>
-                    BACK
-                </button>
-            </div>
-
-            <div class="welcome-button-row-right">
-                <button type="button"
-                        class="btn btn--primary"
-                        @onclick="ProceedToRegistration">
-                    PROCEED TO REGISTRATION
-                    <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-                        <path d="M1 1L7 6.5L1 12"
-                              stroke="white"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-
+        <BillingButtonBar ShowBack="true"
+                          ShowContinue="true"
+                          ShowCancel="false"
+                          OnBack="GoBack"
+                          ContinueText="PROCEED TO REGISTRATION"
+                          OnContinue="ProceedToRegistration"
+                          ButtonWidth="300">
+        </BillingButtonBar>
     </div>
 </div>
 

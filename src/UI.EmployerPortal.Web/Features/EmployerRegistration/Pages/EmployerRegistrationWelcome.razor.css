@@ -51,14 +51,9 @@
         color: #000000;
     }
 
-    ::deep .welcome-list a {
-        color: #006bb7;
-        text-decoration: underline;
+    ::deep .welcome-list a:hover {
+        color: #003663;
     }
-
-        ::deep .welcome-list a:hover {
-            color: #003663;
-        }
 
 /* Button row */
 .welcome-button-row {

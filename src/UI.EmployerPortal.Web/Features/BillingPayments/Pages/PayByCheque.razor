@@ -1,38 +1,42 @@
 @page "/billing-payments/pay-by-check"
 @using System.Linq
-@inject IJSRuntime JS
-@inject NavigationManager Nav
-@using Microsoft.FluentUI.AspNetCore.Components
 @using UI.EmployerPortal.Web.Features.Dashboard
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Models
+@using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
+@using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject IDashboardOrchestrator DashboardOrchestrator
 @inject IBankAccountOrchestrator BankAccountOrchestrator;
- 
+@inject IEmployerAccountService EmployerAccountService;
+@inject IUserAccountService UserAccountService;
+@inject INavigationSessionTracker tracker
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
 <div class="section-page">
     <PageTitle>Check Payment Coupon</PageTitle>
- 
+
     <h1 class="section-header fw-bold">Check Payment Coupon</h1>
     <p class="section-description">Print out a payment coupon to mail with your payment.</p>
     <br />
- 
+
     @* Print action — hidden from @@media print via check-no-print *@
     <div>
         <Button Variant="Button.ButtonVariant.Primary"
                 AriaLabel="PRINT COUPON"
                 type="button"
-                OnClick="ExecutePrint">
+                Onclick="@(() => tracker.LogNavigationSessionActivity(ExecutePrint, "Print Coupon Clicked", DateTime.Now))">
             <span aria-hidden="true">&#128438;</span> PRINT COUPON
         </Button>
     </div>
     <br />
- 
+
     @* Print Layout*@
     <div class="print-section" id="print-section">
         <div class=" cheque-coupon"
              role="document" aria-label="Check Payment Coupon">
- 
+
             <div class="cheque-coupon-grid">
- 
+
                 @* Left: DWD return address + employer address *@
                 <div class="cheque-coupon-addresses">
                     <div class="cheque-coupon-block">
@@ -57,21 +61,21 @@
                         @_employerCityStateZip
                     </div>
                 </div>
- 
+
                 @* Right: remittance details *@
                 <div class="cheque-coupon-remittance">
                     <img src="images/billing/dwd_logo_bw.svg" alt="State Of Wisconsin Department Of Workforce Development Logo"
                          class="cheque-coupon-logo" />
                     <br />
                     <h2 class="cheque-coupon-title fw-bold">Payment Remittance Coupon</h2>
- 
+
                     <dl class="cheque-coupon-dl">
                         <div class="cheque-coupon-dl-item">
                             <dt>Account Number:</dt>
                             <dd>@FormatUiAccountNumber(_uiAccountNumber)</dd>
                         </div>
                     </dl>
- 
+
                     @* Machine-readable scan line. *@
                     <p class="cheque-coupon-scanline">@_scanLine</p>
                     <br /> <br /> <br />
@@ -85,7 +89,7 @@
                 </div>
             </div>
             <br /> <br />
- 
+
             @* Amounts. Amount Enclosed is intentionally blank for the employer to write in by hand. *@
             <table class="cheque-coupon-table">
                 <caption class="visually-hidden">Payment coupon amounts</caption>
@@ -106,20 +110,21 @@
                     </tr>
                 </tbody>
             </table>
- 
+
             <p class="cheque-coupon-formid">UCT-16317-E (R. 11/04/2009)</p>
         </div>
     </div>
 
     <!-- Footer Actions -->
     <nav class="billing-footer" aria-label="Page actions">
+        <br />
         <BillingButtonBar ShowBack="true"
                           ShowContinue="false"
                           OnBack="HandleBack">
         </BillingButtonBar>
     </nav>
 </div>
- 
+
 @code {
     private decimal _amountToPay;
     private string _uiAccountNumber = "";
@@ -133,7 +138,6 @@
     private string _scanLine = string.Empty;
     private string _returnUrl = "billing-payments"; // fallback only
 
- 
     protected override async Task OnInitializedAsync()
     {
         await Task.CompletedTask;
@@ -153,16 +157,18 @@
 
             if (_employerAccount is not null)
             {
+                var secureUserSk = UserAccountService.GetUserSKClaim();
+                var info = await EmployerAccountService.GetPortalEmployerInfo(_employerAccount.Id, secureUserSk);
                 _uiAccountNumber = _employerAccount.UIAccountNo;
                 _businessLegalName = _employerAccount.LegalName;
-                _employerAddressLine1 = _employerAccount.AddressLine1;
-                _employerAddressLine2 = _employerAccount.AddressLine2;
+                _employerAddressLine1 = info.AddressLine2;
+                _employerAddressLine2 = info.AddressLine1;
                 _employerBalanceDue = _employerAccount.BalanceDue;
-                _employerCityStateZip = $"{_employerAccount.City}, {_employerAccount.State} {_employerAccount.Zip}";
+                _employerCityStateZip = $"{info.City}, {info.State} {info.Zip}";
                 _amountToPay = decimal.Parse(pending ?? _employerAccount.BalanceDue.ToString());
                 _scanLine = BuildScanLine(_uiAccountNumber, _amountToPay);
             }
-                    
+
             StateHasChanged();
         }
     }
@@ -171,7 +177,7 @@
    string.IsNullOrWhiteSpace(acct) || acct.Length != 10
        ? acct
        : $"{acct[..6]}-{acct[6..9]}-{acct[9..]}";
- 
+
     /// <summary>Triggers the browser print dialog for the coupon.</summary>
     private async Task ExecutePrint()
     {
@@ -188,19 +194,19 @@
             // Circuit disconnected during print - safe to ignore
         }
     }
-    
+
     private void HandleBack() => NavigateToOrigin();
- 
+
     /// <summary>Abandons the coupon and returns to origin</summary>
     private void HandleCancel() => NavigateToOrigin();
- 
+
     private void NavigateToOrigin()
     {
         // Origin-aware navigation, mirroring MainLayout: new Uri(Nav.BaseUri) + relative path.
         var target = new Uri(new Uri(Nav.BaseUri), _returnUrl).ToString();
         Nav.NavigateTo(target);
     }
- 
+
     // Scan line = *<10-digit account><9-digit amount in cents>* — plain 10-digit account
     // (no barcode on these coupons, so not the 14-digit mailed variant). Per UIEP-634.
     private static string BuildScanLine(string accountNumber, decimal amount)

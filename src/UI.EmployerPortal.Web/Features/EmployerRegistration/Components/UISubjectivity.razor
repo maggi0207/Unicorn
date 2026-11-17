@@ -1,16 +1,13 @@
 @page "/employer-registration/UISubjectivity";
 
-@using Microsoft.FluentUI.AspNetCore.Components
-@using UI.EmployerPortal.Razor.SharedComponents.Address
 @using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Razor.SharedComponents.TextBoxes
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models;
-@using UI.EmployerPortal.Razor.SharedComponents.Validation
-@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using System.Linq.Expressions
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inject EmployerRegistrationInfo RegistrationInfo;
 @inject NavigationManager Nav;
 
@@ -19,6 +16,9 @@
 <div class="page_wrapper">
     <div class="ui-page-content">
         <!-- Validation Error Summary -->
+
+        <h2 class="page-title">Unemployment Insurance Subjectivity</h2>
+
         @if (_formSubmitted && ValidationErrors.Any())
         {
             <NotificationBanner NotificationType="NotificationType.Alert"
@@ -27,17 +27,14 @@
                                 MessageFieldIds="ValidationFieldIds"
                                 DismissButton="false">
             </NotificationBanner>
-            <br />
-            <br />
         }
-        <h2 class="page-title">Unemployment Insurance Subjectivity</h2>
         <p class="page-subtitle">
             These answers will help us determine whether your business is covered under Wisconsin's Unemployment Insurance Law. All fields are required unless noted.
         </p>
         <EditForm EditContext="_subjectivityContext">
            <DataAnnotationsValidator />
             <p class="page-subtitle" id="BusinessCategory" tabindex="-1">
-                Select your business category. <strong>To be considered a non-profit organization by the State of Wisconsin, you must have received a 501(c)(3) determination from the IRS.</strong>
+                Based on a prior answer, your business category has been pre-selected. <strong>To be considered a non-profit organization by Wisconsin Unemployment, you must submit a copy of your 501(c)(3) determination issued from the IRS.</strong>
             </p>
 
             <div id="section_1" class="ui-radio-section">
@@ -134,16 +131,15 @@
             }
                          <div>
                              <label for="FinancialDescription">
-                                <strong>Financial Institution through which you will maintain your business checking account.</strong>
-                                Provide the Name and Address (Optional).
+                    <strong>Name and address of the financial institution where you will maintain your business checking account.</strong>
+                               (optional)
                             </label>
                              <ValidatedTextArea Id="FinancialDescription"
                                @bind-Value="SubjectivityModel.FinancialInstitutionString"
                               Rows="4"
-                              Width="750"
                               MaxLength="255"
-                              IsRequired="true"/>                          
-                              
+                              IsRequired="true"/>
+
                          </div>
 
             <div class="ui-radio-section">
@@ -227,71 +223,73 @@
                         @if (SubjectivityModel.Wages != null && SubjectivityModel.Wages.Count > 0 && BusinessCategory != BusinessCategory.NonProfit_501c3)
                         {
                             <p id="table description" class="ui-text">@GetWagesTableDisclaimer()</p>
-                            <table id="Wages" tabindex="-1" aria-label="Gross quarterly payroll by year" aria-describedby="table description">
-                                <tr style="text-align:center;">
-                                    <th class="visually-hidden">Year</th>
-                                    <th id="q1-header">Q1</th>
-                                    <th id="q2-header">Q2</th>
-                                    <th id="q3-header">Q3</th>
-                                    <th id="q4-header">Q4</th>
-                                </tr>
-                                @{int index = 0;}
-                                @foreach (var row in SubjectivityModel.Wages)
-                                {
-                                    <tr class"ui-table-row-header">
-                                        <th id="year-@index" scope="row" class="ui-table-row-header">@row.Year</th>
-
-                                        <td class="ui-table-text-box">
-                                            <NumericTextBox @bind-Value="row.Q1Wages"
-                                                            InputType="@InputDataTypes.Currency"
-                                                            ShowCurrencyIcon="false"
-                                                            CssClass="@(row.Q1Disabled ? "textboxReadOnlyBackgroundColor" : "")"
-                                                            DecimalPlaces="@DecimalPlaces"
-                                                            IsReadonly="@row.Q1Disabled"
-                                                            Min="0" Max="10000000"
-                                                            AriaLabelledBy="@($"q1-header year-{index}")"/>
-                                        </td>
-
-                                        <td class="ui-table-text-box">
-                                            <NumericTextBox @bind-Value="row.Q2Wages"
-                                                            InputType="@InputDataTypes.Currency"
-                                                            ShowCurrencyIcon="false"
-                                                            CssClass="@(row.Q2Disabled ? "textboxReadOnlyBackgroundColor" : "")"
-                                                            DecimalPlaces="@DecimalPlaces"
-                                                            IsReadonly="@row.Q2Disabled"
-                                                            Min="0" Max="10000000"
-                                                            AriaLabelledBy="@($"q2-header year-{index}")"/>
-
-                                        </td>
-
-                                        <td class="ui-table-text-box">
-                                            <NumericTextBox @bind-Value="row.Q3Wages"
-                                                            InputType="@InputDataTypes.Currency"
-                                                            CssClass="@(row.Q3Disabled ? "textboxReadOnlyBackgroundColor" : "")"
-                                                            ShowCurrencyIcon="false"
-                                                            DecimalPlaces="@DecimalPlaces"
-                                                            IsReadonly="@row.Q3Disabled"
-                                                            Min="0" Max="10000000"
-                                                            AriaLabelledBy="@($"q3-header year-{index}")"/>
-
-                                        </td>
-
-                                        <td class="ui-table-text-box">
-                                            <NumericTextBox @bind-Value="row.Q4Wages"
-                                                            InputType="@InputDataTypes.Currency"
-                                                            CssClass="@(row.Q4Disabled ? "textboxReadOnlyBackgroundColor" : "")"
-                                                            ShowCurrencyIcon="false"
-                                                            DecimalPlaces="@DecimalPlaces"
-                                                            IsReadonly="@row.Q4Disabled"
-                                                            Min="0" Max="10000000"
-                                                            AriaLabelledBy="@($"q4-header year-{index}")"/>
-
-                                        </td>
+                            <div class="table-container">
+                                <table id="Wages" class="wages-table" tabindex="-1" aria-label="Gross quarterly payroll by year" aria-describedby="table description">
+                                    <tr style="text-align:center;">
+                                        <th style="width: 46px"><span class="visually-hidden" >Year</span></th>
+                                        <th id="q1-header" style="width: 155px">Q1</th>
+                                        <th id="q2-header" style="width: 155px">Q2</th>
+                                        <th id="q3-header" style="width: 155px">Q3</th>
+                                        <th id="q4-header" style="width: 155px">Q4</th>
                                     </tr>
-                                    index++;
-                                }
+                                    @{int index = 0;}
+                                    @foreach (var row in SubjectivityModel.Wages)
+                                    {
+                                        <tr class"ui-table-row-header">
+                                            <th id="year-@index" scope="row" class="ui-table-row-header">@row.Year</th>
 
-                            </table>
+                                            <td class="ui-table-text-box">
+                                                <NumericTextBox @bind-Value="row.Q1Wages"
+                                                                InputType="@InputDataTypes.Currency"
+                                                                ShowCurrencyIcon="false"
+                                                                CssClass="@(row.Q1Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                                DecimalPlaces="@DecimalPlaces"
+                                                                IsReadonly="@row.Q1Disabled"
+                                                                Min="0" Max="10000000"
+                                                                AriaLabelledBy="@($"q1-header year-{index}")"/>
+                                            </td>
+
+                                            <td class="ui-table-text-box">
+                                                <NumericTextBox @bind-Value="row.Q2Wages"
+                                                                InputType="@InputDataTypes.Currency"
+                                                                ShowCurrencyIcon="false"
+                                                                CssClass="@(row.Q2Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                                DecimalPlaces="@DecimalPlaces"
+                                                                IsReadonly="@row.Q2Disabled"
+                                                                Min="0" Max="10000000"
+                                                                AriaLabelledBy="@($"q2-header year-{index}")"/>
+
+                                            </td>
+
+                                            <td class="ui-table-text-box">
+                                                <NumericTextBox @bind-Value="row.Q3Wages"
+                                                                InputType="@InputDataTypes.Currency"
+                                                                CssClass="@(row.Q3Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                                ShowCurrencyIcon="false"
+                                                                DecimalPlaces="@DecimalPlaces"
+                                                                IsReadonly="@row.Q3Disabled"
+                                                                Min="0" Max="10000000"
+                                                                AriaLabelledBy="@($"q3-header year-{index}")"/>
+
+                                            </td>
+
+                                            <td class="ui-table-text-box">
+                                                <NumericTextBox @bind-Value="row.Q4Wages"
+                                                                InputType="@InputDataTypes.Currency"
+                                                                CssClass="@(row.Q4Disabled ? "textboxReadOnlyBackgroundColor" : "")"
+                                                                ShowCurrencyIcon="false"
+                                                                DecimalPlaces="@DecimalPlaces"
+                                                                IsReadonly="@row.Q4Disabled"
+                                                                Min="0" Max="10000000"
+                                                                AriaLabelledBy="@($"q4-header year-{index}")"/>
+
+                                            </td>
+                                        </tr>
+                                        index++;
+                                    }
+
+                                </table>
+                            </div>
                     <FieldError For="@(() => SubjectivityModel.Wages)"
                                 Visible="_formSubmitted" />
                         }
@@ -319,17 +317,19 @@
             {
                 <div id="section_10" class="form-row row ui-radio-section">
                     <div class="form-group col-md-6">
-                        <label class="form-label" for="Week20EndDate">
+                        <label class="form-label" for="Week20EndDateTxt">
                             Date 20th Week Ended
                         </label>
-                        <InputDate id="Week20EndDate"
-                                   @bind-Value="SubjectivityModel.Week20EndDate"
-                                   class="form-control"
-                                   min="@TwentiethWeekMinSaturday().ToString("yyyy-MM-dd")"
-                                   max="@CurrentWeekSaturday().ToString("yyyy-MM-dd")"
-                                   step="7"
-                                   DisplayName="Date 20th Week Ended"
-                                   @bind-Value:format="MM/dd/yyyy" />
+                        <OutlinedTextField Label="Date 20th Week Ended"
+                                           Id="Week20EndDateTxt"
+                                           Type="date"
+                                           Step="7"
+                                           Min="@TwentiethWeekMinSaturday().ToString("yyyy-MM-dd")"
+                                           Max="@CurrentWeekSaturday().ToString("yyyy-MM-dd")"
+                                           @bind-Value="SubjectivityModel.Week20EndDateTxt"
+                                           For="() =>SubjectivityModel.Week20EndDateTxt"
+                                           Visible="@IsVisible(()=>SubjectivityModel.Week20EndDateTxt)" />
+
                         <FieldError For="@(() => SubjectivityModel.Week20EndDate)"
                                     Visible="_formSubmitted" />
                     </div>
@@ -357,8 +357,6 @@
                         {
                             <div id="section_14" class="ui-radio-section">
                                 <p class="ui-text" id="WhenExpectToPayWagesInAQuarter-label">When?</p>
-                                <FieldError For="@(() => SubjectivityModel.WhenExpectToPayWagesInAQuarter)"
-                                            Visible="_formSubmitted" />
                                 <OutlinedSelectField @bind-Value="SubjectivityModel.WhenExpectToPayWagesInAQuarter"
                                                     Id="WhenExpectToPayWagesInAQuarter"
                                                     AriaLabelledBy="WhenExpectToPayWagesInAQuarter-label"
@@ -394,8 +392,6 @@
                         {
                             <div id="section_19" class="ui-radio-section">
                                 <p class="ui-text" id="WhenExpectToHaveWagesInAQuarter-label">When?</p>
-                                <FieldError For="@(() => SubjectivityModel.WhenExpectToHaveWagesInAQuarter)"
-                                            Visible="_formSubmitted" />
                                 <OutlinedSelectField @bind-Value="SubjectivityModel.WhenExpectToHaveWagesInAQuarter"
                                                     Id="WhenExpectToHaveWagesInAQuarter"
                                                     AriaLabelledBy="WhenExpectToHaveWagesInAQuarter-label"
@@ -456,7 +452,7 @@
                 </div>
             }
         </EditForm>
-        @* <Button Text="Validate" OnClick="Validate"></Button> *@
+        @* <Button Text="Validate" Onclick="@(() => tracker.LogNavigationSessionActivity(???, "??? Clicked", DateTime.Now))""Validate"></Button> *@
 
     </div>
 </div>
@@ -474,7 +470,7 @@
              @ref="_modalRef">
             <div class="modal-header">
                 <h3 id="nonprofit-modal-title" class="modal-title">Inconsistent Non-Profit Designation</h3>
-                <button class="modal-close" type="button" @onclick="HandleStayOnStep6">
+                <button class="modal-close" type="button" @onclick="@(() => tracker.LogNavigationSessionActivity(HandleStayOnStep6, "Close X Clicked", DateTime.Now))">
                     <img src="icons/close_x_blue.svg" />
                 </button>
             </div>
@@ -493,7 +489,7 @@
             <div class="modal-footer">
                 <Button Variant="Button.ButtonVariant.Primary"
                         type="button"
-                        OnClick="HandleModalContinue">
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(HandleModalContinue, "Continue Clicked", DateTime.Now))">
                     CONTINUE
                 </Button>
             </div>

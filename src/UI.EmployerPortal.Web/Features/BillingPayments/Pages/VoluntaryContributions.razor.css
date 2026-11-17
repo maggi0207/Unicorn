@@ -1,0 +1,4 @@
+.page-wrapper {
+    max-width: var(--width-content);
+    padding: 24px;
+}

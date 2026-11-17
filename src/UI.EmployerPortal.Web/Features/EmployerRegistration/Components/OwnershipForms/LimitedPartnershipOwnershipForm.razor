@@ -1,6 +1,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
+@using System.Text.RegularExpressions
 
 <div class="limited-partnership-section">
 
@@ -9,6 +10,7 @@
 
         <div class="member-card">
             <h3 class="member-title">General Partner</h3>
+            <p class="required-fields-text">@Config.InstructionText</p>
 
             <div class="member-fields">
                 <ValidatedInput Id="first-name"
@@ -182,6 +184,11 @@
         else if (LimitedPartnershipName.Length > 128)
         {
             AddFieldError("LimitedPartnershipName", "Limited Partnership Name must not exceed 128 characters");
+        }
+
+        else if (!string.IsNullOrWhiteSpace(LimitedPartnershipName) && Regex.IsMatch(LimitedPartnershipName, @"^\d+$"))
+        {
+            AddFieldError("LimitedPartnershipName", "Limited Partnership Name cannot contain only numbers.");
         }
 
         if (string.IsNullOrWhiteSpace(GeneralPartner.FirstName))

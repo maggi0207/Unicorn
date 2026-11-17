@@ -70,9 +70,13 @@ internal class RefundOrchestrator : IRefundOrchestrator
     public async Task<bool> IsEligibleForRefundAsync()
     {
         // Every employer is shown the Request a Refund option; RequestRefundAsync enforces
-        // eligibility server-side and surfaces a rule violation on submit if not eligible.
-        await Task.CompletedTask;
-        return true;
+        // eligibility server-side and surfaces a rule violation on submit if not eligible.   
+        var secureUserSk = _userAccountService.GetUserSKClaim();
+        var employerSk = await GetEmployerSkAsync();
+        var empSk = employerSk ?? 0;
+        var eligibilityResp = await _accountMaintenanceService.IsEligibleForRefundRequestAsync(empSk, secureUserSk);
+        return eligibilityResp.Value;
+
     }
 
     /// <inheritdoc/>
@@ -182,4 +186,6 @@ internal class RefundOrchestrator : IRefundOrchestrator
 
         return string.Join("\n", lines);
     }
+
+
 }

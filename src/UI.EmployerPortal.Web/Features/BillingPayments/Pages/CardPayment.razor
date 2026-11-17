@@ -1,6 +1,8 @@
 @page "/billing-payments/card-payment"
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Globalization
+@using UI.EmployerPortal.Web.Features.OtherFunctions.Pages
+@using log4net;
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
@@ -38,7 +40,7 @@
             {
                 <BillingPaymentsHeader Amount="@_employer?.BalanceDue" ReturnUrl="@ReturnUrl" />
 
-                <h1 class="page-title fw-bold">Credit/Debit Card Registration Profile</h1>
+                <h1 id="page-heading" class="page-title fw-bold" tabindex="-1">Credit/Debit Card Registration Profile</h1>
                 <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     @if (_showValidationSummary && _validationErrors.Any())
@@ -63,8 +65,8 @@
                             If the information listed is not correct, update the applicable fields.
                         </p>
 
-                        <div class="card-accepted-logos" aria-label="Accepted card types">
-                            <img src="images/billing/cards.svg" alt="cards" />
+                        <div class="card-accepted-logos">
+                            <img src="images/billing/cards.svg" alt="Accepted card types: Visa, Mastercard, or Discover" />
                         </div>
 
                         <p class="card-all-required-note">All fields are required.</p>
@@ -134,7 +136,8 @@
                                                  Placeholder="Select State"
                                                  Visible="_showValidation"
                                                  ForceError="@(_showValidation && string.IsNullOrWhiteSpace(_profile.State))"
-                                                 ForceErrorMessage="State is required"/>
+                                                 ForceErrorMessage="State is required"
+                                                 Required="true"/>
                         }
                         <div class="bi-zip-row">
                             <div class="bi-zip-field">
@@ -164,7 +167,6 @@
                         <PhoneNumberField @bind-Value="_profile.PhoneNumber"
                                           Id="card-phone"
                                           For="() => _profile.PhoneNumber"
-                                          Visible="true"
                                           Numeric="true"
                                           ShowCountryCode="false"
                                           CountryCodeDisabled="true" />
@@ -177,7 +179,6 @@
                                            Id="card-email"
                                            @bind-Value="_profile.Email"
                                            For="@(() => _profile.Email)"
-                                           Visible="_showValidation"
                                            MaxLength="100" />
 
                         <div class="ach-payment-info-section" role="group" aria-labelledby="payment-info-heading">
@@ -201,8 +202,7 @@
                                                        Visible="_showValidation" />
                                 </div>
                                 <a href="javascript:void(0);" onclick="@HandleAmountDueLink"
-                                       class="ach-amount-due-link"
-                                       aria-label="View Amount Due Details">
+                                   class="ach-amount-due-link">
                                     Amount Due Details
                                 </a>
                             </div>
@@ -218,16 +218,18 @@
             }
             else if (_step == CardStep.Verification)
             {
-                <h1 class="billing-section-title fw-bold">Payment Verification</h1>
+                <h1 id="page-heading" class="billing-section-title fw-bold" tabindex="-1">Payment Verification</h1>
                 <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     @if (_cardPaymentError is not null)
                     {
+                        <div role="alert">
                         <NotificationBanner NotificationType="NotificationType.Alert"
                                             MessageStyle="MessageStyle.SingleLine"
                                             Title="Card Payment Error"
                                             Message="@_cardPaymentError"
                                             DismissButton="false" />
+                        </div>
                     }
                     @if (_showValidationSummary && _validationErrors.Any())
                     {
@@ -243,22 +245,22 @@
                     <div class="ach-info-card">
                         <hr class="ach-section-divider" aria-hidden="true" />
 
-                        <div class="ach-contact-grid">
+                        <dl class="ach-contact-grid">
                             <div class="ach-info-field">
-                                <span class="ach-info-label">Payment Amount</span>
-                                <strong class="ach-info-value">@_paymentAmount.ToString("C")</strong>
+                                <dt class="ach-info-label">Payment Amount</dt>
+                                <dd class="ach-info-value">@_paymentAmount.ToString("C")</dd>
                             </div>
                             <div class="ach-info-field">
-                                <span class="ach-info-label">Contact Name</span>
-                                <strong class="ach-info-value">@_profile.FirstName @_profile.LastName</strong>
+                                <dt class="ach-info-label">Contact Name</dt>
+                                <dd class="ach-info-value">@_profile.FirstName @_profile.LastName</dd>
                             </div>
                             <div class="ach-info-field">
-                                <span class="ach-info-label">Email Address</span>
-                                <strong class="ach-info-value">@_profile.Email</strong>
+                                <dt class="ach-info-label">Email Address</dt>
+                                <dd class="ach-info-value">@_profile.Email</dd>
                             </div>
                             <div class="ach-info-field">
-                                <span class="ach-info-label">Address</span>
-                                <strong class="ach-info-value">
+                                <dt class="ach-info-label">Address</dt>
+                                <dd class="ach-info-value">
                                     @_profile.AddressLine1<br />
                                     @if (!string.IsNullOrWhiteSpace(_profile.AddressLine2))
                                     {
@@ -267,15 +269,15 @@
                                     }
                                     @_profile.City@((_showState && !string.IsNullOrWhiteSpace(_profile.State)) ? $", {_profile.State}" : "")
                                     @(" " + _profile.ZipCode)@(!string.IsNullOrWhiteSpace(_profile.ZipExt) ? $"-{_profile.ZipExt}" : "")
-                                </strong>
+                                </dd>
                             </div>
-                        </div>
+                        </dl>
                     </div>
                 </div>
             }
             else if (_step == CardStep.Confirmation)
             {
-                <h1 class="billing-section-title fw-bold">Card Payment Confirmation</h1>
+                <h1 id="page-heading" class="billing-section-title fw-bold" tabindex="-1">Card Payment Confirmation</h1>
                 <hr class="section-divider" aria-hidden="true" />
                 <div class="fix-section-width" style="max-width:684px;">
                     <NotificationBanner NotificationType="NotificationType.Confirmation"
@@ -357,7 +359,7 @@
     //private CardPaymentVerificationModal? _paymentModal;
     //private IJSObjectReference? _paymentModalJsModule;
     private DotNetObjectReference<CardPayment>? _paymentCallbackRef;
-
+    private static readonly ILog Log = LogManager.GetLogger(typeof(CardPayment));
     private CardStep _step = CardStep.Registration;
     private string _stepAnnouncement = string.Empty;
 
@@ -365,6 +367,7 @@
     private EditContext _editContext = default!;
 
     private decimal _paymentAmount;
+    private bool _isVoluntary;
     private string _displayAmount = string.Empty;
     private string? AmountError { get; set; }
     private const decimal MinAmount = 0.01m;
@@ -387,9 +390,7 @@
     private int _unitedStatesCodeSK = -1;
     private string _customerAccountReference = string.Empty;
     private UI.EmployerPortal.Web.Features.Shared.Accounts.Models.EmployerAccount? _employer;
-    // private bool _showState =>
-    //     !string.IsNullOrEmpty(_profile.Country) &&
-    //     _profile.Country == _unitedStatesCodeSK.ToString();
+    private bool _shouldSetFocusOnHeading;
     private bool _showState =>
         !string.IsNullOrEmpty(_profile.Country) &&
         _profile.Country.Equals("US", StringComparison.OrdinalIgnoreCase);
@@ -403,7 +404,10 @@
         _editContext = new EditContext(_profile);
 
         var sessionTask = await BankAccountOrchestrator.GetPaymentToSessionAsync();
-        //var sessionTask = await BankAccountOrchestrator.GetPendingReimbursePaymentToSessionAsync();
+        var description = await BankAccountOrchestrator.GetPaymentDescriptionToSessionAsync() ?? string.Empty;
+        _isVoluntary = Enum.TryParse<PaymentType>(description.Replace(" ", ""), true, out var paymentType)
+                       && paymentType == PaymentType.VoluntaryContribution;
+
         var countryTask = EftPaymentService.GetCountryCodesAsync();
         var stateTask = EftPaymentService.GetUSStateCodesAsync();
 
@@ -503,6 +507,15 @@
         _isLoading = false;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldSetFocusOnHeading)
+        {
+            _shouldSetFocusOnHeading = false;
+            await JS.InvokeVoidAsync("focusElement", "page-heading");
+        }
+    }
+
     private void OnCountryChanged(string value)
     {
         _profile.Country = value;
@@ -569,6 +582,7 @@
                 ISOCountryCode3 = _profile.ISOCountryCode3
             };
             _registrationSk = await CardPaymentService.SaveCardProfileAsync(userSk, empSk, regToSave);
+            _customerAccountReference = Convert.ToString(_registrationSk);
         }
         catch (Exception ex)
         {
@@ -609,7 +623,7 @@
         _showValidationSummary = false;
         _validationErrors.Clear();
         _validationFieldIds.Clear();
-        await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+        _shouldSetFocusOnHeading = true;
         StateHasChanged();
     }
 
@@ -675,6 +689,10 @@
 
         try
         {
+            Log.Info($"Passing detail to CC |" +
+               $"amount={_paymentAmount:F2}, " +
+               $"CustomerAccountReference={_customerAccountReference}");
+
             var result = await CardPaymentService.CreateHostedFormSessionAsync(
                 amount: _paymentAmount,
                 customerAccountReference: _customerAccountReference,
@@ -745,7 +763,7 @@
                     EmployerLegalName = _employer?.LegalName ?? string.Empty,
                     EmployerAccountNumber = _employer?.EmployerAccountNumber ?? string.Empty,
                     UIAccountNumber = _employer?.UIAccountNo ?? string.Empty,
-                    IsVoluntary = false
+                    IsVoluntary = _isVoluntary
                 });
 
             if (!confirmation.Success)
@@ -757,6 +775,14 @@
             }
 
             _confirmationNumber = confirmation.ConfirmationNumber ?? $"ORB{DateTime.UtcNow:yyyyMMddHHmmss}";
+            try
+            {
+                await BankAccountOrchestrator.ClearPaymentFromSessionAsync();
+            }
+            catch
+            {
+                Logger.LogError("Card Payment Succeeded but clearing the session amount failed.");
+            }
             await NavigateToStep(CardStep.Confirmation, "Payment submitted. You are on the confirmation page.");
         }
         catch (Exception ex)

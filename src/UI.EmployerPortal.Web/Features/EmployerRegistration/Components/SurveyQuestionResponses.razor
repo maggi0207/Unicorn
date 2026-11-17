@@ -1,6 +1,8 @@
 @using UI.EmployerPortal.Generated.ServiceClients.EmployerRegistrationService
 @using UI.EmployerPortal.Razor.SharedComponents.Model
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="accordion accordion-flush" id="preliminaryQuestions">
     @foreach (var (sectionName, index) in _sections.Select((section, index) => (section, index)))
@@ -18,15 +20,15 @@
                     <div class="accordion-body">
                         @if (ShowEditSection)
                         {
-                            <div class="vf-accordion-section edit-section">
+                            <div>
                                 <div class="row">
                                     <div class="offset-md-10 col-md-2">
                                         <div class="row justify-content-end">
                                             <button id=@($"{_camelSections[index]}Button")
-                                                class="vf-edit-button"
-                                                type="button"
-                                                @onclick="@(() => EditClicked(index))"
-                                                title=@($"Edit {sectionName}") aria-label=@($"Edit {sectionName}")>
+                                                    class="vf-edit-button"
+                                                    type="button"
+                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => EditClicked(index), $"Edit {sectionName} Clicked", DateTime.Now))"
+                                                    title=@($"Edit {sectionName}") aria-label=@($"Edit {sectionName}")>
                                                 <img class="vf-edit-button-img" src=@EditIconURI alt=@sectionName>
                                             </button>
                                         </div>
@@ -58,7 +60,7 @@
                         {
                             Dictionary<int, int> contactCountByCode = GetContactCountByCode();
                             Dictionary<int, int> contactIndexByCode = new();
-                            foreach(var contact in Contacts)
+                            foreach (var contact in Contacts)
                             {
                                 int currentIndex;
                                 if (contactIndexByCode.ContainsKey(contact._surveyIndividualCode))
@@ -145,7 +147,7 @@
                                     .OrderBy(r => r._surveyResponseItemSk)
                                     .ToList();
 
-                                foreach(var qsfResponse in qsfResponses)
+                                foreach (var qsfResponse in qsfResponses)
                                 {
                                     <div class="vf-accordion-section">
                                         <div class="row">
@@ -191,7 +193,8 @@
                                         <span class="vf-accordion-answer">
                                             @foreach (var line in address.GetDisplayLines())
                                             {
-                                                @line<br/>
+                                                @line
+                                                <br />
                                             }
                                         </span>
                                     </div>
@@ -239,7 +242,7 @@
         "UI Subjectivity",
     };
 
-    private static string ToCamel (string value)
+    private static string ToCamel(string value)
     {
         var intermediate = value.Replace(" ", string.Empty);
         return char.ToLowerInvariant(intermediate[0]) + intermediate[1..];
@@ -367,6 +370,7 @@
     /// Descriptions for Corporation-specific survey response items that are not
     /// included in the API Questions list and must be rendered explicitly.
     /// </summary>
+    /// 
     private static readonly Dictionary<int, string> CorporationItemDescriptions = new()
     {
         { (int)SurveyResponseItem.ICRP_ST_CD,        "Incorporation State" },
@@ -399,7 +403,7 @@
         { (int)SurveyResponseItem.PRTL_501C3_RULING_FLG,       40 },  // Q1.1: Have ruling?
         { (int)SurveyResponseItem.PRTL_501C3_UPLD,             50 },  // Q1.1.1: Ruling file
         { (int)SurveyResponseItem.PRTL_MISS_DOC_501C3_RULING,  60 },  // Q1.1.1: Supply later
-        { (int)SurveyResponseItem.PRTL_APPLY_501C3,            70 },  // Q1.1.2: Applied?
+        { (int)SurveyResponseItem.PRTL_APPLY_501C3,            70 }, // Q1.1.2: Applied?
         { (int)SurveyResponseItem.PRTL_ARTCL_OF_CORP,          80 },  // Q1.1.2.1 / Q1.1.2.2: Articles
         { (int)SurveyResponseItem.PRTL_IRS_ACCPT,              90 },  // Q1.1.2.1: IRS letter
         { (int)SurveyResponseItem.PRTL_MISS_DOC_ARTCL_INCORP,  95 },  // Supply later

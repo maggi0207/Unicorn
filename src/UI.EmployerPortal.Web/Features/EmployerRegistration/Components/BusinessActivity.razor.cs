@@ -380,10 +380,14 @@ public partial class BusinessActivity : ComponentBase
         {
             Model.WisconsinSpecificBusinessActivity = Model.PrimaryBusinessActivityDescription;
         }
-        else if (string.IsNullOrWhiteSpace(Model.WisconsinSpecificBusinessActivity))
+        else
         {
-            AddFieldError("WisconsinSpecificBusinessActivity", "Primary Business Activity for Wisconsin Based Employment Description is required");
+            if (string.IsNullOrWhiteSpace(Model.WisconsinSpecificBusinessActivity))
+            {
+                AddFieldError("WisconsinSpecificBusinessActivity", "Primary Business Activity Description For Wisconsin Based Employment is required");
+            }
         }
+
 
         StateHasChanged();
     }

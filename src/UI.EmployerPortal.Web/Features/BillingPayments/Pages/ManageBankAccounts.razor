@@ -1,7 +1,8 @@
 @page "/billing-payments/manage-bank-accounts"
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.BillingPayments.Components
-@using UI.EmployerPortal.Web.Features.BillingPayments.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Manage Bank Accounts</PageTitle>
@@ -32,7 +33,7 @@ else
 {
     <div class="page-wrapper">
         <div class="list-content">
-            <h1 class="page-title">Manage Bank Accounts</h1>
+            <h1 class="page-title" tabindex="-1" id="pageHeading">Manage Bank Accounts</h1>
             <hr class="page-divider" />
             <section aria-label="Accounts">
                 <div aria-live="polite">
@@ -61,13 +62,13 @@ else
                         <Button Variant="Button.ButtonVariant.Secondary"
                                 Size="Button.ButtonSize.Medium"
                                 AriaLabel="Go back to bank accounts"
-                                OnClick="HandleClearError">
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleClearError, "Back Clicked", DateTime.Now))">
                             &lt; BACK
                         </Button>
                         <Button Variant="Button.ButtonVariant.Primary"
                                 Size="Button.ButtonSize.Medium"
                                 AriaLabel="Go to Payment History"
-                                OnClick="HandleGoToPaymentHistory">
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(HandleGoToPaymentHistory, "Payment History Clicked", DateTime.Now))">
                             PAYMENT HISTORY
                         </Button>
                     </div>
@@ -99,7 +100,7 @@ else
                                 <tr class="header-row">
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("nickname")">
                                         <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("nickname"))">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" nickname"), "Sort By Account Nickname Clicked", DateTime.Now))">
                                                 <span class="header-label fw-bold">Account Nickname</span>
                                                 <span aria-hidden="true">@GetSortIcon("nickname")</span>
                                             </button>
@@ -107,7 +108,7 @@ else
                                     </th>
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("bankName")">
                                         <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("bankName"))">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" bankName"), "Sort By Bank Name Clicked", DateTime.Now))">
                                                 <span class="header-label fw-bold">Bank Name</span>
                                                 <span aria-hidden="true">@GetSortIcon("bankName")</span>
                                             </button>
@@ -115,7 +116,7 @@ else
                                     </th>
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountType")">
                                         <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountType"))">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" accountType"), "Sort By Type Clicked", DateTime.Now))">
                                                 <span class="header-label fw-bold">Type</span>
                                                 <span aria-hidden="true">@GetSortIcon("accountType")</span>
                                             </button>
@@ -123,7 +124,7 @@ else
                                     </th>
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("routingNumber")">
                                         <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("routingNumber"))">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" routingNumber"), "Sort By Routing Number Clicked", DateTime.Now))">
                                                 <span class="header-label fw-bold">Routing Number</span>
                                                 <span aria-hidden="true">@GetSortIcon("routingNumber")</span>
                                             </button>
@@ -131,7 +132,7 @@ else
                                     </th>
                                     <th scope="col" class="header-cell" aria-sort="@GetAriaSort("accountNumber")">
                                         <div class="header-content header-content-left">
-                                            <button type="button" class="header-sort-button" @onclick="@(() => Sort("accountNumber"))">
+                                            <button type="button" class="header-sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("accountNumber"), "Sort By Account Number Clicked", DateTime.Now))">
                                                 <span class="header-label fw-bold">Account Number</span>
                                                 <span aria-hidden="true">@GetSortIcon("accountNumber")</span>
                                             </button>
@@ -160,7 +161,7 @@ else
                                                 <button type="button"
                                                         class="account-link"
                                                         aria-label="View or edit @account.Nickname"
-                                                        @onclick="() => HandleEditAccount(account.BankAccountSk)">
+                                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleEditAccount(account.BankAccountSk), @account.Nickname + " Clicked", DateTime.Now))">
                                                     @account.Nickname
                                                 </button>
                                             </td>
@@ -172,7 +173,7 @@ else
                                                 <button type="button"
                                                         class="delete-btn"
                                                         aria-label="Remove @account.Nickname"
-                                                        @onclick="() => OpenRemoveModal(account)">
+                                                        @onclick="@(() => tracker.LogNavigationSessionActivity(() => OpenRemoveModal(account), $"Remove {account.Nickname} Clicked", DateTime.Now))">
                                                     <img src="@Assets["icons/trash_black.svg"]" alt="" aria-hidden="true" />
                                                 </button>
                                             </td>
@@ -187,7 +188,7 @@ else
                         <button type="button"
                                 class="add-account-link"
                                 aria-label="Add a bank account"
-                                @onclick="HandleAddAccount">
+                                @onclick="@(() => tracker.LogNavigationSessionActivity(HandleAddAccount, "Add Account Clicked", DateTime.Now))">
                             + Add Account
                         </button>
                     </div>

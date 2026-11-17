@@ -1,0 +1,99 @@
+@page "/billing-payments/voluntary-contribution-ack"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using Microsoft.AspNetCore.Components.Forms
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
+
+
+<div class="voluntary-Container" role="region" aria-label="Voluntary Contribution">
+    <h2 class="title-heading">Voluntary Contribution Payment Acknowledgement</h2>
+    <br />
+    <EditForm EditContext="_editContext"
+              OnValidSubmit="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "CONTINUE clicked", DateTime.Now))"
+              OnInvalidSubmit="OnInvalid">
+
+        @if (_showValidationSummary && _validationErrors.Any())
+        {
+            <div class="fix-section-width" style="max-width:840px; padding-left:10px;">
+                <NotificationBanner NotificationType="NotificationType.Alert" MessageStyle="MessageStyle.MultiLine"
+                                    Title="Please fix the following errors:" Messages="_validationErrors" MessageFieldIds="@_bannerFieldIds"
+                                    DismissButton="false" />
+            </div>
+            <br />
+        }
+        <p class="title-smallheading">
+            You are making a voluntary contribution payment. <span class="fw-bold">A voluntary contribution payment once posted to your UI account is irrevocably paid.</span> Only the amount of the payment needed to lower your tax rate by one rate bracket on the rate schedule will be credited to your June 30 reserve fund account balance used to calculate your tax rate.
+        </p>
+        <br />
+        <br />
+        <table class="table tblnomargin" aria-label="Contribution Tax Details">
+            <tbody>
+                <tr>
+                    <th scope="row" class="col1">Voluntary Contribution Payment Amount</th>
+                    <th scope="row" class="col2 numeric-cell">@Model.PaymentAmount.ToString("C")</th>
+                </tr>
+                <tr>
+                    <th scope="row" class="col1">Voluntary contribution required to lower your @(DateTime.Now.Year + 1)
+                        rate</th>
+                    <th scope="row" class="col2 numeric-cell">@Model.VcRequired.ToString("C")</th>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col1">Difference</th>
+                    <th scope="row" class="col2" numeric-cell>
+                        @(_differenceAmount.ToString("C"))
+                        </th>
+                    </tr>
+                </tbody>
+        </table>
+
+        <div class="custom-divider payment-table-divider"></div>
+        @if (_differenceAmount > 0)
+        {
+            <br />
+            <div class="fix-section-width" style="max-width:840px; padding-left:10px;">
+                <NotificationBanner NotificationType="NotificationType.Warning"
+                                    Title="@($"Your payment amount is less than the voluntary contribution required to lower your {DateTime.Now.Year + 1} rate.")"
+                                    DismissButton="false" />
+                
+            </div>
+        }
+        else if(_differenceAmount < 0)
+        {
+            <br />
+            <div class="fix-section-width" style="max-width:840px; padding-left:10px;">
+                <NotificationBanner NotificationType="NotificationType.Warning"
+                                    Title="@($"Your payment amount is greater than the voluntary contribution required to lower your {DateTime.Now.Year + 1} rate. The excess payment will be setup as credit in your UI Account.")"
+                                    DismissButton="false" />
+                
+            </div>
+        }   
+            
+        <br />
+            <div class="ach-authorization-section fix-section-width" role="group" aria-labelledby="authorization-heading">
+
+                <div class="authorization-checkbox">
+                    <input type="checkbox" id="ackAuthorizeCheckbox" @onchange="OnAckChanged" aria-required="true"
+                           aria-describedby="authorization-heading @(ShowAckError ? "authorization-error" : "")"
+                           aria-invalid="@(ShowAckError ? "true" : "false")" />
+                    <label for="ackAuthorizeCheckbox">
+                    Please acknowledge you understand the above terms of making a voluntary contribution payment and click continue to proceed.
+                    </label>
+                </div>
+
+                @if (ShowAckError)
+                {
+                    <div id="authorization-error" class="ack-field-error" aria-live="assertive" role="alert">
+                        @_acknowledgementError
+                    </div>
+                }
+            </div>
+
+            <BillingButtonBar ShowBack="true" ShowContinue="true" ShowCancel="false"
+                              OnContinue="@(() => tracker.LogNavigationSessionActivity(PaymentAsync, "CONTINUE Clicked", DateTime.Now))"
+                              ContinueText="CONTINUE" ButtonWidth="200"
+                              OnBack="@(() => tracker.LogNavigationSessionActivity(GoBack, "Back Clicked", DateTime.Now))">
+            </BillingButtonBar>
+
+        </EditForm>
+    </div>

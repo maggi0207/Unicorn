@@ -7,7 +7,7 @@ public static class PrincipalBusinessActivityTypeExtensions
 {
     private static readonly Dictionary<PrincipalBusinessActivityType, string> DisplayNames = new()
     {
-        { PrincipalBusinessActivityType.None, "" },
+        { PrincipalBusinessActivityType.None, "-- Select Principal Business Activity --" },
         { PrincipalBusinessActivityType.AccommodationAndFoodService, "Accommodation and Food Service" },
         { PrincipalBusinessActivityType.AccommodationFoodCarryoutDelivery, "Accommodation and Food Service - Food (Carryout-Delivery)" },
         { PrincipalBusinessActivityType.AccommodationFoodDrinkEstablishments, "Accommodation and Food Service - Food and/or Drink Establishments" },

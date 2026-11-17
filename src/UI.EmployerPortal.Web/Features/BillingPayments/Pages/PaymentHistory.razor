@@ -1,9 +1,9 @@
 @page "/billing-payments/payment-history"
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner.Model
-@using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using UI.EmployerPortal.Web.Auth
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Payment History</PageTitle>
@@ -54,7 +54,7 @@
                             <th scope="col" class="header-cell col-payment-type"
                                 aria-sort="@GetAriaSort("paymentType")">
                                 <div class="header-content">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("paymentType"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort("paymentType"), "Sort By Payment Type Clicked", DateTime.Now))">
                                         <span class="header-label">Payment Type</span>
                                         <span aria-hidden="true">@GetSortIcon("paymentType")</span>
                                     </button>
@@ -63,7 +63,7 @@
                             <th scope="col" class="header-cell col-settlement-date"
                                 aria-sort="@GetAriaSort("settlementDate")">
                                 <div class="header-content">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("settlementDate"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" settlementDate"), "Sort By Settlement Date Clicked", DateTime.Now))">
                                         <span class="header-label">Settlement Date</span>
                                         <span aria-hidden="true">@GetSortIcon("settlementDate")</span>
                                     </button>
@@ -72,7 +72,7 @@
                             <th scope="col" class="header-cell col-amount"
                                 aria-sort="@GetAriaSort("amount")">
                                 <div class="header-content header-content-right">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("amount"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" amount"), "Sort By Amount Clicked", DateTime.Now))">
                                         <span class="header-label">Amount</span>
                                         <span aria-hidden="true">@GetSortIcon("amount")</span>
                                     </button>
@@ -81,7 +81,7 @@
                             <th scope="col" class="header-cell col-service-fee"
                                 aria-sort="@GetAriaSort("serviceFee")">
                                 <div class="header-content header-content-right">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("serviceFee"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" serviceFee"), "Sort By Service Fee Clicked", DateTime.Now))">
                                         <span class="header-label">Service Fee</span>
                                         <span aria-hidden="true">@GetSortIcon("serviceFee")</span>
                                     </button>
@@ -90,7 +90,7 @@
                             <th scope="col" class="header-cell col-confirmation"
                                 aria-sort="@GetAriaSort("confirmationId")">
                                 <div class="header-content">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("confirmationId"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" confirmationId"), "Sort By Confirmation # Clicked", DateTime.Now))">
                                         <span class="header-label">Confirmation #</span>
                                         <span aria-hidden="true">@GetSortIcon("confirmationId")</span>
                                     </button>
@@ -99,7 +99,7 @@
                             <th scope="col" class="header-cell col-status"
                                 aria-sort="@GetAriaSort("status")">
                                 <div class="header-content">
-                                    <button type="button" class="sort-button" @onclick="@(() => Sort("status"))">
+                                    <button type="button" class="sort-button" @onclick="@(() => tracker.LogNavigationSessionActivity(() => Sort(" status"), "Sort By Status Clicked", DateTime.Now))">
                                         <span class="header-label">Status</span>
                                         <span aria-hidden="true">@GetSortIcon("status")</span>
                                     </button>
@@ -135,7 +135,8 @@
                                         <button type="button"
                                                 class="confirmation-link"
                                                 aria-label="View payment details for confirmation @payment.ConfirmationId"
-                                                @onclick="@(() => NavigateToPaymentDetails(payment.EftPaymentSk))">
+                                                role="link"
+                                                @onclick="@(() => tracker.LogNavigationSessionActivity(() => NavigateToPaymentDetails(payment.EftPaymentSk), $"{payment.ConfirmationId} Clicked", DateTime.Now))">
                                             @payment.ConfirmationId
                                         </button>
                                     }
@@ -152,13 +153,15 @@
                                             <button type="button"
                                                     class="action-btn"
                                                     aria-label="Edit payment @payment.ConfirmationId"
-                                                    @onclick="@(() => NavigateToEditPayment(payment.EftPaymentSk))">
+                                                    role="link"
+                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => NavigateToEditPayment(payment.EftPaymentSk), $"Edit payment {payment.ConfirmationId} Clicked", DateTime.Now))">
                                                 <img src="@Assets["icons/edit.svg"]" alt="" aria-hidden="true" class="icon-edit" />
                                             </button>
                                             <button type="button"
                                                     class="action-btn"
                                                     aria-label="Cancel payment @payment.ConfirmationId"
-                                                    @onclick="@(() => NavigateToCancelPayment(payment.EftPaymentSk))">
+                                                    role="link"
+                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => NavigateToCancelPayment(payment.EftPaymentSk), $"Cancel payment {payment.ConfirmationId} Clicked", DateTime.Now))">
                                                 <img src="@Assets["icons/delete.svg"]" alt="" aria-hidden="true" class="icon-cancel" />
                                             </button>
                                         </div>
@@ -172,10 +175,11 @@
         }
 
         <div class="button-bar">
-            <button type="button" class="btn-back" @onclick="HandleBack">
+            <Button Variant="Button.ButtonVariant.Secondary"
+                    OnClick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
                 <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
                 BACK
-            </button>
+            </Button>
         </div>
 
     </div>

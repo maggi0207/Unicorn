@@ -1,6 +1,5 @@
-@using Microsoft.FluentUI.AspNetCore.Components
-@using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Web.Features.QuarterlyTax.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @if (IsOpen)
 {
@@ -13,7 +12,7 @@
         @ref="_modalRef">
             <div class="modal-header">
                 <h3 id="reg-success-modal-title" class="modal-title">Access Successfully Granted</h3>
-                <button type="button" class="modal-close" @onclick="Close" aria-label="Close Access Information Dialog">x</button>
+                <button type="button" class="modal-close" @onclick="@(() => tracker.LogNavigationSessionActivity(Close, "Close X Clicked", DateTime.Now))" aria-label="Close Access Information Dialog">x</button>
             </div>
 
             <div id="reg-success-modal-body" class="modal-body">
@@ -28,7 +27,7 @@
           
                 <Button Text="OK"
                         Variant="Button.ButtonVariant.Secondary"
-                        OnClick="Close" />
+                        Onclick="@(() => tracker.LogNavigationSessionActivity(Close, "Close Clicked", DateTime.Now))" />
             </div>
         </div>
     </div>

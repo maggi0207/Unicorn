@@ -1,11 +1,15 @@
 @page "/employer-registration/planned-path"
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components;
+@using System.Text.RegularExpressions;
+@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Services
 @using UI.EmployerPortal.Web.Features.Shared.Registrations.Models
 @using UI.EmployerPortal.Web.Features.Shared.Session.Managers
 @using UI.EmployerPortal.Web.Features.Shared.Session.Models
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inject RegistrationStateService RegistrationState
 @inject EmployerRegistrationInfo RegistrationInfo
+@inject EmployerRegistrationModelStore EmployerRegistrationModelStore
 @inject NavigationManager Nav
 @inject ISessionManager sessionManager
 
@@ -15,10 +19,32 @@
         <h1>Thank You for Submitting Your Employer Registration.</h1>
         <p>@message</p>
         <p>@secondaryMessage</p>
-        <PlannedPathRegister></PlannedPathRegister>
+        @if (!string.IsNullOrEmpty(@uiaccnumber))
+        {
+            <div style="font-weight:bold;font-size:20px;text-align:center;">
+                Wisconsin Unemployment Insurance Account Number: <br />
+            </div>
+            <div style="font-weight:bold;font-size:25px;text-align:center; color:#003663;">
+                    @uiaccnumber
+            </div>
+            <br />
+            <div style="font-weight:bold;font-size:20px;text-align:center;">
+                Registration Number:<br />
+            </div>
+            <div style="font-weight:bold;font-size:25px;text-align:center;color:#003663;">
+                @surveynumber
+            </div>
+        }
         <div class="custom-divider"></div>
         <div>
             <h2 class="subtitle">What's Next?</h2>
+            @if (ShowBusinessTransferFormLink)
+            {
+                <p>Based on the information provided, you must complete and submit the UCT-115-E Report of Business Transfer form</p>
+                <a href="https://dwd.wisconsin.gov/dwd/forms/ui/pdf/uct-115-e.pdf" target="_blank">Download the Report of Business Transfer (UCT-115-E)</a>
+                <br />
+            }
+
             <p>If you need to complete another employer registration, click "REGISTER ANOTHER EMPLOYER." If you do not have another business to register, click "GO TO HOME" to be taken back to the portal home page.</p>
         </div>
 
@@ -26,13 +52,13 @@
             <Button Text="GO TO HOME"
                     Variant="Button.ButtonVariant.Primary"
                     Size="Button.ButtonSize.Large"
-                    OnClick="gotohome" />
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(gotohome, "Go To Home Clicked", DateTime.Now))" />
         </div>
         <div class="drawer-footer">
             <Button Text="REGISTER ANOTHER EMPLOYER"
                     Variant="Button.ButtonVariant.Primary"
                     Size="Button.ButtonSize.Large"
-                    OnClick="registeranotheremployer" />
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(registeranotheremployer, "Register Another Employer Clicked", DateTime.Now))" />
         </div>
 
     </div>
@@ -46,10 +72,18 @@
     private EditContext editContext = default!;
     private string message = string.Empty;
     private string secondaryMessage = string.Empty;
+    private string uiaccnumber = string.Empty;
+    private string surveynumber = string.Empty;
     public class RegistrationModel
     {
         public bool? HasRegistrationNumber { get; set; } = null;
     }
+
+    public bool ShowBusinessTransferFormLink =>
+        (EmployerRegistrationModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.AcquiredExistingBusiness.HasValue
+            && EmployerRegistrationModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.AcquiredExistingBusiness.Value)
+        || (EmployerRegistrationModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.SelectedNoEmployeeReason.HasValue
+            && EmployerRegistrationModelStore.EmployerRegistrationModel.PreliminaryQuestionsModel.SelectedNoEmployeeReason.Value == NoEmployeeReason.HaveSoldOrTransferredBusiness);
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,6 +101,9 @@
         {
             message = sessionEmployerRegistrationResponse.Message ?? "";
             secondaryMessage = sessionEmployerRegistrationResponse.SecondaryMessage ?? "";
+            uiaccnumber = Regex.Replace(sessionEmployerRegistrationResponse.UIAccountNumber ?? "", @"^(\d{6})(\d{3})(\d{1})$", "$1-$2-$3");
+            surveynumber = sessionEmployerRegistrationResponse.SurveyNumber ?? "";          
+
         }
         else
         {
@@ -78,13 +115,13 @@
     {
         RegistrationState.ClearForNewRegistration();
         RegistrationInfo.ClearForNewRegistration();
-        Nav.NavigateTo($"{Nav.BaseUri}home");
+        Nav.NavigateTo($"{Nav.BaseUri}home", true);
     }
     private void registeranotheremployer()
     {
         RegistrationState.ClearForNewRegistration();
         RegistrationInfo.ClearForNewRegistration();
-        Nav.NavigateTo("employer-registration");
+        Nav.NavigateTo("employer-registration", true);
     }
 
 

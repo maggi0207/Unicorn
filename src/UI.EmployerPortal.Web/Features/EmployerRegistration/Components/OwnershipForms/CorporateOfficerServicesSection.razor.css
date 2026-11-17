@@ -1,5 +1,5 @@
 ::deep textarea.master-input{
-    width:684px !important;
+    max-width:684px !important;
     height:116px;
 }
 

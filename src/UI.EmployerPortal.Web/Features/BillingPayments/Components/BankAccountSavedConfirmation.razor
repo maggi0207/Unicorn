@@ -1,10 +1,14 @@
 @using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Web.Features.Shared.NotificationBanners
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 <div class="page-wrapper">
     <div class="form-content">
 
-        <h1 class="page-title">Manage Bank Accounts</h1>
+        <h1 class="page-title" tabindex="-1" id="pageHeading">Manage Bank Accounts
+            <span class="visually-hidden"> Bank Account Saved Confirmation</span>
+        </h1>
         <hr class="page-divider" />
 
         <div role="alert">
@@ -38,7 +42,7 @@
 
         <a href="#"
                class="portal-link"
-               @onclick="HandleViewAccounts"
+               @onclick="@(() => tracker.LogNavigationSessionActivity(HandleViewAccounts, "View Accounts Clicked", DateTime.Now))"
                @onclick:preventDefault="true">
             View Accounts
         </a>
@@ -49,7 +53,7 @@
                  tabindex="0"
                  aria-expanded="@_expanded.ToString()"
                  aria-controls="bank-info-accordion-body"
-                 @onclick="ToggleAccordion"
+                 @onclick="@(() => tracker.LogNavigationSessionActivity(ToggleAccordion, "Accordion Clicked", DateTime.Now))"
                  @onkeydown="HandleAccordionKeyDown">
                 <h2 class="mb-0 accordion-title">Bank Information</h2>
                 <img src="@Assets["icons/chevron_up.svg"]"
@@ -94,13 +98,13 @@
             <Button Variant="Button.ButtonVariant.Secondary"
                     Size="Button.ButtonSize.Medium"
                     AriaLabel="Go back"
-                    OnClick="HandleBack">
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
                 &lt; BACK
             </Button>
             <Button Variant="Button.ButtonVariant.Primary"
                     Size="Button.ButtonSize.Medium"
                     AriaLabel="Continue to billing payments"
-                    OnClick="HandleContinue">
+                    Onclick="@(() => tracker.LogNavigationSessionActivity(HandleContinue, "Continue Clicked", DateTime.Now))">
                 CONTINUE <img src="@Assets["icons/chevron-right.svg"]" alt="" />
             </Button>
         </div>

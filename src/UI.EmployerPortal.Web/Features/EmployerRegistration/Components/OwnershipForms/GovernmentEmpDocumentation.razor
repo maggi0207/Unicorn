@@ -1,18 +1,11 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
-@using UI.EmployerPortal.Razor.SharedComponents.Validation
 @using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Components.Shared
 @using UI.EmployerPortal.Web.Features.Shared.Extensions
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Components
 @using UI.EmployerPortal.Web.Features.Shared.FileUpload.Models
-@using static UI.EmployerPortal.Web.Features.EmployerRegistration.Components.PreliminaryQuestions
 
 <div class="gov-frame">
-    <p>
-        <strong>
-            <p class="gov-frame-h1"><strong>Government Employer Documentation</strong></p>
-        </strong>
-    </p>
+    <h2 class="gov-frame-h1"><strong>Government Employer Documentation</strong></h2>
     <p>Based on the information provided, you have advised that this entity is a unit of government. </p>
     <p>
         Governmental employers are required to provide the Department with a copy of the document that
@@ -22,7 +15,7 @@
     </p>
     <!-- File Upload -->
     <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("OwnershipEmpDocument") ? "master-text-field--error" : "")">
-     
+
         <FileUpload2 Title="File upload"
                      OnFileUpload="@ReceiveFilePath"
                      OnFileRemoved="@HandleFileRemoved"
@@ -30,7 +23,7 @@
                      FileType="FileAcceptableType.Registration"
                      FolderPath="@UploadFolderPath"
                      SaveOnUpload="true"
-                     FileName="@(System.IO.Path.GetFileName(Model.Filepath)?.RemoveGUID())"
+                     FileName="@(System.IO.Path.GetFileName(Model.Filepath)?.ToDisplayFileName())"
                      FilePath="@Model.Filepath" />
     </div>
 
@@ -105,7 +98,7 @@
     private Task ReceiveFilePath(string uploadedFilePath)
     {
         Model.Filepath = uploadedFilePath;
-        Model.FileName = uploadedFilePath?.RemoveGUID();
+        Model.FileName = uploadedFilePath?.ToDisplayFileName();
 
         if (!string.IsNullOrEmpty(Model.Filepath))
         {
@@ -122,7 +115,7 @@
         return Task.CompletedTask;
     }
 
-    
+
     /// <summary>
     /// Handle the File removal actions.
     /// </summary>
@@ -144,7 +137,7 @@
         _fieldErrors.Clear();
         _validationItems.Clear();
 
-        // File uload validation
+        // File upload validation
         if (!Model.NoHasFile && string.IsNullOrEmpty(Model.Filepath))
         {
             _invalidFields.Add("OwnershipEmpDocument");

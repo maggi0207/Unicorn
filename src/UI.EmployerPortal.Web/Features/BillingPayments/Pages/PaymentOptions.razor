@@ -57,7 +57,6 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Log.Info("Land on Payment option page.");
         if (firstRender)
         {
             _employerAccount = await DashboardOrchestrator.GetSelectedEmployerAccountAsync();
@@ -66,11 +65,6 @@
                 // The session snapshot's BalanceDue can be stale (e.g. after a payment), so refresh it live.
                 var freshBalance = await EmployerAccountService.GetRemainingBalance(_employerAccount.Id);
                 _employerAccount = _employerAccount with { BalanceDue = freshBalance };
-            }
-
-            if(string.IsNullOrWhiteSpace(Source) && _employerAccount != null)
-            {
-                await BankAccountOrchestrator.SavePaymentToSessionAsync(Convert.ToString(_employerAccount.BalanceDue),"Payment");
             }
 
             if (_employerAccount != null)

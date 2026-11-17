@@ -20,6 +20,7 @@
     <!-- Owner Information Section -->
     <div class="owner-info-section">
         <h2 class="section-subtitle">@Config.Header</h2>
+        <p class="required-fields-text">@Config.InstructionText</p>
 
         @for (int i = 0; i < Members.Count; i++)
         {
@@ -33,6 +34,7 @@
                     <!-- First Name -->
                     <ValidatedInput Id="@($"first-name-{index}")"
                                     Label="First Name"
+                                    AriaLabel="@($"First Name {member.Role}")"
                                     Value="@member.FirstName"
                                     ValueChanged="@(v => member.FirstName = v)"
                                     MaxLength="64"
@@ -46,6 +48,7 @@
                     <!-- Middle Initial -->
                     <ValidatedInput Id="@($"middle-initial-{index}")"
                                     Label="Middle Initial"
+                                    AriaLabel="@($"Middle Initial {member.Role}")"
                                     Value="@member.MiddleInitial"
                                     ValueChanged="@(v => member.MiddleInitial = v)"
                                     MaxLength="1"
@@ -54,8 +57,9 @@
                     <!-- Last Name -->
                     <ValidatedInput Id="@($"last-name-{index}")"
                                     Label="Last Name"
+                                    AriaLabel="@($"Last Name {member.Role}")"
                                     Value="@member.LastName"
-                                    ValueChanged="@(v => member.LastName = v)"  
+                                    ValueChanged="@(v => member.LastName = v)"
                                     MaxLength="64"
                                     Width="103"
                                     HasError="@FieldErrors.ContainsKey($"Member{index}_LastName")"
@@ -66,6 +70,7 @@
 
                     <SSNInput Id="@($"ssn-{index}")"
                               Label="SSN"
+                              AriaLabel="@($"SSN {member.Role}")"
                               Value="@member.SSN"
                               ValueChanged="@((string value) => OnSSNChanged(index, value))"
                               IsFocused="@member.IsSSNFocused"
@@ -81,6 +86,7 @@
                     <!-- Ownership Percentage -->
                     <ValidatedInput Id="@($"ownership-percentage-{index}")"
                                     Label="Ownership (%)"
+                                    AriaLabel="@($"Ownership (%) {member.Role}")"
                                     InputType="number"
                                     Value="@(member.OwnershipPercentage?.ToString())"
                                     ValueChanged="@(v => member.OwnershipPercentage = decimal.TryParse(v, out var n) ? n : null)"
@@ -101,7 +107,7 @@
         <br/>
         <div id="more-than-five-group" class="@(_showAllErrors && InvalidFields.Contains("MoreThanFive") ? "master-text-field--error" : "")">
             <p  id="more-than-five-group-label">More than five?</p>
-            
+
             @if (_showAllErrors && InvalidFields.Contains("MoreThanFive"))
             {
                 <ValidationError ErrorMessage="Please select an option" />
@@ -112,7 +118,7 @@
                         ValueChanged="OnMoreThanFiveChanged"
                         ValueExpression="@(() => MoreThanFive)"
                         Options="@YesNoRadioOptions"
-                        CSS="@(_showAllErrors && InvalidFields.Contains("MoreThanFive") ? "invalid" : "valid")"/>            
+                        CSS="@(_showAllErrors && InvalidFields.Contains("MoreThanFive") ? "invalid" : "valid")"/>
         </div>
         <br />
     </div>
@@ -137,7 +143,7 @@
     [Parameter]
     public Action<Func<List<string>>>? RegisterValidate { get; set; }
 
-    private string RegistrationState { get; set; } = string.Empty;    
+    private string RegistrationState { get; set; } = string.Empty;
     private bool? MoreThanFive { get; set; } = false;
     private List<OwnerMember> Members { get; set; } = [];
     private List<string> ValidationErrors { get; set; } = [];
@@ -146,7 +152,7 @@
     private Dictionary<string, string> FieldErrors { get; set; } = [];
     private bool _dataRestored;
     private bool _showAllErrors;
-    
+
     protected override void OnInitialized()
     {
         InitializeMembers();
@@ -176,7 +182,7 @@
                       Members[i].LastName = ContinueData.Members[i].LastName;
                     Members[i].SSN = ContinueData.Members[i].SSN;
                        Members[i].OwnershipPercentage = ContinueData.Members[i].OwnershipPercentage;
-                       
+
                 }
 
 
@@ -354,7 +360,7 @@
             }
         }
 
-        // Total must equal exactly 100.00 — use Math.Round to avoid floating-point drift
+        // Total can not exceet 100.00 — use Math.Round to avoid floating-point drift
         var totalPercentage = Members
             .Where(m => m.OwnershipPercentage.HasValue)
             .Sum(m => m.OwnershipPercentage!.Value);

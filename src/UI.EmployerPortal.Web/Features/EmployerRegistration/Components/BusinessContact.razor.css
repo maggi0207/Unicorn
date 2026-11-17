@@ -8,8 +8,6 @@
     flex-direction: column;
     width: 684px;
     max-width: 100%;
-    padding-top: 32px;
-    padding-bottom: 32px;
     box-sizing: border-box;
     font-family: Verdana, sans-serif;
     font-size: 16px;
@@ -44,7 +42,7 @@
     align-items: center;
 }
 
-    .bi-section-header span {
+    .bi-section-header h2 {
         font-family: Verdana, sans-serif;
         font-size: 18px;
         font-weight: 700;
@@ -90,45 +88,6 @@
     color: #000000;
     margin-bottom: 16px;
 }
-
-.bc-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0px 16px;
-}
-
-.bc-radio-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    font-family: Verdana, sans-serif;
-    font-size: 16px;
-    font-weight: 400;
-    color: #000000;
-    user-select: none;
-}
-
-    .bc-radio-label input[type="radio"] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #003663;
-        border-radius: 50%;
-        cursor: pointer;
-        flex-shrink: 0;
-        transition: background 0.15s ease;
-    }
-
-        .bc-radio-label input[type="radio"]:checked {
-            background: radial-gradient(circle, #003663 45%, transparent 45%);
-        }
-
-        .bc-radio-label input[type="radio"]:focus-visible {
-            outline: 2px solid #003663;
-            outline-offset: 2px;
-        }
 
 .bc-radio-error {
     font-family: Verdana, sans-serif;

@@ -5,6 +5,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 
+<PageTitle>Ownership</PageTitle>
 <div class="ownership-container">
     <h2 class="ownership-title">Ownership</h2>
 
@@ -35,7 +36,7 @@
             @* Render dynamic component based on ownership type *@
             @if (Model.OwnershipType != OwnershipType.None && _ownershipComponentMap.ContainsKey(Model.OwnershipType))
             {
-                <DynamicComponent @key="Model.OwnershipType"
+                   <DynamicComponent @key="Model.OwnershipType"
                     Type="@_ownershipComponentMap[Model.OwnershipType]"
                                     Parameters="@GetComponentParameters()" />
             }

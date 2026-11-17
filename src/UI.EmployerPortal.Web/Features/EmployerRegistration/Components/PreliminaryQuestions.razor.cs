@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
-//using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using UI.EmployerPortal.Razor.SharedComponents.Helpers;
 using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Razor.SharedComponents.Model;
 using UI.EmployerPortal.Web.Features.EmployerRegistration.Models;
@@ -21,24 +21,14 @@ public partial class PreliminaryQuestions
     private EditContext _editContext = default!;
     private ValidationMessageStore _messageStore = default!;
     private readonly HashSet<FieldIdentifier> _touchedFields = new();
-
-    private string? _leasingStartDateRaw;
-    private string? _lastEmploymentDateRaw;
-    private string? _lastPayrollDateRaw;
-
-
-
+    private readonly Dictionary<string, string?> _dateFieldErrors = new();
     // Tracks whether a file has been uploaded in each 501(c)(3) upload section.
     // If false the user must check WillSupplyDocumentationLater to proceed.
     private bool RulingDocUploaded => !string.IsNullOrWhiteSpace(Model.RulingDocFilename);
     private bool ArticlesDocUploaded => !string.IsNullOrWhiteSpace(Model.ArticlesOfIncorporationFilename);
     private bool IrsAcceptanceDocUploaded => !string.IsNullOrWhiteSpace(Model.IRSAcceptanceLetterFilename);
-
-
-
     private List<string> ValidationErrors { get; set; } = new();
     private List<string> ValidationFieldIds { get; set; } = new();
-
     private bool IsVisible<T>(Expression<Func<T>> fieldExpression)
     {
         var field = FieldIdentifier.Create(fieldExpression);
@@ -134,37 +124,6 @@ public partial class PreliminaryQuestions
     private bool VisibilityQuestion_3_2_1 => VisibilityQuestion_3_2 && Model.ExpectFuturePayroll.HasValue && Model.ExpectFuturePayroll.Value;
     private bool VisibilityQuestion_4 => VisibilityQuestion_3_1 && Model.HaveEmployeesCurrentlyWorkingInWisconsin.HasValue && !Model.HaveEmployeesCurrentlyWorkingInWisconsin.Value;
 
-    private string? LeasingStartDateAsString
-    {
-        get => Model.LeasingStartDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            _leasingStartDateRaw = value;
-            Model.LeasingStartDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-        }
-    }
-
-    // data type fascades
-    private string? LastEmploymentDateAsString
-    {
-        get => Model.LastEmploymentDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            _lastEmploymentDateRaw = value;
-            Model.LastEmploymentDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-        }
-    }
-
-    private string? LastPayrollDateAsString
-    {
-        get => Model.LastPayrollDate?.ToString("yyyy-MM-dd");
-        set
-        {
-            _lastPayrollDateRaw = value;
-            Model.LastPayrollDate = !string.IsNullOrWhiteSpace(value) && DateOnly.TryParseExact(value, "yyyy-MM-dd", out var d) ? d : null;
-        }
-    }
-
     private string? ExpectedFuturePayrollPeriodAsString
     {
         get => Model.ExpectedFuturePayrollPeriod.HasValue ? ((int) Model.ExpectedFuturePayrollPeriod.Value).ToString() : null;
@@ -178,7 +137,6 @@ public partial class PreliminaryQuestions
 
     private void ReceiveRulingDoc(string filePath)
     {
-        //RulingDocUploaded = true;
         Model.RulingDocFilename = filePath;
         Model.WillSupplyDocumentationLater = false;
         Model.RulingDocCleared = false;
@@ -188,14 +146,12 @@ public partial class PreliminaryQuestions
     }
     private void RemoveRulingDoc()
     {
-        //RulingDocUploaded = false;
         Model.RulingDocFilename = null;
         Model.RulingDocCleared = true;
     }
 
     private void ReceiveArticlesDoc(string filePath)
     {
-        //ArticlesDocUploaded = true;
         Model.ArticlesOfIncorporationFilename = filePath;
         Model.WillSupplyArticlesLater = false;
         Model.ArticlesDocCleared = false;
@@ -205,13 +161,11 @@ public partial class PreliminaryQuestions
     }
     private void RemoveArticlesDoc()
     {
-        //ArticlesDocUploaded = false;
         Model.ArticlesOfIncorporationFilename = null;
         Model.ArticlesDocCleared = true;
     }
     private void ReceiveIrsAcceptanceDoc(string filePath)
     {
-        //IrsAcceptanceDocUploaded = true;
         Model.IRSAcceptanceLetterFilename = filePath;
         Model.WillSupplyIrsAcceptanceLater = false;
         Model.IrsAcceptanceCleared = false;
@@ -361,11 +315,6 @@ public partial class PreliminaryQuestions
         _messageStore.Clear(_editContext.Field(nameof(Model.InformationIsAccurate)));
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.InformationIsAccurate)));
     }
-    //private void OnHaveSoldOrTransferredBusinessChanged(bool? value)
-    //{
-    //    Model.HaveSoldOrTransferredBusiness = value;
-    //    _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HaveSoldOrTransferredBusiness)));
-    //}
 
     private void OnNoEmployeReasonChanged(NoEmployeeReason? value)
     {
@@ -378,11 +327,6 @@ public partial class PreliminaryQuestions
         Model.FiscalAgentName = null;
         Model.FiscalAgentUIAccountNumber = null;
         Model.OtherReason = null;
-        //Model.LastPayrollDate = null;
-        //Model.LastEmploymentDate = null;
-        _leasingStartDateRaw = null;
-        _lastEmploymentDateRaw = null;
-        _lastPayrollDateRaw = null;
 
         ResetField(() => Model.NoEmployeeExplanation);
         ResetField(() => Model.PEOName);
@@ -392,30 +336,11 @@ public partial class PreliminaryQuestions
         ResetField(() => Model.FiscalAgentName);
         ResetField(() => Model.FiscalAgentUIAccountNumber);
         ResetField(() => Model.OtherReason);
-        //ResetField(() => Model.LastEmploymentDate);
-        //ResetField(() => Model.LastPayrollDate);
 
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.SelectedNoEmployeeReason)));
 
         RunValidation();
     }
-
-    //private async Task OnInput(string? value)
-    //{
-    //    var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
-    //    if (digits.Length > 9)
-    //    {
-    //        digits = digits[..9];
-    //    }
-
-    //    _peoValue = digits.Length switch
-    //    {
-    //        > 2 => $"{digits[..2]}-{digits[2..]}",
-    //        _ => digits
-    //    };
-    //    Model.PEOFEIN = _peoValue;
-    //    _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.PEOFEIN)));
-    //}
     /// <inheritdoc/>
     protected override void OnInitialized()
     {
@@ -468,10 +393,6 @@ public partial class PreliminaryQuestions
         Model.WillSupplyDocumentationLater = false;
         Model.WillSupplyArticlesLater = false;
         Model.WillSupplyIrsAcceptanceLater = false;
-        //Model.RulingDocUploaded = false;
-        //Model.ArticlesDocUploaded = false;
-        //Model.IrsAcceptanceDocUploaded = false;
-        //_notAppliedDocUploaded = false;
         ResetField(() => Model.HasAppliedFor501c3WithIRS);
         ResetField(() => Model.WillSupplyDocumentationLater);
         ResetField(() => Model.WillSupplyArticlesLater);
@@ -484,10 +405,6 @@ public partial class PreliminaryQuestions
         Model.HasAppliedFor501c3WithIRS = value;
         Model.WillSupplyArticlesLater = false;
         Model.WillSupplyIrsAcceptanceLater = false;
-
-        //ArticlesDocUploaded = false;
-        //IrsAcceptanceDocUploaded = false;
-        //_notAppliedDocUploaded = false;
         ResetField(() => Model.WillSupplyArticlesLater);
         ResetField(() => Model.WillSupplyIrsAcceptanceLater);
         _editContext.NotifyFieldChanged(_editContext.Field(nameof(Model.HasAppliedFor501c3WithIRS)));
@@ -549,7 +466,8 @@ public partial class PreliminaryQuestions
         _editContext.NotifyValidationStateChanged();
         StateHasChanged();
 
-        return !_editContext.GetValidationMessages().Any();
+        return !_editContext.GetValidationMessages().Any()
+            && !_dateFieldErrors.Values.Any(e => !string.IsNullOrEmpty(e));
     }
 
     private readonly string _uiAccountNumberRegex = @"^\d{6}-\d{3}-\d$";
@@ -558,6 +476,7 @@ public partial class PreliminaryQuestions
     private void ValidateModel()
     {
         _messageStore.Clear();
+        _dateFieldErrors.Clear();
         ValidationErrors.Clear();
         ValidationFieldIds.Clear();
 
@@ -581,6 +500,7 @@ public partial class PreliminaryQuestions
                 _messageStore.Add(field, "Account Number is not a valid format (999999-999-9)");
             }
         }
+
         // Non-profit question
         if (IsVisible(() => Model.IsNonProfitOrg))
         {
@@ -722,26 +642,6 @@ public partial class PreliminaryQuestions
                 _editContext.Field(nameof(Model.InformationIsAccurate)),
                 "You must confirm that the information provided is true and accurate");
         }
-
-        // Question 3.1.2
-        //if (VisibilityQuestion_3_1_2)
-        //{
-        //    if (IsVisible(() => Model.LastEmploymentDate))
-        //    {
-        //        var field = _editContext.Field(nameof(Model.LastEmploymentDate));
-        //        if (!Model.LastEmploymentDate.HasValue)
-        //        {
-        //            _messageStore.Add(field, "Enter the last employment date.");
-        //        }
-        //    }
-        //    if (IsVisible(() => Model.LastPayrollDate))
-        //    {
-        //        var field = _editContext.Field(nameof(Model.LastPayrollDate));
-        //        if (!Model.LastPayrollDate.HasValue)
-        //        {
-        //            _messageStore.Add(field, "Enter the last payroll date.");
-        //        }
-        //    }
         //---No longer needed as per story 171}
         // Question 3.2
         if (VisibilityQuestion_3_2 && IsVisible(() => Model.ExpectFuturePayroll))
@@ -781,7 +681,7 @@ public partial class PreliminaryQuestions
                     {
                         _messageStore.Add(
                             _editContext.Field(nameof(Model.NoEmployeeExplanation)),
-                            "Enter the reason for business continuation");
+                            "Explanation is required");
                     }
                     break;
                 case NoEmployeeReason.LeasingFromPEO:
@@ -824,19 +724,20 @@ public partial class PreliminaryQuestions
                             }
                         }
                     }
-                    if (!string.IsNullOrWhiteSpace(_leasingStartDateRaw) && !Model.LeasingStartDate.HasValue)
-                    {
-                        _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter a valid date");
-                    }
-                    else if (IsVisible(() => Model.LeasingStartDate))
+
+                    if (IsVisible(() => Model.LeasingStartDate))
                     {
                         if (!Model.LeasingStartDate.HasValue)
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "Enter the date leasing agreement started");
+                            _dateFieldErrors["LeasingStartDate"] = "Start Date of Employee Leasing Agreement is not valid";
                         }
-                        else if (Model.LeasingStartDate.Value < DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6)))
+                        else if (Model.LeasingStartDate.Value < DateOnly.FromDateTime(LastEmploymentDateMin))
                         {
-                            _messageStore.Add(FieldIdentifier.Create(() => LeasingStartDateAsString), "The leasing agreement start date must be within the last six years");
+                            _dateFieldErrors["LeasingStartDate"] = "The leasing agreement start date must be within the last six years";
+                        }
+                        else if (DateHelper.IsInvalidDate(Model.LeasingStartDate.Value))
+                        {
+                            _dateFieldErrors["LeasingStartDate"] = "Date is Invalid";
                         }
                     }
                     break;
@@ -872,92 +773,46 @@ public partial class PreliminaryQuestions
                             "Enter the reason");
                     }
                     break;
-                    //case NoEmployeeReason.NotOperatingInWisconsin:
-                    //    var dateMin = DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6));
-                    //    var dateMax = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
-
-                    //    if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
-                    //    {
-                    //        _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
-                    //    }
-                    //    else if (IsVisible(() => Model.LastEmploymentDate))
-                    //    {
-                    //        if (!Model.LastEmploymentDate.HasValue)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
-                    //        }
-                    //        else if (Model.LastEmploymentDate.Value < dateMin)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
-                    //        }
-                    //        else if (Model.LastEmploymentDate.Value > dateMax)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
-                    //        }
-                    //    }
-                    //    if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
-                    //    {
-                    //        _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
-                    //    }
-                    //    else if (IsVisible(() => Model.LastPayrollDate))
-                    //    {
-                    //        if (!Model.LastPayrollDate.HasValue)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
-                    //        }
-                    //        else if (Model.LastPayrollDate.Value < dateMin)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
-                    //        }
-                    //        else if (Model.LastPayrollDate.Value > dateMax)
-                    //        {
-                    //            _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
-                    //        }
-                    //    }
-                    //    break;
             }
-            var dateMin = DateOnly.FromDateTime(new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6));
-            var dateMax = DateOnly.FromDateTime(DateTime.Today.AddDays(14));
+        }
 
-            if (!string.IsNullOrWhiteSpace(_lastEmploymentDateRaw) && !Model.LastEmploymentDate.HasValue)
-            {
-                _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Enter a valid date");
-            }
-            else if (IsVisible(() => Model.LastEmploymentDate))
+        if (VisibilityQuestion_4)
+        {
+            var dateMin = DateOnly.FromDateTime(LastEmploymentDateMin);
+            var dateMax = DateOnly.FromDateTime(LastEmploymentDateMax);
+
+            if (IsVisible(() => Model.LastEmploymentDate))
             {
                 if (!Model.LastEmploymentDate.HasValue)
                 {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be in a valid format (mm/dd/yyyy)");
+                    _dateFieldErrors["LastEmploymentDate"] = "Last Date You Had Employees is not valid";
                 }
                 else if (Model.LastEmploymentDate.Value < dateMin)
                 {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}");
+                    _dateFieldErrors["LastEmploymentDate"] = $"Last Date You Had Employees must be on or after {dateMin:MM/dd/yyyy}";
                 }
                 else if (Model.LastEmploymentDate.Value > dateMax)
                 {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastEmploymentDateAsString), "Last Date You Had Employees must be no later than today plus 2 weeks");
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(_lastPayrollDateRaw) && !Model.LastPayrollDate.HasValue)
-            {
-                _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Enter a valid date");
-            }
-            else if (IsVisible(() => Model.LastPayrollDate))
-            {
-                if (!Model.LastPayrollDate.HasValue)
-                {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be in a valid format (mm/dd/yyyy)");
-                }
-                else if (Model.LastPayrollDate.Value < dateMin)
-                {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}");
-                }
-                else if (Model.LastPayrollDate.Value > dateMax)
-                {
-                    _messageStore.Add(FieldIdentifier.Create(() => LastPayrollDateAsString), "Date of Last Payroll must be no later than today plus 2 weeks");
+                    _dateFieldErrors["LastEmploymentDate"] = "Last Date You Had Employees must be no later than today plus 2 weeks";
                 }
             }
 
+            // ─ LastPayrollDate ─
+            if (IsVisible(() => Model.LastPayrollDate))
+            {
+                if (!Model.LastPayrollDate.HasValue)
+                {
+                    _dateFieldErrors["LastPayrollDate"] = "Date of Last Payroll is not valid";
+                }
+                else if (Model.LastPayrollDate.Value < dateMin)
+                {
+                    _dateFieldErrors["LastPayrollDate"] = $"Date of Last Payroll must be on or after {dateMin:MM/dd/yyyy}";
+                }
+                else if (Model.LastPayrollDate.Value > dateMax)
+                {
+                    _dateFieldErrors["LastPayrollDate"] = "Date of Last Payroll must be no later than today plus 2 weeks";
+                }
+            }
         }
 
         //Bind Notification Banner
@@ -972,22 +827,12 @@ public partial class PreliminaryQuestions
                 ValidationErrors.Add(error);
                 ValidationFieldIds.Add(GetValidationFieldId(prop.Name));
             }
-        }
 
-        // Date facade fields store errors against component-level identifiers, not model properties.
-        // Collect them separately so the top banner includes them.
-        var dateFacades = new (FieldIdentifier Fi, string HtmlId)[]
-        {
-            (FieldIdentifier.Create(() => LastEmploymentDateAsString), "LastEmploymentDate"),
-            (FieldIdentifier.Create(() => LastPayrollDateAsString),    "LastPayrollDate"),
-            (FieldIdentifier.Create(() => LeasingStartDateAsString),   "LeasingStartDate"),
-        };
-        foreach (var (fi, htmlId) in dateFacades)
-        {
-            foreach (var error in _editContext.GetValidationMessages(fi))
+            // Date fields keep errors in _dateFieldErrors (keyed by property name = HTML id); add them here to keep page order
+            if (_dateFieldErrors.TryGetValue(prop.Name, out var dateError) && !string.IsNullOrEmpty(dateError))
             {
-                ValidationErrors.Add(error);
-                ValidationFieldIds.Add(htmlId);
+                ValidationErrors.Add(dateError);
+                ValidationFieldIds.Add(prop.Name);
             }
         }
 
@@ -1018,30 +863,6 @@ public partial class PreliminaryQuestions
             _ => fieldName
         };
     }
-
-    //private void ValidateAddressAnnotations(AddressModel address)
-    //{
-    //    var results = new List<ValidationResult>();
-    //    var context = new ValidationContext(address);
-
-    //    Validator.TryValidateObject(address, context, results, validateAllProperties: true);
-
-    //    foreach (var result in results)
-    //    {
-    //        if (result.MemberNames != null && result.MemberNames.Any())
-    //        {
-    //            foreach (var memberName in result.MemberNames)
-    //            {
-    //                var fieldIdentifier = new FieldIdentifier(address, memberName);
-    //                _messageStore.Add(fieldIdentifier, result.ErrorMessage ?? "Invalid value.");
-    //            }
-    //        }
-    //        else
-    //        {
-    //            _messageStore.Add(new FieldIdentifier(address, string.Empty), result.ErrorMessage ?? "Invalid address.");
-    //        }
-    //    }
-    //}
 
 
 
@@ -1074,4 +895,62 @@ public partial class PreliminaryQuestions
         return errors;
     }
 
+    // ── ValidatedDateInput handlers ─────────────────────────────────────────
+    private void OnLastEmploymentDateChanged(DateTime? value)
+    {
+        Model.LastEmploymentDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDateFieldChanged(nameof(Model.LastEmploymentDate));
+    }
+    private void OnLastPayrollDateChanged(DateTime? value)
+    {
+        Model.LastPayrollDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDateFieldChanged(nameof(Model.LastPayrollDate));
+    }
+
+    private void OnLeasingStartDateChanged(DateTime? value)
+    {
+        Model.LeasingStartDate = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        NotifyDateFieldChanged(nameof(Model.LeasingStartDate));
+    }
+
+    private void NotifyDateFieldChanged(string fieldName)
+    {
+        var fi = _editContext.Field(fieldName);
+        _touchedFields.Add(fi);
+        RunValidation(fi);
+        StateHasChanged();
+    }
+    // ── Inline error helpers for ValidatedDateInput ─────────────────────────
+    private bool LastEmploymentDateHasError =>
+        _dateFieldErrors.ContainsKey("LastEmploymentDate") && _dateFieldErrors["LastEmploymentDate"] != null;
+    private string? LastEmploymentDateError =>
+        _dateFieldErrors.TryGetValue("LastEmploymentDate", out var e) ? e : null;
+    private bool LastPayrollDateHasError =>
+        _dateFieldErrors.ContainsKey("LastPayrollDate") && _dateFieldErrors["LastPayrollDate"] != null;
+    private string? LastPayrollDateError =>
+        _dateFieldErrors.TryGetValue("LastPayrollDate", out var e) ? e : null;
+
+    private bool LeasingStartDateHasError =>
+        _dateFieldErrors.ContainsKey("LeasingStartDate") && _dateFieldErrors["LeasingStartDate"] != null;
+
+    private string? LeasingStartDateError =>
+        _dateFieldErrors.TryGetValue("LeasingStartDate", out var e) ? e : null;
+    // ── ValidatedDateInput Value/Min/Max backing properties ─────────────────
+
+    private DateTime? LastEmploymentDateAsDateTime =>
+        Model.LastEmploymentDate.HasValue ? Model.LastEmploymentDate.Value.ToDateTime(TimeOnly.MinValue) : null;
+
+    private DateTime? LastPayrollDateAsDateTime =>
+        Model.LastPayrollDate.HasValue ? Model.LastPayrollDate.Value.ToDateTime(TimeOnly.MinValue) : null;
+
+    private DateTime LastEmploymentDateMin =>
+        new DateTime(DateTime.Today.Year, 1, 1).AddYears(-6);
+
+    private DateTime LastEmploymentDateMax =>
+        DateTime.Today.AddDays(14);
+
+    private DateTime? LeasingStartDateAsDateTime =>
+        Model.LeasingStartDate.HasValue ? Model.LeasingStartDate.Value.ToDateTime(TimeOnly.MinValue) : null;
+
+    private static readonly DateTime LeasingStartDateMax = new(2200, 12, 31);
 }

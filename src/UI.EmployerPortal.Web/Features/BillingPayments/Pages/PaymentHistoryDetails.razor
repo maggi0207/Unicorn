@@ -1,8 +1,8 @@
 @page "/billing-payments/payment-history-details/{EftPaymentSk:int}"
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
-@using UI.EmployerPortal.Web.Auth
-@using UI.EmployerPortal.Web.Features.BillingPayments.Models
 @using UI.EmployerPortal.Razor.SharedComponents.Helpers
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
 
 <PageTitle>Payment Details</PageTitle>
@@ -36,57 +36,56 @@
                             aria-expanded="@_paymentInfoExpanded.ToString().ToLower()"
                             aria-controls="payment-info-body"
                             aria-label="@(_paymentInfoExpanded ? "Collapse Payment Information" : "Expand Payment Information")"
-                            @onclick="() => _paymentInfoExpanded = !_paymentInfoExpanded">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => _paymentInfoExpanded = !_paymentInfoExpanded, _paymentInfoExpanded ? "Collapse Payment Information" : "Expand Payment Information" + " Clicked", DateTime.Now))">
                         <span aria-hidden="true">@((MarkupString)(_paymentInfoExpanded ? "&#8963;" : "&#8964;"))</span>
                     </button>
                 </div>
-                <div id="payment-info-body"
+                <dl id="payment-info-body"
                      class="detail-grid"
-                     role="region"
                      aria-labelledby="payment-info-heading"
                      hidden="@(!_paymentInfoExpanded)">
                     <div class="detail-field">
-                        <span class="detail-label">Confirmation Number</span>
-                        <strong class="detail-value">@_payment.ConfirmationNumber</strong>
+                        <dt class="detail-label">Confirmation Number</dt>
+                        <dd class="detail-value">@_payment.ConfirmationNumber</dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Transaction Date/Time</span>
-                        <strong class="detail-value">
+                        <dt class="detail-label">Transaction Date/Time</dt>
+                        <dd class="detail-value">
                             @(_payment.TransactionDateTime.HasValue
                                 ? _payment.TransactionDateTime.Value.ToDisplayString("MM/dd/yyyy hh:mm tt ZZZ")
                                 : "—")
-                        </strong>
+                        </dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Description</span>
-                        <strong class="detail-value">@_paymentDescription</strong>
+                        <dt class="detail-label">Description</dt>
+                        <dd class="detail-value">@_paymentDescription</dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Payment Amount</span>
-                        <strong class="detail-value">
+                        <dt class="detail-label">Payment Amount</dt>
+                        <dd class="detail-value">
                             @(_payment.Amount.HasValue ? _payment.Amount.Value.ToString("C") : "—")
-                        </strong>
+                        </dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Settlement Date</span>
-                        <strong class="detail-value">
+                        <dt class="detail-label">Settlement Date</dt>
+                        <dd class="detail-value">
                             @(_payment.SettlementDate.HasValue ? _payment.SettlementDate.Value.ToString("MM/dd/yyyy") : "—")
-                        </strong>
+                        </dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Status</span>
-                        <strong class="detail-value">@_payment.Status</strong>
+                        <dt class="detail-label">Status</dt>
+                        <dd class="detail-value">@_payment.Status</dd>
                     </div>
                     <div class="detail-field">
-                        <span class="detail-label">Cancel Date/Time</span>
+                        <dt class="detail-label">Cancel Date/Time</dt>
                         @if (_payment.CancellationDate.HasValue)
                         {
-                            <strong class="detail-value">
+                            <dd class="detail-value">
                                 @_payment.CancellationDate.Value.ToString("MM/dd/yyyy hh:mm tt") CST
-                            </strong>
+                            </dd>
                         }
                     </div>
-                </div>
+                </dl>
             </section>
 
             @* ── Bank Information ── *@
@@ -98,39 +97,38 @@
                             aria-expanded="@_bankInfoExpanded.ToString().ToLower()"
                             aria-controls="bank-info-body"
                             aria-label="@(_bankInfoExpanded ? "Collapse Bank Information" : "Expand Bank Information")"
-                            @onclick="() => _bankInfoExpanded = !_bankInfoExpanded">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => _bankInfoExpanded = !_bankInfoExpanded, _bankInfoExpanded ? "Collapse Bank Information" : "Expand Bank Information" + " Clicked", DateTime.Now))">
                         <span aria-hidden="true">@((MarkupString)(_bankInfoExpanded ? "&#8963;" : "&#8964;"))</span>
                     </button>
                 </div>
-                <div id="bank-info-body"
+                <dl id="bank-info-body"
                      class="detail-grid"
-                     role="region"
                      aria-labelledby="bank-info-heading"
                      hidden="@(!_bankInfoExpanded)">
                     @if (_payment.BankAccount is not null)
                     {
                         <div class="detail-field">
-                            <span class="detail-label">Bank Account Nickname</span>
-                            <strong class="detail-value">@_payment.BankAccount.Nickname</strong>
+                            <dt class="detail-label">Bank Account Nickname</dt>
+                            <dd class="detail-value">@_payment.BankAccount.Nickname</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Bank Name</span>
-                            <strong class="detail-value">@_payment.BankAccount.BankName</strong>
+                            <dt class="detail-label">Bank Name</dt>
+                            <dd class="detail-value">@_payment.BankAccount.BankName</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Bank Routing Number</span>
-                            <strong class="detail-value">@_payment.BankAccount.RoutingNumber</strong>
+                            <dt class="detail-label">Bank Routing Number</dt>
+                            <dd class="detail-value">@_payment.BankAccount.RoutingNumber</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Bank Account Number</span>
-                            <strong class="detail-value">@_payment.BankAccount.MaskedAccountNumber</strong>
+                            <dt class="detail-label">Bank Account Number</dt>
+                            <dd class="detail-value">@_payment.BankAccount.MaskedAccountNumber</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Account Type</span>
-                            <strong class="detail-value">@_payment.BankAccount.AccountType</strong>
+                            <dt class="detail-label">Account Type</dt>
+                            <dd class="detail-value">@_payment.BankAccount.AccountType</dd>
                         </div>
                     }
-                </div>
+                </dl>
             </section>
 
             @* ── Contact Information ── *@
@@ -142,31 +140,30 @@
                             aria-expanded="@_contactInfoExpanded.ToString().ToLower()"
                             aria-controls="contact-info-body"
                             aria-label="@(_contactInfoExpanded ? "Collapse Contact Information" : "Expand Contact Information")"
-                            @onclick="() => _contactInfoExpanded = !_contactInfoExpanded">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => _contactInfoExpanded = !_contactInfoExpanded, _contactInfoExpanded ? "Collapse Contact Information" : "Expand Contact Information" + " Clicked", DateTime.Now))">
                         <span aria-hidden="true">@((MarkupString)(_contactInfoExpanded ? "&#8963;" : "&#8964;"))</span>
                     </button>
                 </div>
-                <div id="contact-info-body"
+                <dl id="contact-info-body"
                      class="detail-grid"
-                     role="region"
                      aria-labelledby="contact-info-heading"
                      hidden="@(!_contactInfoExpanded)">
                     @if (_payment.ContactInfo is not null)
                     {
                         <div class="detail-field">
-                            <span class="detail-label">Contact Name</span>
-                            <strong class="detail-value">@_payment.ContactInfo.ContactName</strong>
+                            <dt class="detail-label">Contact Name</dt>
+                            <dd class="detail-value">@_payment.ContactInfo.ContactName</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Phone Number</span>
-                            <strong class="detail-value">@_payment.ContactInfo.PhoneNumber</strong>
+                            <dt class="detail-label">Phone Number</dt>
+                            <dd class="detail-value">@_payment.ContactInfo.PhoneNumber</dd>
                         </div>
                         <div class="detail-field">
-                            <span class="detail-label">Email Address</span>
-                            <strong class="detail-value">@_payment.ContactInfo.Email</strong>
+                            <dt class="detail-label">Email Address</dt>
+                            <dd class="detail-value">@_payment.ContactInfo.Email</dd>
                         </div>
                     }
-                </div>
+                </dl>
             </section>
 
             @* ── Payment Activity ── *@
@@ -178,7 +175,7 @@
                             aria-expanded="@_activityExpanded.ToString().ToLower()"
                             aria-controls="activity-body"
                             aria-label="@(_activityExpanded ? "Collapse Payment Activity" : "Expand Payment Activity")"
-                            @onclick="() => _activityExpanded = !_activityExpanded">
+                            @onclick="@(() => tracker.LogNavigationSessionActivity(() => _activityExpanded = !_activityExpanded, _activityExpanded ? "Collapse Payment Activity" : "Expand Payment Activity" + " Clicked", DateTime.Now))">
                         <span aria-hidden="true">@((MarkupString)(_activityExpanded ? "&#8963;" : "&#8964;"))</span>
                     </button>
                 </div>
@@ -202,7 +199,7 @@
                                     <th scope="col"
                                         class="activity-header-cell col-date @(_activitySortColumn == "date" ? "col-active-sort" : "")"
                                         aria-sort="@GetActivityAriaSort("date")">
-                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("date"))">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortActivity("date"), "Sort By Date/Time Clicked", DateTime.Now))">
                                             <span>Date/Time</span>
                                             <span aria-hidden="true">@GetActivitySortIcon("date")</span>
                                         </button>
@@ -210,7 +207,7 @@
                                     <th scope="col"
                                         class="activity-header-cell col-action @(_activitySortColumn == "action" ? "col-active-sort" : "")"
                                         aria-sort="@GetActivityAriaSort("action")">
-                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("action"))">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortActivity("action"), "Sort By Action Clicked", DateTime.Now))">
                                             <span>Action</span>
                                             <span aria-hidden="true">@GetActivitySortIcon("action")</span>
                                         </button>
@@ -218,7 +215,7 @@
                                     <th scope="col"
                                         class="activity-header-cell col-description @(_activitySortColumn == "description" ? "col-active-sort" : "")"
                                         aria-sort="@GetActivityAriaSort("description")">
-                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => SortActivity("description"))">
+                                        <button type="button" class="activity-header-content column-sort-btn" @onclick="@(() => tracker.LogNavigationSessionActivity(() => SortActivity("description"), "Sort By Description Clicked", DateTime.Now))">
                                             <span>Description</span>
                                             <span aria-hidden="true">@GetActivitySortIcon("description")</span>
                                         </button>
@@ -244,10 +241,11 @@
         }
 
         <div class="button-bar">
-            <button type="button" class="btn-back" @onclick="HandleBack">
+            <Button Variant="Button.ButtonVariant.Secondary"
+                    OnClick="@(() => tracker.LogNavigationSessionActivity(HandleBack, "Back Clicked", DateTime.Now))">
                 <img src="@Assets["icons/chevron-left.svg"]" alt="" aria-hidden="true" />
                 BACK
-            </button>
+            </Button>
         </div>
 
     </div>

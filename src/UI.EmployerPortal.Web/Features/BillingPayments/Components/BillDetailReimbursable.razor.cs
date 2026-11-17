@@ -177,7 +177,7 @@ public partial class BillDetailReimbursable
             if (_touchedFields.Contains(FieldIdentifier.Create(() => Model.AmountToPay)) || _showValidationSummary)
             {
                 _amountHasError = true;
-                _validationErrors.Add("Amount to pay is required and must be greater than $0.00");
+                _validationErrors.Add("Amount to pay must be greater than $0.00");
                 _validationFieldIds.Add("amount");
             }
         }

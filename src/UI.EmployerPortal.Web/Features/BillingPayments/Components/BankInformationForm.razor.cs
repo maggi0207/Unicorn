@@ -290,8 +290,8 @@ public partial class BankInformationForm
         {
             var m when m.Contains("Nickname", StringComparison.OrdinalIgnoreCase) => "bank-nickname",
             var m when m.Contains("Routing Number", StringComparison.OrdinalIgnoreCase) => "bank-routing",
-            var m when m.Contains("Account Number", StringComparison.OrdinalIgnoreCase) => "bank-account-number",
             var m when m.Contains("Re-enter", StringComparison.OrdinalIgnoreCase) => "bank-confirm-account",
+            var m when m.Contains("Account Number", StringComparison.OrdinalIgnoreCase) => "bank-account-number",
             var m when m.Contains("match", StringComparison.OrdinalIgnoreCase) => "bank-confirm-account",
             var m when m.Contains("Account Type", StringComparison.OrdinalIgnoreCase) => "bank-account-type",
             var m when m.Contains("Country", StringComparison.OrdinalIgnoreCase) => "iat-country",

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.JSInterop;
 using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.BillingPayments.Models;
 
@@ -17,6 +18,7 @@ public partial class ManageBankAccounts
 
     [Inject] private IBankAccountOrchestrator BankAccountOrchestrator { get; set; } = default!;
     [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     /// <summary>
     /// When true, a successful save redirects back to the ACH payment page instead of
@@ -45,6 +47,7 @@ public partial class ManageBankAccounts
     [Inject] private IPageAuthorizationService PageAuthorizationService { get; set; } = default!;
     [Inject] private ProtectedSessionStorage SessionStorage { get; set; } = default!;
     private BankAccountPageState _pageState = BankAccountPageState.List;
+    private bool _shouldMoveFocus;
     private SavedBankAccount? _savedAccount;
     private int _editAccountSk;
     private IReadOnlyList<SavedBankAccount> _accounts = [];
@@ -93,6 +96,7 @@ public partial class ManageBankAccounts
             if (_accounts.Count == 0)
             {
                 _pageState = BankAccountPageState.AddForm;
+                _shouldMoveFocus = true;
                 _canGoBack = false;
                 //NavigationManager.NavigateTo("billing-payments/bank-account-payment-ach?source=flow");
                 //return;
@@ -110,12 +114,24 @@ public partial class ManageBankAccounts
             _isLoading = false;
         }
     }
+    /// <summary>
+    /// Handles moving focus to the page h1 between pageStates
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldMoveFocus)
+        {
+            _shouldMoveFocus = false;
+            await JS.InvokeVoidAsync("focusElement", "pageHeading");
+        }
+    }
 
     private void HandleAddAccount()
     {
         _deleteSuccessMessage = false;
         _editAccountSk = 0;
         _pageState = BankAccountPageState.AddForm;
+        _shouldMoveFocus = true;
         _canGoBack = true;
     }
 
@@ -124,7 +140,12 @@ public partial class ManageBankAccounts
         _deleteSuccessMessage = false;
         _editAccountSk = bankAccountSk;
         _pageState = BankAccountPageState.EditForm;
+        _shouldMoveFocus = true;
         _canGoBack = true;
+    }
+    private string BuildAchReturnUrl()
+    {
+        return EftPaymentSkParam > 0 ? $"{AchOriginUrl}&action=edit&eftPaymentSk={EftPaymentSkParam}" : !string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : AchOriginUrl;
     }
 
     private void HandleSaved(SavedBankAccount account)
@@ -134,10 +155,11 @@ public partial class ManageBankAccounts
         if (Showback)
         {
             //NavigationManager.NavigateTo(AchOriginUrl);
-            NavigationManager.NavigateTo(!string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : AchOriginUrl);
+            NavigationManager.NavigateTo(BuildAchReturnUrl());
             return;
         }
         _pageState = BankAccountPageState.Confirmation;
+        _shouldMoveFocus = true;
     }
 
     private async Task HandleBackToList()
@@ -155,14 +177,15 @@ public partial class ManageBankAccounts
         {
             NavigationManager.NavigateTo($"{AchOriginUrl}&showback=true&action=edit&eftPaymentSk={EftPaymentSkParam}");
         }
-        else
+        else if (!string.IsNullOrEmpty(ReturnUrl))
         {
-            NavigationManager.NavigateTo(!string.IsNullOrEmpty(ReturnUrl) ? ReturnUrl : AchOriginUrl);
+            NavigationManager.NavigateTo(ReturnUrl);
         }
 
         _savedAccount = null;
         _editAccountSk = 0;
         _pageState = BankAccountPageState.List;
+        _shouldMoveFocus = true;
         await LoadAccountsAsync();
     }
 

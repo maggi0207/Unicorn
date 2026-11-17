@@ -10,23 +10,26 @@
     <p>
         <strong>
             Payments for services performed in Wisconsin must be reported under the Wisconsin
-            Unemployment Insurance Account of the Actual Employer
+            Unemployment Insurance Account of the Actual Employer.
         </strong>
     </p>
     <p>
         According to your registration the Qualified Settlement Fund has paid wages or will pay wages
         for work performed in Wisconsin. If the wages you have paid or plan to pay were not for work
-        performed in Wisconsin, then they should not be reported to Wisconsin for unemployment insurance.
+        performed in Wisconsin, then they should not be reported to Wisconsin for unemployment insurance tax.
         We do not set up Qualified Settlement Funds as employers because the settlement fund itself
         has no employment in Wisconsin. If the settlement fund is making payments to individuals with
         respect to services those individuals performed in Wisconsin, those payments would be considered
-        covered wages reportable by the employer they worked for. Accordingly, please provide the following information.
+        covered wages reportable by the employer they worked for.
+    </p>
+    <p>
+        Accordingly, please provide the following information.
     </p>
 
     <!-- Officers Perform Services Question -->
     <div id="payments-for-services-group"
          class="@(_showAllErrors && _invalidFields.Contains("PaymentsForServices") ? "master-text-field--error" : "")">
-        <p id="payments-for-services-group-label"><strong>Were the payments for services?</strong></p>
+        <p id="payments-for-services-group-label"><strong>Were the payments for services performed in Wisconsin?</strong></p>
         @if (_showAllErrors && _invalidFields.Contains("PaymentsForServices"))
         {
             <ValidationError ErrorMessage="Please select an option" />
@@ -58,8 +61,7 @@
                                 Visible="@_showAllErrors"
                                 HintId="qsf-entity-legal-name-hint"
                                 OnBlur="@(() => ValidateSection())"
-                                OnKeyUp="@(() => ValidateSection())"
-                                Width="330" />
+                                OnKeyUp="@(() => ValidateSection())" />
             </div>
 
             <div class="qsf-id-row form-row">
@@ -72,15 +74,13 @@
                                 Visible="@_showAllErrors"
                                 MaxLength="10"
                                 HintId="qsf-federal-id-hint"
-                                OnBlur="@(() => ValidateSection())"
-                                Width="330" />
+                                OnBlur="@(() => ValidateSection())" />
 
                 <ValidatedInput Id="qsf-wi-ui-account"
                                 Label="Wisconsin UI Account number (Optional)"
                                 Value="@Model.WisconsinUiAccountNumber"
                                 ValueChanged="OnWiUiAccountChanged"
-                                HasError="false"
-                                Width="330" />
+                                HasError="false" />
             </div>
 
             <p id="qsf-address-line1-hint"><strong>Wisconsin address where services were performed:</strong></p>
@@ -95,15 +95,13 @@
                                 Visible="@_showAllErrors"
                                 HintId="qsf-address-line1-hint"
                                 OnBlur="@(() => ValidateSection())"
-                                OnKeyUp="@(() => ValidateSection())"
-                                Width="330" />
+                                OnKeyUp="@(() => ValidateSection())" />
 
                 <ValidatedInput Id="qsf-address-line2"
                                 Label="Address Line 2 (Optional)"
                                 Value="@Model.ServiceAddress.AddressLine2"
                                 ValueChanged="OnAddressLine2Changed"
-                                HasError="false"
-                                Width="330" />
+                                HasError="false" />
             </div>
 
             <div class="qsf-address-row form-row">
@@ -115,8 +113,7 @@
                                 ErrorMessage="@_fieldErrors.GetValueOrDefault("City")"
                                 Visible="@_showAllErrors"
                                 OnBlur="@(() => ValidateSection())"
-                                OnKeyUp="@(() => ValidateSection())"
-                                Width="330" />
+                                OnKeyUp="@(() => ValidateSection())" />
 
                 <StateSelect Id="qsf-state"
                              Label="State"
@@ -139,8 +136,7 @@
                                     Visible="@_showAllErrors"
                                     MaxLength="5"
                                     OnBlur="@(() => ValidateSection())"
-                                    OnKeyUp="@(() => ValidateSection())"
-                                    Width="130" />
+                                    OnKeyUp="@(() => ValidateSection())"/>
                 </div>
                 <span class="bi-zip-dash">—</span>
                 <div class="bi-ext-field">
@@ -149,8 +145,7 @@
                                     Value="@Model.ServiceAddress.ZipExtension"
                                     ValueChanged="OnZipExtChanged"
                                     HasError="false"
-                                    MaxLength="4"
-                                    Width="130" />
+                                    MaxLength="4" />
                 </div>
             </div>
         </div>
@@ -162,7 +157,7 @@
         <br />
         <div class="qsf-no-services">
             <ValidatedTextArea Id="qsf-payment-reason"
-                               Label="Provide reason for payments below"
+                               Label="Provide reason for payments below."
                                Value="@(Model.PaymentReason)"
                                ValueChanged="OnPaymentReasonChanged"
                                HasError="@(_invalidFields.Contains("PaymentReason"))"
@@ -177,7 +172,7 @@
 
     <!-- File Upload -->
     <div id="qsf-file-upload" class="file-upload-section @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">
-        
+
         <FileUpload2 Title="Court approved settlement agreement"
                      OnFileUpload="@ReceiveFilePath"
                      OnFileRemoved="@HandleFileRemoved"
@@ -185,7 +180,7 @@
                      FileType="FileAcceptableType.Registration"
                      FolderPath="@UploadFolderPath"
                      SaveOnUpload="true"
-                     FileName="@(System.IO.Path.GetFileName(Model.FilePath)?.RemoveGUID())"
+                     FileName="@(System.IO.Path.GetFileName(Model.FilePath)?.ToDisplayFileName())"
                      FilePath="@Model.FilePath" />
     </div>
 
@@ -193,7 +188,7 @@
     <div id="qsf-provide-later-group"
          class="form-check @(_showAllErrors && _invalidFields.Contains("SettlementAgreement") ? "master-text-field--error" : "")">
         <CheckboxInput Id="qsf-provide-later"
-                       Label="I will provide documentation later."
+                       Label="I will supply required documentation at a later date."
                        Value="@Model.WillProvideDocumentationLater"
                        ValueChanged="OnProvideLaterChanged"
                        Disabled="@(!string.IsNullOrEmpty(Model.FilePath))"

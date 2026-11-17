@@ -61,6 +61,11 @@
 }
 
 /* ── Edit / Add links ───────────────────────────────────────────── */
+.edit-link-container {
+    width: 100%;
+    text-align: right;
+}
+
 .ach-edit-link {
     color: #003663;
     text-decoration: none;
@@ -72,9 +77,9 @@
     background: none;
     border: none;
     padding: 0;
-    cursor:pointer;
+    cursor: pointer;
     display: inline-flex;
-    align-items:center;
+    align-items: center;
     gap: 4px;
 }
 
@@ -88,12 +93,16 @@
     letter-spacing: 0%;
     vertical-align: middle;
     color: #006bb7;
-    text-decoration:none;
+    text-decoration: none;
 }
 
 /* ── Bank Account Select ────────────────────────────────────────── */
 .ach-bank-account-select-group {
     margin-bottom: 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap: wrap;
 }
 
 .ach-info-label {
