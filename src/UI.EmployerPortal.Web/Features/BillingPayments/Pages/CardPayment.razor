@@ -659,14 +659,7 @@
 
     private void HandleAmountDueLink()
     {
-        if (!string.IsNullOrWhiteSpace(ReturnUrl) && ReturnUrl.Contains("voluntary-contribution"))
-        {
-            Nav.NavigateTo("billing-payments/voluntary-contribution");
-        }
-        else
-        {
-            Nav.NavigateTo("billing-payments/billing");
-        }
+        Nav.NavigateTo("billing-payments/billing");
     }
 
     private async Task LaunchPaymentModal()
