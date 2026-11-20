@@ -46,8 +46,8 @@ public partial class AuditFileAccountLookup : IDisposable
 
     private readonly AuditAccountLookupModel _model = new();
     private EditContext _editContext = default!;
-    private ValidationMessageStore _validationMessageStore = default!;
     private IReadOnlyList<string> _appliedExternalErrors = [];
+    private List<string> _externalErrors = [];
     private bool _formSubmitted;
     private bool _hasErrors;
 
@@ -57,62 +57,40 @@ public partial class AuditFileAccountLookup : IDisposable
         [nameof(AuditAccountLookupModel.FEIN)] = "audit-lookup-fein"
     };
 
-    /// <inheritdoc />
-    protected override void OnInitialized()
+    /// <inheritdoc />
+    protected override void OnInitialized()
     {
         _model.UIAccountNumber = InitialUIAccountNumber ?? string.Empty;
         _model.FEIN = InitialFein ?? string.Empty;
 
         _editContext = new EditContext(_model);
-        _validationMessageStore = new ValidationMessageStore(_editContext);
         _editContext.OnFieldChanged += HandleFieldChanged;
     }
 
-    /// <inheritdoc />
-    protected override void OnParametersSet()
+    /// <inheritdoc />
+    protected override void OnParametersSet()
     {
         if (ExternalErrors.SequenceEqual(_appliedExternalErrors))
         {
             return;
         }
-
         _appliedExternalErrors = ExternalErrors;
-
-        if (ExternalErrors.Count > 0)
-        {
-            ShowExternalErrors(ExternalErrors);
-        }
+        _externalErrors = ExternalErrors.ToList();
     }
 
-    private void ShowExternalErrors(IEnumerable<string> errors)
-    {
-        _validationMessageStore.Clear();
-        foreach (var error in errors)
-        {
-            _validationMessageStore.Add(new FieldIdentifier(_model, nameof(AuditAccountLookupModel.UIAccountNumber)), error);
-        }
 
-        _formSubmitted = true;
-        _hasErrors = true;
-        _editContext.NotifyValidationStateChanged();
-    }
 
     private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
     {
-        // Clear any stale external (server-side lookup) error tied to this field
-        // as soon as the user edits it, so a fixed value isn't blocked by an
-        // old error message, and a cleared field doesn't show two messages at once.
-        _validationMessageStore.Clear(e.FieldIdentifier);
-
-        // Reset the applied-errors cache so an identical lookup failure on a
-        // later attempt gets re-shown instead of being skipped as unchanged.
+        _externalErrors.Clear();
         _appliedExternalErrors = [];
-
         _editContext.NotifyValidationStateChanged();
+        StateHasChanged();
     }
 
     private async Task HandleContinue()
     {
+        _externalErrors.Clear();
         _formSubmitted = true;
         var isValid = _editContext.Validate();
         _hasErrors = !isValid;

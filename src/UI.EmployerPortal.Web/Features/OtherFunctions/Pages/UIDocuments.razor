@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.Validation
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.AnnouncementBanner
 @using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject INavigationSessionTracker tracker
@@ -31,17 +32,19 @@ else
 
                 <ValidationErrorSummary ShowSummary="@_showValidationSummary"
                 FieldIds="@_validationFieldIds" />
-                    @if (_showBanner)
-                    {
-                        <div class="info-note" role="note">
-                            <div class="info-note-icon">
-                                <img src="_content/UI.EmployerPortal.Razor.SharedComponents/icons/confirmation-notification.svg" alt="Confirmation" />
-                            </div>
-                            <div class="info-note-text" role="alert">
-                            @_bannerMessage
-                            </div>
-                        </div>
-                    }
+                @if (_showBanner)
+                {
+                    <div id="ui-documents-warning"
+                         tabindex="-1"
+                         @ref="_warningBannerRef"
+                         role="alert">
+
+                        <NotificationBanner NotificationType="NotificationType.Alert"
+                                            MessageStyle="MessageStyle.SingleLine"
+                                            Message="@_bannerMessage"
+                                            Visible="true" />
+                    </div>
+                }
                 <section class="description-section">
                     <p class="description-text">
                         View documents generated for your account in the last six months. To view
@@ -171,11 +174,19 @@ else
                                         <td class="fw-normal fs-md description-column">@document.Description</td>
                                         <td class="fw-normal fs-md date-column">@FormatDate(document.Date)</td>
                                         <td class="fw-normal fs-md action-column">
-                                            <button type="button"
-                                            class="view-link"
-                                                    @onclick="@(() => tracker.LogNavigationSessionActivity(() => HandleView(document), $"{document.Status} Clicked", DateTime.Now))">
-                                                @document.Status
-                                            </button>
+                                <button type="button"
+                                        class="view-link"
+                                        @onclick="@(() =>
+                                        {
+                                            _warningFocused = false;
+ 
+                                            tracker.LogNavigationSessionActivity(
+                                                () => HandleView(document),
+                                                $"{document.Status} Clicked",
+                                                DateTime.Now);
+                                        })">
+                                    @document.Status
+                                </button>
                                         </td>
                                     </tr>
                                 }
@@ -188,3 +199,21 @@ else
     }
 }
 
+@code {
+    private ElementReference _warningBannerRef;
+    private bool _warningFocused;
+
+    protected override async Task OnAuthorizedAfterRenderAsync(bool firstRender)
+    {
+        if (_showBanner && !_isLoading && !_warningFocused)
+        {
+            _warningFocused = true;
+            await _warningBannerRef.FocusAsync();
+        }
+
+        if (!_showBanner || _isLoading)
+        {
+            _warningFocused = false;
+        }
+    }
+}

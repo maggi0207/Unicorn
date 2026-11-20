@@ -3,6 +3,8 @@ using UI.EmployerPortal.Razor.SharedComponents.Inputs;
 using UI.EmployerPortal.Web.Features.Dashboard;
 using UI.EmployerPortal.Web.Features.OtherFunctions.Models;
 using UI.EmployerPortal.Web.Features.OtherFunctions.Services;
+using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
+using ISessionManager = UI.EmployerPortal.Web.Features.Shared.Session.Managers.ISessionManager;
 namespace UI.EmployerPortal.Web.Features.OtherFunctions.Pages;
 /// <summary>
 /// Download Benefit Charges and Adjustments Page
@@ -11,13 +13,17 @@ public partial class DownloadBenefitChargesPage
 {
     [Inject] private IDashboardOrchestrator DashboardOrchestrator { get; set; } = default!;
     [Inject] private IDownloadTransactionService DownloadTransactionService { get; set; } = default!;
+    [Inject] private ISessionManager SessionManager { get; set; } = default!;
     private bool _isLoading = true;
-    /// <summary>
-    /// </summary>
-    public DownloadTransactionModel DownloadTransactionModel { get; set; } = new();
-    ///<inheritdoc />
-    protected override async Task OnAuthorizedInitAsync()
+    private bool _isTaxable;
+    /// <summary>
+    /// </summary>
+    public DownloadTransactionModel DownloadTransactionModel { get; set; } = new();
+    ///<inheritdoc />
+    protected override async Task OnAuthorizedInitAsync()
     {
+        var selectedEmployer = await SessionManager.GetAsync<SelectedEmployerAccount>();
+        _isTaxable = selectedEmployer?.EmployerAccount?.IsTaxable ?? false;
         var dateRangeResponse = await DownloadTransactionService.GetBenefitWeekDateRangesAsync();
         if (dateRangeResponse != null)
         {
@@ -40,7 +46,6 @@ public partial class DownloadBenefitChargesPage
         DownloadTransactionModel.QuarterOptions = new List<SelectOption>();
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "1", Text = "Text (Tab delimited) (*.txt)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "2", Text = "CSV (*.csv)" });
-        DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "6", Text = "Excel (*.xls)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "3", Text = "Excel Workbook (*.xlsx)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "4", Text = "Print (*.prn)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "5", Text = "XML Data (*.xml)" });
@@ -51,7 +56,7 @@ public partial class DownloadBenefitChargesPage
         {
             EmployerSK = (await DownloadTransactionService.GetEmployerSK()).ToString(),
             HighSSN = "999999999",
-            LowSSN = "10021252",
+            LowSSN = "000000001",
             SecureUserSK = DownloadTransactionService.GetSecureUserSK()
         };
         _isLoading = false;

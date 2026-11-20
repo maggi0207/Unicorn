@@ -60,7 +60,7 @@ public partial class MailReserveFundBalanceStatement
     /// </summary>
     /// <param name="firstRender"></param>
     /// <returns></returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAuthorizedAfterRenderAsync(bool firstRender)
     {
         if (_shouldMoveFocusToHeading)
         {

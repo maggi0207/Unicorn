@@ -1,5 +1,6 @@
 .manage-email-container {
-    width: 990px;
+    max-width: var(--width-quarterly-tax);
+    padding: 24px;
     opacity: 1;
     font-family: Verdana,sans-serif;
     color: #000000;

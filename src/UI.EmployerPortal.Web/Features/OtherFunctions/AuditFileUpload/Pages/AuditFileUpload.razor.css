@@ -1,7 +1,6 @@
 .audit-file-upload-page {
-    max-width: 990px;
-    padding: 8px;
-    margin: 0 auto;
+    max-width: var(--width-quarterly-tax);
+    padding: 24px;
 }
 
 .page-header {
@@ -15,7 +14,6 @@
     line-height:116%;
     letter-spacing:0;
     vertical-align:middle;
-    margin-top:24px;
     color:#000000;
 }
 

@@ -40,7 +40,6 @@ public partial class DownloadOtherTransactionsPage
         DownloadTransactionModel.QuarterOptions = new List<SelectOption>();
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "1", Text = "Text (Tab delimited) (*.txt)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "2", Text = "CSV (*.csv)" });
-        DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "6", Text = "Excel (*.xls)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "3", Text = "Excel Workbook (*.xlsx)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "4", Text = "Print (*.prn)" });
         DownloadTransactionModel.QuarterOptions.Add(new SelectOption { Value = "5", Text = "XML Data (*.xml)" });
@@ -51,7 +50,7 @@ public partial class DownloadOtherTransactionsPage
         {
             EmployerSK = (await DownloadTransactionService.GetEmployerSK()).ToString(),
             HighSSN = "999999999",
-            LowSSN = "10021252",
+            LowSSN = "000000001",
             SecureUserSK = DownloadTransactionService.GetSecureUserSK()
         };
         _isLoading = false;

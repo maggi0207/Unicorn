@@ -68,8 +68,7 @@
                               ShowCountryCode="true"
                               CountryCodeDisabled="true"
                               CountryCode="+1"
-                              Numeric="true"
-                              Visible="@IsVisible(() => Model.PhoneNumber)" />
+                              Numeric="true" />
         </div>
 
         <div class="form-row">
@@ -79,8 +78,7 @@
                                    Type="email"
                                    @bind-Value="Model.Email"
                                    For="() => Model.Email"
-                                   OnBlur="HandleEmailBlur"
-                                   Visible="@IsVisible(() => Model.Email)" />
+                                   OnBlur="HandleEmailBlur" />
             </div>
             <div class="form-field-half">
                 <OutlinedTextField Label="Confirm Email Address"
@@ -88,8 +86,7 @@
                                    Type="email"
                                    @bind-Value="Model.ConfirmEmail"
                                    For="() => Model.ConfirmEmail"
-                                   OnBlur="HandleEmailBlur"
-                                   Visible="@IsVisible(() => Model.ConfirmEmail)" />
+                                   OnBlur="HandleEmailBlur" />
             </div>
         </div>
     </CascadingValue>

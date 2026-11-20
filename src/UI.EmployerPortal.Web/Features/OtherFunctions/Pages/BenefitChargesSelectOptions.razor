@@ -2,6 +2,7 @@
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.QuarterlyTax.Components.SelectReport
 @using UI.EmployerPortal.Web.Features.OtherFunctions.Components
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation;
 @using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject INavigationSessionTracker tracker
 @inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
@@ -112,9 +113,10 @@ else
         </div>
 
         <div class="other-option-item instruction-link">
-            <a href="https://dwd.wisconsin.gov/uitax/downloadRFB.pdf" class="other-option-link fw-bold" target="_blank">
-                @(_isTaxable ? "Instructions for Downloading Reserve Fund Transactions" : "Instructions for Downloading Benefit Charges and Adjustments")
-            </a>
+            <ExternalLink Url="@(_isTaxable ? ExternalUrls.Dwd.RequestForBenefitChargingTaxablePdf : ExternalUrls.Dwd.RequestForBenefitChargingReimbursablePdf)"
+                          Text="@(_isTaxable ? "Instructions for Downloading Reserve Fund Transactions" : "Instructions for Downloading Benefit Charges and Adjustments")"
+                          ShowIcon="false"
+                          CssClass="other-option-link fw-bold" />
         </div>
         <div class="action-row">
             <Button Variant="Button.ButtonVariant.Primary" Size="Button.ButtonSize.Medium"

@@ -5,5 +5,5 @@
 <PageTitle>Download Benefit Charges and Adjustments</PageTitle>
 @if (!_isLoading)
 {
-    <DownloadBenefitChargesTransactions DownloadTransactionModel="@DownloadTransactionModel"></DownloadBenefitChargesTransactions>
+    <DownloadBenefitChargesTransactions DownloadTransactionModel="@DownloadTransactionModel" IsTaxable="@_isTaxable"></DownloadBenefitChargesTransactions>
 }

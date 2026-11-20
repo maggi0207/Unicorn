@@ -49,8 +49,7 @@
                                            Type="email"
                                            @bind-Value="Model.EmailAddress"
                                            For="() => Model.EmailAddress"
-                                           Placeholder="name@example.com"
-                                           Visible="@IsVisible(() => Model.EmailAddress)" />
+                                           Placeholder="name@example.com" />
                     </div>
                 </div>
 
@@ -65,8 +64,7 @@
                                            Type="email"
                                            @bind-Value="Model.ConfirmEmailAddress"
                                            For="() => Model.ConfirmEmailAddress"
-                                           Placeholder="name@example.com"
-                                           Visible="@IsVisible(() => Model.ConfirmEmailAddress)" />
+                                           Placeholder="name@example.com" />
                     </div>
 
                 </div>
@@ -137,12 +135,12 @@
                 <!--SPAM/JUNK INFO-->
                 <div class="spam-info-section">
 
-                    <p class="spam-title">
+                    <h3 class="spam-title">
                         Prevent Emails from Being Marked "SPAM" or "JUNK"
-                    </p>
+                    </h3>
 
                     <p class="spam-description">
-                        In order to ensure that you receive you subscription emails from us, please add DoNotReply@dwd.wisconsin.gov to
+                        In order to ensure that you receive your subscription emails from us, please add DoNotReply@dwd.wisconsin.gov to
                         your contact list,
                         adjust your spam settings, or follow the instructions from your email provider on how to prevent our emails
                         from being marked as "SPAM" or "Junk Mail".

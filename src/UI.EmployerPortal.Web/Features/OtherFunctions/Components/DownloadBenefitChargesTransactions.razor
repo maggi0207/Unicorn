@@ -47,10 +47,10 @@
             </ol>
             <p class="availability-info">
                 Data is available up to three years. For more information, see our
-                <ExternalLink Url="https://dwd.wisconsin.gov/uitax/downloadRFB.pdf"
-                             Text="Instructions"
-                             ShowIcon="false"
-                             Inline="true" /> or the
+                <ExternalLink Url="@(IsTaxable ? ExternalUrls.Dwd.RequestForBenefitChargingTaxablePdf : ExternalUrls.Dwd.RequestForBenefitChargingReimbursablePdf)"
+                              Text="Instructions"
+                              ShowIcon="false"
+                              Inline="true" /> or the
                    <br/>
                 <button type="button"
                     class="calendar-link" @onclick="@(() => tracker.LogNavigationSessionActivity(OpenCalendarDrawer, "Benefit Week and Statement Calendar Clicked", DateTime.Now))">
@@ -273,6 +273,8 @@
     [Parameter, EditorRequired]
     public DownloadTransactionModel DownloadTransactionModel { get; set; } = new();
 
+    [Parameter]
+    public bool IsTaxable { get; set; }
     protected override void OnParametersSet()
     {
         if (_editContext == null || !ReferenceEquals(_editContext.Model, DownloadTransactionModel))
@@ -706,7 +708,6 @@
         {
             "1" => "txt",
             "2" => "csv",
-            "6" => "xls",
             "3" => "xlsx",
             "4" => "prn",
             "5" => "xml",

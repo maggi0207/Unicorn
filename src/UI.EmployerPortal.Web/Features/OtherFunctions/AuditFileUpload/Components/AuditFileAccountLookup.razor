@@ -1,8 +1,17 @@
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
 @using UI.EmployerPortal.Web.Logging.NavigationSession
 @inject INavigationSessionTracker tracker
 <div class="audit-account-lookup">
+    <div role="alert">
+        @if (_externalErrors.Count > 0)
+        {
+            <NotificationBanner NotificationType="NotificationType.Alert"
+                                Message="@_externalErrors[0]" />
+        }
+    </div>
+
     <CascadingValue Value="_editContext" IsFixed="true">
         <DataAnnotationsValidator />
 

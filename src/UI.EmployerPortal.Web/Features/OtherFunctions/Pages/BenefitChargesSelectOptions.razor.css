@@ -49,8 +49,9 @@
     gap:8px;
 }
 
-.benefit-week-link{
-    width:fit-content;
+.benefit-week-link {
+    width: fit-content;
+    padding-left: 16px;
 }
 
 .instruction-link{

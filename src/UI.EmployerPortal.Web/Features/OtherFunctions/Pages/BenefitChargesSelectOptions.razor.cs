@@ -79,7 +79,7 @@ public partial class BenefitChargesSelectOptions
     }
 
     /// <inheritdoc/>
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthorizedInitAsync()
     {
         _isLoading = true;
         var selectedEmployer = await SessionManager.GetAsync<SelectedEmployerAccount>();
