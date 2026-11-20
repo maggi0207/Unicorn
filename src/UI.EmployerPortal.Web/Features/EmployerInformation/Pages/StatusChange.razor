@@ -440,6 +440,8 @@
     private async Task Submit()
     {
         _working = true;
+        StateHasChanged();
+        await Task.Yield();
         RunValidation();
         _formSubmitted = true;
 
