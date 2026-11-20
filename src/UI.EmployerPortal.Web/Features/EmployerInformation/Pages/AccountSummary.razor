@@ -1,247 +1,386 @@
 @page "/manage-account/account-summary"
-@using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using System.Globalization
+@using AccountSummaryService = UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
+@using Microsoft.AspNetCore.Components.Authorization
+@using TaxAndWageService = UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
 @using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
 @using UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
 @using UI.EmployerPortal.Razor.SharedComponents.Accordion.Accordion
+@using UI.EmployerPortal.Razor.SharedComponents.Navigation
+@using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
+@using UI.EmployerPortal.Web.Auth
 @using UI.EmployerPortal.Web.Features.Dashboard
-@using UI.EmployerPortal.Web.Features.EmployerRegistration.Models
+@using UI.EmployerPortal.Web.Features.EmployerInformation.Models
+@using UI.EmployerPortal.Web.Features.ManageAccount.Models
+@using UI.EmployerPortal.Web.Features.ManageAccount.Services
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
 
-@using TaxAndWageService = UI.EmployerPortal.Generated.ServiceClients.TaxWageReportingService
-@using AccountSummaryService = UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
-
 @inject IAccountSummaryService _accountSummaryService;
+@inject IManageAddressService _manageAddressService;
 @inject ITaxWageReportingService _taxWageReportingService;
 @inject IUserAccountService _userAccountService;
 @inject IDashboardOrchestrator _dashboardOrchestrator;
 @inject IJSRuntime _jsRuntime;
 @inject NavigationManager _navigationManager;
 
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
 <PageTitle>UI Account Summary</PageTitle>
 
-@if (_successMessages.Any())
-{
-    <div class="mb-4">
-        <UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationBanner 
-            NotificationType="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.NotificationType.Success"
-            Title="Account information changed"
-            MessageStyle="UI.EmployerPortal.Razor.SharedComponents.NotificationBanners.MessageStyle.MultiLine"
-            Messages="_successMessages" />
-    </div>
-}
-
-<h1 class="vf-page-title" id="PageHeader">UI Account Summary</h1>
-<hr/>
+<h1 class="vf-page-title" id="PageHeader" tabindex="-1">UI Account Summary</h1>
+<hr />
 
 @if (employerData != null && missingQuarters != null)
 {
     <div class="columns">
         <div class="accordions">
-            <SummaryAccordion Title="Account Information">
-                <div class="edit-button">
-                    <a href="manage-account/update-account">&#9998; Edit</a>
-                </div>
-                <dl class="accordion-data">
-                    <div>
-                        <dt>UI Account Number</dt>
-                        <dd>@FormatUIAccountNumber(employerData.Employer.UIAccountNumber)</dd>
-                    </div>
-                    <div>
-                        <dt>FEIN</dt>
-                        <dd>@FormatFEIN(employerData.Employer.FEIN)</dd>
-                    </div>
-                    <div>
-                        <dt>Legal Name</dt>
-                        <dd>@employerData.Employer.LegalName</dd>
-                    </div>
-                    <div>
-                        <dt>Trade Name</dt>
-                        <dd>@FormatPossiblyEmptyString(employerData.Employer.TradeName)</dd>
-                    </div>
-                    <div>
-                        <dt>Business Phone</dt>
-                        <dd>@(employerData.Employer.PhoneNumbers.FirstOrDefault(pn => pn.PhoneCode == "Business")?.FormatedPhoneNumber ?? "-")</dd>
-                    </div>
-                    <div>
-                        <dt>Business Email</dt>
-                        <dd>@(employerData.Employer.EmailAddresses.FirstOrDefault(em => em.TypeCode == "Business")?.EmailAddress ?? "-")</dd>
-                    </div>
-                </dl>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Address Information">
-                <div class="edit-button">
-                    <a href="manage-account/manage-addresses">&#9998; Edit</a>
-                </div>
-                <dl class="accordion-data">
-                    @foreach (var (addressName, display) in FormatAddresses())
+            @if (_successMessages.Any())
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Title="Account information changed"
+                                    MessageStyle="MessageStyle.MultiLine"
+                                    Messages="_successMessages" />
+            }
+            else if (!string.IsNullOrWhiteSpace(_statusChangeMessage)
+                && _statusChangeClosureReason is ClosureReason.TransferredOrSoldBusiness or ClosureReason.Reorganized)
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Title="Account information changed"
+                                    MessageStyle="MessageStyle.ChildContent">
+                    <ChildContent>
+                        <p><strong>@_statusChangeMessage</strong></p>
+                        <p>Based on the information provided, you must complete and submit the UCT-115-E Report of Business Transfer form within <strong>10</strong> days.</p>
+                        <ExternalLink
+                            Url="@ExternalUrls.Dwd.Forms.BusinessTransferUct115E"
+                            Text="Download the Report of Business Transfer (UCT-115-E)"
+                            Inline="true"/>
+                    </ChildContent>
+                </NotificationBanner>
+            }
+            else if (!string.IsNullOrWhiteSpace(_statusChangeMessage)
+                && _statusChangeClosureReason is ClosureReason.IndependentContractors)
+            {
+                <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                    Title="Account information changed"
+                                    MessageStyle="MessageStyle.ChildContent">
+                    <ChildContent>
+                        <p><strong>@_statusChangeMessage</strong></p>
+                        <p>Under Wisconsin UI Law, every person performing services for pay is considered your employee unless and until you satisfy the department that such an individual is a self-employed excluded contractor as defined by Section 108.02(12) of the law. Please see <ExternalLink Url="@ExternalUrls.Dwd.CoveredAndExcludedEmployment" Text="Employer vs. Independent Contractor" Inline="true" />.</p>
+                        <p>Please submit a list of the businesses with whom you contract and consider to be independent, including both legal and trade names as well as an address and social security number(s) of the owners.  If you have any business cards, invoices, or advertising please send copies of these as well.  You need not send information on businesses that are incorporated.  Please return this information within <strong>ten</strong> days to:</p>
+                        <p>
+                            Unemployment Insurance Division<br />
+                            Employer Service Team<br />
+                            P.O. Box 7942<br />
+                            Madison, WI 53707-7942
+                        </p>
+                    </ChildContent>
+                </NotificationBanner>
+            }
+            <div id="AccountInformation" tabindex="-1">
+                <SummaryAccordion Title="Account Information">
+                    <AuthorizeView Policy="@AuthorizationPolicies.RequiresUIAccountInformation_UpdatePermission">
+                        <Authorized>
+                            <div class="edit-button">
+                                <a href="manage-account/account-details" class="edit-link" aria-label="Edit account details">
+                                    <span class="edit-icon">
+                                        <img src="@Assets["icons/edit.svg"]" alt="" aria-hidden="true" />
+                                    </span>
+                                    <span class="edit-label">Edit</span>
+                                </a>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                    <dl class="accordion-data">
+                        <div>
+                            <dt>UI Account Number</dt>
+                            <dd>@FormatUIAccountNumber(employerData.Employer.UIAccountNumber)</dd>
+                        </div>
+                        <div>
+                            <dt>FEIN</dt>
+                            <dd>@FormatFEIN(employerData.Employer.FEIN)</dd>
+                        </div>
+                        <div>
+                            <dt>Legal Name</dt>
+                            <dd>@employerData.Employer.LegalName</dd>
+                        </div>
+                        <div>
+                            <dt>Trade Name</dt>
+                            <dd>@FormatPossiblyEmptyString(employerData.Employer.TradeName)</dd>
+                        </div>
+                        <div>
+                            <dt>Business Phone</dt>
+                            <dd>@(employerData.Employer.PhoneNumbers.FirstOrDefault(pn => pn.PhoneCode == "Main")?.FormatedPhoneNumber ?? "-")</dd>
+                        </div>
+                        <div>
+                            <dt>Business Email</dt>
+                            <dd class="email-value">@(employerData.Employer.EmailAddresses.FirstOrDefault(em => em.TypeCode == "Business")?.EmailAddress ?? "-")</dd>
+                        </div>
+                    </dl>
+                </SummaryAccordion>
+            </div>
+            <div id="AddressInformation" tabindex="-1">
+                <SummaryAccordion Title="Address Information">
+                    <AuthorizeView Policy="@AuthorizationPolicies.RequiresUIAccountInformation_UpdatePermission">
+                        <Authorized>
+                            <div class="edit-button">
+                                <a href="manage-account/manage-addresses" class="edit-link" aria-label="Edit account details">
+                                    <span class="edit-icon">
+                                        <img src="@Assets["icons/edit.svg"]" alt="" aria-hidden="true" />
+                                    </span>
+                                    <span class="edit-label">Edit</span>
+                                </a>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                    <dl class="accordion-data">
+                        @foreach (var (addressName, display) in FormatAddresses())
+                        {
+                            <div>
+                                <dt>@addressName</dt>
+                                <dd>@((MarkupString)display)</dd>
+                            </div>
+                        }
+                    </dl>
+                    <AuthorizeView Policy="@AuthorizationPolicies.RequiresUIAccountInformation_UpdatePermission">
+                        <Authorized>
+                            <a class="add-address-link" href="manage-account/manage-addresses">
+                                <span class="add-address-icon" aria-hidden="true">
+                                    +
+                                </span>
+                                <span class="add-address-text">Add Address</span>
+                            </a>
+                        </Authorized>
+                    </AuthorizeView>
+                </SummaryAccordion>
+            </div>
+            <div id="BusinessClassification" tabindex="-1">
+                <SummaryAccordion Title="Business Classification">
+                    <dl class="accordion-data">
+                        <div>
+                            <dt>Business Classification</dt>
+                            <dd>@employerData.Employer.BusinessClassification</dd>
+                        </div>
+                        <div>
+                            <dt>Ownership Classification</dt>
+                            <dd>@employerData.Employer.OwnershipClassificationType</dd>
+                        </div>
+                        <div>
+                            <dt>Employer Classification</dt>
+                            <dd>@employerData.Employer.EmployerClassification</dd>
+                        </div>
+                    </dl>
+                </SummaryAccordion>
+            </div>
+            <div id="AccountStatusSubjectivity" tabindex="-1">
+                <SummaryAccordion Title="Account Status & Subjectivity">
+                    <dl class="accordion-data">
+                        <div>
+                            <dt>Current Status</dt>
+                            <dd>@employerData.Employer.CurrentEmployerStatus.CurrentStatus</dd>
+                        </div>
+                        <div>
+                            <dt>Subjectivity Status</dt>
+                            <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityStatus</dd>
+                        </div>
+                        <div>
+                            <dt>Subjectivity Reason</dt>
+                            <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityReason</dd>
+                        </div>
+                        <div>
+                            <dt>Subject Date</dt>
+                            <dd>@(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                        </div>
+                        <div>
+                            <dt>Closure Reason</dt>
+                            <dd>@FormatPossiblyEmptyString(employerData.Employer.CurrentEmployerStatus.ClosureReason)</dd>
+                        </div>
+                        <div>
+                            <dt>Quarter First Pay</dt>
+                            <dd>@($"{employerData.Employer.CurrentEmployerStatus.QuarterFirstPay}/{(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.Year.ToString() ?? string.Empty)}")</dd>
+                        </div>
+                        <div>
+                            <dt>Last Employment Date</dt>
+                            <dd>@(employerData.Employer.CurrentEmployerStatus.LastEmploymentDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                        </div>
+                        <div>
+                            <dt>Last Payroll Date</dt>
+                            <dd>@(employerData.Employer.CurrentEmployerStatus.LastPayrollDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
+                        </div>
+                    </dl>
+                    <AuthorizeView Policy="@AuthorizationPolicies.RequiresManagerRole">
+                        <Authorized>
+                            <a class="account-action-link" href="manage-account/status-change">
+                                @(string.Compare(employerData.Employer.CurrentEmployerStatus.CurrentStatus, "open", StringComparison.InvariantCultureIgnoreCase) == 0 ? "Close Account" : "Reopen Account")
+                            </a>
+                        </Authorized>
+                    </AuthorizeView>
+                </SummaryAccordion>
+            </div>
+            <div id="TaxRatesBalances" tabindex="-1">
+                <SummaryAccordion Title="Tax Rates & Balances">
+                    <dl class="accordion-data">
+                        @foreach (var taxYearRate in employerData.Employer.TaxRates.OrderBy(tr => tr.RateYear))
+                        {
+                            <div>
+                                <dt>@($"{taxYearRate.RateYear} Tax Rate")</dt>
+                                <dd>@($"{(taxYearRate.TotalRate * 100).ToString("F2")}%")</dd>
+                            </div>
+                        }
+                        <div>
+                            <dt>Accounts Receivable Balance</dt>
+                            <dd>@employerData.Employer.AccountsReceivableBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
+                        </div>
+                        <div>
+                            <dt>Current Reserve Fund Balance</dt>
+                            <dd>@employerData.Employer.ReserveFundBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
+                        </div>
+                        <div>
+                            <dt>10% Write off Year</dt>
+                            <dd>@(employerData.Employer.WriteOffDate?.Year.ToString() ?? "-")</dd>
+                        </div>
+                        <div>
+                            <dt>Voluntary Year</dt>
+                            <dd>@(employerData.Employer.VoluntaryYear?.ToString() ?? "-")</dd>
+                        </div>
+                    </dl>
+                    <AuthorizeView Policy="@AuthorizationPolicies.RequiresQuarterlyTaxAndWageReports_EnterTaxAndWageReportAdjustmentsPermission">
+                        <Authorized>
+                            <a class="rate-summary-link" href="manage-account/rate-summary">Rate Summary</a>
+                        </Authorized>
+                    </AuthorizeView>
+                </SummaryAccordion>
+            </div>
+            <div id="FilingReporting" tabindex="-1">
+                <SummaryAccordion Title="Filing & Reporting">
+                    <dl class="accordion-data">
+                        <div>
+                            <dt>Quarterly Reports Missing</dt>
+                            <dd>@FormatPossiblyEmptyString(string.Join(", ", missingQuarters?.MissingReports.Select(mr => mr.FormattedQuarterYear) ?? new List<string>()))</dd>
+                        </div>
+                        <div>
+                            <dt>Required to Pay Electronically</dt>
+                            <dd>@(employerData.Employer.ElectronicPayRequired ? "Yes" : "No")</dd>
+                        </div>
+                        <div>
+                            <dt>Initial Report Due Date</dt>
+                            <dd>@employerData.Employer.InitialReportDueDate.ToString("MM/dd/yyyy")</dd>
+                        </div>
+                        <div>
+                            <dt>Required to File Wages Electronically</dt>
+                            <dd>@(employerData.Employer.ElectronicFilingRequired ? "Yes" : "No")</dd>
+                        </div>
+                        <div>
+                            <dt>Corporate Officer Exclusion</dt>
+                            <dd>@FormatPossiblyEmptyString(employerData.Employer.CorporateOfficerExclusion)</dd>
+                        </div>
+                    </dl>
+                    @if (showCOEResonableWorksheet)
                     {
-                        <div>
-                            <dt>@addressName</dt>
-                            <dd>@((MarkupString)display)</dd>
-                        </div>
+                        <AuthorizeView Policy="@AuthorizationPolicies.RequiresUIAccountInformation_UpdatePermission">
+                            <Authorized>
+                                <a class="coe-worksheet-link" href="manage-account/corporate-officer-exclusion">Corporate Officer Exclusion Worksheet</a>
+                            </Authorized>
+                        </AuthorizeView>
                     }
-                </dl>
-                <a href="manage-account/manage-addresses">+ Add Address</a>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Business Classification">
-                <dl class="accordion-data">
-                    <div>
-                        <dt>Business Classification</dt>
-                        <dd>@employerData.Employer.BusinessClassification</dd>
-                    </div>
-                    <div>
-                        <dt>Ownership Classification</dt>
-                        <dd>@employerData.Employer.OwnershipClassificationType</dd>
-                    </div>
-                    <div>
-                        <dt>Employer Classification</dt>
-                        <dd>@employerData.Employer.EmployerClassification</dd>
-                    </div>
-                </dl>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Account Status & Subjectivity">
-                <dl class="accordion-data">
-                    <div>
-                        <dt>Current Status</dt>
-                        <dd>@employerData.Employer.CurrentEmployerStatus.CurrentStatus</dd>
-                    </div>
-                    <div>
-                        <dt>Subjectivity Status</dt>
-                        <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityStatus</dd>
-                    </div>
-                    <div>
-                        <dt>Subjectivity Reason</dt>
-                        <dd>@employerData.Employer.CurrentEmployerStatus.SubjectivityReason</dd>
-                    </div>
-                    <div>
-                        <dt>Subject Date</dt>
-                        <dd>@(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
-                    </div>
-                    <div>
-                        <dt>Closure Reason</dt>
-                        <dd>@FormatPossiblyEmptyString(employerData.Employer.CurrentEmployerStatus.ClosureReason)</dd>
-                    </div>
-                    <div>
-                        <dt>Quarter First Pay</dt>
-                        <dd>@($"{employerData.Employer.CurrentEmployerStatus.QuarterFirstPay}/{(employerData.Employer.CurrentEmployerStatus.SubjectivityDate?.Year.ToString() ?? string.Empty)}")</dd>
-                    </div>
-                    <div>
-                        <dt>Last Employment Date</dt>
-                        <dd>@(employerData.Employer.CurrentEmployerStatus.LastEmploymentDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
-                    </div>
-                    <div>
-                        <dt>Last Payroll Date</dt>
-                        <dd>@(employerData.Employer.CurrentEmployerStatus.LastPayrollDate?.ToString("MM/dd/yyyy") ?? "-")</dd>
-                    </div>
-                </dl>
-                <a href="manage-account/status-change">
-                    @(string.Compare(employerData.Employer.CurrentEmployerStatus.CurrentStatus, "open", StringComparison.InvariantCultureIgnoreCase) == 0 ? "Close Account" : "Reopen Account")
-                </a>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Tax Rates & Balances">
-                <dl class="accordion-data">
-                    @foreach (var taxYearRate in employerData.Employer.TaxRates.OrderBy(tr => tr.RateYear))
-                    {
+                </SummaryAccordion>
+            </div>
+            <div id="AuditAppeals" tabindex="-1">
+                <SummaryAccordion Title="Audit & Appeals">
+                    <dl class="accordion-data">
                         <div>
-                            <dt>@($"{taxYearRate.RateYear} Tax Rate")</dt>
-                            <dd>@($"{(taxYearRate.TotalRate * 100).ToString("F2")}%")</dd>
-                        </div>
-                    }
-                    <div>
-                        <dt>Accounts Receivable Balance</dt>
-                        <dd>@employerData.Employer.AccountsReceivableBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
-                    </div>
-                    <div>
-                        <dt>Current Reserve Fund Balance</dt>
-                        <dd>@employerData.Employer.ReserveFundBalance.ToString("C", CultureInfo.GetCultureInfo("en-US"))</dd>
-                    </div>
-                    <div>
-                        <dt>10% Write off Year</dt>
-                        <dd>@(employerData.Employer.WriteOffDate?.Year.ToString() ?? "-")</dd>
-                    </div>
-                    <div>
-                        <dt>Voluntary Year</dt>
-                        <dd>@(employerData.Employer.VoluntaryYear?.ToString() ?? "-")</dd>
-                    </div>
-                </dl>
-                <a href="manage-account/rate-summary">Rate Summary</a>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Filing & Reporting">
-                <dl class="accordion-data">
-                    <div>
-                        <dt>Quarterly Reports Missing</dt>
-                        <dd>@string.Join(", ", missingQuarters?.MissingReports.Select(mr => mr.FormattedQuarterYear) ?? new List<string>())</dd>
-                    </div>
-                    <div>
-                        <dt>Required to Pay Electronically</dt>
-                        <dd>@(employerData.Employer.ElectronicPayRequired ? "Yes" : "No")</dd>
-                    </div>
-                    <div>
-                        <dt>Initial Report Due Date</dt>
-                        <dd>@employerData.Employer.InitialReportDueDate.ToString("MM/dd/yyyy")</dd>
-                    </div>
-                    <div>
-                        <dt>Required to File Wages Electronically</dt>
-                        <dd>@(employerData.Employer.ElectronicFilingRequired ? "Yes" : "No")</dd>
-                    </div>
-                    <div>
-                        <dt>Corporate Officer Exclusion</dt>
-                        <dd>@FormatPossiblyEmptyString(employerData.Employer.CorporateOfficerExclusion)</dd>
-                    </div>
-                </dl>
-                <a href="manage-account/corporate-officer-exclusion">Corporate Officer Exclusion Resonableness Worksheet</a>
-            </SummaryAccordion>
-
-            <SummaryAccordion Title="Audit & Appeals">
-                <dl class="accordion-data">
-                    <div>
-                        <dt>Appeal Pending</dt>
-                        <dd>@(employerData.Employer.AppealPending ? "Yes" : "No")</dd>
-                    </div>
-                    <div>
-                        <dt>Audit in Progress</dt>
-                        <dd>@(employerData.Employer.AuditInProgress ? "Yes" : "No")</dd>
-                    </div>
-                    @foreach (var audit in employerData.Employer.Audits)
-                    {
-                        <div>
-                            <dt>Audit Period Covered</dt>
-                            <dd>@audit.AuditPeriodCovered</dd>
+                            <dt>Appeal Pending</dt>
+                            <dd>@(employerData.Employer.AppealPending ? "Yes" : "No")</dd>
                         </div>
                         <div>
-                            <dt>Audit Scheduled Date</dt>
-                            <dd>@audit.AuditScheduledDate.ToString("MM/dd/yyyy")</dd>
+                            <dt>Audit in Progress</dt>
+                            <dd>@(employerData.Employer.AuditInProgress ? "Yes" : "No")</dd>
                         </div>
-                    }
-                </dl>
-            </SummaryAccordion>
-
-            <a href=""
-                @onclick="ScrollToTop"
-                @onclick:preventDefault="true">
-                &uarr; Top of Page
+                        @foreach (var audit in employerData.Employer.Audits)
+                        {
+                            <div>
+                                <dt>Audit Period Covered</dt>
+                                <dd>@audit.AuditPeriodCovered</dd>
+                            </div>
+                            <div>
+                                <dt>Audit Scheduled Date</dt>
+                                <dd>@audit.AuditScheduledDate.ToString("MM/dd/yyyy")</dd>
+                            </div>
+                        }
+                    </dl>
+                </SummaryAccordion>
+            </div>
+            <a class="top-of-page-link" href=""
+                @onkeydown="@(e => HandleKeyDown(e, "PageHeader"))"
+                    @onclick="@(() => HandleClick("PageHeader"))"
+                    @onclick:preventDefault="true">
+                <span class="top-of-page-icon" aria-hidden="true">
+                    &uarr;
+                </span>
+                <span class="top-of-page-text">
+                    Top of Page
+                </span>
             </a>
         </div>
-
-        <nav class="jump-menu" aria-label="Page Sections">
-            <h4>Jump To</h4>
-            <hr />
-            <ul>
-                <li><a href="manage-account/account-details/#AccountInformation">Account Information</a></li>
-                <li><a href="manage-account/account-details/#AddressInformation">Address Information</a></li>
-                <li><a href="manage-account/account-details/#BusinessClassification">Business Classification</a></li>
-                <li><a href="manage-account/account-details/#AccountStatusSubjectivity">Account Status & Subjectivity</a></li>
-                <li><a href="manage-account/account-details/#TaxRatesBalances">Tax Rates & Balances</a></li>
-                <li><a href="manage-account/account-details/#FilingReporting">Filing & Reporting</a></li>
-                <li><a href="manage-account/account-details/#AuditAppeals">Audit & Appeals</a></li>
-            </ul>
-        </nav>
+        <AuthorizeView Policy="@AuthorizationPolicies.RequiresUIAccountInformation_UpdatePermission">
+            <Authorized>
+                <nav class="jump-menu" aria-label="Page Sections">
+                    <h4>Jump To</h4>
+                    <hr />
+                    <ul>
+                        <li>
+                            <a href="#AccountInformation"
+                                    @onkeydown="@(e => HandleKeyDown(e, "AccountInformation"))"
+                                    @onclick="@(() => HandleClick("AccountInformation"))"
+                                    @onclick:preventDefault="true">
+                                Account Information
+                            </a>
+                        </li>
+                        <li><a href="#AddressInformation"
+                                    @onkeydown="@(e => HandleKeyDown(e, "AddressInformation"))"
+                                    @onclick="@(() => HandleClick("AddressInformation"))"
+                                    @onclick:preventDefault="true">
+                                Address Information
+                            </a>
+                        </li>
+                        <li><a href="#BusinessClassification"
+                                    @onkeydown="@(e => HandleKeyDown(e, "BusinessClassification"))"
+                                    @onclick="@(() => HandleClick("BusinessClassification"))"
+                                    @onclick:preventDefault="true">
+                                Business Classification
+                            </a>
+                        </li>
+                        <li><a href="#AccountStatusSubjectivity"
+                                    @onkeydown="@(e => HandleKeyDown(e, "AccountStatusSubjectivity"))"
+                                    @onclick="@(() => HandleClick("AccountStatusSubjectivity"))"
+                                    @onclick:preventDefault="true">
+                                Account Status & Subjectivity
+                            </a>
+                        </li>
+                        <li><a href="#TaxRatesBalances"
+                                    @onkeydown="@(e => HandleKeyDown(e, "TaxRatesBalances"))"
+                                    @onclick="@(() => HandleClick("TaxRatesBalances"))"
+                                    @onclick:preventDefault="true">
+                                Tax Rates & Balances
+                            </a>
+                        </li>
+                        <li><a href="#FilingReporting"
+                                    @onkeydown="@(e => HandleKeyDown(e, "FilingReporting"))"
+                                    @onclick="@(() => HandleClick("FilingReporting"))"
+                                    @onclick:preventDefault="true">
+                                Filing & Reporting
+                            </a>
+                        </li>
+                        <li><a href="#AuditAppeals"
+                                    @onkeydown="@(e => HandleKeyDown(e, "AuditAppeals"))"
+                                    @onclick="@(() => HandleClick("AuditAppeals"))"
+                                    @onclick:preventDefault="true">
+                                Audit & Appeals
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </Authorized>
+        </AuthorizeView>
     </div>
 }
 else
@@ -251,14 +390,28 @@ else
 
 @code {
     private EmployerDetailsResponse? employerData = null;
+    private bool showCOEResonableWorksheet = false;
     private TaxAndWageService.MissingReportsResponse? missingQuarters = null;
     private List<string> _successMessages = new();
+    private string _statusChangeMessage = string.Empty;
+    private ClosureReason? _statusChangeClosureReason = null;
 
-    protected override async Task OnInitializedAsync ()
+    private List<AddressRowModel> _addresses = new();
+    private static readonly Dictionary<int, int> AddressTypeSortOrder = new()
+    {
+   { 11, 0 }, // Main Business Mailing
+   { 7,  1 }, // Headquarters
+   { 13, 2 }, // Main Physical Location
+   { 19, 3 }, // Secondary Physical Location
+   { 20, 4 }, // Additional Physical Location (can be many)
+   { 6,  5 }  // Business Records
+    };
+
+    protected override async Task OnAuthorizedInitAsync()
     {
         var uri = _navigationManager.ToAbsoluteUri(_navigationManager.Uri);
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        
+
         if (query.TryGetValue("success", out var successValue) && successValue == "true")
         {
             if (query.TryGetValue("fein", out _)) _successMessages.Add("Request for FEIN change submitted for approval.");
@@ -266,11 +419,31 @@ else
             if (query.TryGetValue("trade", out _)) _successMessages.Add("Trade Name has been updated.");
             if (query.TryGetValue("phone", out _)) _successMessages.Add("Phone Number has been updated.");
             if (query.TryGetValue("email", out _)) _successMessages.Add("Email Address has been updated.");
-            
+
             if (_successMessages.Count == 0)
             {
                 _successMessages.Add("Account information updated successfully.");
             }
+        }
+        try
+        {
+            var statusChangeMessage = await _jsRuntime.GetValueAsync<StatusChangeSuccessMessage>("StatusChangeSuccessMessage");
+            if (statusChangeMessage != null)
+            {
+                if (statusChangeMessage.ClosureReason is ClosureReason.TransferredOrSoldBusiness or ClosureReason.IndependentContractors)
+                {
+                    _statusChangeMessage = statusChangeMessage.Message;
+                    _statusChangeClosureReason = statusChangeMessage.ClosureReason; 
+                }
+                else
+                {
+                    _successMessages.Add($"{statusChangeMessage.Message}");
+                }
+            }
+        }
+        catch
+        {
+            // do nothing, no value
         }
 
         var secureUserSk = _userAccountService.GetUserSKClaim();
@@ -282,25 +455,41 @@ else
         var employerSk = selectedClient.Id;
 
         var employerRequest = new AccountSummaryService.EmployerRequest()
-            {
-                EmployerSK = employerSk,
-                SecureUserSK = secureUserSk
-            };
+        {
+            EmployerSK = employerSk,
+            SecureUserSK = secureUserSk
+        };
 
         employerData = await _accountSummaryService.GetEmployerAsync(employerRequest);
+        showCOEResonableWorksheet = employerData?.Employer.OwnershipClassificationType is "LLC Electing to be Treated as a Corporation"
+                          or "Corporation";
+
+        _addresses = await _manageAddressService.GetAddressesAsync(employerSk);
 
         missingQuarters = await _taxWageReportingService.GetMissingQuartersAsync(employerSk, secureUserSk);
     }
 
     private List<Tuple<string, string>> FormatAddresses()
     {
-        return employerData?.Employer.StreetAddresses.Select(address =>
+        return _addresses
+            .OrderBy(a => AddressTypeSortOrder.TryGetValue(a.AddressTypeCodeSK, out var order) ? order : int.MaxValue)
+            .Select(a => Tuple.Create(a.AddressType, BuildDisplayLines(a)))
+            .ToList();
+    }
+    private static string BuildDisplayLines(AddressRowModel a)
+    {
+        var line1 = a.LineOneAddress;
+        if (!string.IsNullOrWhiteSpace(a.LineTwoAddress))
         {
-            return Tuple.Create(
-                address.AddressType,
-                address.StreetAddressDisplay
-            );
-        }).ToList() ?? new List<Tuple<string, string>>();
+            line1 += $", {a.LineTwoAddress}";
+        }
+        var zip = a.ZipCode ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(a.ZipExtensionCode))
+        {
+            zip += $"-{a.ZipExtensionCode}";
+        }
+        var line2 = $"{a.CityName}, {a.StateCode} {zip}".Trim();
+        return $"{line1}<br />{line2}";
     }
 
     private string FormatUIAccountNumber(string value)
@@ -318,8 +507,22 @@ else
         return string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
-    private async Task ScrollToTop()
+    private async Task HandleKeyDown(KeyboardEventArgs e, string elementId)
     {
-        await _jsRuntime.InvokeVoidAsync("scrollToTop");        
+        if (e.Key == "Enter")
+        {
+            await FocusOnElement(elementId);
+
+        }
+    }
+
+    private async Task HandleClick(string elementId)
+    {
+        await FocusOnElement(elementId);
+    }
+
+    private async Task FocusOnElement(string elementId)
+    {
+        await _jsRuntime.InvokeVoidAsync("focusElement", elementId);
     }
 }

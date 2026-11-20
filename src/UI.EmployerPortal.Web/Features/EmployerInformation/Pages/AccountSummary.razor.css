@@ -19,17 +19,238 @@
     display: flex;
     flex-direction: column;
     gap: 1em;
+    width: 100%;
+}
+
+::deep .accordion-button:focus {
+    outline: revert;
 }
 
 ::deep .accordion-body {
-    padding-top: 0px;
+    padding-top: 2px;
     padding-left: 1.5em;
 }
 
-::deep .accordion-body .edit-button {
-    margin-bottom: -1.5em;
-    align-self: end;
+    ::deep .accordion-body .edit-button {
+        align-self: end;
+    }
+
+    ::deep .accordion-body .edit-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        height: 26px;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+        font-family: Verdana,sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 160%;
+        letter-spacing: 0;
+        color: #0D6EFD;
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-decoration-thickness: 0;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        ::deep .accordion-body .edit-link:hover, ::deep .accordion-body .edit-link:focus, ::deep .accordion-body .edit-link:active,
+        ::deep .accordion-body .edit-link:visited {
+            color: #0D6EFD;
+            text-decoration-line: underline;
+        }
+
+    ::deep .accordion-body .edit-icon {
+        width: 16px;
+        height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+        ::deep .accordion-body .edit-icon img {
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+
+    ::deep .accordion-body .edit-label {
+        width: 31px;
+        height: 19px;
+        font-family: Inter, sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 100%;
+        letter-spacing: 0;
+        color: #0D6EFD;
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-decoration-thickness: 0;
+    }
+
+.email-value {
+    /* Long email addresses may overflow off the page at small screen widths.  Allow to break to prevent loss of information */
+    overflow-wrap: break-word;
 }
+
+::deep .add-address-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    color: #0D6EFD;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+::deep .add-address-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 16px;
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 16px;
+    color: #0D6EFD;
+}
+
+::deep .add-address-text {
+    width: auto;
+    height: auto;
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #0D6EFD;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0;
+}
+
+::deep .add-address-link:hover, ::deep .add-address-link:focus, ::deep .add-address-link:active,
+::deep .add-address-link:visited {
+    color: #0D6EFD;
+    text-decoration-line: underline;
+}
+
+::deep .rate-summary-link {
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #0D6EFD;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0;
+    cursor: pointer;
+}
+
+    ::deep .rate-summary-link:hover, ::deep .rate-summary-link:focus, ::deep .rate-summary-link:active,
+    ::deep .rate-summary-link:visited {
+        color: #0D6EFD;
+        text-decoration-line: underline;
+    }
+
+::deep .account-action-link {
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #0D6EFD;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0;
+    cursor: pointer;
+}
+
+    ::deep .account-action-link:hover, ::deep .account-action-link:focus, ::deep .account-action-link:active,
+    ::deep .account-action-link:visited {
+        color: #0D6EFD;
+        text-decoration-line: underline;
+    }
+
+.top-of-page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    color: #0D6EFD;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.top-of-page-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 16px;
+    color: #0D6EFD;
+}
+
+.top-of-page-text {
+    width: auto;
+    height: auto;
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: normal;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #0D6EFD;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0;
+}
+
+.top-of-page-link:hover, .top-of-page-link:focus, .top-of-page-link:active,
+.top-of-page-link:visited {
+    color: #0D6EFD;
+    text-decoration-line: underline;
+}
+
+::deep .coe-worksheet-link {
+    font-family: Verdana,sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 160%;
+    letter-spacing: 0;
+    color: #0D6EFD;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-thickness: 0;
+    cursor: pointer;
+}
+
+    ::deep .coe-worksheet-link:hover, ::deep .coe-worksheet-link:focus, ::deep .coe-worksheet-link:active,
+    ::deep .coe-worksheet-link:visited {
+        color: #0D6EFD;
+        text-decoration-line: underline;
+    }
 
 ::deep .accordion-body .accordion-data {
     display: flex;
@@ -40,33 +261,57 @@
     width: 90%;
 }
 
-::deep .accordion-body .accordion-data > div {
-    width: calc(50% - 1em);
-}
+    ::deep .accordion-body .accordion-data > div {
+        width: calc(50% - 1em);
+    }
 
-::deep .accordion-body .accordion-data > div > dt {
-    font-weight: normal;
-}
+        ::deep .accordion-body .accordion-data > div > dt {
+            font-weight: normal;
+        }
 
-::deep .accordion-body .accordion-data > div > dd {
-    font-weight: 700;
-}
+        ::deep .accordion-body .accordion-data > div > dd {
+            font-weight: 700;
+        }
 
 .jump-menu {
     width: 354px;
 }
 
-.jump-menu h4 {
-    font-family: Verdana, sans-serif;
-    font-weight: 700;
-    color: #000000;
-}
+    .jump-menu h4 {
+        font-family: Verdana, sans-serif;
+        font-weight: 700;
+        color: #000000;
+    }
 
-.jump-menu ul {
-    padding-left: 0px;
-    list-style: none;
-}
+    .jump-menu ul {
+        padding-left: 0px;
+        list-style: none;
+    }
 
-.jump-menu li {
-    margin-bottom: 10px;
+    .jump-menu li {
+        margin-bottom: 10px;
+    }
+
+    .jump-menu a {
+        font-family: Verdana,sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 160%;
+        letter-spacing: 0;
+        color: #0D6EFD;
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-decoration-thickness: 0;
+        cursor: pointer;
+    }
+
+@media (max-width: 1200px) {
+    ::deep .accordion-body .accordion-data {
+        flex-direction: column;
+    }
+
+    ::deep .accordion-body .accordion-data > div {
+        width: 100%;
+    }
 }

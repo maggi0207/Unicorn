@@ -4,6 +4,7 @@ namespace UI.EmployerPortal.Web.Features.EmployerInformation.Models;
 
 /// <summary>
 /// Options for status change closure reason
+/// THIS IS A DUPLICATE OF A DWD DB TABLE, DO NOT CHANGE UNLESS THE TABLE IS ALSO CHANGING
 /// </summary>
 public enum ClosureReason
 {
@@ -26,13 +27,13 @@ public enum ClosureReason
     DuplicateAccount = 3,
 
     /// <summary>
-    /// Transferred
+    /// Transferred or Sold Business
     /// </summary>
-    [Display(Name = "Transferred")]
-    Transferred = 4,
+    [Display(Name = "Transferred or Sold Business")]
+    TransferredOrSoldBusiness = 4,
 
     /// <summary>
-    /// No longer meets UI Criteria
+    /// No Longer Meets UI Criteria
     /// </summary>
     [Display(Name = "No longer meets UI Criteria")]
     NoLongerMeetsUICriteria = 5,
@@ -58,7 +59,7 @@ public enum ClosureReason
     /// <summary>
     /// Loasing employees from PEO
     /// </summary>
-    [Display(Name = "Leasing employees from PEO")]
+    [Display(Name = "Leasing employees from Professional Employer Organization")]
     LeasingEmployeesFromPEO = 10,
 
     /// <summary>
@@ -68,15 +69,15 @@ public enum ClosureReason
     FinanceConversion = 11,
 
     /// <summary>
-    /// Zero payroll reports filed
+    /// Zero Payroll Reports Filed
     /// </summary>
     [Display(Name = "Zero payroll reports filed")]
     ZeroPayrollReportsFiled = 12,
 
     /// <summary>
-    /// Does not meet UI criteria
+    /// Does not meet UI Criteria
     /// </summary>
-    [Display(Name = "Does not meet UI criteria")]
+    [Display(Name = "Does not meet UI Criteria")]
     DoesNotMeetUICriteria = 13,
 
     /// <summary>
@@ -92,15 +93,15 @@ public enum ClosureReason
     Deceased = 15,
 
     /// <summary>
-    /// Reimbursable no longer meets UI criteria
+    /// Reimbursable no longer meets UI Criteria
     /// </summary>
-    [Display(Name = "Reimbursable no longer meets UI criteria")]
+    [Display(Name = "Reimbursable no longer meets UI Criteria")]
     ReimbursableNoLongerMeetsUICriteria = 16,
 
     /// <summary>
-    /// Member of Group
+    /// Member of group
     /// </summary>
-    [Display(Name = "Member of Group")]
+    [Display(Name = "Member of group")]
     MemberOfGroup = 17,
 
     /// <summary>

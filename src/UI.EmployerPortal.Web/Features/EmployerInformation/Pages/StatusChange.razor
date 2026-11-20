@@ -1,15 +1,18 @@
 @page "/manage-account/status-change"
-@using Microsoft.FluentUI.AspNetCore.Components.Extensions
-@using System.Text.RegularExpressions
 @using System.ServiceModel
+@using System.Text.RegularExpressions
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using UI.EmployerPortal.Generated.ServiceClients.AccountMaintenanceService
 @using UI.EmployerPortal.Generated.ServiceClients.AccountSummaryService
+@using UI.EmployerPortal.Razor.SharedComponents.Helpers
 @using UI.EmployerPortal.Razor.SharedComponents.Inputs
 @using UI.EmployerPortal.Razor.SharedComponents.NotificationBanners
 @using UI.EmployerPortal.Web.Features.Dashboard
 @using UI.EmployerPortal.Web.Features.EmployerInformation.Models
 @using UI.EmployerPortal.Web.Features.Shared.Accounts.Services
 @using static UI.EmployerPortal.Razor.SharedComponents.Button
+@using UI.EmployerPortal.Web.Logging.NavigationSession
+@inject INavigationSessionTracker tracker
 
 @inject NavigationManager _nav;
 @inject IAccountSummaryService _accountSummaryServvice;
@@ -19,37 +22,48 @@
 @inject IConfiguration _configuration;
 @inject IJSRuntime _jsRuntime;
 
+@inherits UI.EmployerPortal.Web.Auth.EmployerAuthorizedPage
+
 <PageTitle>Status Change Request</PageTitle>
 
 <div class="article-wrapper">
     <h1 class="vf-page-title" id="PageHeader">UI Account Status Change Request</h1>
     <hr />
-    <NotificationBanner NotificationType="NotificationType.Alert"
-                        Title="Network Error"
-                        Message="@_toastError"
-                        Visible="@(!string.IsNullOrWhiteSpace(_toastError))" />
-    <NotificationBanner NotificationType="NotificationType.Confirmation"
-                        Title="Success"
-                        Message="@_toastSuccess"
-                        Visible="@(!string.IsNullOrWhiteSpace(_toastSuccess))" />
+    <div id="main-notification" class="notification-wrapper" role="status" tabindex="-1">
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            Title="Network Error"
+                            Message="@_toastError"
+                            Visible="@(!string.IsNullOrWhiteSpace(_toastError))" />
+        <NotificationBanner NotificationType="NotificationType.Alert"
+                            MessageStyle="MessageStyle.MultiLine"
+                            Title="Please fix the following errors:"
+                            Messages="@_errorMessages"
+                            Visible="@_errorMessages.Any()" />
+        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                            Title="Success"
+                            Message="@_toastSuccess"
+                            Visible="@(!string.IsNullOrWhiteSpace(_toastSuccess))" />
+    </div>
 
     @if (_employerData != null)
     {
         @if (_formSubmitted && _validationErrors.Count() > 0)
         {
-            <NotificationBanner NotificationType="NotificationType.Alert"
+            <div class="notification-wrapper">
+                <NotificationBanner NotificationType="NotificationType.Alert"
                                 MessageStyle="MessageStyle.MultiLine"
                                 Messages="_validationErrors"
                                 MessageFieldIds="_validationFieldIds"
                                 DismissButton="false" />
-        
+                </div>
+
         }
         <div class="status-change">
             <p>Change the status of your UI account due to changes in your business activity. Please complete the requested information below and Submit your request.</p>
             <p>Please verify the following information before @(_employerData.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open" ? "closing" : "re-opening") your account.</p>
             <p>All fields are required unless noted.</p>
             <div class="account-information">
-                <h3>Account Information</h3>
+                <h2>Account Information</h2>
                 <dl>
                     <div>
                         <dt>Legal Name</dt>
@@ -77,7 +91,7 @@
             </div>
             <EditForm EditContext="@_editContext" FormName="StatusChange" OnSubmit="Submit" role="form">
                 <div class="form-body">
-                    <p>If this information isn't correct, go to the <a href="manage-account/account-details">UI Account Summary</a> page to make updates</p>
+                    <p>If this information isn't correct, go to the <a href="manage-account/account-details">UI Account Summary</a> page to make updates.</p>
 
                     <div class="half-width">
                         <OutlinedTextField Id="employment-date"
@@ -115,7 +129,7 @@
                         }
                         else
                         {
-                            <GenericOutlinedSelectField Id="activity-reason"
+                            <GenericOutlinedSelectField Id="activation-reason"
                                                         TValue="ActivationReason?"
                                                         Label="Reason for Re-Opening"
                                                         Options="ActivationReasonOptions"
@@ -151,10 +165,10 @@
                     <div class="footer">
                         <Button Text="CANCEL"
                                 Variant="ButtonVariant.Secondary"
-                                Onclick="@(() => _nav.NavigateTo("manage-account/account-details"))" />
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(() => _nav.NavigateTo("manage-account/account-summary"), "Cancel Clicked", DateTime.Now))" />
                         <Button Text="SUBMIT"
                                 Variant="ButtonVariant.Primary"
-                                Onclick="Submit"
+                                Onclick="@(() => tracker.LogNavigationSessionActivity(Submit, "Submit Clicked", DateTime.Now))"
                                 Disabled="@(_working)" />
                     </div>
                 </div>
@@ -184,13 +198,14 @@
     private List<string> _validationFieldIds { get; set; } = new();
     private string _toastError { get; set; } = string.Empty;
     private string _toastSuccess { get; set; } = string.Empty;
+    private List<string> _errorMessages { get; set; } = new();
 
     private string MainBusinessMailingAddress =>
         _employerData?.StreetAddresses.FirstOrDefault(sa => string.Compare(sa.AddressType, "main business mailing", StringComparison.OrdinalIgnoreCase) == 0)?.StreetAddressDisplay ?? string.Empty;
 
     private StatusChangeModel _model { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthorizedInitAsync()
     {
         _editContext = new EditContext(_model);
         _messageStore = new ValidationMessageStore(_editContext);
@@ -299,29 +314,37 @@
         }
     }
 
-    private List<KeyValuePair<ClosureReason?, string>> ClosureReasonOptions => Enum.GetValues<ClosureReason>().Select(cr =>
+    private List<KeyValuePair<ClosureReason?, string>> ClosureReasonOptions =>
+    new List<ClosureReason>()
+    {
+        ClosureReason.NoLongerOperatingInWisconsin,
+        ClosureReason.ContinuingWithoutEmployees,
+        ClosureReason.TransferredOrSoldBusiness,
+        ClosureReason.Reorganized,
+        ClosureReason.IndependentContractors,
+        ClosureReason.LeasingEmployeesFromPEO,
+        ClosureReason.FiscalAgentElectingToBeEmployer
+    }.Select(cr =>
     {
         return new KeyValuePair<ClosureReason?, string>(cr, cr.GetDisplayName());
     }).ToList();
 
-    private List<KeyValuePair<ActivationReason?, string>> ActivationReasonOptions => Enum.GetValues<ActivationReason>().Select(ar =>
+    private List<KeyValuePair<ActivationReason?, string>> ActivationReasonOptions => Enum.GetValues<ActivationReason>()
+    .Where(ar => ar is ActivationReason.AgainHasEmployees)
+    .Select(ar =>
     {
         return new KeyValuePair<ActivationReason?, string>(ar, ar.GetDisplayName());
     }).ToList();
 
-    private string EmploymentDateFieldText => _employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() switch
-    {
-        "open" => "Last Date Employees Worked",
-        "closed" => "Date Employment Resumed",
-        _ => string.Empty
-    };
+    private string EmploymentDateFieldText =>
+        string.IsNullOrWhiteSpace(_employerData?.CurrentEmployerStatus.ClosureReason)
+            ? "Last Date Employees Worked"
+            : "Date Employment Resumed";
 
-    private string PayrollDateFieldText => _employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() switch
-    {
-        "open" => "Last Date Payroll Checks Were Issued",
-        "closed" => "New Payroll Date",
-        _ => string.Empty
-    };
+    private string PayrollDateFieldText =>
+        string.IsNullOrWhiteSpace(_employerData?.CurrentEmployerStatus.ClosureReason)
+            ? "Last Date Payroll Checks Were Issued"
+            : "New Payroll Date";
 
     private void RunValidation(FieldIdentifier? changedField = null)
     {
@@ -353,6 +376,13 @@
             _validationErrors.Add(errorText);
             _validationFieldIds.Add("employment-date");
         }
+        else if (DateHelper.IsInvalidDate(_model.EmploymentDate.Value))
+        {
+            var errorText = "Date is invalid";
+            _messageStore.Add(_editContext.Field(nameof(_model.EmploymentDate)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("employment-date");
+        }
 
         if (!_model.PayrollDate.HasValue)
         {
@@ -361,8 +391,15 @@
             _validationErrors.Add(errorText);
             _validationFieldIds.Add("payroll-date");
         }
+        else if (DateHelper.IsInvalidDate(_model.PayrollDate.Value))
+        {
+            var errorText = "Date is invalid";
+            _messageStore.Add(_editContext.Field(nameof(_model.PayrollDate)), errorText);
+            _validationErrors.Add(errorText);
+            _validationFieldIds.Add("payroll-date");
+        }
 
-        if (_employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "open" && !_model.ClosureReason.HasValue)
+        if (string.IsNullOrWhiteSpace(_employerData?.CurrentEmployerStatus.ClosureReason) && !_model.ClosureReason.HasValue)
         {
             var errorText = "You must select a Closure Reason";
             _messageStore.Add(_editContext.Field(nameof(_model.ClosureReason)), errorText);
@@ -370,7 +407,7 @@
             _validationFieldIds.Add("closure-reason");
         }
 
-        if (_employerData?.CurrentEmployerStatus.CurrentStatus.ToLowerInvariant() == "closed" && !_model.ActivationReason.HasValue)
+        if (!string.IsNullOrWhiteSpace(_employerData?.CurrentEmployerStatus.ClosureReason) && !_model.ActivationReason.HasValue)
         {
             var errorText = "You must select an Activation Reason";
             _messageStore.Add(_editContext.Field(nameof(_model.ActivationReason)), errorText);
@@ -413,7 +450,7 @@
             var request = new PortalStatusChangeRequest
                 {
                     EmployerSK = _employerData!.EmployerSK,
-                    Comments = string.IsNullOrWhiteSpace(_model.Comments) ? null : _model.Comments,
+                    Comments = _model.Comments ?? string.Empty,
                     EmailAddress = _model.Email,
                     SecureUserSK = secureUserSk
                 };
@@ -433,9 +470,29 @@
 
             try
             {
-                var response = await _accountMaintenanceService.CreateStatusChangeRequestAsync(request);
+                var response = await _accountMaintenanceService.CreateAndApproveStatusChangeRequestAsync(request);
 
-                _toastSuccess = "Status change request submitted Successfully";
+                if (response.RuleViolations.Count() < 1)
+                {
+                    var statusChange = response.StatusChangeRequests.FirstOrDefault();
+                    if (statusChange != null && !string.IsNullOrWhiteSpace(statusChange.ConfirmationNumber))
+                    {
+                        await _jsRuntime.SetValueAsync<StatusChangeSuccessMessage>(
+                            "StatusChangeSuccessMessage",
+                            new StatusChangeSuccessMessage()
+                            {
+                                ConfirmationNumber = statusChange.ConfirmationNumber,
+                                Message = response.Message,
+                                ClosureReason = _model.ClosureReason,
+                                ActivationReason = _model.ActivationReason,
+                            });
+                    }
+                    _nav.NavigateTo("manage-account/account-summary");
+                }
+                else
+                {
+                    _errorMessages = response.RuleViolations.Select(rv => rv.RuleViolation).ToList();
+                }
             }
             catch (CommunicationException)
             {
@@ -451,6 +508,6 @@
             }
         }
         _working = false;
-        await _jsRuntime.InvokeVoidAsync("scrollToTop");
+        await _jsRuntime.InvokeVoidAsync("focusElement", "main-notification");
     }
 }

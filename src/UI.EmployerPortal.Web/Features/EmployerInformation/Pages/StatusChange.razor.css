@@ -57,6 +57,7 @@
 }
 .status-change .form-body div.half-width {
     width: calc(50% - 1em);
+    min-width: 260px;
 }
 .status-change .form-body div.half-width ::deep .master-text-field,
 .status-change .form-body div.half-width ::deep .master-select-field {
@@ -70,4 +71,15 @@
 
 .status-change .form-body .full-width {
     width: 100%
+}
+
+.notification-wrapper {
+    max-width: calc(100vw * 0.55);
+}
+
+@media (max-width: 768px) {
+
+    .account-information div {
+        width: 100%;
+    }
 }
