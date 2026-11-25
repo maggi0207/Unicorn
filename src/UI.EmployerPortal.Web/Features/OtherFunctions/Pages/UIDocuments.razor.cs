@@ -275,6 +275,8 @@ public partial class UIDocuments
     {
         _isLoading = true;
         _showBanner = false;
+        StateHasChanged();
+        await Task.Yield();
         try
         {
             var deadline = DateTime.UtcNow.AddMinutes(2);
