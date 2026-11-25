@@ -176,11 +176,11 @@ else
                                         <td class="fw-normal fs-md action-column">
                                 <button type="button"
                                         class="view-link"
-                                        @onclick="@(async () =>
+                                        @onclick="@(() =>
                                         {
                                             _warningFocused = false;
-
-                                            await tracker.LogNavigationSessionActivity(
+ 
+                                            tracker.LogNavigationSessionActivity(
                                                 () => HandleView(document),
                                                 $"{document.Status} Clicked",
                                                 DateTime.Now);
