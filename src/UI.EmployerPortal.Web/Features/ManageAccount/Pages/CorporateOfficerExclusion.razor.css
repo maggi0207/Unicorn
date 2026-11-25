@@ -49,6 +49,12 @@
     text-align: left !important;
 }
 
+.net-savings-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 15px;
+    margin-top: -12px;
+}
 
 .coe-field-error {
     display: flex;
@@ -332,9 +338,7 @@
 }
 
 .last-row td {
-    border-bottom: none;
-    padding-top: 25px;
-    border-top: 3px solid gainsboro;
+    border-bottom: 3px solid gainsboro;
 }
 
 .last-row {
@@ -530,6 +534,6 @@ tbody td:first-child {
     scroll-margin-top: 100px;
 }
 
-#coe-warning-section:focus {
-     outline: none;
-}
+    #coe-warning-section:focus {
+        outline: none;
+    }

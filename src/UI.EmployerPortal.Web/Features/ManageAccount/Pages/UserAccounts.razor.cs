@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
+using UI.EmployerPortal.Web.Auth;
 using UI.EmployerPortal.Web.Features.ManageAccount.Models;
 using UI.EmployerPortal.Web.Features.ManageAccount.Services;
 using UI.EmployerPortal.Web.Features.Shared.Accounts.Models;
@@ -18,6 +20,9 @@ public partial class UserAccounts
 {
     [Inject]
     private IAccountUserService AccountUserService { get; set; } = default!;
+
+    [Inject]
+    private IAuthorizationService AuthorizationService { get; set; } = default!;
 
     [Inject]
     private IUserAccountService UserAccountService { get; set; } = default!;
@@ -185,7 +190,7 @@ public partial class UserAccounts
                     return u.SecureUserSK == currentUserSK;
                 });
                 _managerWebUserSecuritySK = currentUser?.WebUserSecuritySK ?? 0;
-                _isCurrentUserManager = currentUser?.Role == "Manager";
+                _isCurrentUserManager = await IsEmployerManagerAsync();
             }
             UpdateResultsText();
         }
@@ -197,6 +202,18 @@ public partial class UserAccounts
         {
             _isLoading = false;
         }
+    }
+
+    private async Task<bool> IsEmployerManagerAsync()
+    {
+        var user = UserAccountService.GetCurrentUser();
+        if (user is null)
+        {
+            return false;
+        }
+
+        var result = await AuthorizationService.AuthorizeAsync(user, null, AuthorizationPolicies.RequiresManagerRole);
+        return result.Succeeded;
     }
 
     private void ReadFlashFromUrl()

@@ -20,22 +20,24 @@
         <div class="container-page">
             <div class="header-container">
                 <h1 id="save-heading" class="title" tabindex="-1">Corporate Officer Exclusion</h1>
+                <div role="status">
+                    @if (_mailCopyRequested)
+                    {
+                        <NotificationBanner NotificationType="NotificationType.Confirmation"
+                                            Message="@MailCopyMessage"
+                                            DismissButton="false">
+                        </NotificationBanner>
+                    }
 
-                @if (_mailCopyRequested)
-                {
-                    <NotificationBanner NotificationType="NotificationType.Confirmation"
-                                        Message="@MailCopyMessage"
-                                        DismissButton="false">
-                    </NotificationBanner>
-                }
+                    @if (_showBanner)
+                    {
+                        <NotificationBanner NotificationType="NotificationType.Warning"
+                                            Message="@_bannerMessage"
+                                            DismissButton="false">
+                        </NotificationBanner>
+                    }
+                </div>
 
-                @if (_showBanner)
-                {
-                    <NotificationBanner NotificationType="NotificationType.Warning"
-                                        Message="@_bannerMessage"
-                                        DismissButton="false">
-                    </NotificationBanner>
-                }
             </div>
 
             <div class="coe-success-block">
@@ -70,32 +72,9 @@ else if (_isAlreadyElected)
             </div>
 
             <p class="section-paragraph">
-                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help and Resources”.
+                Employers with annual payroll under $500,000 may elect to exclude the wages of all principal corporate officers provided that they have an ownership interest in the corporation. More information about this exclusion is available in “Help & Resources”.
             </p>
-            <p class="section-paragraph">
-                The ownership classification must be Corporation or LLC Electing to be treated as a Corporation.
-            </p>
-        </div>
 
-        <div class="summary-card">
-            <div class="item">
-                <div class="label">Account Number</div>
-                <div class="value">@_accountNumber</div>
-            </div>
-            <div class="item">
-                <div class="label">Legal Name</div>
-                <div class="value">@_legalName</div>
-            </div>
-            @if (!string.IsNullOrWhiteSpace(_confirmationId))
-            {
-                <div class="item">
-                    <div class="label">Confirmation ID</div>
-                    <div class="value">@_confirmationId</div>
-                </div>
-            }
-            <div class="effective-date">
-                <strong>Corporate Officer Exclusion will be effective as of @_effectiveDate?.ToString("MM/dd/yyyy").</strong>
-            </div>
         </div>
 
         <div class="flex-button flex-button-start">
@@ -258,7 +237,7 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                 <p class="section-paragraph section-paragraph--worksheet">
                     This worksheet is designed to calculate the impact on all of your unemployment taxes by taking this exclusion.
                     When you enter the data in the three required fields on the worksheet, you will see what impact taking the
-                    exclusion has on you. If you have any questions about this, please <a href="https://dwd.wisconsin.gov/ui201/phone201.htm" target="_blank">contact us</a>.
+                    exclusion has on you. If you have any questions about this, please <ExternalLink Url="@ExternalUrls.Dwd.ContactUs" Text="contact us" Inline="true" ShowIcon="false" />.
                 </p>
                 <p class="page-heading">You must calculate your net savings before electing this exclusion.</p>
             </div>
@@ -307,11 +286,12 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                                         Min="0"
                                                         Max="1000000000"
                                                         CssClass="@(_futaPayrollMissing ? "coe-input-error" : string.Empty)"
-                                                        ValueChanged="OnFUTAPayrollChanged">
+                                                        ValueChanged="OnFUTAPayrollChanged"
+                                                        AriaDescribedby="futaPayrollError">
                                         </NumericTextBox>
                                         @if (_futaPayrollMissing)
                                         {
-                                            <p class="coe-field-error">
+                                            <p id="futaPayrollError" class="coe-field-error">
                                                 <img src="@Assets["icons/alert-notification.svg"]" alt="" aria-hidden="true" />
                                                 Missing value
                                             </p>
@@ -348,10 +328,11 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                                         Min="0"
                                                         Max="1000000000"
                                                         CssClass="@(_wiPayrollWithoutMissing ? "coe-input-error" : string.Empty)"
-                                                        ValueChanged="OnWITaxablePayrollWithoutCOEChanged"></NumericTextBox>
+                                                        ValueChanged="OnWITaxablePayrollWithoutCOEChanged"
+                                                        AriaDescribedby="WITaxablePayrollWithoutCOEError"></NumericTextBox>
                                         @if (_wiPayrollWithoutMissing)
                                         {
-                                            <p class="coe-field-error">
+                                            <p id="WITaxablePayrollWithoutCOEError" class="coe-field-error">
                                                 <img src="@Assets["icons/alert-notification.svg"]" alt="" aria-hidden="true" />
                                                 Missing value
                                             </p>
@@ -370,10 +351,11 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                                         Min="0"
                                                         Max="1000000000"
                                                         CssClass="@(_wiPayrollWithMissing ? "coe-input-error" : string.Empty)"
-                                                        ValueChanged="OnWITaxablePayrollWithCOEChanged"></NumericTextBox>
+                                                        ValueChanged="OnWITaxablePayrollWithCOEChanged"
+                                                        AriaDescribedby="WITaxablePayrollWithCOEError"></NumericTextBox>
                                         @if (_wiPayrollWithMissing)
                                         {
-                                            <p class="coe-field-error">
+                                            <p id="WITaxablePayrollWithCOEError" class="coe-field-error">
                                                 <img src="@Assets["icons/alert-notification.svg"]" alt="" aria-hidden="true" />
                                                 Missing value
                                             </p>
@@ -411,22 +393,24 @@ else if (_isSaveSuccess == null || (_isSaveSuccess.HasValue && !_isSaveSuccess.V
                                 <td class="fw-normal fs-md"> @_response.NetFUTATaxWithoutCOE.ToString("C") </td>
                                 <td class="fw-normal fs-md"> @_response.NetFUTATaxWithCOE.ToString("C")  </td>
                             </tr>
-                            <tr class="data-row">
+                            <tr class="data-row last-row">
                                 <td class="fw-normal fs-md">10.</td>
                                 <td class="fw-normal text-left fs-md">Total State UI And FUTA Taxes (line 6 plus line 9)</td>
                                 <td class="fw-normal fs-md"> @_response.TotalUITaxWithoutCOE.ToString("C")   </td>
                                 <td class="fw-normal fs-md"> @_response.TotalUITaxWithCOE.ToString("C")</td>
                             </tr>
-                            <tr class="data-row last-row">
-                                <td class="fw-normal fs-md"></td>
-                                <td class="fw-bold text-left fs-lg net-savings-label">Net Savings</td>
-                                <td class="fw-normal fs-md">  </td>
-                                <td class="fw-normal fs-md"> @_response.NetSavings.ToString("C")</td>
-                            </tr>
                         }
                     </tbody>
                 </table>
-            </div>
+                </div>
+                @if (_response != null)
+                {
+                    <div class="net-savings-container">
+                        <p class="fw-bold text-left fs-lg net-savings-label">Net Savings</p>
+                        <p class="fw-normal fs-md">@_response.NetSavings.ToString("C")</p>
+                    </div>
+                }
+
             <div class="flex-button">
                 <Button Text="CANCEL"
                         Variant="Button.ButtonVariant.Secondary"

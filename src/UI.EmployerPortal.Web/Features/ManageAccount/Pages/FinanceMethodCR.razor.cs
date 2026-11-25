@@ -107,7 +107,7 @@ public partial class FinanceMethodCR
     /// Set focus on the heading after initial page load
     /// </summary>
     /// <param name="firstRender"></param>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAuthorizedAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {

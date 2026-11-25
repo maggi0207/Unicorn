@@ -94,7 +94,7 @@ public partial class ManageAddresses
     /// </summary>
     /// <param name="firstRender"></param>
     /// <returns></returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAuthorizedAfterRenderAsync(bool firstRender)
     {
         if (_showDeleteModal && !_showDeleteModalWasOpen)
         {

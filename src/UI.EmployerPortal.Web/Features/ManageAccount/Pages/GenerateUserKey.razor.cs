@@ -50,7 +50,6 @@ public partial class GenerateUserKey
     private bool _isEspUser;
 
     private int _employerSK = 0;
-    private int _managerWebUserSecuritySK = 0;
     private int _managerRoleCode = 0;
     private int _workerRoleCode = 0;
 
@@ -84,11 +83,6 @@ public partial class GenerateUserKey
             {
                 var users = await AccountUserService.GetAccountUsersAsync(_employerSK);
                 var currentUserSK = AccountUserService.GetCurrentUserSk();
-                _managerWebUserSecuritySK = users
-                    .FirstOrDefault(u =>
-                    {
-                        return u.SecureUserSK == currentUserSK;
-                    })?.WebUserSecuritySK ?? 0;
             }
             (_managerRoleCode, _workerRoleCode) = await AccountUserService.GetRoleCodesAsync();
         }
@@ -181,7 +175,6 @@ public partial class GenerateUserKey
 
         var (success, keyOrError) = espUserSk is null ? await AccountUserService.GenerateAccessKeyAsync(
             _employerSK,
-            _managerWebUserSecuritySK,
             _managerRoleCode,
             null) : await AccountUserService.GenerateESPAccessKeyAsync(
     espUserSk ?? 0,

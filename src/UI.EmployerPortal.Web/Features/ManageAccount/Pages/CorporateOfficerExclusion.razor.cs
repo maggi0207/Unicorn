@@ -239,7 +239,7 @@ public partial class CorporateOfficerExclusion
     /// </summary>
     /// <param name="firstRender">True when this is the first render.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAuthorizedAfterRenderAsync(bool firstRender)
     {
         if (_focusWorksheetWarning)
         {
@@ -521,6 +521,7 @@ public partial class CorporateOfficerExclusion
         }
 
         _recalculateStatus = "Calculating";
+        StateHasChanged();
         _isRecalculating = true;
         _isSaveSuccess = null;
         _saveResponse = null;
@@ -572,7 +573,7 @@ public partial class CorporateOfficerExclusion
 
         // Short delay to allow browser to register updated status message for accessibility
         await Task.Delay(500);
-        _recalculateStatus = "Calculate complete";
+        _recalculateStatus = $"Calculate complete net savings is {_response.NetSavings:c}";
         StateHasChanged();
         _recalculateStatus = "";
         StateHasChanged();

@@ -40,7 +40,6 @@ public partial class GenerateWorkerKeyPermissions
     private Permissions? _tree;
     private List<PermissionGroup> _groups = [];
     private int _employerSK = 0;
-    private int _managerWebUserSecuritySK = 0;
     private int _workerRoleCode = 0;
 
     private bool _isLoading = true;
@@ -80,11 +79,6 @@ public partial class GenerateWorkerKeyPermissions
 
             var users = await AccountUserService.GetAccountUsersAsync(_employerSK);
             var currentUserSK = AccountUserService.GetCurrentUserSk();
-            _managerWebUserSecuritySK = users
-                .FirstOrDefault(u =>
-                {
-                    return u.SecureUserSK == currentUserSK;
-                })?.WebUserSecuritySK ?? 0;
 
             (_, _workerRoleCode) = await AccountUserService.GetRoleCodesAsync();
             _groups = await AccountUserService.GetAllPermissionsAsync();
@@ -153,7 +147,6 @@ public partial class GenerateWorkerKeyPermissions
         var selectedSKs = _tree.GetSelectedWebControlSKs();
         var (success, keyOrError) = await AccountUserService.GenerateAccessKeyAsync(
             _employerSK,
-            _managerWebUserSecuritySK,
             _workerRoleCode,
             selectedSKs);
 
